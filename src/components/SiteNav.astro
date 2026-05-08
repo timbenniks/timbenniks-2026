@@ -1,0 +1,36 @@
+---
+import { nav } from '../data/site';
+import Button from './primitives/Button.astro';
+
+const pathname = Astro.url.pathname;
+const isActive = (href: string) => {
+  if (href === '/') return pathname === '/';
+  return pathname === href || pathname.startsWith(href + '/');
+};
+---
+
+<nav class="border-b border-line sticky top-0 bg-bg/85 z-50 backdrop-blur-md">
+  <div class="mx-auto flex max-w-site items-center justify-between px-6 py-5">
+    <a href="/" class="font-serif text-3xl font-semibold text-ink no-underline">
+      Tim Benniks
+    </a>
+
+    <ul class="hidden gap-7 lg:flex">
+      {nav.map((link) => (
+        <li>
+          <a
+            href={link.href}
+            class:list={[
+              'border-b-4 pb-1 text-lg font-semibold text-ink no-underline transition-colors duration-150',
+              isActive(link.href) ? 'border-accent' : 'border-transparent hover:border-line-strong',
+            ]}
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <Button href="#newsletter" variant="accent" size="md">Subscribe</Button>
+  </div>
+</nav>

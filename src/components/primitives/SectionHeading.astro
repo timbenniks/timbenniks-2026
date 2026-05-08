@@ -1,0 +1,29 @@
+---
+import Eyebrow from './Eyebrow.astro';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  dark?: boolean;
+}
+
+const { eyebrow, title, lede, dark = false } = Astro.props;
+---
+
+<div>
+  {eyebrow && <Eyebrow dark={dark}>{eyebrow}</Eyebrow>}
+  <h2
+    class:list={[
+      'font-serif font-medium text-5xl mb-4',
+      dark ? 'text-cream' : 'text-ink',
+    ]}
+  >
+    {title}
+  </h2>
+  {lede && (
+    <p class:list={['max-w-[560px] text-base', dark ? 'text-cream-muted' : 'text-ink-muted']}>
+      {lede}
+    </p>
+  )}
+</div>

@@ -1,0 +1,112 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../../components/primitives/Section.astro';
+import Container from '../../components/primitives/Container.astro';
+import Eyebrow from '../../components/primitives/Eyebrow.astro';
+import Meta from '../../components/primitives/Meta.astro';
+import JsonLd from '../../components/primitives/JsonLd.astro';
+import { breadcrumbSchema, buildGraph } from '../../lib/schema';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('videos');
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+type Props = { entry: CollectionEntry<'videos'> };
+const { entry } = Astro.props as Props;
+const { Content } = await render(entry);
+
+const formatted = entry.data.date.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const metaItems = [
+  entry.data.playlist,
+  formatted,
+  entry.data.duration ?? '',
+].filter(Boolean) as string[];
+
+const description = entry.data.description ?? entry.data.title;
+const ytThumb = entry.data.image
+  ? entry.data.image
+  : entry.data.videoId
+    ? `https://i.ytimg.com/vi/${entry.data.videoId}/maxresdefault.jpg`
+    : undefined;
+
+const videoURL = new URL(`/videos/${entry.id}`, Astro.site).href;
+const videoGraph = buildGraph(
+  breadcrumbSchema([
+    { name: 'home', url: 'https://timbenniks.dev/' },
+    { name: 'videos', url: 'https://timbenniks.dev/videos' },
+    { name: entry.data.title.toLowerCase(), url: videoURL },
+  ]),
+);
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={description}
+  image={ytThumb}
+  imageAlt={entry.data.title}
+  type="article"
+  publishedTime={entry.data.date}
+  tags={entry.data.tags}
+  keywords={entry.data.tags?.join(', ')}
+>
+  <JsonLd slot="head" data={videoGraph} />
+  <Section padding="lg" contained={false}>
+    <Container>
+      <article
+        data-pagefind-body
+        data-pagefind-meta={`title:${entry.data.title}, date:${entry.data.date.toISOString().slice(0, 10)}, image:${ytThumb ?? ''}`}
+      >
+        <span hidden data-pagefind-filter="type:video">video</span>
+        <span hidden data-pagefind-filter={`playlist:${entry.data.playlist}`}>{entry.data.playlist}</span>
+        <span hidden data-pagefind-filter={`year:${entry.data.date.getUTCFullYear()}`}>{entry.data.date.getUTCFullYear()}</span>
+        {entry.data.tags?.map((tag: string) => (
+          <span hidden data-pagefind-filter={`tag:${tag}`}></span>
+        ))}
+        <header class="max-w-[820px] mb-10">
+          <Eyebrow>
+            <a href="/videos" class="hover:underline">← All videos</a>
+          </Eyebrow>
+          <h1 class="font-serif text-4xl md:text-5xl leading-tight text-ink mt-3">
+            {entry.data.title}
+          </h1>
+          <div class="mt-5">
+            <Meta items={metaItems} />
+          </div>
+        </header>
+
+        {entry.data.videoId && (
+          <div class="aspect-video overflow-hidden border border-line bg-bg-dark">
+            <lite-youtube
+              videoid={entry.data.videoId}
+              videotitle={entry.data.title}
+              style={`background-image: url('https://i.ytimg.com/vi/${entry.data.videoId}/hqdefault.jpg');`}
+            ></lite-youtube>
+          </div>
+        )}
+
+        {entry.data.description && (
+          <p class="mt-8 max-w-[720px] font-serif text-xl leading-snug text-ink">
+            {entry.data.description}
+          </p>
+        )}
+
+        <div class="article-body mt-10 max-w-[720px] space-y-5 text-ink leading-relaxed">
+          <Content />
+        </div>
+      </article>
+    </Container>
+  </Section>
+</BaseLayout>
+
+<script>
+  import 'lite-youtube-embed';
+  import 'lite-youtube-embed/src/lite-yt-embed.css';
+</script>
+

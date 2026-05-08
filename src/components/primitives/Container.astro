@@ -1,0 +1,16 @@
+---
+type Tag = 'div' | 'section' | 'article' | 'header' | 'footer' | 'main' | 'nav';
+
+interface Props {
+  as?: Tag;
+  padded?: boolean;
+  class?: string;
+}
+
+const { as = 'div', padded = true, class: className = '' } = Astro.props;
+const Tag = as;
+---
+
+<Tag class:list={['mx-auto max-w-site', padded && 'px-6', className]}>
+  <slot />
+</Tag>

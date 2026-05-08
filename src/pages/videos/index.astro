@@ -1,0 +1,119 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../../components/primitives/Section.astro';
+import Container from '../../components/primitives/Container.astro';
+import JsonLd from '../../components/primitives/JsonLd.astro';
+import Card from '../../components/Card.astro';
+import { videoToCard } from '../../lib/card';
+import { breadcrumbSchema, buildGraph } from '../../lib/schema';
+
+const entries = (await getCollection('videos')).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+
+const playlistCounts = new Map<string, number>();
+for (const e of entries) {
+  playlistCounts.set(e.data.playlist, (playlistCounts.get(e.data.playlist) ?? 0) + 1);
+}
+const playlists = [...playlistCounts.entries()]
+  .sort((a, b) => b[1] - a[1])
+  .map(([playlist, count]) => ({ playlist, count }));
+
+const allItems = entries.map(videoToCard);
+const featuredItem = allItems[0];
+const restItems = allItems.slice(1);
+
+const totalVideos = entries.length;
+const yearsActive = (() => {
+  if (!entries.length) return 0;
+  const earliest = entries[entries.length - 1].data.date.getFullYear();
+  const latest = entries[0].data.date.getFullYear();
+  return latest - earliest + 1;
+})();
+
+const graph = buildGraph(
+  breadcrumbSchema([
+    { name: 'home', url: 'https://timbenniks.dev/' },
+    { name: 'videos', url: 'https://timbenniks.dev/videos' },
+  ]),
+);
+---
+
+<BaseLayout
+  title="Videos"
+  description="Workshops, demos, livestreams, and recorded conversations from the YouTube channel and Contentstack streams."
+  keywords="livestream, workshop, tutorial, YouTube, Contentstack, developer experience"
+>
+  <JsonLd slot="head" data={graph} />
+
+  <Section padding="lg">
+    <Container padded={false}>
+      <div class="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1.2fr] lg:items-end">
+        <div class="max-w-[640px]">
+          <p class="font-mono text-xs uppercase tracking-wide text-ink-subtle">On camera</p>
+          <h1 class="mt-4 font-serif text-6xl md:text-7xl leading-tight">
+            Workshops, demos, and
+            <em class="italic text-accent">live conversations.</em>
+          </h1>
+          <p class="mt-8 text-xl text-ink-muted">
+            Long-form content from the YouTube channel, Contentstack livestreams, and the occasional
+            late-night experiment. Most are unedited — that is the point.
+          </p>
+          <dl class="mt-10 grid grid-cols-3 gap-6 max-w-[460px]">
+            <div>
+              <dt class="font-mono text-xs uppercase tracking-wide text-ink-subtle">Videos</dt>
+              <dd class="mt-1 font-serif text-3xl text-ink tabular-nums">{totalVideos}</dd>
+            </div>
+            <div>
+              <dt class="font-mono text-xs uppercase tracking-wide text-ink-subtle">Playlists</dt>
+              <dd class="mt-1 font-serif text-3xl text-ink tabular-nums">{playlists.length}</dd>
+            </div>
+            <div>
+              <dt class="font-mono text-xs uppercase tracking-wide text-ink-subtle">Years</dt>
+              <dd class="mt-1 font-serif text-3xl text-ink tabular-nums">{yearsActive}</dd>
+            </div>
+          </dl>
+        </div>
+
+        {featuredItem && (
+          <div>
+            <p class="mb-4 font-mono text-xs uppercase tracking-wide text-ink-subtle">Latest</p>
+            <Card item={featuredItem} format="feature" />
+          </div>
+        )}
+      </div>
+    </Container>
+  </Section>
+
+  <Section bordered padding="md">
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="font-mono text-xs uppercase tracking-wide text-ink-subtle">Browse by playlist:</span>
+      {playlists.map(({ playlist, count }) => (
+        <a
+          href={`/videos/playlist/${playlist.replace(/\s+/g, '-')}`}
+          class="rounded-full border border-line-strong px-3 py-1 text-xs text-ink-muted hover:border-ink hover:text-ink"
+        >
+          {playlist} <span class="text-ink-subtle">· {count}</span>
+        </a>
+      ))}
+      <a
+        href="/search"
+        class="rounded-full border border-line-strong px-3 py-1 text-xs text-accent hover:border-accent hover:text-accent-bright"
+      >
+        Search everything →
+      </a>
+    </div>
+
+    <ul
+      class="mt-10 grid grid-cols-1 gap-x-5 gap-y-10 md:grid-cols-2 lg:grid-cols-3"
+      data-pagefind-ignore
+    >
+      {restItems.map((item) => (
+        <li>
+          <Card item={item} format="standard" />
+        </li>
+      ))}
+    </ul>
+  </Section>
+</BaseLayout>

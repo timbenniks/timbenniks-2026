@@ -1,0 +1,84 @@
+---
+import { Font } from 'astro:assets';
+import { ClientRouter } from 'astro:transitions';
+import '../styles/global.css';
+import SiteNav from '../components/SiteNav.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import SEO from '../components/primitives/SEO.astro';
+import JsonLd from '../components/primitives/JsonLd.astro';
+import { buildGraph, websiteSchema, webPageSchema } from '../lib/schema';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  imageAlt?: string;
+  type?: 'website' | 'article';
+  publishedTime?: Date | string;
+  modifiedTime?: Date | string;
+  tags?: string[];
+  keywords?: string;
+  noindex?: boolean;
+}
+
+const seoProps = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
+const baseGraph = buildGraph(
+  webPageSchema({
+    url: canonicalURL,
+    name: seoProps.title,
+    description: seoProps.description,
+    hasBreadcrumb: true,
+  }),
+  websiteSchema(),
+);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <SEO {...seoProps} />
+    <Font cssVariable="--font-fraunces" preload />
+    <Font cssVariable="--font-inter" />
+    <Font cssVariable="--font-jetbrains" />
+    <ClientRouter />
+    {import.meta.env.PROD && (
+      <script
+        defer
+        is:inline
+        data-domain="timbenniks.dev"
+        src="https://plausible.io/js/script.js"
+      />
+    )}
+    <JsonLd data={baseGraph} />
+    <slot name="head" />
+  </head>
+  <body class="bg-bg text-ink antialiased">
+    <SiteNav />
+    <main>
+      <slot />
+    </main>
+    <SiteFooter />
+
+    <script>
+      // Cmd/Ctrl-K → /search. Registered once per session; survives view transitions.
+      if (!('__pfKbd' in window)) {
+        (window as unknown as { __pfKbd: true }).__pfKbd = true;
+        window.addEventListener('keydown', (e) => {
+          if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            if (location.pathname !== '/search') {
+              location.href = '/search';
+            } else {
+              const input = document.getElementById('pf-input') as HTMLInputElement | null;
+              input?.focus();
+              input?.select();
+            }
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

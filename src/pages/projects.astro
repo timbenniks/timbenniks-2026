@@ -1,0 +1,63 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/primitives/Section.astro';
+import Container from '../components/primitives/Container.astro';
+import Card from '../components/Card.astro';
+import JsonLd from '../components/primitives/JsonLd.astro';
+import { breadcrumbSchema, buildGraph } from '../lib/schema';
+import { projects } from '../data/projects';
+import { projectToCard } from '../lib/card';
+
+const graph = buildGraph(
+  breadcrumbSchema([
+    { name: 'home', url: 'https://timbenniks.dev/' },
+    { name: 'projects', url: 'https://timbenniks.dev/projects' },
+  ]),
+);
+
+const items = projects.map(projectToCard);
+---
+
+<BaseLayout
+  title="Projects"
+  description="Platform work, MCP servers, SDKs, and the occasional weekend experiment."
+  keywords="MCP, SDK, platform engineering, AI agents, open source"
+>
+  <JsonLd slot="head" data={graph} />
+
+  <Section tone="dark" padding="xl">
+    <Container padded={false}>
+      <p class="font-mono text-xs uppercase tracking-wide text-accent-bright">The workbench</p>
+      <h1 class="mt-4 max-w-[820px] font-serif text-6xl md:text-7xl leading-tight text-cream">
+        Platform work, MCP servers,
+        <em class="italic text-accent-bright">and weekend experiments.</em>
+      </h1>
+      <p class="mt-8 max-w-[680px] text-xl text-cream-muted">
+        Real code with real trade-offs. Some of this is shipping in production for thousands of
+        developers. Some of it is a Saturday afternoon. Both are on the list — that's the point.
+      </p>
+    </Container>
+
+    <ul class="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+      {items.map((item) => (
+        <li>
+          <Card item={item} format="standard" />
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Container as="section" class="flex flex-wrap items-center justify-between gap-8 pt-16 pb-24">
+    <p class="max-w-[600px] font-serif text-2xl">
+      Want to collaborate, contribute, or pull a weekend experiment into production?
+      <em class="italic font-normal text-accent">Get in touch.</em>
+    </p>
+    <a
+      href="mailto:hi@timbenniks.dev"
+      class="inline-flex items-baseline gap-1.5 border-b border-ink pb-0.5 font-medium text-ink no-underline transition-[gap] duration-150 hover:gap-2.5"
+    >
+      hi@timbenniks.dev
+      <span aria-hidden="true">→</span>
+    </a>
+  </Container>
+</BaseLayout>

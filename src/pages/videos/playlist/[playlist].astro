@@ -1,0 +1,71 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Section from '../../../components/primitives/Section.astro';
+import SectionHeading from '../../../components/primitives/SectionHeading.astro';
+import JsonLd from '../../../components/primitives/JsonLd.astro';
+import Card from '../../../components/Card.astro';
+import { videoToCard } from '../../../lib/card';
+import { breadcrumbSchema, buildGraph } from '../../../lib/schema';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('videos');
+  const map = new Map<string, CollectionEntry<'videos'>[]>();
+
+  for (const entry of entries) {
+    const slug = entry.data.playlist.replace(/\s+/g, '-');
+    if (!map.has(slug)) map.set(slug, []);
+    map.get(slug)!.push(entry);
+  }
+
+  return [...map.entries()].map(([slug, videos]) => ({
+    params: { playlist: slug },
+    props: {
+      playlist: videos[0].data.playlist,
+      videos: videos.sort((a, b) => b.data.date.getTime() - a.data.date.getTime()),
+    },
+  }));
+}
+
+type Props = { playlist: string; videos: CollectionEntry<'videos'>[] };
+const { playlist, videos } = Astro.props as Props;
+
+const items = videos.map(videoToCard);
+
+const graph = buildGraph(
+  breadcrumbSchema([
+    { name: 'home', url: 'https://timbenniks.dev/' },
+    { name: 'videos', url: 'https://timbenniks.dev/videos' },
+    { name: playlist, url: `https://timbenniks.dev/videos/playlist/${playlist.replace(/\s+/g, '-')}` },
+  ]),
+);
+---
+
+<BaseLayout
+  title={`${playlist} — Videos`}
+  description={`${videos.length} videos in the "${playlist}" playlist.`}
+  keywords={playlist}
+>
+  <JsonLd slot="head" data={graph} />
+
+  <Section padding="lg">
+    <SectionHeading
+      eyebrow={`Playlist · ${videos.length} ${videos.length === 1 ? 'video' : 'videos'}`}
+      title={playlist}
+    />
+
+    <div class="mt-6">
+      <a href="/videos" class="text-xs uppercase tracking-wide text-ink-subtle hover:text-ink">
+        ← All videos
+      </a>
+    </div>
+
+    <ul class="mt-8 grid grid-cols-1 gap-x-5 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
+      {items.map((item) => (
+        <li>
+          <Card item={item} format="standard" />
+        </li>
+      ))}
+    </ul>
+  </Section>
+</BaseLayout>

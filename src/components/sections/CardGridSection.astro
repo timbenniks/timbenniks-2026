@@ -1,0 +1,61 @@
+---
+import Section from '../primitives/Section.astro';
+import SectionHeading from '../primitives/SectionHeading.astro';
+import ArrowLink from '../primitives/ArrowLink.astro';
+import Card from '../Card.astro';
+import type { CardItem } from '../../lib/card';
+
+type Tone = 'light' | 'dark';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  items: CardItem[];
+  columns?: 2 | 3;
+  tone?: Tone;
+  bordered?: boolean;
+  cta?: { label: string; href: string };
+  padding?: 'sm' | 'md' | 'lg' | 'xl';
+  class?: string;
+}
+
+const {
+  eyebrow,
+  title,
+  lede,
+  items,
+  columns = 3,
+  tone = 'light',
+  bordered = tone === 'light',
+  cta,
+  padding,
+  class: className,
+} = Astro.props;
+
+const gridCols = columns === 2 ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3';
+const dark = tone === 'dark';
+---
+
+<Section
+  tone={tone}
+  padding={padding ?? (dark ? 'lg' : 'md')}
+  bordered={bordered}
+  class={className}
+>
+  <SectionHeading eyebrow={eyebrow} title={title} lede={lede} dark={dark} />
+
+  <ul class:list={['mt-10 grid grid-cols-1 gap-5', gridCols, columns === 3 && 'gap-x-5 gap-y-10']}>
+    {items.map((item) => (
+      <li>
+        <Card item={item} format="standard" />
+      </li>
+    ))}
+  </ul>
+
+  {cta && (
+    <div class="mt-10">
+      <ArrowLink href={cta.href} dark={dark}>{cta.label}</ArrowLink>
+    </div>
+  )}
+</Section>

@@ -1,0 +1,71 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Section from '../../../components/primitives/Section.astro';
+import SectionHeading from '../../../components/primitives/SectionHeading.astro';
+import JsonLd from '../../../components/primitives/JsonLd.astro';
+import Card from '../../../components/Card.astro';
+import { articleToCard } from '../../../lib/card';
+import { breadcrumbSchema, buildGraph } from '../../../lib/schema';
+import { tagLabel } from '../../../lib/tags';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('writing', ({ data }) => !data.draft);
+  const tagMap = new Map<string, CollectionEntry<'writing'>[]>();
+
+  for (const entry of entries) {
+    for (const tag of entry.data.tags) {
+      if (!tagMap.has(tag)) tagMap.set(tag, []);
+      tagMap.get(tag)!.push(entry);
+    }
+  }
+
+  return [...tagMap.entries()].map(([slug, posts]) => ({
+    params: { tag: slug },
+    props: {
+      tag: slug,
+      posts: posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime()),
+    },
+  }));
+}
+
+type Props = { tag: string; posts: CollectionEntry<'writing'>[] };
+const { tag, posts } = Astro.props as Props;
+const label = tagLabel(tag);
+
+const items = posts.map((p) => articleToCard(p));
+
+const graph = buildGraph(
+  breadcrumbSchema([
+    { name: 'home', url: 'https://timbenniks.dev/' },
+    { name: 'writing', url: 'https://timbenniks.dev/writing' },
+    { name: label, url: `https://timbenniks.dev/writing/tag/${tag}` },
+  ]),
+);
+---
+
+<BaseLayout
+  title={`${label} — Writing`}
+  description={`Essays tagged "${label}" on developer experience, AI engineering, and composable platforms.`}
+  keywords={label}
+>
+  <JsonLd slot="head" data={graph} />
+
+  <Section padding="lg">
+    <SectionHeading
+      eyebrow={`Tag · ${posts.length} ${posts.length === 1 ? 'essay' : 'essays'}`}
+      title={label}
+      lede={`Writing tagged "${label}".`}
+    />
+
+    <div class="mt-6">
+      <a href="/writing" class="text-xs uppercase tracking-wide text-ink-subtle hover:text-ink">
+        ← All writing
+      </a>
+    </div>
+
+    <div class="mt-8 flex flex-col">
+      {items.map((item) => <Card item={item} format="row" />)}
+    </div>
+  </Section>
+</BaseLayout>

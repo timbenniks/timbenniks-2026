@@ -1,0 +1,46 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Section from '../primitives/Section.astro';
+import SectionHeading from '../primitives/SectionHeading.astro';
+import ArrowLink from '../primitives/ArrowLink.astro';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  body?: string;
+  image: { src: ImageMetadata; alt: string };
+  imageSize?: number;
+  cta?: { label: string; href: string };
+  bordered?: boolean;
+}
+
+const { eyebrow, title, lede, body, image, imageSize = 300, cta, bordered = true } = Astro.props;
+---
+
+<Section bordered={bordered}>
+  <SectionHeading eyebrow={eyebrow} title={title} />
+
+  <div
+    class="mt-6 grid grid-cols-1 items-start gap-12 md:grid-cols-[var(--col)_1fr]"
+    style={`--col:${imageSize}px`}
+  >
+    <div
+      class="mx-auto flex aspect-square w-full items-center justify-center md:w-(--col)"
+    >
+      <Image src={image.src} alt={image.alt} class="h-full w-full object-cover" />
+    </div>
+
+    <div>
+      {lede && <p class="font-serif text-xl leading-snug text-ink">{lede}</p>}
+      {body && <p class="mt-4 text-base text-ink-muted">{body}</p>}
+
+      {cta && (
+        <div class="mt-7">
+          <ArrowLink href={cta.href}>{cta.label}</ArrowLink>
+        </div>
+      )}
+    </div>
+  </div>
+</Section>

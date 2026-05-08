@@ -1,0 +1,37 @@
+---
+type Aspect = 'video' | 'square' | 'portrait' | 'landscape' | 'auto';
+
+interface Props {
+  aspect?: Aspect;
+  bordered?: boolean;
+  hoverable?: boolean;
+  class?: string;
+}
+
+const {
+  aspect = 'video',
+  bordered = true,
+  hoverable = false,
+  class: className = '',
+} = Astro.props;
+
+const aspectClass: Record<Aspect, string> = {
+  video: 'aspect-video',
+  square: 'aspect-square',
+  portrait: 'aspect-[3/4]',
+  landscape: 'aspect-[4/3]',
+  auto: '',
+};
+---
+
+<div
+  class:list={[
+    'overflow-hidden bg-bg-soft',
+    aspectClass[aspect],
+    hoverable && 'transition-transform duration-300 group-hover:scale-[1.01]',
+    bordered && 'border border-line',
+    className,
+  ]}
+>
+  <slot />
+</div>

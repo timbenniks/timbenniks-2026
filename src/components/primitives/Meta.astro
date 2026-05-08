@@ -1,0 +1,29 @@
+---
+interface Props {
+  items: string[];
+  dark?: boolean;
+}
+
+const { items, dark = false } = Astro.props;
+---
+
+<div
+  class:list={[
+    'flex items-center gap-2.5 text-xs tracking-wide',
+    dark ? 'text-cream-subtle' : 'text-ink-subtle',
+  ]}
+>
+  {items.map((item, i) => (
+    <>
+      <span>{item}</span>
+      {i < items.length - 1 && (
+        <span
+          class:list={[
+            'h-[3px] w-[3px] rounded-full',
+            dark ? 'bg-cream-subtle' : 'bg-ink-subtle',
+          ]}
+        />
+      )}
+    </>
+  ))}
+</div>

@@ -1,0 +1,19 @@
+---
+interface Props {
+  href: string;
+  dark?: boolean;
+}
+
+const { href, dark = false } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={[
+    'group inline-flex items-baseline gap-1.5 border-b pb-0.5 text-md font-medium no-underline transition-[gap] duration-150 hover:gap-2.5',
+    dark ? 'text-cream border-cream' : 'text-ink border-ink',
+  ]}
+>
+  <slot />
+  <span aria-hidden="true">→</span>
+</a>

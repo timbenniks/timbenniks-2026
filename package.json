@@ -1,5 +1,5 @@
 {
-  "name": "",
+  "name": "timbenniks-2026",
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -7,11 +7,20 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
+    "check": "astro check",
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^6.3.1"
+    "@astrojs/rss": "^4.0.18",
+    "@astrojs/sitemap": "^3.7.2",
+    "@tailwindcss/vite": "^4.2.4",
+    "astro": "^6.3.1",
+    "lite-youtube-embed": "^0.3.4",
+    "tailwindcss": "^4.2.4"
+  },
+  "devDependencies": {
+    "pagefind": "^1.5.2"
   }
 }

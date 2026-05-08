@@ -1,0 +1,51 @@
+.article-body {
+  font-size: 1.0625rem;
+}
+.article-body h2 {
+  @apply mt-12 font-serif text-3xl font-medium tracking-tight text-ink;
+}
+.article-body h3 {
+  @apply mt-10 font-serif text-2xl font-medium text-ink;
+}
+.article-body h4 {
+  @apply mt-8 font-serif text-xl font-medium text-ink;
+}
+.article-body p {
+  @apply text-base text-ink;
+}
+.article-body a {
+  @apply text-accent underline underline-offset-2 hover:text-accent-bright;
+}
+.article-body strong {
+  @apply font-semibold text-ink;
+}
+.article-body ul {
+  @apply list-disc space-y-1.5 pl-6 text-ink;
+}
+.article-body ol {
+  @apply list-decimal space-y-1.5 pl-6 text-ink;
+}
+.article-body code {
+  @apply rounded-sm bg-bg-warm px-1.5 py-0.5 font-mono text-sm text-ink;
+}
+.article-body pre {
+  @apply overflow-x-auto rounded-md border border-line bg-bg-dark p-4 font-mono text-sm text-cream;
+}
+.article-body pre code {
+  @apply bg-transparent p-0 text-inherit;
+}
+.article-body blockquote {
+  @apply border-l-2 border-accent pl-5 font-serif text-xl italic text-ink-muted;
+}
+.article-body img {
+  @apply rounded-md border border-line my-6;
+}
+.article-body hr {
+  @apply my-10 border-line;
+}
+.article-body figure {
+  @apply my-8;
+}
+.article-body figcaption {
+  @apply mt-2 text-xs text-ink-subtle;
+}

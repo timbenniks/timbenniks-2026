@@ -1,0 +1,53 @@
+---
+import Container from './Container.astro';
+
+type Tone = 'light' | 'dark' | 'plain';
+type Padding = 'sm' | 'md' | 'lg' | 'xl' | 'none';
+
+interface Props {
+  tone?: Tone;
+  padding?: Padding;
+  bordered?: boolean;
+  contained?: boolean;
+  class?: string;
+}
+
+const {
+  tone = 'light',
+  padding = 'md',
+  bordered = false,
+  contained = true,
+  class: className = '',
+} = Astro.props;
+
+const toneClass: Record<Tone, string> = {
+  light: '',
+  dark: 'bg-bg-dark text-cream',
+  plain: '',
+};
+
+const paddingClass: Record<Padding, string> = {
+  none: '',
+  sm: 'py-12',
+  md: 'py-16',
+  lg: 'py-20',
+  xl: 'py-24 md:py-32',
+};
+---
+
+<section
+  class:list={[
+    toneClass[tone],
+    paddingClass[padding],
+    bordered && 'border-t border-line',
+    className,
+  ]}
+>
+  {contained ? (
+    <Container>
+      <slot />
+    </Container>
+  ) : (
+    <slot />
+  )}
+</section>

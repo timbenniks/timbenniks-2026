@@ -1,0 +1,45 @@
+---
+import Section from '../primitives/Section.astro';
+import SectionHeading from '../primitives/SectionHeading.astro';
+import ArrowLink from '../primitives/ArrowLink.astro';
+import Card from '../Card.astro';
+import type { CardItem } from '../../lib/card';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  items: CardItem[];
+  cta?: { label: string; href: string };
+  bordered?: boolean;
+  padding?: 'sm' | 'md' | 'lg' | 'xl';
+  closeBorder?: boolean;
+}
+
+const {
+  eyebrow,
+  title,
+  lede,
+  items,
+  cta,
+  bordered = true,
+  padding,
+  closeBorder = true,
+} = Astro.props;
+---
+
+<Section bordered={bordered} padding={padding}>
+  <SectionHeading eyebrow={eyebrow} title={title} lede={lede} />
+
+  <div class="mt-6 flex flex-col">
+    {items.map((item, i) => (
+      <Card item={item} format="row" isLast={closeBorder && i === items.length - 1} />
+    ))}
+  </div>
+
+  {cta && (
+    <div class="mt-10">
+      <ArrowLink href={cta.href}>{cta.label}</ArrowLink>
+    </div>
+  )}
+</Section>
