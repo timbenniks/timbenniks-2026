@@ -22,7 +22,7 @@ const playlists = [...playlistCounts.entries()]
   .sort((a, b) => b[1] - a[1])
   .map(([playlist, count]) => ({ playlist, count }));
 
-const allItems = entries.map(videoToCard);
+const allItems = await Promise.all(entries.map(videoToCard));
 const featuredItem = allItems[0];
 const restItems = allItems.slice(1);
 

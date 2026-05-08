@@ -1,6 +1,7 @@
 import type { CollectionEntry } from 'astro:content';
 import type { Project } from '../data/projects';
 import { tagLabel } from './tags';
+import { resolveYoutubePosterQuality, youtubeThumbUrl } from './cloudinary';
 
 export type CardKind = 'article' | 'video' | 'talk' | 'project';
 
@@ -66,14 +67,15 @@ export function articleToCard(
   };
 }
 
-export function videoToCard(entry: CollectionEntry<'videos'>): CardItem {
+export async function videoToCard(entry: CollectionEntry<'videos'>): Promise<CardItem> {
+  const quality = await resolveYoutubePosterQuality(entry.data.videoId);
   return {
     kind: 'video',
     title: entry.data.title,
     href: `/videos/${entry.id}`,
     date: formatDateUS(entry.data.date),
     dateISO: isoDay(entry.data.date),
-    image: entry.data.image,
+    image: youtubeThumbUrl(entry.data.videoId, quality),
     description: entry.data.description,
     meta: [entry.data.playlist, entry.data.duration].filter(Boolean) as string[],
     badge: entry.data.playlist,

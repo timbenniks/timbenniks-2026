@@ -25,7 +25,7 @@ const sortByDateDesc = <T extends { data: { date: Date } }>(arr: T[]) =>
   arr.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
 const writingItems = sortByDateDesc(writingEntries).slice(0, 3).map((e) => articleToCard(e));
-const videoItems = sortByDateDesc(videoEntries).slice(0, 3).map(videoToCard);
+const videoItems = await Promise.all(sortByDateDesc(videoEntries).slice(0, 3).map(videoToCard));
 const talkItems = sortByDateDesc(speakingEntries).slice(0, 4).map(talkToCard);
 const projectItems = projects.map(projectToCard);
 ---

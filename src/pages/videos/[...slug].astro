@@ -8,6 +8,7 @@ import Meta from '../../components/primitives/Meta.astro';
 import JsonLd from '../../components/primitives/JsonLd.astro';
 import { breadcrumbSchema, buildGraph } from '../../lib/schema';
 import { siteUrl } from '../../data/site';
+import { resolveYoutubePosterQuality, youtubePoster } from '../../lib/cloudinary';
 
 export async function getStaticPaths() {
   const entries = await getCollection('videos');
@@ -33,12 +34,12 @@ const metaItems = [
 ].filter(Boolean) as string[];
 
 const description = entry.data.description ?? entry.data.title;
-// hqdefault always exists; maxresdefault returns 404 for short videos.
-const ytThumb = entry.data.image
-  ? entry.data.image
-  : entry.data.videoId
-    ? `https://i.ytimg.com/vi/${entry.data.videoId}/hqdefault.jpg`
-    : undefined;
+// Posters are served via Cloudinary's image/fetch delivery so they get
+// f_auto,q_auto,w_<n>. Probe each video for maxresdefault availability and
+// fall back to hqdefault when YouTube hasn't generated the high-res poster.
+const posterQuality = await resolveYoutubePosterQuality(entry.data.videoId);
+const ytThumb = youtubePoster(entry.data.videoId, 1280, posterQuality);
+const litePoster = youtubePoster(entry.data.videoId, 720, posterQuality);
 
 const videoURL = siteUrl(`/videos/${entry.id}`);
 const videoGraph = buildGraph(
@@ -97,7 +98,7 @@ const videoGraph = buildGraph(
             <lite-youtube
               videoid={entry.data.videoId}
               videotitle={entry.data.title}
-              style={`background-image: url('https://i.ytimg.com/vi/${entry.data.videoId}/hqdefault.jpg');`}
+              style={`background-image: url('${litePoster}');`}
             ></lite-youtube>
           </div>
         )}

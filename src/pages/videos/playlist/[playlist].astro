@@ -34,7 +34,7 @@ interface Props {
 }
 const { playlist, videos } = Astro.props;
 
-const items = videos.map(videoToCard);
+const items = await Promise.all(videos.map(videoToCard));
 
 const graph = buildGraph(
   breadcrumbSchema([
