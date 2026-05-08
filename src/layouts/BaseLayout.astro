@@ -56,16 +56,23 @@ const baseGraph = buildGraph(
     <slot name="head" />
   </head>
   <body class="bg-bg text-ink antialiased">
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-ink focus:px-4 focus:py-2 focus:font-medium focus:text-bg focus:no-underline"
+    >
+      Skip to main content
+    </a>
     <SiteNav />
-    <main>
+    <main id="main-content" tabindex="-1">
       <slot />
     </main>
     <SiteFooter />
 
     <script>
       // Cmd/Ctrl-K → /search. Registered once per session; survives view transitions.
-      if (!('__pfKbd' in window)) {
-        (window as unknown as { __pfKbd: true }).__pfKbd = true;
+      type PfKbdWindow = Window & { __pfKbd?: boolean };
+      if (!(window as PfKbdWindow).__pfKbd) {
+        (window as PfKbdWindow).__pfKbd = true;
         window.addEventListener('keydown', (e) => {
           if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
             e.preventDefault();

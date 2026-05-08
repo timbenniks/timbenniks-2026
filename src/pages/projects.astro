@@ -4,14 +4,16 @@ import Section from '../components/primitives/Section.astro';
 import Container from '../components/primitives/Container.astro';
 import Card from '../components/Card.astro';
 import JsonLd from '../components/primitives/JsonLd.astro';
+import ArrowLink from '../components/primitives/ArrowLink.astro';
 import { breadcrumbSchema, buildGraph } from '../lib/schema';
 import { projects } from '../data/projects';
 import { projectToCard } from '../lib/card';
+import { siteUrl } from '../data/site';
 
 const graph = buildGraph(
   breadcrumbSchema([
-    { name: 'home', url: 'https://timbenniks.dev/' },
-    { name: 'projects', url: 'https://timbenniks.dev/projects' },
+    { name: 'home', url: siteUrl('/') },
+    { name: 'projects', url: siteUrl('/projects') },
   ]),
 );
 
@@ -52,12 +54,6 @@ const items = projects.map(projectToCard);
       Want to collaborate, contribute, or pull a weekend experiment into production?
       <em class="italic font-normal text-accent">Get in touch.</em>
     </p>
-    <a
-      href="mailto:hi@timbenniks.dev"
-      class="inline-flex items-baseline gap-1.5 border-b border-ink pb-0.5 font-medium text-ink no-underline transition-[gap] duration-150 hover:gap-2.5"
-    >
-      hi@timbenniks.dev
-      <span aria-hidden="true">→</span>
-    </a>
+    <ArrowLink href="mailto:hi@timbenniks.dev">hi@timbenniks.dev</ArrowLink>
   </Container>
 </BaseLayout>

@@ -1,6 +1,4 @@
-import { seo } from '../data/site';
-
-const SITE = 'https://timbenniks.dev';
+import { seo, SITE_URL as SITE } from '../data/site';
 
 export type BreadcrumbItem = { name: string; url: string };
 

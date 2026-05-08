@@ -10,6 +10,8 @@ export type CardItem = {
   href?: string;
   external?: boolean;
   date?: string;
+  dateISO?: string;
+  dateParts?: { day: string; month: string; year: string };
   image?: string;
   description?: string;
   meta?: string[];
@@ -20,26 +22,42 @@ export type CardItem = {
   ctaLabel?: string;
 };
 
-const formatDateUS = (d: Date) =>
-  d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+const usFormatter = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+const talkFormatter = new Intl.DateTimeFormat('en-GB', {
+  year: 'numeric',
+  month: 'short',
+  day: '2-digit',
+});
 
-const formatTalkDate = (d: Date) =>
-  d
-    .toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: '2-digit' })
-    .replace(/,/g, '');
+const formatDateUS = (d: Date) => usFormatter.format(d);
+const isoDay = (d: Date) => d.toISOString().slice(0, 10);
+
+function talkDateInfo(d: Date) {
+  const parts = talkFormatter.formatToParts(d);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '';
+  const day = get('day');
+  const month = get('month');
+  const year = get('year');
+  return { display: `${day} ${month} ${year}`, parts: { day, month, year } };
+}
 
 export function articleToCard(
   entry: CollectionEntry<'writing'>,
   opts: { ctaLabel?: string } = {},
 ): CardItem {
-  const readingTime = (entry.data as { reading_time?: string | number }).reading_time;
-  const read = readingTime ? `${readingTime} min read` : '5 min read';
+  const { reading_time } = entry.data;
+  const read = reading_time ? `${reading_time} min read` : '5 min read';
 
   return {
     kind: 'article',
     title: entry.data.title,
     href: `/writing/${entry.id}`,
     date: formatDateUS(entry.data.date),
+    dateISO: isoDay(entry.data.date),
     image: entry.data.image,
     description: entry.data.description,
     meta: [read],
@@ -54,6 +72,7 @@ export function videoToCard(entry: CollectionEntry<'videos'>): CardItem {
     title: entry.data.title,
     href: `/videos/${entry.id}`,
     date: formatDateUS(entry.data.date),
+    dateISO: isoDay(entry.data.date),
     image: entry.data.image,
     description: entry.data.description,
     meta: [entry.data.playlist, entry.data.duration].filter(Boolean) as string[],
@@ -63,12 +82,15 @@ export function videoToCard(entry: CollectionEntry<'videos'>): CardItem {
 }
 
 export function talkToCard(entry: CollectionEntry<'speaking'>): CardItem {
+  const info = talkDateInfo(entry.data.date);
   return {
     kind: 'talk',
     title: entry.data.talk,
     href: entry.data.link,
     external: Boolean(entry.data.link),
-    date: formatTalkDate(entry.data.date),
+    date: info.display,
+    dateISO: isoDay(entry.data.date),
+    dateParts: info.parts,
     badge: entry.data.conference,
     location: entry.data.location ?? '',
   };

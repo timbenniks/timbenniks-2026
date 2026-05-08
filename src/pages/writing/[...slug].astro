@@ -8,14 +8,17 @@ import Meta from '../../components/primitives/Meta.astro';
 import JsonLd from '../../components/primitives/JsonLd.astro';
 import { blogPostingSchema, breadcrumbSchema, buildGraph } from '../../lib/schema';
 import { tagLabel } from '../../lib/tags';
+import { siteUrl } from '../../data/site';
 
 export async function getStaticPaths() {
   const entries = await getCollection('writing', ({ data }) => !data.draft);
   return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
 }
 
-type Props = { entry: CollectionEntry<'writing'> };
-const { entry } = Astro.props as Props;
+interface Props {
+  entry: CollectionEntry<'writing'>;
+}
+const { entry } = Astro.props;
 const { Content } = await render(entry);
 
 const formatted = entry.data.date.toLocaleDateString('en-US', {
@@ -24,19 +27,18 @@ const formatted = entry.data.date.toLocaleDateString('en-US', {
   day: 'numeric',
 });
 
-const readingTime = (entry.data as { reading_time?: string | number }).reading_time;
+const readingTime = entry.data.reading_time;
 const metaItems = [formatted, readingTime ? `${readingTime} min read` : ''].filter(
   Boolean,
 ) as string[];
 const description = entry.data.description ?? entry.data.title;
 
-const articleURL = new URL(`/writing/${entry.id}`, Astro.site).href;
-const readingMinutesRaw = (entry.data as { reading_time?: string | number }).reading_time;
+const articleURL = siteUrl(`/writing/${entry.id}`);
 const readingMinutes =
-  typeof readingMinutesRaw === 'number'
-    ? readingMinutesRaw
-    : typeof readingMinutesRaw === 'string'
-      ? parseInt(readingMinutesRaw, 10) || undefined
+  typeof readingTime === 'number'
+    ? readingTime
+    : typeof readingTime === 'string'
+      ? parseInt(readingTime, 10) || undefined
       : undefined;
 const articleGraph = buildGraph(
   blogPostingSchema({
@@ -49,8 +51,8 @@ const articleGraph = buildGraph(
     readingMinutes,
   }),
   breadcrumbSchema([
-    { name: 'home', url: 'https://timbenniks.dev/' },
-    { name: 'writing', url: 'https://timbenniks.dev/writing' },
+    { name: 'home', url: siteUrl('/') },
+    { name: 'writing', url: siteUrl('/writing') },
     { name: entry.data.title.toLowerCase(), url: articleURL },
   ]),
 );
@@ -67,6 +69,13 @@ const articleGraph = buildGraph(
   keywords={entry.data.tags.join(', ')}
 >
   <JsonLd slot="head" data={articleGraph} />
+  <link
+    slot="head"
+    rel="alternate"
+    type="text/markdown"
+    href={`/writing/${entry.id}.md`}
+    title="Markdown source"
+  />
   <Section padding="lg" contained={false}>
     <Container>
       <article

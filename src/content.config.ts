@@ -20,7 +20,7 @@ const writing = defineCollection({
       reading_time: z.union([z.string(), z.number()]).optional(),
       draft: z.boolean().default(false),
     })
-    .passthrough(),
+    .loose(),
 });
 
 const speaking = defineCollection({
@@ -49,7 +49,7 @@ const videos = defineCollection({
       transcript: z.string().optional(),
       position: z.string().optional(),
     })
-    .passthrough(),
+    .loose(),
 });
 
 export const collections = { writing, speaking, videos };

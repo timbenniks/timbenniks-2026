@@ -11,7 +11,7 @@ interface Props {
   attribution?: string;
   cta?: { label: string; href: string };
   tone?: Tone;
-  backgroundImage?: { src: ImageMetadata; alt: string; opacity?: number };
+  backgroundImage?: { src: ImageMetadata; opacity?: number };
 }
 
 const { headline, attribution, cta, tone = 'dark', backgroundImage } = Astro.props;
@@ -21,7 +21,8 @@ const { headline, attribution, cta, tone = 'dark', backgroundImage } = Astro.pro
   {backgroundImage && (
     <Image
       src={backgroundImage.src}
-      alt={backgroundImage.alt}
+      alt=""
+      aria-hidden="true"
       class="object-cover absolute inset-0 -z-10 h-full w-full"
       style={`opacity:${backgroundImage.opacity ?? 0.4}`}
     />

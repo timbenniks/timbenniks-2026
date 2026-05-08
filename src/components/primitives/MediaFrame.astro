@@ -3,17 +3,11 @@ type Aspect = 'video' | 'square' | 'portrait' | 'landscape' | 'auto';
 
 interface Props {
   aspect?: Aspect;
-  bordered?: boolean;
   hoverable?: boolean;
   class?: string;
 }
 
-const {
-  aspect = 'video',
-  bordered = true,
-  hoverable = false,
-  class: className = '',
-} = Astro.props;
+const { aspect = 'video', hoverable = false, class: className = '' } = Astro.props;
 
 const aspectClass: Record<Aspect, string> = {
   video: 'aspect-video',
@@ -26,10 +20,9 @@ const aspectClass: Record<Aspect, string> = {
 
 <div
   class:list={[
-    'overflow-hidden bg-bg-soft',
+    'overflow-hidden border border-line bg-bg-soft',
     aspectClass[aspect],
     hoverable && 'transition-transform duration-300 group-hover:scale-[1.01]',
-    bordered && 'border border-line',
     className,
   ]}
 >

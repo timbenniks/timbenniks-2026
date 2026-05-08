@@ -1,3 +1,9 @@
+export const SITE_URL = 'https://timbenniks.dev';
+
+export function siteUrl(path: string): string {
+  return new URL(path, SITE_URL).href;
+}
+
 export const seo = {
   siteName: 'Tim Benniks',
   titleSuffix: ' - Tim Benniks',

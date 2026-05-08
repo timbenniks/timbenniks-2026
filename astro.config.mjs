@@ -50,5 +50,13 @@ export default defineConfig({
     },
   },
 
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      // Markdown twins, plain-text endpoints, RSS, and the search UI are not pages
+      // crawlers should index — they have direct surfaces (sitemap.md, feed.xml,
+      // llms.txt) or are noise.
+      filter: (page) =>
+        !/\.(md|txt|xml)$/.test(page) && !page.endsWith('/search') && !page.endsWith('/search/'),
+    }),
+  ],
 });

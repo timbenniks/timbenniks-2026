@@ -2,11 +2,12 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Section from '../../../components/primitives/Section.astro';
-import SectionHeading from '../../../components/primitives/SectionHeading.astro';
+import Eyebrow from '../../../components/primitives/Eyebrow.astro';
 import JsonLd from '../../../components/primitives/JsonLd.astro';
 import Card from '../../../components/Card.astro';
 import { videoToCard } from '../../../lib/card';
 import { breadcrumbSchema, buildGraph } from '../../../lib/schema';
+import { siteUrl } from '../../../data/site';
 
 export async function getStaticPaths() {
   const entries = await getCollection('videos');
@@ -27,16 +28,19 @@ export async function getStaticPaths() {
   }));
 }
 
-type Props = { playlist: string; videos: CollectionEntry<'videos'>[] };
-const { playlist, videos } = Astro.props as Props;
+interface Props {
+  playlist: string;
+  videos: CollectionEntry<'videos'>[];
+}
+const { playlist, videos } = Astro.props;
 
 const items = videos.map(videoToCard);
 
 const graph = buildGraph(
   breadcrumbSchema([
-    { name: 'home', url: 'https://timbenniks.dev/' },
-    { name: 'videos', url: 'https://timbenniks.dev/videos' },
-    { name: playlist, url: `https://timbenniks.dev/videos/playlist/${playlist.replace(/\s+/g, '-')}` },
+    { name: 'home', url: siteUrl('/') },
+    { name: 'videos', url: siteUrl('/videos') },
+    { name: playlist, url: siteUrl(`/videos/playlist/${playlist.replace(/\s+/g, '-')}`) },
   ]),
 );
 ---
@@ -49,10 +53,8 @@ const graph = buildGraph(
   <JsonLd slot="head" data={graph} />
 
   <Section padding="lg">
-    <SectionHeading
-      eyebrow={`Playlist · ${videos.length} ${videos.length === 1 ? 'video' : 'videos'}`}
-      title={playlist}
-    />
+    <Eyebrow>{`Playlist · ${videos.length} ${videos.length === 1 ? 'video' : 'videos'}`}</Eyebrow>
+    <h1 class="font-serif font-medium text-5xl text-ink mb-4">{playlist}</h1>
 
     <div class="mt-6">
       <a href="/videos" class="text-xs uppercase tracking-wide text-ink-subtle hover:text-ink">

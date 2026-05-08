@@ -7,14 +7,17 @@ import Eyebrow from '../../components/primitives/Eyebrow.astro';
 import Meta from '../../components/primitives/Meta.astro';
 import JsonLd from '../../components/primitives/JsonLd.astro';
 import { breadcrumbSchema, buildGraph } from '../../lib/schema';
+import { siteUrl } from '../../data/site';
 
 export async function getStaticPaths() {
   const entries = await getCollection('videos');
   return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
 }
 
-type Props = { entry: CollectionEntry<'videos'> };
-const { entry } = Astro.props as Props;
+interface Props {
+  entry: CollectionEntry<'videos'>;
+}
+const { entry } = Astro.props;
 const { Content } = await render(entry);
 
 const formatted = entry.data.date.toLocaleDateString('en-US', {
@@ -30,17 +33,18 @@ const metaItems = [
 ].filter(Boolean) as string[];
 
 const description = entry.data.description ?? entry.data.title;
+// hqdefault always exists; maxresdefault returns 404 for short videos.
 const ytThumb = entry.data.image
   ? entry.data.image
   : entry.data.videoId
-    ? `https://i.ytimg.com/vi/${entry.data.videoId}/maxresdefault.jpg`
+    ? `https://i.ytimg.com/vi/${entry.data.videoId}/hqdefault.jpg`
     : undefined;
 
-const videoURL = new URL(`/videos/${entry.id}`, Astro.site).href;
+const videoURL = siteUrl(`/videos/${entry.id}`);
 const videoGraph = buildGraph(
   breadcrumbSchema([
-    { name: 'home', url: 'https://timbenniks.dev/' },
-    { name: 'videos', url: 'https://timbenniks.dev/videos' },
+    { name: 'home', url: siteUrl('/') },
+    { name: 'videos', url: siteUrl('/videos') },
     { name: entry.data.title.toLowerCase(), url: videoURL },
   ]),
 );
@@ -57,6 +61,13 @@ const videoGraph = buildGraph(
   keywords={entry.data.tags?.join(', ')}
 >
   <JsonLd slot="head" data={videoGraph} />
+  <link
+    slot="head"
+    rel="alternate"
+    type="text/markdown"
+    href={`/videos/${entry.id}.md`}
+    title="Markdown source"
+  />
   <Section padding="lg" contained={false}>
     <Container>
       <article

@@ -8,11 +8,13 @@ import JsonLd from '../../components/primitives/JsonLd.astro';
 import Button from '../../components/primitives/Button.astro';
 import { talkToCard } from '../../lib/card';
 import { breadcrumbSchema, buildGraph } from '../../lib/schema';
+import { yearsActive } from '../../lib/stats';
+import { siteUrl } from '../../data/site';
 
 const graph = buildGraph(
   breadcrumbSchema([
-    { name: 'home', url: 'https://timbenniks.dev/' },
-    { name: 'speaking', url: 'https://timbenniks.dev/speaking' },
+    { name: 'home', url: siteUrl('/') },
+    { name: 'speaking', url: siteUrl('/speaking') },
   ]),
 );
 
@@ -24,12 +26,7 @@ const conferences = new Set(entries.map((e) => e.data.conference));
 const locations = new Set(
   entries.map((e) => e.data.location).filter((l): l is string => Boolean(l)),
 );
-const yearsActive = (() => {
-  if (!entries.length) return 0;
-  const earliest = entries[entries.length - 1].data.date.getFullYear();
-  const latest = entries[0].data.date.getFullYear();
-  return latest - earliest + 1;
-})();
+const years = yearsActive(entries);
 
 const cutoff = new Date();
 cutoff.setHours(0, 0, 0, 0);
@@ -86,7 +83,7 @@ const pastItems = past.map(talkToCard);
       </div>
       <div>
         <dt class="font-mono text-xs uppercase tracking-wide text-cream-subtle">Years</dt>
-        <dd class="mt-1 font-serif text-4xl text-cream tabular-nums">{yearsActive}</dd>
+        <dd class="mt-1 font-serif text-4xl text-cream tabular-nums">{years}</dd>
       </div>
     </dl>
   </Section>
@@ -111,7 +108,7 @@ const pastItems = past.map(talkToCard);
       <p class="font-mono text-xs uppercase tracking-wide text-ink-subtle">The archive</p>
       <h2 class="mt-3 font-serif text-4xl text-ink">All past talks</h2>
       <p class="mt-3 max-w-[600px] text-base text-ink-muted">
-        {past.length} talks across {conferences.size} conferences, {yearsActive} years. The newest at the top.
+        {past.length} talks across {conferences.size} conferences, {years} years. The newest at the top.
       </p>
     </Container>
 

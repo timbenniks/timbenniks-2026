@@ -8,6 +8,8 @@ import Card from '../../components/Card.astro';
 import { articleToCard } from '../../lib/card';
 import { breadcrumbSchema, buildGraph } from '../../lib/schema';
 import { tagLabel } from '../../lib/tags';
+import { yearsActive } from '../../lib/stats';
+import { siteUrl } from '../../data/site';
 
 const entries = (await getCollection('writing', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime(),
@@ -27,17 +29,12 @@ const featuredItem = allItems[0];
 const restItems = allItems.slice(1);
 
 const totalEssays = entries.length;
-const yearsActive = (() => {
-  if (!entries.length) return 0;
-  const earliest = entries[entries.length - 1].data.date.getFullYear();
-  const latest = entries[0].data.date.getFullYear();
-  return latest - earliest + 1;
-})();
+const years = yearsActive(entries);
 
 const graph = buildGraph(
   breadcrumbSchema([
-    { name: 'home', url: 'https://timbenniks.dev/' },
-    { name: 'writing', url: 'https://timbenniks.dev/writing' },
+    { name: 'home', url: siteUrl('/') },
+    { name: 'writing', url: siteUrl('/writing') },
   ]),
 );
 ---
@@ -74,7 +71,7 @@ const graph = buildGraph(
             </div>
             <div>
               <dt class="font-mono text-xs uppercase tracking-wide text-ink-subtle">Years</dt>
-              <dd class="mt-1 font-serif text-3xl text-ink tabular-nums">{yearsActive}</dd>
+              <dd class="mt-1 font-serif text-3xl text-ink tabular-nums">{years}</dd>
             </div>
           </dl>
         </div>

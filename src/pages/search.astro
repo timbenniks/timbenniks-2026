@@ -36,7 +36,7 @@ const tagLabelsJSON = JSON.stringify(TAG_LABELS);
           spellcheck="false"
           placeholder="Search writing and videos…"
           aria-label="Search"
-          class="w-full rounded-full border border-line-strong bg-bg-soft py-3.5 pl-13 pr-14 text-base text-ink outline-none transition-colors duration-150 focus:border-ink focus:bg-bg"
+          class="w-full rounded-full border border-line-strong bg-bg-soft py-3.5 pl-13 pr-14 text-base text-ink transition-colors duration-150 focus:border-ink focus:bg-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         />
         <kbd
           id="pf-kbd"
@@ -44,10 +44,10 @@ const tagLabelsJSON = JSON.stringify(TAG_LABELS);
           aria-hidden="true">esc</kbd>
       </form>
 
-      <div id="pf-types" role="tablist" aria-label="Content type" class="mt-6 inline-flex rounded-full border border-line p-1 text-xs">
-        <button type="button" role="tab" data-type="" data-active="1" class="cursor-pointer rounded-full px-4 py-1.5 font-medium text-ink-muted transition-colors data-[active=1]:bg-ink data-[active=1]:text-bg">All</button>
-        <button type="button" role="tab" data-type="writing" data-active="0" class="cursor-pointer rounded-full px-4 py-1.5 font-medium text-ink-muted transition-colors data-[active=1]:bg-ink data-[active=1]:text-bg">Writing</button>
-        <button type="button" role="tab" data-type="video" data-active="0" class="cursor-pointer rounded-full px-4 py-1.5 font-medium text-ink-muted transition-colors data-[active=1]:bg-ink data-[active=1]:text-bg">Videos</button>
+      <div id="pf-types" role="group" aria-label="Filter by content type" class="mt-6 inline-flex rounded-full border border-line p-1 text-xs">
+        <button type="button" data-type="" data-active="1" aria-pressed="true" class="cursor-pointer rounded-full px-4 py-1.5 font-medium text-ink-muted transition-colors data-[active=1]:bg-ink data-[active=1]:text-bg">All</button>
+        <button type="button" data-type="writing" data-active="0" aria-pressed="false" class="cursor-pointer rounded-full px-4 py-1.5 font-medium text-ink-muted transition-colors data-[active=1]:bg-ink data-[active=1]:text-bg">Writing</button>
+        <button type="button" data-type="video" data-active="0" aria-pressed="false" class="cursor-pointer rounded-full px-4 py-1.5 font-medium text-ink-muted transition-colors data-[active=1]:bg-ink data-[active=1]:text-bg">Videos</button>
       </div>
 
       <div class="mt-5 flex flex-wrap items-center gap-2">
@@ -65,7 +65,7 @@ const tagLabelsJSON = JSON.stringify(TAG_LABELS);
           Year:
           <select
             id="pf-year"
-            class="ml-2 rounded-md border border-line-strong bg-bg px-2 py-1 font-sans text-xs text-ink outline-none focus:border-ink"
+            class="ml-2 rounded-md border border-line-strong bg-bg px-2 py-1 font-sans text-xs text-ink focus:border-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             <option value="">all</option>
           </select>
@@ -149,8 +149,9 @@ const tagLabelsJSON = JSON.stringify(TAG_LABELS);
     const visible = showAllTags ? allTags : allTags.slice(0, 20);
     tagsEl.innerHTML = visible
       .map(([tag, count]) => {
-        const active = state.tags.has(tag) ? '1' : '0';
-        return `<button type="button" data-tag="${escapeHTML(tag)}" data-active="${active}" class="cursor-pointer rounded-full border border-line-strong px-2.5 py-1 font-mono text-[11px] tracking-wide text-ink-muted transition-colors hover:border-ink hover:text-ink data-[active=1]:border-ink data-[active=1]:bg-ink data-[active=1]:text-bg"><span>${escapeHTML(tagDisplay(tag))}</span> <span class="text-ink-subtle data-[active=1]:text-bg/70">${count}</span></button>`;
+        const isActive = state.tags.has(tag);
+        const active = isActive ? '1' : '0';
+        return `<button type="button" data-tag="${escapeHTML(tag)}" data-active="${active}" aria-pressed="${isActive}" class="cursor-pointer rounded-full border border-line-strong px-2.5 py-1 font-mono text-[11px] tracking-wide text-ink-muted transition-colors hover:border-ink hover:text-ink data-[active=1]:border-ink data-[active=1]:bg-ink data-[active=1]:text-bg"><span>${escapeHTML(tagDisplay(tag))}</span> <span class="text-ink-subtle data-[active=1]:text-bg/70">${count}</span></button>`;
       })
       .join('');
     toggleEl.classList.toggle('hidden', allTags.length <= 20);
@@ -218,7 +219,9 @@ const tagLabelsJSON = JSON.stringify(TAG_LABELS);
 
     function syncTypePills() {
       types.querySelectorAll<HTMLButtonElement>('[data-type]').forEach((b) => {
-        b.dataset.active = b.dataset.type === state.type ? '1' : '0';
+        const active = b.dataset.type === state.type;
+        b.dataset.active = active ? '1' : '0';
+        b.setAttribute('aria-pressed', String(active));
       });
     }
 
