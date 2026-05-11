@@ -18,6 +18,7 @@ const { item, format, isLast = false, eager = false } = Astro.props;
 
 const imgLoading = eager ? 'eager' : 'lazy';
 const imgFetchPriority = eager ? 'high' : 'auto';
+const imgDecoding = eager ? 'sync' : 'async';
 
 const linkAttrs = item.href
   ? {
@@ -68,7 +69,7 @@ const playIcon = `<svg viewBox="0 0 12 12" class="ml-0.5 h-3.5 w-3.5 fill-bg-dar
             height="675"
             loading={imgLoading}
             fetchpriority={imgFetchPriority}
-            decoding="async"
+            decoding={imgDecoding}
             class="h-full w-full object-cover"
           />
           {item.kind === "video" && (
@@ -148,7 +149,7 @@ const playIcon = `<svg viewBox="0 0 12 12" class="ml-0.5 h-3.5 w-3.5 fill-bg-dar
                 height="360"
                 loading={imgLoading}
                 fetchpriority={imgFetchPriority}
-                decoding="async"
+                decoding={imgDecoding}
                 class="h-full w-full object-cover absolute inset-0"
               />
             )}
@@ -201,7 +202,7 @@ const playIcon = `<svg viewBox="0 0 12 12" class="ml-0.5 h-3.5 w-3.5 fill-bg-dar
                 height="360"
                 loading={imgLoading}
                 fetchpriority={imgFetchPriority}
-                decoding="async"
+                decoding={imgDecoding}
                 class="h-full w-full object-cover"
               />
             )}

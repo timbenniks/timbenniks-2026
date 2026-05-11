@@ -42,6 +42,7 @@ const { headline, subline, ctas = [], image } = Astro.props;
           formats={['avif', 'webp']}
           loading={image.eager ? 'eager' : 'lazy'}
           fetchpriority={image.eager ? 'high' : 'auto'}
+          decoding={image.eager ? 'sync' : 'async'}
           widths={[400, 700, 900]}
           sizes="(min-width: 768px) 50vw, 100vw"
           class="w-full max-h-[642px] object-contain"

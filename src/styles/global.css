@@ -22,7 +22,7 @@
 
   --font-serif: var(--font-fraunces), "Iowan Old Style", "Apple Garamond", Georgia, serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-jetbrains), ui-monospace, "SF Mono", Menlo, monospace;
+  --font-mono: ui-monospace, "SF Mono", "Menlo", "Cascadia Mono", "Roboto Mono", Consolas, monospace;
 
   --text-md: 0.9375rem;
 
