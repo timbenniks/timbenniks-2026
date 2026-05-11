@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import Section from "../primitives/Section.astro";
 import Button from "../primitives/Button.astro";
+import { heroSplitWidths } from "../../lib/image-widths";
 
 type Variant = "primary" | "secondary" | "accent" | "ghost";
 
@@ -14,13 +15,14 @@ interface Props {
     alt: string;
     width: number;
     height: number;
+    widths?: number[];
     eager?: boolean;
   };
 }
 
 const { headline, subline, ctas = [], image } = Astro.props;
 
-const widths = [400, 700, 900];
+const widths = image?.widths ?? heroSplitWidths;
 ---
 
 <Section padding="lg">

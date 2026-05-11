@@ -11,6 +11,7 @@ import { talkToCard } from '../../lib/card';
 import { breadcrumbSchema, buildGraph } from '../../lib/schema';
 import { yearsActive } from '../../lib/stats';
 import { siteUrl } from '../../data/site';
+import { fullBleedWidths } from '../../lib/image-widths';
 
 const graph = buildGraph(
   breadcrumbSchema([
@@ -49,7 +50,7 @@ const pastItems = past.map(talkToCard);
   <Section tone="dark" padding="xl" class="relative isolate overflow-hidden">
     <Image
       src="https://res.cloudinary.com/dwfcofnrd/image/upload/v1743504260/website/tim_on_stage-1.png"
-      widths={[1024, 1600, 1920, 2400]}
+      widths={fullBleedWidths}
       sizes="100vw"
       width={2355}
       height={1011}

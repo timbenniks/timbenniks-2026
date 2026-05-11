@@ -1,5 +1,4 @@
 import type { CollectionEntry } from 'astro:content';
-import type { Project } from '../data/projects';
 import { tagLabel } from './tags';
 import { resolveYoutubeThumbnail } from './youtube-thumbnail';
 
@@ -98,12 +97,12 @@ export function talkToCard(entry: CollectionEntry<'speaking'>): CardItem {
   };
 }
 
-export function projectToCard(project: Project): CardItem {
+export function projectToCard(entry: CollectionEntry<'projects'>): CardItem {
   return {
     kind: 'project',
-    title: project.title,
-    description: project.description,
-    badge: project.tag,
-    meta: [project.meta],
+    title: entry.data.title,
+    description: entry.data.description,
+    badge: entry.data.tag,
+    meta: [entry.data.meta],
   };
 }

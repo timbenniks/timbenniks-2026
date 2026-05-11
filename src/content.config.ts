@@ -1,5 +1,5 @@
 import { defineCollection } from 'astro:content';
-import { glob } from 'astro/loaders';
+import { glob, file } from 'astro/loaders';
 import { z } from 'astro/zod';
 
 // `tags` is intentionally a loose `z.array(z.string())`. The canonical vocabulary
@@ -52,4 +52,107 @@ const videos = defineCollection({
     .loose(),
 });
 
-export const collections = { writing, speaking, videos };
+const projects = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/projects' }),
+  schema: z.object({
+    title: z.string(),
+    tag: z.string(),
+    description: z.string(),
+    meta: z.string(),
+    order: z.number().default(999),
+  }),
+});
+
+const cta = z.object({ label: z.string(), href: z.string() });
+const headline = z.object({ lead: z.string(), em: z.string(), tail: z.string() });
+const remoteImage = z.object({
+  src: z.string().url(),
+  alt: z.string(),
+  width: z.number(),
+  height: z.number(),
+});
+
+const pages = defineCollection({
+  loader: file('src/content/pages.json'),
+  schema: z.object({
+    hero: z
+      .object({
+        headline,
+        subline: z.string(),
+        ctas: z.array(cta.extend({ variant: z.enum(['primary', 'secondary', 'accent', 'ghost']) })),
+        image: remoteImage.extend({
+          widths: z.array(z.number()),
+          eager: z.boolean().default(false),
+          preload: z.boolean().default(false),
+        }),
+      })
+      .optional(),
+    thesis: z
+      .object({
+        headline,
+        attribution: z.string().optional(),
+        cta: cta.optional(),
+        tone: z.enum(['light', 'dark']).default('dark'),
+        backgroundImage: z
+          .object({
+            src: z.string().url(),
+            width: z.number(),
+            height: z.number(),
+            opacity: z.number().optional(),
+          })
+          .optional(),
+      })
+      .optional(),
+    sections: z.array(
+      z.discriminatedUnion('kind', [
+        z.object({
+          kind: z.literal('feature-split'),
+          eyebrow: z.string().optional(),
+          title: z.string(),
+          lede: z.string().optional(),
+          source: z.enum(['writing', 'videos', 'speaking', 'projects']),
+          limit: z.number().optional(),
+          cta: cta.optional(),
+        }),
+        z.object({
+          kind: z.literal('card-grid'),
+          eyebrow: z.string().optional(),
+          title: z.string(),
+          lede: z.string().optional(),
+          source: z.enum(['writing', 'videos', 'speaking', 'projects']),
+          limit: z.number().optional(),
+          columns: z.union([z.literal(2), z.literal(3)]).default(3),
+          tone: z.enum(['light', 'dark']).default('light'),
+          class: z.string().optional(),
+          cta: cta.optional(),
+        }),
+        z.object({
+          kind: z.literal('card-rows'),
+          eyebrow: z.string().optional(),
+          title: z.string(),
+          lede: z.string().optional(),
+          source: z.enum(['writing', 'videos', 'speaking', 'projects']),
+          limit: z.number().optional(),
+          cta: cta.optional(),
+        }),
+        z.object({
+          kind: z.literal('image-text'),
+          eyebrow: z.string().optional(),
+          title: z.string(),
+          lede: z.string().optional(),
+          body: z.string().optional(),
+          image: remoteImage,
+          imageSize: z.number().optional(),
+          cta: cta.optional(),
+        }),
+      ]),
+    ),
+    booking: z.object({
+      text: z.string(),
+      em: z.string().optional(),
+      cta: cta.extend({ variant: z.enum(['primary', 'secondary', 'accent']).optional() }),
+    }),
+  }),
+});
+
+export const collections = { writing, speaking, videos, projects, pages };

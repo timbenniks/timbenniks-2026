@@ -147,7 +147,11 @@ const service: ExternalImageService<CloudinaryServiceConfig> = {
 
   getHTMLAttributes(options) {
     const { src, width, height, format, quality, widths, densities, ...rest } = options as Record<string, unknown>;
-    return rest;
+    return {
+      ...rest,
+      ...(typeof width === 'number' ? { width } : {}),
+      ...(typeof height === 'number' ? { height } : {}),
+    };
   },
 };
 

@@ -29,36 +29,6 @@ export const nav: NavLink[] = [
   { label: 'Uses', href: '/uses' },
 ];
 
-export const hero = {
-  headlineLead: 'I used to build',
-  headlineEm: 'websites.',
-  headlineTail: 'Now I build what builds them.',
-  subline:
-    'Developer Experience Lead at Contentstack. Co-chair, MACH Alliance Enterprise AI Agents Workgroup. Ambassador for Nuxt, Cloudinary, Supabase, and Algolia.',
-  primary: { label: 'Read the writing', href: '/writing' },
-  secondary: { label: 'More about Tim', href: '/about' },
-};
-
-export const thesis = {
-  lead: 'When output is cheap,',
-  em: 'taste',
-  tail: 'is everything.',
-  attribution:
-    'This article elaborates how AI-generated, scale-built content collapses everything from blogs to other building blocks. AI-generated, scaled-built content collapses everything from blogs to other building blocks.',
-  cta: { label: 'Read the essay', href: '/writing' },
-};
-
-export const about = {
-  lead: 'Twenty years building digital platforms for global brands. Now leading Developer Experience at Contentstack, shaping the future of developer-facing products and AI-driven workflows.',
-  body: 'Tim Benniks is a Developer Experience and Product leader at Contentstack, where he drives DX, Developer Hub & Marketplace, MCP, and Agent Skills. Tim is a frequent speaker, content creator, ambassador for Cloudinary, Supabase, Nuxt, Algolia and Co-chair of the Enterprise AI Agents Workgroup at the MACH Alliance.',
-};
-
-export const booking = {
-  text: 'Got a stage, a podcast, or a developer team that needs sharpening?',
-  em: "Let's talk.",
-  cta: { label: 'Press kit & booking', href: '/press-kit' },
-};
-
 export const newsletter = {
   heading: 'The good stuff, occasionally.',
   body: "One email when there's something worth reading. No drip campaign, no funnel, just writing.",

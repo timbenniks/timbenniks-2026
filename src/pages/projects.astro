@@ -5,10 +5,14 @@ import Container from '../components/primitives/Container.astro';
 import Card from '../components/Card.astro';
 import JsonLd from '../components/primitives/JsonLd.astro';
 import ArrowLink from '../components/primitives/ArrowLink.astro';
+import { getCollection } from 'astro:content';
 import { breadcrumbSchema, buildGraph } from '../lib/schema';
-import { projects } from '../data/projects';
 import { projectToCard } from '../lib/card';
 import { siteUrl } from '../data/site';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
 
 const graph = buildGraph(
   breadcrumbSchema([

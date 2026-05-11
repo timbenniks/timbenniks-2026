@@ -4,6 +4,7 @@ import Button from "./primitives/Button.astro";
 import MediaFrame from "./primitives/MediaFrame.astro";
 import Meta from "./primitives/Meta.astro";
 import type { CardItem, CardKind } from "../lib/card";
+import { cardFeatureWidths, cardStandardWidths } from "../lib/image-widths";
 
 export type CardFormat = "feature" | "standard" | "row";
 
@@ -41,10 +42,10 @@ const bylineParts = [item.date, ...(item.meta ?? [])].filter(
   Boolean,
 ) as string[];
 
-const featureWidths = [480, 720, 900, 1280];
+const featureWidths = cardFeatureWidths;
 const featureSizes = "(min-width: 1024px) 720px, 100vw";
 
-const standardWidths = [320, 480, 640, 900];
+const standardWidths = cardStandardWidths;
 const standardSizes =
   "(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw";
 

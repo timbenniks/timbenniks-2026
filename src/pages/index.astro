@@ -1,5 +1,5 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 import { getImage } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import HeroSection from "../components/sections/HeroSection.astro";
@@ -9,51 +9,56 @@ import CardGridSection from "../components/sections/CardGridSection.astro";
 import CardRowsSection from "../components/sections/CardRowsSection.astro";
 import ImageTextSection from "../components/sections/ImageTextSection.astro";
 import CtaStrip from "../components/sections/CtaStrip.astro";
-import { hero, thesis, about, booking } from "../data/site";
-import { projects } from "../data/projects";
 import {
   articleToCard,
   videoToCard,
   talkToCard,
   projectToCard,
+  type CardItem,
 } from "../lib/card";
-const HERO_PORTRAIT_URL =
-  "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778485778/website/tim-sketch.png";
-const HERO_PORTRAIT_WIDTHS = [400, 700, 900];
-const ON_STAGE_URL =
-  "https://res.cloudinary.com/dwfcofnrd/image/upload/v1743504260/website/tim_on_stage-1.png";
-const HERO_SQUARE_URL =
-  "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778486018/website/tim-hero-square.png";
 
-const [writingEntries, videoEntries, speakingEntries] = await Promise.all([
-  getCollection("writing", ({ data }) => !data.draft),
-  getCollection("videos"),
-  getCollection("speaking"),
-]);
+const home = await getEntry("pages", "home");
+if (!home) throw new Error("Missing content for pages/home");
+const { hero, thesis, sections, booking } = home.data;
+
+const [writingEntries, videoEntries, speakingEntries, projectEntries] =
+  await Promise.all([
+    getCollection("writing", ({ data }) => !data.draft),
+    getCollection("videos"),
+    getCollection("speaking"),
+    getCollection("projects"),
+  ]);
 
 const sortByDateDesc = <T extends { data: { date: Date } }>(arr: T[]) =>
   arr.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
-const writingItems = sortByDateDesc(writingEntries)
-  .slice(0, 3)
-  .map((e) => articleToCard(e));
-
-const videoItems = await Promise.all(
-  sortByDateDesc(videoEntries).slice(0, 3).map(videoToCard),
+const writingCards = sortByDateDesc(writingEntries).map((e) => articleToCard(e));
+const videoCards = await Promise.all(
+  sortByDateDesc(videoEntries).map(videoToCard),
 );
+const speakingCards = sortByDateDesc(speakingEntries).map(talkToCard);
+const projectCards = projectEntries
+  .sort((a, b) => a.data.order - b.data.order)
+  .map(projectToCard);
 
-const talkItems = sortByDateDesc(speakingEntries).slice(0, 4).map(talkToCard);
-const projectItems = projects.map(projectToCard);
+const sources: Record<"writing" | "videos" | "speaking" | "projects", CardItem[]> = {
+  writing: writingCards,
+  videos: videoCards,
+  speaking: speakingCards,
+  projects: projectCards,
+};
 
-// LCP: portrait shown in the hero. Cloudinary serves the right format
-// (AVIF/WebP/PNG) per request via f_auto, so the same srcset works for both
-// the preload and the rendered <Image>.
-const heroPreloaded = await getImage({
-  src: HERO_PORTRAIT_URL,
-  width: 900,
-  widths: HERO_PORTRAIT_WIDTHS,
-  alt: "Sketched portrait of Tim Benniks",
-});
+const pickItems = (source: keyof typeof sources, limit?: number) =>
+  limit ? sources[source].slice(0, limit) : sources[source];
+
+const heroPreloaded = hero?.image.preload
+  ? await getImage({
+      src: hero.image.src,
+      width: hero.image.widths.at(-1) ?? hero.image.width,
+      widths: hero.image.widths,
+      alt: hero.image.alt,
+    })
+  : null;
 ---
 
 <BaseLayout
@@ -61,93 +66,77 @@ const heroPreloaded = await getImage({
   description="Developer Experience Lead at Contentstack. Writing, talks, and videos on developer tools, AI-accelerated engineering, and composable architecture."
   keywords="developer experience, AI-augmented engineering, composable architecture, developer relations, Contentstack, MACH Alliance"
 >
-  <link
-    slot="head"
-    rel="preload"
-    as="image"
-    imagesrcset={heroPreloaded.srcSet.attribute}
-    imagesizes="(min-width: 768px) 50vw, 100vw"
-    fetchpriority="high"
-  />
-  <HeroSection
-    headline={{
-      lead: hero.headlineLead,
-      em: hero.headlineEm,
-      tail: hero.headlineTail,
-    }}
-    subline={hero.subline}
-    ctas={[
-      {
-        label: hero.primary.label,
-        href: hero.primary.href,
-        variant: "primary",
-      },
-      {
-        label: hero.secondary.label,
-        href: hero.secondary.href,
-        variant: "secondary",
-      },
-    ]}
-    image={{
-      src: HERO_PORTRAIT_URL,
-      alt: "Sketched portrait of Tim Benniks",
-      width: 1024,
-      height: 1536,
-      eager: true,
-    }}
-  />
+  {
+    heroPreloaded && (
+      <link
+        slot="head"
+        rel="preload"
+        as="image"
+        imagesrcset={heroPreloaded.srcSet.attribute}
+        imagesizes="(min-width: 768px) 50vw, 100vw"
+        fetchpriority="high"
+      />
+    )
+  }
 
-  <QuoteCallout
-    headline={{ lead: thesis.lead, em: thesis.em, tail: thesis.tail }}
-    attribution={thesis.attribution}
-    cta={thesis.cta}
-    tone="dark"
-    backgroundImage={{ src: ON_STAGE_URL, width: 2355, height: 1011 }}
-  />
+  {hero && <HeroSection {...hero} />}
 
-  <FeatureSplitSection
-    eyebrow="The journal"
-    title="Recent writing"
-    lede="Essays on developer experience, AI-accelerated engineering, and the platforms that hold it all up."
-    items={writingItems}
-    cta={{ label: "All writing", href: "/writing" }}
-  />
+  {thesis && <QuoteCallout {...thesis} />}
 
-  <CardGridSection
-    eyebrow="The workbench"
-    title="What I'm building"
-    lede="Platform work, MCP servers, and the occasional weekend experiment. Real code, real trade-offs, work in progress."
-    items={projectItems}
-    columns={2}
-    tone="dark"
-    class="mt-16"
-    cta={{ label: "All projects", href: "/projects" }}
-  />
-
-  <ImageTextSection
-    eyebrow="The short version"
-    title="More about Tim"
-    lede={about.lead}
-    body={about.body}
-    image={{ src: HERO_SQUARE_URL, alt: "Tim Benniks", width: 624, height: 624 }}
-    cta={{ label: "Full bio", href: "/about" }}
-  />
-
-  <CardGridSection
-    eyebrow="On camera"
-    title="Videos & livestreams"
-    lede="Workshops, demos, and conversations from the YouTube channel and Contentstack streams."
-    items={videoItems}
-    columns={3}
-    cta={{ label: "All videos", href: "/videos" }}
-  />
-
-  <CardRowsSection
-    eyebrow="Stages"
-    title="Where I've been"
-    items={talkItems}
-    cta={{ label: "All talks", href: "/speaking" }}
-  />
+  {
+    sections.map((section) => {
+      if (section.kind === "feature-split") {
+        return (
+          <FeatureSplitSection
+            eyebrow={section.eyebrow}
+            title={section.title}
+            lede={section.lede}
+            items={pickItems(section.source, section.limit)}
+            cta={section.cta}
+          />
+        );
+      }
+      if (section.kind === "card-grid") {
+        return (
+          <CardGridSection
+            eyebrow={section.eyebrow}
+            title={section.title}
+            lede={section.lede}
+            items={pickItems(section.source, section.limit)}
+            columns={section.columns}
+            tone={section.tone}
+            class={section.class}
+            cta={section.cta}
+          />
+        );
+      }
+      if (section.kind === "card-rows") {
+        return (
+          <CardRowsSection
+            eyebrow={section.eyebrow}
+            title={section.title}
+            lede={section.lede}
+            items={pickItems(section.source, section.limit)}
+            cta={section.cta}
+          />
+        );
+      }
+      if (section.kind === "image-text") {
+        return (
+          <ImageTextSection
+            eyebrow={section.eyebrow}
+            title={section.title}
+            lede={section.lede}
+            body={section.body}
+            image={section.image}
+            imageSize={section.imageSize}
+            cta={section.cta}
+          />
+        );
+      }
+      return null;
+    })
+  }
 
   <CtaStrip text={booking.text} em={booking.em} cta={booking.cta} />
 </BaseLayout>
