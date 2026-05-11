@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import Section from '../primitives/Section.astro';
 import Button from '../primitives/Button.astro';
@@ -36,9 +36,10 @@ const { headline, subline, ctas = [], image } = Astro.props;
 
     {image && (
       <div class="flex items-center justify-center">
-        <Image
+        <Picture
           src={image.src}
           alt={image.alt}
+          formats={['avif', 'webp']}
           loading={image.eager ? 'eager' : 'lazy'}
           fetchpriority={image.eager ? 'high' : 'auto'}
           widths={[400, 700, 900]}

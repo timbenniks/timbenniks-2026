@@ -1,54 +1,72 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import HeroSection from '../components/sections/HeroSection.astro';
-import QuoteCallout from '../components/sections/QuoteCallout.astro';
-import CtaStrip from '../components/sections/CtaStrip.astro';
-import Section from '../components/primitives/Section.astro';
-import SectionHeading from '../components/primitives/SectionHeading.astro';
-import Container from '../components/primitives/Container.astro';
-import JsonLd from '../components/primitives/JsonLd.astro';
-import { breadcrumbSchema, buildGraph } from '../lib/schema';
-import timHero from '../assets/tim-hero.png';
-import timOnStage from '../assets/tim_on_stage.png';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import HeroSection from "../components/sections/HeroSection.astro";
+import QuoteCallout from "../components/sections/QuoteCallout.astro";
+import CtaStrip from "../components/sections/CtaStrip.astro";
+import Section from "../components/primitives/Section.astro";
+import SectionHeading from "../components/primitives/SectionHeading.astro";
+import Container from "../components/primitives/Container.astro";
+import JsonLd from "../components/primitives/JsonLd.astro";
+import { breadcrumbSchema, buildGraph } from "../lib/schema";
+import timHero from "../assets/tim-hero.png";
+import timOnStage from "../assets/tim_on_stage.png";
 
 const graph = buildGraph(
   breadcrumbSchema([
-    { name: 'home', url: 'https://timbenniks.dev/' },
-    { name: 'about', url: 'https://timbenniks.dev/about' },
+    { name: "home", url: "https://timbenniks.dev/" },
+    { name: "about", url: "https://timbenniks.dev/about" },
   ]),
 );
 
 const beliefs = [
-  { title: 'Speed is solved. Direction is not.', body: 'Anyone can ship faster now. The harder problem is shipping the right thing — and the way to learn what that is, is by building.' },
-  { title: 'Developer experience is product strategy.', body: 'How developers feel about the tools they use becomes how their teams ship. DX is not polish on top — it is the strategy.' },
-  { title: 'Taste is a technical skill.', body: 'When generation is cheap, the bottleneck moves to judgment. What to keep, what to throw away, what to leave unsaid.' },
-  { title: 'Building is how you discover.', body: 'Roadmaps that survive contact with code are the ones written next to the code, not before it.' },
+  {
+    title: "Speed is solved. Direction is not.",
+    body: "Anyone can ship faster now. The harder problem is shipping the right thing — and the way to learn what that is, is by building.",
+  },
+  {
+    title: "Developer experience is product strategy.",
+    body: "How developers feel about the tools they use becomes how their teams ship. DX is not polish on top — it is the strategy.",
+  },
+  {
+    title: "Taste is a technical skill.",
+    body: "When generation is cheap, the bottleneck moves to judgment. What to keep, what to throw away, what to leave unsaid.",
+  },
+  {
+    title: "Building is how you discover.",
+    body: "Roadmaps that survive contact with code are the ones written next to the code, not before it.",
+  },
 ];
 
 const ledger = [
-  { term: 'Currently', value: 'Developer Experience Lead, Contentstack' },
-  { term: 'Product manager', value: 'Developer Hub, Marketplace, MCP, Agent Skills' },
-  { term: 'Co-chair', value: 'MACH Alliance · Enterprise AI Agents Workgroup' },
-  { term: 'Ambassador', value: 'Nuxt · Cloudinary · Supabase · Algolia' },
-  { term: 'Based in', value: 'The French countryside' },
-  { term: 'Off the clock', value: 'Guitar. Family. Two corgis that run the house.' },
+  { term: "Currently", value: "Developer Experience Lead, Contentstack" },
+  {
+    term: "Product manager",
+    value: "Developer Hub, Marketplace, MCP, Agent Skills",
+  },
+  { term: "Co-chair", value: "MACH Alliance · Enterprise AI Agents Workgroup" },
+  { term: "Ambassador", value: "Nuxt · Cloudinary · Supabase · Algolia" },
+  { term: "Based in", value: "The French countryside" },
+  {
+    term: "Off the clock",
+    value: "Guitar. Family. Two corgis that run the house.",
+  },
 ];
 
 const careerEras = [
   {
-    period: '2008 — 2018',
-    title: 'Frontend, then technical leadership at agencies',
-    body: 'Building front-end for global brands at AKQA, Valtech, and Mirabeau — Nike, Google, CHANEL, Louis Vuitton, Procter & Gamble. Learning what scales and what just looks like it does.',
+    period: "2008 — 2018",
+    title: "Frontend, then technical leadership at agencies",
+    body: "Building front-end for global brands at AKQA, Valtech, and Mirabeau — Nike, Google, CHANEL, Louis Vuitton, Procter & Gamble. Learning what scales and what just looks like it does.",
   },
   {
-    period: '2019 — 2023',
-    title: 'Developer relations and platform strategy',
-    body: 'Head of DevRel at Hygraph and Uniform. Speaking at Vue Amsterdam, JAMstack, Headless Conf, and dozens of meetups. Writing the early playbook for headless-CMS DevRel.',
+    period: "2019 — 2023",
+    title: "Developer relations and platform strategy",
+    body: "Head of DevRel at Hygraph and Uniform. Speaking at Vue Amsterdam, JAMstack, Headless Conf, and dozens of meetups. Writing the early playbook for headless-CMS DevRel.",
   },
   {
-    period: '2024 — now',
-    title: 'Developer experience at Contentstack',
-    body: 'DX, Developer Hub & Marketplace, MCP, and Agent Skills. Building the surface area where AI agents and human developers meet enterprise content systems.',
+    period: "2024 — now",
+    title: "Developer experience at Contentstack",
+    body: "DX, Developer Hub & Marketplace, MCP, and Agent Skills. Building the surface area where AI agents and human developers meet enterprise content systems.",
   },
 ];
 ---
@@ -62,22 +80,22 @@ const careerEras = [
 
   <HeroSection
     headline={{
-      lead: 'I design developer platforms',
-      em: 'and',
-      tail: 'build AI-augmented products.',
+      lead: "I design developer platforms",
+      em: "and",
+      tail: "build AI-augmented products.",
     }}
     subline="Developer Experience Lead at Contentstack. Twenty years building for global brands. Now helping teams move from shipping faster to shipping the right things."
     ctas={[
-      { label: 'Press kit & booking', href: '/press-kit', variant: 'primary' },
-      { label: 'See what I write', href: '/writing', variant: 'secondary' },
+      { label: "Press kit & booking", href: "/press-kit", variant: "primary" },
+      { label: "See what I write", href: "/writing", variant: "secondary" },
     ]}
-    image={{ src: timHero, alt: 'Tim Benniks', eager: true }}
+    image={{ src: timHero, alt: "Tim Benniks", eager: true }}
   />
 
   <QuoteCallout
-    headline={{ lead: 'Speed is solved.', em: 'Direction', tail: 'is not.' }}
+    headline={{ lead: "Speed is solved.", em: "Direction", tail: "is not." }}
     attribution="Anyone can generate code now. What's still scarce — and what compounds — is taste, judgment, and the willingness to throw the first version away. That's the work I'm interested in."
-    cta={{ label: 'Read the essays', href: '/writing' }}
+    cta={{ label: "Read the essays", href: "/writing" }}
     tone="dark"
     backgroundImage={{ src: timOnStage }}
   />
@@ -89,12 +107,14 @@ const careerEras = [
       lede="The themes that show up in every essay, every talk, and most of the platform decisions I push for."
     />
     <div class="mt-12 grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-12">
-      {beliefs.map((b) => (
-        <div>
-          <h3 class="font-serif text-2xl text-ink leading-snug">{b.title}</h3>
-          <p class="mt-3 text-base text-ink-muted">{b.body}</p>
-        </div>
-      ))}
+      {
+        beliefs.map((b) => (
+          <div>
+            <h3 class="font-serif text-2xl text-ink leading-snug">{b.title}</h3>
+            <p class="mt-3 text-base text-ink-muted">{b.body}</p>
+          </div>
+        ))
+      }
     </div>
   </Section>
 
@@ -105,15 +125,21 @@ const careerEras = [
       lede="Front-end at agencies, then DevRel and platform strategy, now product-led developer experience."
     />
     <div class="mt-12 flex flex-col gap-12 max-w-[760px]">
-      {careerEras.map((e) => (
-        <div class="grid grid-cols-1 gap-2 md:grid-cols-[160px_1fr] md:gap-10">
-          <p class="font-mono text-xs uppercase tracking-wide text-ink-subtle md:pt-1">{e.period}</p>
-          <div>
-            <h3 class="font-serif text-2xl text-ink leading-snug">{e.title}</h3>
-            <p class="mt-3 text-base text-ink-muted">{e.body}</p>
+      {
+        careerEras.map((e) => (
+          <div class="grid grid-cols-1 gap-2 md:grid-cols-[160px_1fr] md:gap-10">
+            <p class="font-mono text-xs uppercase tracking-wide text-ink-subtle md:pt-1">
+              {e.period}
+            </p>
+            <div>
+              <h3 class="font-serif text-2xl text-ink leading-snug">
+                {e.title}
+              </h3>
+              <p class="mt-3 text-base text-ink-muted">{e.body}</p>
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      }
     </div>
   </Section>
 
@@ -124,18 +150,24 @@ const careerEras = [
           <SectionHeading eyebrow="The ledger" title="Where I show up" />
         </div>
         <dl class="flex flex-col">
-          {ledger.map((row, i) => (
-            <div
-              class:list={[
-                'grid grid-cols-1 gap-1 border-line py-5 md:grid-cols-[160px_1fr] md:gap-8',
-                i === 0 ? 'border-t' : '',
-                'border-b',
-              ]}
-            >
-              <dt class="font-mono text-xs uppercase tracking-wide text-ink-subtle md:pt-1">{row.term}</dt>
-              <dd class="font-serif text-lg leading-snug text-ink">{row.value}</dd>
-            </div>
-          ))}
+          {
+            ledger.map((row, i) => (
+              <div
+                class:list={[
+                  "grid grid-cols-1 gap-1 border-line py-5 md:grid-cols-[160px_1fr] md:gap-8",
+                  i === 0 ? "border-t" : "",
+                  "border-b",
+                ]}
+              >
+                <dt class="font-mono text-xs uppercase tracking-wide text-ink-subtle md:pt-1">
+                  {row.term}
+                </dt>
+                <dd class="font-serif text-lg leading-snug text-ink">
+                  {row.value}
+                </dd>
+              </div>
+            ))
+          }
         </dl>
       </div>
     </Container>
@@ -144,6 +176,6 @@ const careerEras = [
   <CtaStrip
     text="Need a stage, a podcast guest, or a developer team that needs sharpening?"
     em="Let's talk."
-    cta={{ label: 'Press kit & booking', href: '/press-kit' }}
+    cta={{ label: "Press kit & booking", href: "/press-kit" }}
   />
 </BaseLayout>

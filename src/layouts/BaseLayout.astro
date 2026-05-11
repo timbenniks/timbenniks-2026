@@ -1,19 +1,19 @@
 ---
-import { Font } from 'astro:assets';
-import { ClientRouter } from 'astro:transitions';
-import '../styles/global.css';
-import SiteNav from '../components/SiteNav.astro';
-import SiteFooter from '../components/SiteFooter.astro';
-import SEO from '../components/primitives/SEO.astro';
-import JsonLd from '../components/primitives/JsonLd.astro';
-import { buildGraph, websiteSchema, webPageSchema } from '../lib/schema';
+import { Font } from "astro:assets";
+import { ClientRouter } from "astro:transitions";
+import "../styles/global.css";
+import SiteNav from "../components/SiteNav.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import SEO from "../components/primitives/SEO.astro";
+import JsonLd from "../components/primitives/JsonLd.astro";
+import { buildGraph, websiteSchema, webPageSchema } from "../lib/schema";
 
 interface Props {
   title: string;
   description: string;
   image?: string;
   imageAlt?: string;
-  type?: 'website' | 'article';
+  type?: "website" | "article";
   publishedTime?: Date | string;
   modifiedTime?: Date | string;
   tags?: string[];
@@ -44,14 +44,16 @@ const baseGraph = buildGraph(
     <Font cssVariable="--font-inter" />
     <Font cssVariable="--font-jetbrains" />
     <ClientRouter />
-    {import.meta.env.PROD && (
-      <script
-        defer
-        is:inline
-        data-domain="timbenniks.dev"
-        src="https://plausible.io/js/script.js"
-      />
-    )}
+    {
+      import.meta.env.PROD && (
+        <script
+          defer
+          is:inline
+          data-domain="timbenniks.dev"
+          src="https://plausible.io/js/script.js"
+        />
+      )
+    }
     <JsonLd data={baseGraph} />
     <slot name="head" />
   </head>
@@ -67,25 +69,5 @@ const baseGraph = buildGraph(
       <slot />
     </main>
     <SiteFooter />
-
-    <script>
-      // Cmd/Ctrl-K → /search. Registered once per session; survives view transitions.
-      type PfKbdWindow = Window & { __pfKbd?: boolean };
-      if (!(window as PfKbdWindow).__pfKbd) {
-        (window as PfKbdWindow).__pfKbd = true;
-        window.addEventListener('keydown', (e) => {
-          if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-            e.preventDefault();
-            if (location.pathname !== '/search') {
-              location.href = '/search';
-            } else {
-              const input = document.getElementById('pf-input') as HTMLInputElement | null;
-              input?.focus();
-              input?.select();
-            }
-          }
-        });
-      }
-    </script>
   </body>
 </html>

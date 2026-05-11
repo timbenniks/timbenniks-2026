@@ -56,12 +56,12 @@ src/
 
 ## Scripts
 
-| Command           | What it does                                          |
-| ----------------- | ----------------------------------------------------- |
-| `npm run dev`     | Dev server at http://localhost:4321                   |
-| `npm run build`   | `astro build` then `pagefind --site dist`             |
-| `npm run preview` | Serve the built site locally (real Pagefind index)    |
-| `npm run check`   | `astro check` — type-check `.astro` + TypeScript      |
+| Command           | What it does                                       |
+| ----------------- | -------------------------------------------------- |
+| `npm run dev`     | Dev server at http://localhost:4321                |
+| `npm run build`   | `astro build` then `pagefind --site dist`          |
+| `npm run preview` | Serve the built site locally (real Pagefind index) |
+| `npm run check`   | `astro check` — type-check `.astro` + TypeScript   |
 
 > Pagefind only exists after a real build. Use `npm run preview` (not `dev`) to test search.
 
@@ -69,11 +69,11 @@ src/
 
 Three content collections under `src/content/`. Schemas live in [`src/content.config.ts`](src/content.config.ts) with `.loose()` to permit extra fields like `head` / `faqs` / `id` from external CMS imports.
 
-| Collection | Loader pattern              | Required frontmatter                                       | Body |
-| ---------- | --------------------------- | ---------------------------------------------------------- | ---- |
-| `writing`  | `**/*.md`                   | `title`, `date` (+ optional `description`, `tags`, `image`, `reading_time`, `canonical_url`, `draft`) | yes |
-| `videos`   | `*/*.md` (one dir per playlist) | `title`, `date`, `videoId`, `playlist` (+ optional `description`, `image`, `duration`, `tags`, `transcript`) | yes |
-| `speaking` | `**/*.md` (`retainBody: false`) | `conference`, `talk`, `date` (+ optional `location`, `link`) | no |
+| Collection | Loader pattern                  | Required frontmatter                                                                                         | Body |
+| ---------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------ | ---- |
+| `writing`  | `**/*.md`                       | `title`, `date` (+ optional `description`, `tags`, `image`, `reading_time`, `canonical_url`, `draft`)        | yes  |
+| `videos`   | `*/*.md` (one dir per playlist) | `title`, `date`, `videoId`, `playlist` (+ optional `description`, `image`, `duration`, `tags`, `transcript`) | yes  |
+| `speaking` | `**/*.md` (`retainBody: false`) | `conference`, `talk`, `date` (+ optional `location`, `link`)                                                 | no   |
 
 Tags are loose `string[]` validated downstream against the canonical vocabulary in [`src/lib/tags.ts`](src/lib/tags.ts) (17 slugs, lowercase kebab-case). `tagLabel(slug)` formats them for display.
 
@@ -83,38 +83,38 @@ Drafts (`draft: true` on writing entries) are filtered everywhere: index, tag pa
 
 ### Pages
 
-| Path                              | Description                                            |
-| --------------------------------- | ------------------------------------------------------ |
-| `/`                               | Home — hero, thesis, recent writing, projects, videos, talks |
-| `/about`                          | Bio, beliefs, career arc                               |
-| `/writing`                        | Featured + tag chips + chronological list              |
-| `/writing/[slug]`                 | Full essay                                             |
-| `/writing/tag/[tag]`              | All writing for a given tag                            |
-| `/videos`                         | Featured + playlist chips + grid of all videos         |
-| `/videos/[slug]`                  | Single video page with `<lite-youtube>` embed          |
-| `/videos/playlist/[playlist]`     | All videos in a playlist                               |
-| `/speaking`                       | Hero + upcoming + chronological archive                |
-| `/projects`                       | Project cards + contact                                |
-| `/press-kit`                      | Bios, headshots, talk topics, booking                  |
-| `/uses`                           | Hardware / software / A-V kit                          |
-| `/search`                         | Pagefind UI with type/tag/year filters and URL-state   |
-| `/404`                            | Static 404 page                                        |
+| Path                          | Description                                                  |
+| ----------------------------- | ------------------------------------------------------------ |
+| `/`                           | Home — hero, thesis, recent writing, projects, videos, talks |
+| `/about`                      | Bio, beliefs, career arc                                     |
+| `/writing`                    | Featured + tag chips + chronological list                    |
+| `/writing/[slug]`             | Full essay                                                   |
+| `/writing/tag/[tag]`          | All writing for a given tag                                  |
+| `/videos`                     | Featured + playlist chips + grid of all videos               |
+| `/videos/[slug]`              | Single video page with `<lite-youtube>` embed                |
+| `/videos/playlist/[playlist]` | All videos in a playlist                                     |
+| `/speaking`                   | Hero + upcoming + chronological archive                      |
+| `/projects`                   | Project cards + contact                                      |
+| `/press-kit`                  | Bios, headshots, talk topics, booking                        |
+| `/uses`                       | Hardware / software / A-V kit                                |
+| `/search`                     | Pagefind UI with type/tag/year filters and URL-state         |
+| `/404`                        | Static 404 page                                              |
 
 ### Machine-readable surfaces (the GEO layer)
 
 Designed for LLM/agent consumption. See [`src/pages/agents.md.ts`](src/pages/agents.md.ts) for the contract.
 
-| Path                    | What it is                                                                |
-| ----------------------- | ------------------------------------------------------------------------- |
-| `/feed.xml`             | RSS 2.0 of writing                                                        |
-| `/sitemap-index.xml`    | XML sitemap (filtered: no `.md`/`.txt`/`.xml`/`/search`)                  |
-| `/sitemap.md`           | Markdown mirror of the sitemap, every entry includes a `.md` companion   |
-| `/robots.txt`           | Allow-all + sitemap pointer                                               |
-| `/llms.txt`             | [llmstxt.org](https://llmstxt.org) format — curated link index            |
-| `/llms-full.txt`        | Full corpus inlined as markdown (every writing entry, video metadata, talks) |
-| `/agents.md`            | Guide for agents about the surfaces above                                 |
-| `/writing/<slug>.md`    | Markdown twin of any writing page                                         |
-| `/videos/<slug>.md`     | Markdown twin of any video page (frontmatter + transcript when available) |
+| Path                 | What it is                                                                   |
+| -------------------- | ---------------------------------------------------------------------------- |
+| `/feed.xml`          | RSS 2.0 of writing                                                           |
+| `/sitemap-index.xml` | XML sitemap (filtered: no `.md`/`.txt`/`.xml`/`/search`)                     |
+| `/sitemap.md`        | Markdown mirror of the sitemap, every entry includes a `.md` companion       |
+| `/robots.txt`        | Allow-all + sitemap pointer                                                  |
+| `/llms.txt`          | [llmstxt.org](https://llmstxt.org) format — curated link index               |
+| `/llms-full.txt`     | Full corpus inlined as markdown (every writing entry, video metadata, talks) |
+| `/agents.md`         | Guide for agents about the surfaces above                                    |
+| `/writing/<slug>.md` | Markdown twin of any writing page                                            |
+| `/videos/<slug>.md`  | Markdown twin of any video page (frontmatter + transcript when available)    |
 
 Article and video HTML pages emit `<link rel="alternate" type="text/markdown">` for autodiscovery.
 
@@ -158,7 +158,6 @@ Targeting WCAG 2.2 AA. Implemented:
   - `<ClientRouter />` for view transitions (~5.5 KB gzipped, site-wide).
   - `<lite-youtube>` on video detail pages.
   - Pagefind, dynamically imported only on `/search`.
-  - A single `Cmd/Ctrl-K → /search` keydown handler in `BaseLayout` (registered once, survives transitions).
 - Tailwind v4 single CSS bundle (~7 KB gzipped).
 - Fonts: `<Font preload>` on Fraunces only; Inter and JetBrains Mono lazy-load with `font-display: swap`.
 - `vercel.json` sets `Cache-Control: public, max-age=31536000, immutable` on `/_astro/*`.

@@ -11,9 +11,13 @@ interface Props {
   item: CardItem;
   format: CardFormat;
   isLast?: boolean;
+  eager?: boolean;
 }
 
-const { item, format, isLast = false } = Astro.props;
+const { item, format, isLast = false, eager = false } = Astro.props;
+
+const imgLoading = eager ? 'eager' : 'lazy';
+const imgFetchPriority = eager ? 'high' : 'auto';
 
 const linkAttrs = item.href
   ? {
@@ -62,7 +66,8 @@ const playIcon = `<svg viewBox="0 0 12 12" class="ml-0.5 h-3.5 w-3.5 fill-bg-dar
             alt=""
             width="900"
             height="675"
-            loading="lazy"
+            loading={imgLoading}
+            fetchpriority={imgFetchPriority}
             decoding="async"
             class="h-full w-full object-cover"
           />
@@ -141,7 +146,8 @@ const playIcon = `<svg viewBox="0 0 12 12" class="ml-0.5 h-3.5 w-3.5 fill-bg-dar
                 alt=""
                 width="640"
                 height="360"
-                loading="lazy"
+                loading={imgLoading}
+                fetchpriority={imgFetchPriority}
                 decoding="async"
                 class="h-full w-full object-cover absolute inset-0"
               />
@@ -193,7 +199,8 @@ const playIcon = `<svg viewBox="0 0 12 12" class="ml-0.5 h-3.5 w-3.5 fill-bg-dar
                 alt=""
                 width="640"
                 height="360"
-                loading="lazy"
+                loading={imgLoading}
+                fetchpriority={imgFetchPriority}
                 decoding="async"
                 class="h-full w-full object-cover"
               />

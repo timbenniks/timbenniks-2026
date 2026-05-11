@@ -95,4 +95,4 @@ export const footerColumns: FooterColumn[] = [
   },
 ];
 
-export const footerHuman = 'Guitar. Family. Two corgis that run the house.';
+export const footerHuman = 'Crafted by hand. No tokens were burnt in the making of this website.';
