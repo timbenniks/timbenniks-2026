@@ -1,22 +1,26 @@
 ---
-import { Image } from 'astro:assets';
-import type { ImageMetadata } from 'astro';
 import Section from '../primitives/Section.astro';
 import SectionHeading from '../primitives/SectionHeading.astro';
 import ArrowLink from '../primitives/ArrowLink.astro';
+import { thumbUrl, thumbSrcset } from '../../lib/cloudinary';
 
 interface Props {
   eyebrow?: string;
   title: string;
   lede?: string;
   body?: string;
-  image: { src: ImageMetadata; alt: string };
+  image: { src: string; alt: string; width: number; height: number };
   imageSize?: number;
   cta?: { label: string; href: string };
   bordered?: boolean;
 }
 
 const { eyebrow, title, lede, body, image, imageSize = 300, cta, bordered = true } = Astro.props;
+
+// 1×/2×/3× variants for the displayed size, plus a baseline for very small viewports.
+const imgWidths = [imageSize, imageSize * 2, imageSize * 3];
+const imgSrc = thumbUrl(image.src, imageSize * 2)!;
+const imgSrcset = thumbSrcset(image.src, imgWidths)!;
 ---
 
 <Section bordered={bordered}>
@@ -29,7 +33,17 @@ const { eyebrow, title, lede, body, image, imageSize = 300, cta, bordered = true
     <div
       class="mx-auto flex aspect-square w-full items-center justify-center md:w-(--col)"
     >
-      <Image src={image.src} alt={image.alt} class="h-full w-full object-cover" />
+      <img
+        src={imgSrc}
+        srcset={imgSrcset}
+        sizes={`${imageSize}px`}
+        alt={image.alt}
+        width={image.width}
+        height={image.height}
+        loading="lazy"
+        decoding="async"
+        class="h-full w-full object-cover"
+      />
     </div>
 
     <div>

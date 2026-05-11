@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
-import { getImage } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { thumbSrcset } from "../lib/cloudinary";
 import HeroSection from "../components/sections/HeroSection.astro";
 import QuoteCallout from "../components/sections/QuoteCallout.astro";
 import FeatureSplitSection from "../components/sections/FeatureSplitSection.astro";
@@ -17,9 +17,13 @@ import {
   talkToCard,
   projectToCard,
 } from "../lib/card";
-import timPortrait from "../assets/tim.png";
-import timOnStage from "../assets/tim_on_stage.png";
-import timHero from "../assets/tim-hero.png";
+const HERO_PORTRAIT_URL =
+  "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778485778/website/tim-sketch.png";
+const HERO_PORTRAIT_WIDTHS = [400, 700, 900];
+const ON_STAGE_URL =
+  "https://res.cloudinary.com/dwfcofnrd/image/upload/v1743504260/website/tim_on_stage-1.png";
+const HERO_SQUARE_URL =
+  "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778486018/website/tim-hero-square.png";
 
 const [writingEntries, videoEntries, speakingEntries] = await Promise.all([
   getCollection("writing", ({ data }) => !data.draft),
@@ -41,15 +45,10 @@ const videoItems = await Promise.all(
 const talkItems = sortByDateDesc(speakingEntries).slice(0, 4).map(talkToCard);
 const projectItems = projects.map(projectToCard);
 
-// LCP: portrait shown in the hero. Generate an AVIF srcset so the browser can
-// start fetching the hero image during HTML parsing, before the hero <picture>
-// is encountered downstream.
-const heroPreload = await getImage({
-  src: timPortrait,
-  format: "avif",
-  widths: [400, 700, 900],
-  sizes: "(min-width: 768px) 50vw, 100vw",
-});
+// LCP: portrait shown in the hero. Cloudinary serves the right format
+// (AVIF/WebP/PNG) per request via f_auto, so the same srcset works for both
+// the preload and the rendered <img>.
+const heroPreloadSrcset = thumbSrcset(HERO_PORTRAIT_URL, HERO_PORTRAIT_WIDTHS)!;
 ---
 
 <BaseLayout
@@ -61,8 +60,7 @@ const heroPreload = await getImage({
     slot="head"
     rel="preload"
     as="image"
-    type="image/avif"
-    imagesrcset={heroPreload.srcSet.attribute}
+    imagesrcset={heroPreloadSrcset}
     imagesizes="(min-width: 768px) 50vw, 100vw"
     fetchpriority="high"
   />
@@ -86,8 +84,10 @@ const heroPreload = await getImage({
       },
     ]}
     image={{
-      src: timPortrait,
+      src: HERO_PORTRAIT_URL,
       alt: "Sketched portrait of Tim Benniks",
+      width: 1024,
+      height: 1536,
       eager: true,
     }}
   />
@@ -97,7 +97,7 @@ const heroPreload = await getImage({
     attribution={thesis.attribution}
     cta={thesis.cta}
     tone="dark"
-    backgroundImage={{ src: timOnStage }}
+    backgroundImage={{ src: ON_STAGE_URL, width: 2355, height: 1011 }}
   />
 
   <FeatureSplitSection
@@ -124,7 +124,7 @@ const heroPreload = await getImage({
     title="More about Tim"
     lede={about.lead}
     body={about.body}
-    image={{ src: timHero, alt: "Tim Benniks" }}
+    image={{ src: HERO_SQUARE_URL, alt: "Tim Benniks", width: 624, height: 624 }}
     cta={{ label: "Full bio", href: "/about" }}
   />
 

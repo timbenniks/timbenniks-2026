@@ -8,8 +8,11 @@ import SectionHeading from "../components/primitives/SectionHeading.astro";
 import Container from "../components/primitives/Container.astro";
 import JsonLd from "../components/primitives/JsonLd.astro";
 import { breadcrumbSchema, buildGraph } from "../lib/schema";
-import timHero from "../assets/tim-hero.png";
-import timOnStage from "../assets/tim_on_stage.png";
+
+const HERO_SQUARE_URL =
+  "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778486018/website/tim-hero-square.png";
+const ON_STAGE_URL =
+  "https://res.cloudinary.com/dwfcofnrd/image/upload/v1743504260/website/tim_on_stage-1.png";
 
 const graph = buildGraph(
   breadcrumbSchema([
@@ -89,7 +92,7 @@ const careerEras = [
       { label: "Press kit & booking", href: "/press-kit", variant: "primary" },
       { label: "See what I write", href: "/writing", variant: "secondary" },
     ]}
-    image={{ src: timHero, alt: "Tim Benniks", eager: true }}
+    image={{ src: HERO_SQUARE_URL, alt: "Tim Benniks", width: 624, height: 624, eager: true }}
   />
 
   <QuoteCallout
@@ -97,7 +100,7 @@ const careerEras = [
     attribution="Anyone can generate code now. What's still scarce — and what compounds — is taste, judgment, and the willingness to throw the first version away. That's the work I'm interested in."
     cta={{ label: "Read the essays", href: "/writing" }}
     tone="dark"
-    backgroundImage={{ src: timOnStage }}
+    backgroundImage={{ src: ON_STAGE_URL, width: 2355, height: 1011 }}
   />
 
   <Section bordered padding="lg">

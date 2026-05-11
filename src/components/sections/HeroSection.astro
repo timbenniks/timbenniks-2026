@@ -1,8 +1,7 @@
 ---
-import { Picture } from 'astro:assets';
-import type { ImageMetadata } from 'astro';
 import Section from '../primitives/Section.astro';
 import Button from '../primitives/Button.astro';
+import { thumbUrl, thumbSrcset } from '../../lib/cloudinary';
 
 type Variant = 'primary' | 'secondary' | 'accent' | 'ghost';
 
@@ -10,10 +9,20 @@ interface Props {
   headline: { lead: string; em: string; tail: string };
   subline?: string;
   ctas?: { label: string; href: string; variant?: Variant }[];
-  image?: { src: ImageMetadata; alt: string; eager?: boolean };
+  image?: {
+    src: string;
+    alt: string;
+    width: number;
+    height: number;
+    eager?: boolean;
+  };
 }
 
 const { headline, subline, ctas = [], image } = Astro.props;
+
+const widths = [400, 700, 900];
+const heroSrc = image ? thumbUrl(image.src, 900)! : null;
+const heroSrcset = image ? thumbSrcset(image.src, widths)! : null;
 ---
 
 <Section padding="lg">
@@ -34,17 +43,18 @@ const { headline, subline, ctas = [], image } = Astro.props;
       )}
     </div>
 
-    {image && (
+    {image && heroSrc && heroSrcset && (
       <div class="flex items-center justify-center">
-        <Picture
-          src={image.src}
+        <img
+          src={heroSrc}
+          srcset={heroSrcset}
+          sizes="(min-width: 768px) 50vw, 100vw"
           alt={image.alt}
-          formats={['avif', 'webp']}
+          width={image.width}
+          height={image.height}
           loading={image.eager ? 'eager' : 'lazy'}
           fetchpriority={image.eager ? 'high' : 'auto'}
           decoding={image.eager ? 'sync' : 'async'}
-          widths={[400, 700, 900]}
-          sizes="(min-width: 768px) 50vw, 100vw"
           class="w-full max-h-[642px] object-contain"
         />
       </div>
