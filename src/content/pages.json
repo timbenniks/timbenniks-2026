@@ -15,15 +15,23 @@
         },
         "subline": "Developer Experience Lead at Contentstack. Co-chair, MACH Alliance Enterprise AI Agents Workgroup. Ambassador for Nuxt, Cloudinary, Supabase, and Algolia.",
         "ctas": [
-          { "label": "Read the writing", "href": "/writing", "variant": "primary" },
-          { "label": "More about Tim", "href": "/about", "variant": "secondary" }
+          {
+            "label": "Read the writing",
+            "href": "/writing",
+            "variant": "primary"
+          },
+          {
+            "label": "More about Tim",
+            "href": "/about",
+            "variant": "secondary"
+          }
         ],
         "image": {
-          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778485778/website/tim-sketch.png",
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778485778/website/tim-sketch-1.png",
           "alt": "Sketched portrait of Tim Benniks",
-          "width": 1024,
-          "height": 1536,
-          "widths": [360, 480, 640, 768, 960, 1280, 1440],
+          "width": 807,
+          "height": 947,
+          "widths": [360, 480, 640, 768, 960],
           "eager": true,
           "preload": true
         }
@@ -36,7 +44,10 @@
           "tail": "is everything."
         },
         "attribution": "This article elaborates how AI-generated, scale-built content collapses everything from blogs to other building blocks. AI-generated, scaled-built content collapses everything from blogs to other building blocks.",
-        "cta": { "label": "Read the essay", "href": "/writing" },
+        "cta": {
+          "label": "Read the article",
+          "href": "/writing/when-output-is-cheap-taste-is-everything"
+        },
         "tone": "dark",
         "backgroundImage": {
           "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1743504260/website/tim_on_stage-1.png",
@@ -101,6 +112,145 @@
         "text": "Got a stage, a podcast, or a developer team that needs sharpening?",
         "em": "Let's talk.",
         "cta": { "label": "Press kit & booking", "href": "/press-kit" }
+      }
+    ]
+  },
+  "about": {
+    "metadata": {
+      "title": "About Tim Benniks",
+      "description": "Tim Benniks designs developer platforms and builds AI-augmented products. Developer Experience Lead at Contentstack, speaker, writer, and content creator.",
+      "keywords": "Tim Benniks, developer experience, developer platforms, AI-augmented engineering, Contentstack, speaker, content creator",
+      "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1280,h_550,c_thumb/website/tim-hero.png",
+      "imageAlt": "Tim Benniks in his countryside office"
+    },
+    "sections": [
+      {
+        "kind": "hero",
+        "headline": {
+          "lead": "Hi, my name is",
+          "em": "Tim Benniks",
+          "tail": ""
+        },
+        "subline": "I design developer platforms and build AI-augmented products that help teams move from shipping faster to shipping the right things.",
+        "ctas": [
+          {
+            "label": "Press kit & booking",
+            "href": "/press-kit",
+            "variant": "primary"
+          },
+          {
+            "label": "My setup",
+            "href": "/uses",
+            "variant": "secondary"
+          }
+        ],
+        "image": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1280,h_550,c_thumb/website/tim-sketch-3.png",
+          "alt": "Tim Benniks drawn",
+          "width": 1081,
+          "height": 868,
+          "widths": [640, 960],
+          "eager": true,
+          "preload": true
+        },
+        "imageLeft": true
+      },
+      {
+        "kind": "image-text",
+        "eyebrow": "Developer experience, speaker, content creator",
+        "title": "The short version",
+        "lede": "For most of my career, I have worked at the intersection of engineering, product, and developer experience.",
+        "body": "I've led platform initiatives, built extensibility ecosystems, and helped global teams adopt composable architectures that developers actually use. \n\nToday, my work focuses on how AI is reshaping software development, the growing overlap between engineers and product leaders, and why developer experience has become a strategic advantage rather than a support function.\n\nI didn’t set out to become a platform thinker. I started as an engineer who cared deeply about how things were built and how teams worked together. \n\n Agency life taught me scale. Working with global brands meant building systems that could survive real-world complexity, not just demos. Later, in the startup world, I focused on developer ecosystems, SDKs, and the surfaces that determine whether a platform is adopted or ignored. \n\nAlong the way, I discovered something that shaped my career: the success of a platform has less to do with features and more to do with the experience of building on it.\n\nThat insight pulled me toward developer experience, platform strategy, and eventually product ownership.",
+        "imageSize": 300,
+        "equalWidth": true,
+        "imageSide": "right",
+        "image": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1280,h_550,c_thumb/Tim/speaking.png",
+          "alt": "Tim Benniks drawn",
+          "width": 1725,
+          "height": 2096,
+          "widths": [640, 960],
+          "eager": false,
+          "preload": false
+        },
+        "cta": {
+          "label": "Find speaking info",
+          "href": "/press-kit"
+        }
+      },
+      {
+        "kind": "quote-callout",
+        "headline": {
+          "lead": "Speed is solved.",
+          "em": "Direction",
+          "tail": "is not."
+        },
+        "attribution": "AI has dramatically reduced the cost of building. The hard part now is deciding what is worth building, then shaping it with architecture, constraints, and judgment.",
+        "cta": {
+          "label": "Read the writing",
+          "href": "/writing"
+        },
+        "tone": "dark",
+        "backgroundImage": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1677741163/Tim/332085412_586030710041652_2407035883321360255_n.jpg",
+          "width": 1280,
+          "height": 550,
+          "opacity": 0.34
+        }
+      },
+      {
+        "kind": "card-grid",
+        "eyebrow": "What I work on today",
+        "title": "Developer platforms, AI, and product-shaped engineering",
+        "lede": "My current work centers on platform extensibility, AI-augmented engineering, and the convergence of engineers and product leaders.",
+        "source": "projects",
+        "limit": 3,
+        "columns": 3,
+        "tone": "light",
+        "cta": {
+          "label": "See the workbench",
+          "href": "/projects"
+        }
+      },
+
+      {
+        "kind": "card-grid",
+        "eyebrow": "On camera",
+        "title": "Videos and livestreams",
+        "lede": "Talks, demos, interviews, and practical explorations of developer platforms, headless CMS, and AI-accelerated development.",
+        "source": "videos",
+        "limit": 3,
+        "columns": 3,
+        "tone": "dark",
+        "cta": {
+          "label": "All videos",
+          "href": "/videos"
+        }
+      },
+
+      {
+        "kind": "image-text",
+        "eyebrow": "Beyond the work",
+        "title": "Slower pace, clearer thinking",
+        "lede": "I live in the French countryside, where the slower pace is a useful counterweight to an industry obsessed with speed.",
+        "body": "Some of my best ideas arrive away from the keyboard. My goal is not to predict trends, but to make sense of the shifts we are already living through and turn them into useful products, talks, and writing.",
+        "image": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1280,h_550,c_thumb/website/tim-hero.png",
+          "alt": "Tim Benniks in his countryside office",
+          "width": 1280,
+          "height": 550
+        },
+        "imageSize": 360
+      },
+      {
+        "kind": "cta-strip",
+        "text": "Need a stage, a podcast guest, or a developer team that needs sharpening?",
+        "em": "Let's talk.",
+        "cta": {
+          "label": "Press kit & booking",
+          "href": "/press-kit",
+          "variant": "primary"
+        }
       }
     ]
   }

@@ -17,11 +17,11 @@ export const heroSplitWidths = [360, 480, 640, 768, 960, 1280, 1440];
 
 // Feature card: ~720px on desktop, 100vw on mobile.
 // sizes: "(min-width: 1024px) 720px, 100vw"
-export const cardFeatureWidths = [360, 480, 640, 720, 900, 1280, 1440];
+export const cardFeatureWidths = [360, 480, 640, 720, 900];
 
 // Standard card: 33vw lg, 50vw md, 100vw sm.
 // sizes: "(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-export const cardStandardWidths = [320, 384, 480, 640, 800, 1024, 1280];
+export const cardStandardWidths = [320, 384, 480, 640, 800];
 
 // Press-kit primary headshot: ~50vw desktop, 66vw mobile.
 // sizes: "(min-width: 768px) 50vw, 66vw"

@@ -17,9 +17,9 @@ interface Props {
 
 const { item, format, isLast = false, eager = false } = Astro.props;
 
-const imgLoading = eager ? 'eager' : 'lazy';
-const imgFetchPriority = eager ? 'high' : 'auto';
-const imgDecoding = eager ? 'sync' : 'async';
+const imgLoading = eager ? "eager" : "lazy";
+const imgFetchPriority = eager ? "high" : "auto";
+const imgDecoding = eager ? "sync" : "async";
 
 const linkAttrs = item.href
   ? {

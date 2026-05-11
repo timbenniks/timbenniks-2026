@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import Section from "../primitives/Section.astro";
 import SectionHeading from "../primitives/SectionHeading.astro";
 import ArrowLink from "../primitives/ArrowLink.astro";
+import { renderMarkdown } from "../../lib/render-markdown";
 
 interface Props {
   eyebrow?: string;
@@ -11,6 +12,8 @@ interface Props {
   body?: string;
   image: { src: string; alt: string; width: number; height: number };
   imageSize?: number;
+  equalWidth?: boolean;
+  imageSide?: "left" | "right";
   cta?: { label: string; href: string };
   bordered?: boolean;
 }
@@ -22,40 +25,65 @@ const {
   body,
   image,
   imageSize = 300,
+  equalWidth = false,
+  imageSide = "left",
   cta,
   bordered = true,
 } = Astro.props;
 
 // 1×/2×/3× variants of the displayed size.
-const imgWidths = [imageSize, imageSize * 2, imageSize * 3];
+const imgWidths = equalWidth
+  ? [360, 480, 640, 768, 960, 1280]
+  : [imageSize, imageSize * 2, imageSize * 3];
+const imageSizes = equalWidth
+  ? "(min-width: 768px) 50vw, 100vw"
+  : `${imageSize}px`;
+const bodyHtml = body ? await renderMarkdown(body) : "";
 ---
 
 <Section bordered={bordered}>
   <SectionHeading eyebrow={eyebrow} title={title} />
 
   <div
-    class="mt-6 grid grid-cols-1 items-start gap-12 md:grid-cols-[var(--col)_1fr]"
+    class:list={[
+      "mt-6 grid grid-cols-1 items-start gap-12",
+      equalWidth ? "md:grid-cols-2" : "md:grid-cols-[var(--col)_1fr]",
+    ]}
     style={`--col:${imageSize}px`}
   >
     <div
-      class="mx-auto flex aspect-square w-full items-center justify-center md:w-(--col)"
+      class:list={[
+        "mx-auto flex w-full items-center justify-center",
+        equalWidth ? "" : "aspect-square md:w-(--col)",
+        imageSide === "right" && "md:order-2",
+      ]}
     >
       <Image
         src={image.src}
         widths={imgWidths}
-        sizes={`${imageSize}px`}
+        sizes={imageSizes}
         alt={image.alt}
         width={image.width}
         height={image.height}
         loading="lazy"
         decoding="async"
-        class="h-full w-full object-cover"
+        class:list={[
+          "w-full object-cover",
+          equalWidth ? "" : "h-full",
+        ]}
       />
     </div>
 
-    <div>
+    <div class:list={[imageSide === "right" && "md:order-1"]}>
       {lede && <p class="font-serif text-xl leading-snug text-ink">{lede}</p>}
-      {body && <p class="mt-4 text-base text-ink-muted">{body}</p>}
+      {
+        bodyHtml && (
+          <div
+            class="image-text-body mt-4 text-base text-ink-muted"
+            set:html={bodyHtml}
+          />
+        )
+      }
 
       {
         cta && (
@@ -67,3 +95,46 @@ const imgWidths = [imageSize, imageSize * 2, imageSize * 3];
     </div>
   </div>
 </Section>
+
+<style>
+  .image-text-body :global(p + p),
+  .image-text-body :global(p + ul),
+  .image-text-body :global(p + ol),
+  .image-text-body :global(ul + p),
+  .image-text-body :global(ol + p) {
+    margin-top: 1rem;
+  }
+
+  .image-text-body :global(p) {
+    color: var(--color-ink-muted);
+  }
+
+  .image-text-body :global(a) {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .image-text-body :global(strong) {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+
+  .image-text-body :global(ul),
+  .image-text-body :global(ol) {
+    padding-left: 1.5rem;
+    color: var(--color-ink-muted);
+  }
+
+  .image-text-body :global(ul) {
+    list-style: disc;
+  }
+
+  .image-text-body :global(ol) {
+    list-style: decimal;
+  }
+
+  .image-text-body :global(li + li) {
+    margin-top: 0.375rem;
+  }
+</style>
