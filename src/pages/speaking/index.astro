@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Section from '../../components/primitives/Section.astro';
 import Container from '../../components/primitives/Container.astro';
@@ -46,10 +47,16 @@ const pastItems = past.map(talkToCard);
   <JsonLd slot="head" data={graph} />
 
   <Section tone="dark" padding="xl" class="relative isolate overflow-hidden">
-    <img
-      src="https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1920/website/tim_on_stage.png"
+    <Image
+      src="https://res.cloudinary.com/dwfcofnrd/image/upload/v1743504260/website/tim_on_stage-1.png"
+      widths={[1024, 1600, 1920, 2400]}
+      sizes="100vw"
+      width={2355}
+      height={1011}
       alt=""
       aria-hidden="true"
+      loading="lazy"
+      decoding="async"
       class="object-cover absolute inset-0 -z-10 h-full w-full opacity-25"
     />
 

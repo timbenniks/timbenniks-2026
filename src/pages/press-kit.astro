@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Section from '../components/primitives/Section.astro';
 import SectionHeading from '../components/primitives/SectionHeading.astro';
@@ -16,42 +17,46 @@ const graph = buildGraph(
 
 const headshots = [
   {
-    src: 'https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1280,h_1600,c_fill/Tim/tim_june_2024.jpg',
+    src: 'https://res.cloudinary.com/dwfcofnrd/image/upload/Tim/tim_june_2024.jpg',
     alt: 'Tim Benniks portrait, June 2024',
     aspect: 'aspect-4/5',
     label: 'Studio portrait · 2024',
   },
   {
-    src: 'https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1280,h_1600,c_fill/presskit/tim_aug_2023_no_logo.png',
+    src: 'https://res.cloudinary.com/dwfcofnrd/image/upload/presskit/tim_aug_2023_no_logo.png',
     alt: 'Tim Benniks portrait, August 2023',
     aspect: 'aspect-4/5',
     label: 'Studio portrait · 2023',
   },
   {
-    src: 'https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1280,h_1600,c_fill/presskit/IMG_0144',
+    src: 'https://res.cloudinary.com/dwfcofnrd/image/upload/presskit/IMG_0144',
     alt: 'Tim Benniks candid portrait',
     aspect: 'aspect-4/5',
     label: 'On-location · 2024',
   },
 ];
 
+const headshotWidths = [400, 640, 800, 1280];
+
 const onStage = [
   {
-    src: 'https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1600,h_900,c_fill/Presskit/FDLC2019_462.jpg',
+    src: 'https://res.cloudinary.com/dwfcofnrd/image/upload/Presskit/FDLC2019_462.jpg',
     alt: 'Tim Benniks speaking at FDLC',
     label: 'FDLC keynote',
   },
   {
-    src: 'https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1600,h_900,c_fill/Tim/IMG_1020.jpg',
+    src: 'https://res.cloudinary.com/dwfcofnrd/image/upload/Tim/IMG_1020.jpg',
     alt: 'Tim Benniks on stage',
     label: 'Conference talk',
   },
   {
-    src: 'https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1600,h_900,c_fill/website/tim_on_stage.png',
+    src: 'https://res.cloudinary.com/dwfcofnrd/image/upload/website/tim_on_stage.png',
     alt: 'Tim Benniks on stage in front of a live audience',
     label: 'Live audience',
   },
 ];
+
+const onStageWidths = [480, 800, 1200, 1600];
 
 const topics = [
   {
@@ -144,10 +149,16 @@ const longBio =
               i === 0 && 'col-span-2 row-span-2 aspect-4/5',
             ]}
           >
-            <img
+            <Image
               src={h.src}
+              widths={headshotWidths}
+              sizes={i === 0 ? '(min-width: 768px) 50vw, 66vw' : '(min-width: 768px) 16vw, 33vw'}
+              width={1280}
+              height={1600}
               alt={h.alt}
               loading={i === 0 ? 'eager' : 'lazy'}
+              fetchpriority={i === 0 ? 'high' : 'auto'}
+              decoding={i === 0 ? 'sync' : 'async'}
               class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             />
             <span class="absolute bottom-2 left-2 rounded-sm bg-bg-dark/80 px-2 py-1 font-mono text-[10px] uppercase tracking-wide text-cream opacity-0 transition-opacity group-hover:opacity-100">
@@ -192,10 +203,15 @@ const longBio =
           rel="noopener noreferrer"
           class="group relative aspect-video overflow-hidden border border-line-dark"
         >
-          <img
+          <Image
             src={p.src}
+            widths={onStageWidths}
+            sizes="(min-width: 768px) 33vw, 100vw"
+            width={1600}
+            height={900}
             alt={p.alt}
             loading="lazy"
+            decoding="async"
             class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
           />
           <span class="absolute bottom-2 left-2 rounded-sm bg-bg-dark/80 px-2 py-1 font-mono text-[10px] uppercase tracking-wide text-cream">

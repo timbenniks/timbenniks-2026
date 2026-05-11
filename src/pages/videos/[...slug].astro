@@ -1,5 +1,6 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Section from '../../components/primitives/Section.astro';
 import Container from '../../components/primitives/Container.astro';
@@ -8,7 +9,7 @@ import Meta from '../../components/primitives/Meta.astro';
 import JsonLd from '../../components/primitives/JsonLd.astro';
 import { breadcrumbSchema, buildGraph } from '../../lib/schema';
 import { siteUrl } from '../../data/site';
-import { resolveYoutubePosterQuality, youtubePoster } from '../../lib/cloudinary';
+import { resolveYoutubeThumbnail } from '../../lib/youtube-thumbnail';
 
 export async function getStaticPaths() {
   const entries = await getCollection('videos');
@@ -34,12 +35,15 @@ const metaItems = [
 ].filter(Boolean) as string[];
 
 const description = entry.data.description ?? entry.data.title;
-// Posters are served via Cloudinary's image/fetch delivery so they get
-// f_auto,q_auto,w_<n>. Probe each video for maxresdefault availability and
-// fall back to hqdefault when YouTube hasn't generated the high-res poster.
-const posterQuality = await resolveYoutubePosterQuality(entry.data.videoId);
-const ytThumb = youtubePoster(entry.data.videoId, 1280, posterQuality);
-const litePoster = youtubePoster(entry.data.videoId, 720, posterQuality);
+// Probe maxresdefault availability, then route the YouTube poster through
+// astro:assets so it gets Cloudinary's f_auto,q_auto,w_<n> pipeline.
+const { url: ytPosterSrc } = await resolveYoutubeThumbnail(entry.data.videoId);
+const [ytThumbImg, litePosterImg] = await Promise.all([
+  getImage({ src: ytPosterSrc, width: 1280, height: 720, alt: entry.data.title }),
+  getImage({ src: ytPosterSrc, width: 720, height: 405, alt: entry.data.title }),
+]);
+const ytThumb = ytThumbImg.src;
+const litePoster = litePosterImg.src;
 
 const videoURL = siteUrl(`/videos/${entry.id}`);
 const videoGraph = buildGraph(

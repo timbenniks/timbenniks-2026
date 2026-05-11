@@ -1,9 +1,9 @@
 ---
-import Section from '../primitives/Section.astro';
-import Button from '../primitives/Button.astro';
-import { thumbUrl, thumbSrcset } from '../../lib/cloudinary';
+import { Image } from "astro:assets";
+import Section from "../primitives/Section.astro";
+import Button from "../primitives/Button.astro";
 
-type Variant = 'primary' | 'secondary' | 'accent' | 'ghost';
+type Variant = "primary" | "secondary" | "accent" | "ghost";
 
 interface Props {
   headline: { lead: string; em: string; tail: string };
@@ -21,12 +21,12 @@ interface Props {
 const { headline, subline, ctas = [], image } = Astro.props;
 
 const widths = [400, 700, 900];
-const heroSrc = image ? thumbUrl(image.src, 900)! : null;
-const heroSrcset = image ? thumbSrcset(image.src, widths)! : null;
 ---
 
 <Section padding="lg">
-  <div class:list={['grid grid-cols-1 items-center', image && 'md:grid-cols-2']}>
+  <div
+    class:list={["grid grid-cols-1 items-center", image && "md:grid-cols-2"]}
+  >
     <div class="max-w-[700px] mb-12 md:mb-0">
       <h1 class="font-serif text-6xl md:text-8xl">
         {headline.lead}
@@ -34,30 +34,36 @@ const heroSrcset = image ? thumbSrcset(image.src, widths)! : null;
         {headline.tail}
       </h1>
       {subline && <p class="mt-8 text-xl text-ink-muted">{subline}</p>}
-      {ctas.length > 0 && (
-        <div class="mt-8 flex flex-wrap gap-3">
-          {ctas.map((cta) => (
-            <Button href={cta.href} variant={cta.variant ?? 'primary'}>{cta.label}</Button>
-          ))}
-        </div>
-      )}
+      {
+        ctas.length > 0 && (
+          <div class="mt-8 flex flex-wrap gap-3">
+            {ctas.map((cta) => (
+              <Button href={cta.href} variant={cta.variant ?? "primary"}>
+                {cta.label}
+              </Button>
+            ))}
+          </div>
+        )
+      }
     </div>
 
-    {image && heroSrc && heroSrcset && (
-      <div class="flex items-center justify-center">
-        <img
-          src={heroSrc}
-          srcset={heroSrcset}
-          sizes="(min-width: 768px) 50vw, 100vw"
-          alt={image.alt}
-          width={image.width}
-          height={image.height}
-          loading={image.eager ? 'eager' : 'lazy'}
-          fetchpriority={image.eager ? 'high' : 'auto'}
-          decoding={image.eager ? 'sync' : 'async'}
-          class="w-full max-h-[642px] object-contain"
-        />
-      </div>
-    )}
+    {
+      image && (
+        <div class="flex items-center justify-center">
+          <Image
+            src={image.src}
+            widths={widths}
+            sizes="(min-width: 768px) 33vw, 100vw"
+            alt={image.alt}
+            width={image.width}
+            height={image.height}
+            loading={image.eager ? "eager" : "lazy"}
+            fetchpriority={image.eager ? "high" : "auto"}
+            decoding={image.eager ? "sync" : "async"}
+            class="w-full max-h-[642px] object-contain"
+          />
+        </div>
+      )
+    }
   </div>
 </Section>

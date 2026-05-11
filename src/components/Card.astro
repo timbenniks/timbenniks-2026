@@ -1,9 +1,9 @@
 ---
+import { Image } from "astro:assets";
 import Button from "./primitives/Button.astro";
 import MediaFrame from "./primitives/MediaFrame.astro";
 import Meta from "./primitives/Meta.astro";
 import type { CardItem, CardKind } from "../lib/card";
-import { thumbUrl, thumbSrcset } from "../lib/cloudinary";
 
 export type CardFormat = "feature" | "standard" | "row";
 
@@ -41,14 +41,10 @@ const bylineParts = [item.date, ...(item.meta ?? [])].filter(
   Boolean,
 ) as string[];
 
-// Feature card: 4:3, fills a wide column (~720px on lg).
-const featureSrc = thumbUrl(item.image, 900);
-const featureSrcset = thumbSrcset(item.image, [480, 720, 900, 1280]);
+const featureWidths = [480, 720, 900, 1280];
 const featureSizes = "(min-width: 1024px) 720px, 100vw";
 
-// Standard card: 16:9, in a 1/2/3-col grid.
-const standardSrc = thumbUrl(item.image, 640);
-const standardSrcset = thumbSrcset(item.image, [320, 480, 640, 900]);
+const standardWidths = [320, 480, 640, 900];
 const standardSizes =
   "(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw";
 
@@ -60,13 +56,13 @@ const playIcon = `<svg viewBox="0 0 12 12" class="ml-0.5 h-3.5 w-3.5 fill-bg-dar
     <article class="group flex flex-col gap-3">
       {item.image && (
         <MediaFrame aspect="landscape" hoverable>
-          <img
-            src={featureSrc}
-            srcset={featureSrcset}
+          <Image
+            src={item.image}
+            widths={featureWidths}
             sizes={featureSizes}
             alt=""
-            width="900"
-            height="675"
+            width={900}
+            height={675}
             loading={imgLoading}
             fetchpriority={imgFetchPriority}
             decoding={imgDecoding}
@@ -140,13 +136,13 @@ const playIcon = `<svg viewBox="0 0 12 12" class="ml-0.5 h-3.5 w-3.5 fill-bg-dar
         <a href={item.href} class="contents">
           <MediaFrame aspect="video" class="relative">
             {item.image && (
-              <img
-                src={standardSrc}
-                srcset={standardSrcset}
+              <Image
+                src={item.image}
+                widths={standardWidths}
                 sizes={standardSizes}
                 alt=""
-                width="640"
-                height="360"
+                width={640}
+                height={360}
                 loading={imgLoading}
                 fetchpriority={imgFetchPriority}
                 decoding={imgDecoding}
@@ -193,13 +189,13 @@ const playIcon = `<svg viewBox="0 0 12 12" class="ml-0.5 h-3.5 w-3.5 fill-bg-dar
         <>
           <MediaFrame aspect="video">
             {item.image && (
-              <img
-                src={standardSrc}
-                srcset={standardSrcset}
+              <Image
+                src={item.image}
+                widths={standardWidths}
                 sizes={standardSizes}
                 alt=""
-                width="640"
-                height="360"
+                width={640}
+                height={360}
                 loading={imgLoading}
                 fetchpriority={imgFetchPriority}
                 decoding={imgDecoding}

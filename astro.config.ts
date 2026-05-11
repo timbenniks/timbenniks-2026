@@ -1,10 +1,10 @@
-// @ts-check
 import { defineConfig, fontProviders } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
-
 import sitemap from "@astrojs/sitemap";
 
-// https://astro.build/config
+const CLOUDINARY_CLOUD_NAME =
+  process.env.PUBLIC_CLOUDINARY_CLOUD_NAME ?? "dwfcofnrd";
+
 export default defineConfig({
   site: "https://timbenniks.dev",
 
@@ -18,7 +18,20 @@ export default defineConfig({
   },
 
   image: {
-    remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com" }],
+    service: {
+      entrypoint: "./src/image-services/cloudinary.ts",
+      config: {
+        cloudName: CLOUDINARY_CLOUD_NAME,
+        defaultFormat: "auto",
+        defaultQuality: "auto",
+        fetchRemote: true,
+      },
+    },
+    remotePatterns: [
+      { protocol: "https", hostname: "res.cloudinary.com" },
+      { protocol: "https", hostname: "i.ytimg.com" },
+      { protocol: "https", hostname: "img.youtube.com" },
+    ],
   },
 
   fonts: [
@@ -53,11 +66,10 @@ export default defineConfig({
 
   integrations: [
     sitemap({
-      // Markdown twins, plain-text endpoints, RSS, and the search UI are not pages
-      // crawlers should index — they have direct surfaces (sitemap.md, feed.xml,
-      // llms.txt) or are noise.
       filter: (page) =>
-        !/\.(md|txt|xml)$/.test(page) && !page.endsWith('/search') && !page.endsWith('/search/'),
+        !/\.(md|txt|xml)$/.test(page) &&
+        !page.endsWith("/search") &&
+        !page.endsWith("/search/"),
     }),
   ],
 });

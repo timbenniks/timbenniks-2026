@@ -1,8 +1,8 @@
 ---
-import Section from '../primitives/Section.astro';
-import SectionHeading from '../primitives/SectionHeading.astro';
-import ArrowLink from '../primitives/ArrowLink.astro';
-import { thumbUrl, thumbSrcset } from '../../lib/cloudinary';
+import { Image } from "astro:assets";
+import Section from "../primitives/Section.astro";
+import SectionHeading from "../primitives/SectionHeading.astro";
+import ArrowLink from "../primitives/ArrowLink.astro";
 
 interface Props {
   eyebrow?: string;
@@ -15,12 +15,19 @@ interface Props {
   bordered?: boolean;
 }
 
-const { eyebrow, title, lede, body, image, imageSize = 300, cta, bordered = true } = Astro.props;
+const {
+  eyebrow,
+  title,
+  lede,
+  body,
+  image,
+  imageSize = 300,
+  cta,
+  bordered = true,
+} = Astro.props;
 
-// 1×/2×/3× variants for the displayed size, plus a baseline for very small viewports.
+// 1×/2×/3× variants of the displayed size.
 const imgWidths = [imageSize, imageSize * 2, imageSize * 3];
-const imgSrc = thumbUrl(image.src, imageSize * 2)!;
-const imgSrcset = thumbSrcset(image.src, imgWidths)!;
 ---
 
 <Section bordered={bordered}>
@@ -33,9 +40,9 @@ const imgSrcset = thumbSrcset(image.src, imgWidths)!;
     <div
       class="mx-auto flex aspect-square w-full items-center justify-center md:w-(--col)"
     >
-      <img
-        src={imgSrc}
-        srcset={imgSrcset}
+      <Image
+        src={image.src}
+        widths={imgWidths}
         sizes={`${imageSize}px`}
         alt={image.alt}
         width={image.width}
@@ -50,11 +57,13 @@ const imgSrcset = thumbSrcset(image.src, imgWidths)!;
       {lede && <p class="font-serif text-xl leading-snug text-ink">{lede}</p>}
       {body && <p class="mt-4 text-base text-ink-muted">{body}</p>}
 
-      {cta && (
-        <div class="mt-7">
-          <ArrowLink href={cta.href}>{cta.label}</ArrowLink>
-        </div>
-      )}
+      {
+        cta && (
+          <div class="mt-7">
+            <ArrowLink href={cta.href}>{cta.label}</ArrowLink>
+          </div>
+        )
+      }
     </div>
   </div>
 </Section>

@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
+import { getImage } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { thumbSrcset } from "../lib/cloudinary";
 import HeroSection from "../components/sections/HeroSection.astro";
 import QuoteCallout from "../components/sections/QuoteCallout.astro";
 import FeatureSplitSection from "../components/sections/FeatureSplitSection.astro";
@@ -47,8 +47,13 @@ const projectItems = projects.map(projectToCard);
 
 // LCP: portrait shown in the hero. Cloudinary serves the right format
 // (AVIF/WebP/PNG) per request via f_auto, so the same srcset works for both
-// the preload and the rendered <img>.
-const heroPreloadSrcset = thumbSrcset(HERO_PORTRAIT_URL, HERO_PORTRAIT_WIDTHS)!;
+// the preload and the rendered <Image>.
+const heroPreloaded = await getImage({
+  src: HERO_PORTRAIT_URL,
+  width: 900,
+  widths: HERO_PORTRAIT_WIDTHS,
+  alt: "Sketched portrait of Tim Benniks",
+});
 ---
 
 <BaseLayout
@@ -60,7 +65,7 @@ const heroPreloadSrcset = thumbSrcset(HERO_PORTRAIT_URL, HERO_PORTRAIT_WIDTHS)!;
     slot="head"
     rel="preload"
     as="image"
-    imagesrcset={heroPreloadSrcset}
+    imagesrcset={heroPreloaded.srcSet.attribute}
     imagesizes="(min-width: 768px) 50vw, 100vw"
     fetchpriority="high"
   />

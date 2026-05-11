@@ -1,7 +1,7 @@
 ---
+import { Image } from 'astro:assets';
 import Section from '../primitives/Section.astro';
 import Button from '../primitives/Button.astro';
-import { thumbUrl, thumbSrcset } from '../../lib/cloudinary';
 
 type Tone = 'light' | 'dark';
 
@@ -16,15 +16,13 @@ interface Props {
 const { headline, attribution, cta, tone = 'dark', backgroundImage } = Astro.props;
 
 const bgWidths = [1024, 1600, 2048, 2400];
-const bgSrc = backgroundImage ? thumbUrl(backgroundImage.src, 2048)! : null;
-const bgSrcset = backgroundImage ? thumbSrcset(backgroundImage.src, bgWidths)! : null;
 ---
 
 <Section tone={tone} padding="xl" class="relative isolate overflow-hidden">
-  {backgroundImage && bgSrc && bgSrcset && (
-    <img
-      src={bgSrc}
-      srcset={bgSrcset}
+  {backgroundImage && (
+    <Image
+      src={backgroundImage.src}
+      widths={bgWidths}
       sizes="100vw"
       alt=""
       aria-hidden="true"
