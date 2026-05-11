@@ -18,11 +18,12 @@ interface Props {
   modifiedTime?: Date | string;
   tags?: string[];
   keywords?: string;
+  canonical?: string;
   noindex?: boolean;
 }
 
 const seoProps = Astro.props;
-const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
+const canonicalURL = seoProps.canonical ?? new URL(Astro.url.pathname, Astro.site).href;
 const baseGraph = buildGraph(
   webPageSchema({
     url: canonicalURL,

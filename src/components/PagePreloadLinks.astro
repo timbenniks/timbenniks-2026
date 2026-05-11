@@ -1,0 +1,36 @@
+---
+import { getImage } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  sections: CollectionEntry<"pages">["data"]["sections"];
+}
+
+const preloadedHeroImage = Astro.props.sections.find(
+  (section) => section.kind === "hero" && section.image?.preload,
+);
+
+const heroPreloaded =
+  preloadedHeroImage?.kind === "hero" && preloadedHeroImage.image?.preload
+    ? await getImage({
+        src: preloadedHeroImage.image.src,
+        width:
+          preloadedHeroImage.image.widths?.at(-1) ??
+          preloadedHeroImage.image.width,
+        widths: preloadedHeroImage.image.widths,
+        alt: preloadedHeroImage.image.alt,
+      })
+    : null;
+---
+
+{
+  heroPreloaded && (
+    <link
+      rel="preload"
+      as="image"
+      imagesrcset={heroPreloaded.srcSet.attribute}
+      imagesizes="(min-width: 768px) 50vw, 100vw"
+      fetchpriority="high"
+    />
+  )
+}

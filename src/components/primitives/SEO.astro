@@ -11,6 +11,7 @@ interface Props {
   modifiedTime?: Date | string;
   tags?: string[];
   keywords?: string;
+  canonical?: string;
   noindex?: boolean;
 }
 
@@ -24,10 +25,11 @@ const {
   modifiedTime,
   tags = [],
   keywords,
+  canonical,
   noindex = false,
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
+const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
 const fullTitle = `${title}${seo.titleSuffix}`;
 const isoDate = (d?: Date | string) =>
   d ? (typeof d === 'string' ? new Date(d) : d).toISOString() : undefined;

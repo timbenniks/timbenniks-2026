@@ -1,142 +1,18 @@
 ---
-import { getCollection, getEntry } from "astro:content";
-import { getImage } from "astro:assets";
+import { getEntry } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import HeroSection from "../components/sections/HeroSection.astro";
-import QuoteCallout from "../components/sections/QuoteCallout.astro";
-import FeatureSplitSection from "../components/sections/FeatureSplitSection.astro";
-import CardGridSection from "../components/sections/CardGridSection.astro";
-import CardRowsSection from "../components/sections/CardRowsSection.astro";
-import ImageTextSection from "../components/sections/ImageTextSection.astro";
-import CtaStrip from "../components/sections/CtaStrip.astro";
-import {
-  articleToCard,
-  videoToCard,
-  talkToCard,
-  projectToCard,
-  type CardItem,
-} from "../lib/card";
+import PagePreloadLinks from "../components/PagePreloadLinks.astro";
+import PageSections from "../components/PageSections.astro";
 
 const home = await getEntry("pages", "home");
-if (!home) throw new Error("Missing content for pages/home");
-const { hero, thesis, sections, booking } = home.data;
+if (!home) {
+  throw new Error("Missing content for pages/home");
+}
 
-const [writingEntries, videoEntries, speakingEntries, projectEntries] =
-  await Promise.all([
-    getCollection("writing", ({ data }) => !data.draft),
-    getCollection("videos"),
-    getCollection("speaking"),
-    getCollection("projects"),
-  ]);
-
-const sortByDateDesc = <T extends { data: { date: Date } }>(arr: T[]) =>
-  arr.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-
-const writingCards = sortByDateDesc(writingEntries).map((e) => articleToCard(e));
-const videoCards = await Promise.all(
-  sortByDateDesc(videoEntries).map(videoToCard),
-);
-const speakingCards = sortByDateDesc(speakingEntries).map(talkToCard);
-const projectCards = projectEntries
-  .sort((a, b) => a.data.order - b.data.order)
-  .map(projectToCard);
-
-const sources: Record<"writing" | "videos" | "speaking" | "projects", CardItem[]> = {
-  writing: writingCards,
-  videos: videoCards,
-  speaking: speakingCards,
-  projects: projectCards,
-};
-
-const pickItems = (source: keyof typeof sources, limit?: number) =>
-  limit ? sources[source].slice(0, limit) : sources[source];
-
-const heroPreloaded = hero?.image.preload
-  ? await getImage({
-      src: hero.image.src,
-      width: hero.image.widths.at(-1) ?? hero.image.width,
-      widths: hero.image.widths,
-      alt: hero.image.alt,
-    })
-  : null;
+const { metadata, sections } = home.data;
 ---
 
-<BaseLayout
-  title="I used to build websites. Now I build what builds them"
-  description="Developer Experience Lead at Contentstack. Writing, talks, and videos on developer tools, AI-accelerated engineering, and composable architecture."
-  keywords="developer experience, AI-augmented engineering, composable architecture, developer relations, Contentstack, MACH Alliance"
->
-  {
-    heroPreloaded && (
-      <link
-        slot="head"
-        rel="preload"
-        as="image"
-        imagesrcset={heroPreloaded.srcSet.attribute}
-        imagesizes="(min-width: 768px) 50vw, 100vw"
-        fetchpriority="high"
-      />
-    )
-  }
-
-  {hero && <HeroSection {...hero} />}
-
-  {thesis && <QuoteCallout {...thesis} />}
-
-  {
-    sections.map((section) => {
-      if (section.kind === "feature-split") {
-        return (
-          <FeatureSplitSection
-            eyebrow={section.eyebrow}
-            title={section.title}
-            lede={section.lede}
-            items={pickItems(section.source, section.limit)}
-            cta={section.cta}
-          />
-        );
-      }
-      if (section.kind === "card-grid") {
-        return (
-          <CardGridSection
-            eyebrow={section.eyebrow}
-            title={section.title}
-            lede={section.lede}
-            items={pickItems(section.source, section.limit)}
-            columns={section.columns}
-            tone={section.tone}
-            class={section.class}
-            cta={section.cta}
-          />
-        );
-      }
-      if (section.kind === "card-rows") {
-        return (
-          <CardRowsSection
-            eyebrow={section.eyebrow}
-            title={section.title}
-            lede={section.lede}
-            items={pickItems(section.source, section.limit)}
-            cta={section.cta}
-          />
-        );
-      }
-      if (section.kind === "image-text") {
-        return (
-          <ImageTextSection
-            eyebrow={section.eyebrow}
-            title={section.title}
-            lede={section.lede}
-            body={section.body}
-            image={section.image}
-            imageSize={section.imageSize}
-            cta={section.cta}
-          />
-        );
-      }
-      return null;
-    })
-  }
-
-  <CtaStrip text={booking.text} em={booking.em} cta={booking.cta} />
+<BaseLayout {...metadata}>
+  <PagePreloadLinks slot="head" sections={sections} />
+  <PageSections sections={sections} />
 </BaseLayout>

@@ -1,42 +1,49 @@
 {
   "home": {
-    "hero": {
-      "headline": {
-        "lead": "I used to build",
-        "em": "websites.",
-        "tail": "Now I build what builds them."
-      },
-      "subline": "Developer Experience Lead at Contentstack. Co-chair, MACH Alliance Enterprise AI Agents Workgroup. Ambassador for Nuxt, Cloudinary, Supabase, and Algolia.",
-      "ctas": [
-        { "label": "Read the writing", "href": "/writing", "variant": "primary" },
-        { "label": "More about Tim", "href": "/about", "variant": "secondary" }
-      ],
-      "image": {
-        "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778485778/website/tim-sketch.png",
-        "alt": "Sketched portrait of Tim Benniks",
-        "width": 1024,
-        "height": 1536,
-        "widths": [360, 480, 640, 768, 960, 1280, 1440],
-        "eager": true,
-        "preload": true
-      }
-    },
-    "thesis": {
-      "headline": {
-        "lead": "When output is cheap,",
-        "em": "taste",
-        "tail": "is everything."
-      },
-      "attribution": "This article elaborates how AI-generated, scale-built content collapses everything from blogs to other building blocks. AI-generated, scaled-built content collapses everything from blogs to other building blocks.",
-      "cta": { "label": "Read the essay", "href": "/writing" },
-      "tone": "dark",
-      "backgroundImage": {
-        "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1743504260/website/tim_on_stage-1.png",
-        "width": 2355,
-        "height": 1011
-      }
+    "metadata": {
+      "title": "I used to build websites. Now I build what builds them",
+      "description": "Developer Experience Lead at Contentstack. Writing, talks, and videos on developer tools, AI-accelerated engineering, and composable architecture.",
+      "keywords": "developer experience, AI-augmented engineering, composable architecture, developer relations, Contentstack, MACH Alliance"
     },
     "sections": [
+      {
+        "kind": "hero",
+        "headline": {
+          "lead": "I used to build",
+          "em": "websites.",
+          "tail": "Now I build what builds them."
+        },
+        "subline": "Developer Experience Lead at Contentstack. Co-chair, MACH Alliance Enterprise AI Agents Workgroup. Ambassador for Nuxt, Cloudinary, Supabase, and Algolia.",
+        "ctas": [
+          { "label": "Read the writing", "href": "/writing", "variant": "primary" },
+          { "label": "More about Tim", "href": "/about", "variant": "secondary" }
+        ],
+        "image": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778485778/website/tim-sketch.png",
+          "alt": "Sketched portrait of Tim Benniks",
+          "width": 1024,
+          "height": 1536,
+          "widths": [360, 480, 640, 768, 960, 1280, 1440],
+          "eager": true,
+          "preload": true
+        }
+      },
+      {
+        "kind": "quote-callout",
+        "headline": {
+          "lead": "When output is cheap,",
+          "em": "taste",
+          "tail": "is everything."
+        },
+        "attribution": "This article elaborates how AI-generated, scale-built content collapses everything from blogs to other building blocks. AI-generated, scaled-built content collapses everything from blogs to other building blocks.",
+        "cta": { "label": "Read the essay", "href": "/writing" },
+        "tone": "dark",
+        "backgroundImage": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1743504260/website/tim_on_stage-1.png",
+          "width": 2355,
+          "height": 1011
+        }
+      },
       {
         "kind": "feature-split",
         "eyebrow": "The journal",
@@ -88,12 +95,13 @@
         "source": "speaking",
         "limit": 4,
         "cta": { "label": "All talks", "href": "/speaking" }
+      },
+      {
+        "kind": "cta-strip",
+        "text": "Got a stage, a podcast, or a developer team that needs sharpening?",
+        "em": "Let's talk.",
+        "cta": { "label": "Press kit & booking", "href": "/press-kit" }
       }
-    ],
-    "booking": {
-      "text": "Got a stage, a podcast, or a developer team that needs sharpening?",
-      "em": "Let's talk.",
-      "cta": { "label": "Press kit & booking", "href": "/press-kit" }
-    }
+    ]
   }
 }

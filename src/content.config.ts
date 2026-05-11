@@ -75,36 +75,47 @@ const remoteImage = z.object({
 const pages = defineCollection({
   loader: file('src/content/pages.json'),
   schema: z.object({
-    hero: z
-      .object({
-        headline,
-        subline: z.string(),
-        ctas: z.array(cta.extend({ variant: z.enum(['primary', 'secondary', 'accent', 'ghost']) })),
-        image: remoteImage.extend({
-          widths: z.array(z.number()),
-          eager: z.boolean().default(false),
-          preload: z.boolean().default(false),
-        }),
-      })
-      .optional(),
-    thesis: z
-      .object({
-        headline,
-        attribution: z.string().optional(),
-        cta: cta.optional(),
-        tone: z.enum(['light', 'dark']).default('dark'),
-        backgroundImage: z
-          .object({
-            src: z.string().url(),
-            width: z.number(),
-            height: z.number(),
-            opacity: z.number().optional(),
-          })
-          .optional(),
-      })
-      .optional(),
+    metadata: z.object({
+      title: z.string(),
+      description: z.string(),
+      canonical: z.string().url().optional(),
+      image: z.string().url().optional(),
+      imageAlt: z.string().optional(),
+      keywords: z.string().optional(),
+      noindex: z.boolean().optional(),
+    }),
     sections: z.array(
       z.discriminatedUnion('kind', [
+        z.object({
+          kind: z.literal('hero'),
+          headline,
+          subline: z.string().optional(),
+          ctas: z
+            .array(cta.extend({ variant: z.enum(['primary', 'secondary', 'accent', 'ghost']).optional() }))
+            .default([]),
+          image: remoteImage
+            .extend({
+              widths: z.array(z.number()).optional(),
+              eager: z.boolean().default(false),
+              preload: z.boolean().default(false),
+            })
+            .optional(),
+        }),
+        z.object({
+          kind: z.literal('quote-callout'),
+          headline,
+          attribution: z.string().optional(),
+          cta: cta.optional(),
+          tone: z.enum(['light', 'dark']).default('dark'),
+          backgroundImage: z
+            .object({
+              src: z.string().url(),
+              width: z.number(),
+              height: z.number(),
+              opacity: z.number().optional(),
+            })
+            .optional(),
+        }),
         z.object({
           kind: z.literal('feature-split'),
           eyebrow: z.string().optional(),
@@ -145,13 +156,14 @@ const pages = defineCollection({
           imageSize: z.number().optional(),
           cta: cta.optional(),
         }),
+        z.object({
+          kind: z.literal('cta-strip'),
+          text: z.string(),
+          em: z.string().optional(),
+          cta: cta.extend({ variant: z.enum(['primary', 'secondary', 'accent']).optional() }),
+        }),
       ]),
     ),
-    booking: z.object({
-      text: z.string(),
-      em: z.string().optional(),
-      cta: cta.extend({ variant: z.enum(['primary', 'secondary', 'accent']).optional() }),
-    }),
   }),
 });
 

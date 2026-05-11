@@ -1,0 +1,42 @@
+---
+import HeroSection from "./sections/HeroSection.astro";
+import QuoteCallout from "./sections/QuoteCallout.astro";
+import FeatureSplitSection from "./sections/FeatureSplitSection.astro";
+import CardGridSection from "./sections/CardGridSection.astro";
+import CardRowsSection from "./sections/CardRowsSection.astro";
+import ImageTextSection from "./sections/ImageTextSection.astro";
+import CtaStrip from "./sections/CtaStrip.astro";
+import type { AstroComponentFactory } from "astro/runtime/server/index.js";
+import {
+  resolvePageSections,
+  type ResolvedPageSection,
+} from "../lib/page-sections";
+
+interface Props {
+  sections: Parameters<typeof resolvePageSections>[0];
+}
+
+const resolvedSections: ResolvedPageSection[] = await resolvePageSections(
+  Astro.props.sections,
+);
+
+const sectionComponents: Record<
+  ResolvedPageSection["kind"],
+  AstroComponentFactory
+> = {
+  hero: HeroSection,
+  "quote-callout": QuoteCallout,
+  "feature-split": FeatureSplitSection,
+  "card-grid": CardGridSection,
+  "card-rows": CardRowsSection,
+  "image-text": ImageTextSection,
+  "cta-strip": CtaStrip,
+};
+---
+
+{
+  resolvedSections.map((section) => {
+    const Component = sectionComponents[section.kind];
+    return <Component {...section} />;
+  })
+}
