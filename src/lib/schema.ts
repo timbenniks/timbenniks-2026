@@ -1,10 +1,12 @@
-import { seo, SITE_URL as SITE } from '../data/site';
+import { seo, social, SITE_URL as SITE } from '../data/site';
 
 export type BreadcrumbItem = { name: string; url: string };
 
+const PERSON_ID = `${SITE}${seo.authorId}`;
+
 const personRef = () => ({
   '@type': 'Person',
-  '@id': `${SITE}${seo.authorId}`,
+  '@id': PERSON_ID,
   name: 'Tim Benniks',
   url: `${SITE}/`,
   image: {
@@ -15,6 +17,17 @@ const personRef = () => ({
     width: '96',
     height: '96',
   },
+});
+
+export const personSchema = () => ({
+  ...personRef(),
+  givenName: 'Tim',
+  familyName: 'Benniks',
+  jobTitle: 'Head of Developer Experience',
+  description:
+    'Developer experience leader, writer, and speaker focused on AI-augmented engineering and composable platforms.',
+  mainEntityOfPage: `${SITE}/about`,
+  sameAs: [...social],
 });
 
 export const websiteSchema = () => ({
@@ -35,7 +48,8 @@ export const websiteSchema = () => ({
       'query-input': 'required name=search_term_string',
     },
   ],
-  author: { '@type': 'Person', name: 'Tim Benniks' },
+  author: { '@id': PERSON_ID },
+  publisher: { '@id': PERSON_ID },
 });
 
 export const webPageSchema = (opts: {
@@ -92,6 +106,31 @@ export const blogPostingSchema = (opts: {
   description: opts.description,
   abstract: opts.description,
   ...(opts.readingMinutes ? { timeRequired: `PT${opts.readingMinutes}M` } : {}),
+  author: personRef(),
+});
+
+export const videoObjectSchema = (opts: {
+  url: string;
+  title: string;
+  description: string;
+  datePublished: string;
+  thumbnailUrl: string;
+  videoId: string;
+  transcript?: string;
+  tags?: string[];
+}) => ({
+  '@type': 'VideoObject',
+  name: opts.title,
+  headline: opts.title,
+  description: opts.description,
+  url: opts.url,
+  mainEntityOfPage: opts.url,
+  uploadDate: opts.datePublished,
+  thumbnailUrl: [opts.thumbnailUrl],
+  embedUrl: `https://www.youtube.com/embed/${opts.videoId}`,
+  contentUrl: `https://www.youtube.com/watch?v=${opts.videoId}`,
+  ...(opts.tags?.length ? { keywords: opts.tags.join(', ') } : {}),
+  ...(opts.transcript?.trim() ? { transcript: opts.transcript.trim() } : {}),
   author: personRef(),
 });
 

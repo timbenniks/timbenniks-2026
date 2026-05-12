@@ -17,6 +17,14 @@ export const seo = {
   authorId: '/about#Person',
 } as const;
 
+export const social = [
+  'https://linkedin.com/in/timbenniks',
+  'https://youtube.com/timbenniks',
+  'https://github.com/timbenniks',
+  'https://bsky.app/profile/timbenniks.dev',
+  'https://twitter.com/timbenniks',
+] as const;
+
 export type NavLink = { label: string; href: string };
 
 export const nav: NavLink[] = [
