@@ -4,7 +4,7 @@ slug: development-101-for-non-technical-vibe-coders
 canonical_url: https://timbenniks.dev/writing/development-101-for-non-technical-vibe-coders
 description: "When folks think they're failing at AI coding, they're usually failing at their laptop. Before you brief an agent well, your machine has to be a predictable place."
 date: "2026-05-04T10:00:00Z"
-image: https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto/v1765920589/website/101.webp
+image: https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto/website/Development-101-for-non-technical-vibe-coders.png
 reading_time: 5 min read
 draft: false
 tags:
@@ -14,7 +14,7 @@ tags:
 head:
   meta:
     - property: twitter:image
-      content: https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto/v1765920589/website/101.webp
+      content: https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto/website/Development-101-for-non-technical-vibe-coders.png
     - property: twitter:title
       content: Development 101 for non-technical vibe coders
     - property: twitter:description
@@ -92,4 +92,4 @@ If any of those are off, the agent is working with a broken environment, and no 
 
 Your laptop is part of the stack. If that layer is unstable, everything above it becomes unreliable. Your code, your tools, your agents. Make your environment boring before you optimise prompts, frameworks, or architecture.
 
-*After you master these basics, go to the next step: [the vibe-coded app architecture guide](https://timbenniks.dev/writing/the-vibe-coded-app-architecture-guide).*
+_After you master these basics, go to the next step: [the vibe-coded app architecture guide](https://timbenniks.dev/writing/the-vibe-coded-app-architecture-guide)._
