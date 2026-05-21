@@ -4,7 +4,7 @@ slug: development-101-for-non-technical-vibe-coders
 canonical_url: https://timbenniks.dev/writing/development-101-for-non-technical-vibe-coders
 description: "When folks think they're failing at AI coding, they're usually failing at their laptop. Before you brief an agent well, your machine has to be a predictable place."
 date: "2026-05-04T10:00:00Z"
-image: https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto/website/Development-101-for-non-technical-vibe-coders.png
+image: https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto/website/dev-101.png
 reading_time: 5 min read
 draft: false
 tags:
@@ -14,7 +14,7 @@ tags:
 head:
   meta:
     - property: twitter:image
-      content: https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto/website/Development-101-for-non-technical-vibe-coders.png
+      content: https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto/website/dev-101.png
     - property: twitter:title
       content: Development 101 for non-technical vibe coders
     - property: twitter:description

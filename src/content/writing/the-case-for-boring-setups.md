@@ -30,8 +30,8 @@ head:
     - property: keywords
       content: ai, cli, webdev, architecture, devops, process, personal
     - property: twitter:image
-      content: https://res.cloudinary.com/dwfcofnrd/image/upload/v1776671686/website/the-case-for-boring-setups.png
-image: https://res.cloudinary.com/dwfcofnrd/image/upload/v1776671686/website/the-case-for-boring-setups.png
+      content: https://res.cloudinary.com/dwfcofnrd/image/upload/v1776671686/website/boring-setups.png
+image: https://res.cloudinary.com/dwfcofnrd/image/upload/v1776671686/website/boring-setups.png
 ---
 
 I asked a colleague to jump on my laptop a few years ago to help me debug something, and within about thirty seconds we both realised they couldn't use my computer.
