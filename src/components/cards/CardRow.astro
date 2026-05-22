@@ -1,4 +1,6 @@
 ---
+import { Image } from "astro:assets";
+import MediaFrame from "../primitives/MediaFrame.astro";
 import TagPill from "../primitives/TagPill.astro";
 import type { CardItem } from "../../lib/card";
 
@@ -8,6 +10,9 @@ interface Props {
 }
 
 const { item, isLast = false } = Astro.props;
+
+const thumbWidths = [320, 480, 640, 800];
+const thumbSizes = "(min-width: 768px) 224px, 100vw";
 
 const linkAttrs = item.href
   ? {
@@ -69,7 +74,7 @@ const linkAttrs = item.href
   <article class="group">
     <a
       {...linkAttrs}
-      class="flex flex-col gap-2 rounded-sm border-t border-line py-6 no-underline md:flex-row md:items-baseline md:gap-8"
+      class="flex flex-col gap-4 rounded-sm border-t border-line py-6 no-underline md:flex-row md:items-start md:gap-8"
     >
       {item.date && (
         <time
@@ -78,6 +83,21 @@ const linkAttrs = item.href
         >
           {item.date}
         </time>
+      )}
+      {item.image && (
+        <MediaFrame aspect="video" class="w-full shrink-0 md:w-56">
+          <Image
+            src={item.image}
+            widths={thumbWidths}
+            sizes={thumbSizes}
+            alt=""
+            width={320}
+            height={180}
+            loading="lazy"
+            decoding="async"
+            class="h-full w-full object-cover"
+          />
+        </MediaFrame>
       )}
       <div class="flex-1">
         <h3 class="font-serif text-2xl font-medium leading-tight text-ink group-hover:underline group-hover:underline-offset-[3px]">
