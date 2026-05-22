@@ -134,6 +134,71 @@ export const videoObjectSchema = (opts: {
   author: personRef(),
 });
 
+const MONTHS: Record<string, string> = {
+  january: '01', february: '02', march: '03', april: '04',
+  may: '05', june: '06', july: '07', august: '08',
+  september: '09', october: '10', november: '11', december: '12',
+};
+
+const parseMonthYear = (s: string): string | undefined => {
+  const [monthName, year] = s.trim().split(/\s+/);
+  const mm = MONTHS[monthName?.toLowerCase() ?? ''];
+  if (!mm || !/^\d{4}$/.test(year ?? '')) return undefined;
+  return `${year}-${mm}`;
+};
+
+const parseDateRange = (range: string) => {
+  const [startRaw, endRaw] = range.split(/\s*-\s*/);
+  const startDate = startRaw ? parseMonthYear(startRaw) : undefined;
+  const current = !endRaw || /present/i.test(endRaw);
+  const endDate = current ? undefined : parseMonthYear(endRaw);
+  return { startDate, endDate, current };
+};
+
+export type TimelineRole = {
+  daterange: string;
+  company: string;
+  title: string;
+  url?: string;
+  location?: string;
+  text: string;
+};
+
+export const careerTimelineSchema = (items: TimelineRole[]) => {
+  const parsed = items.map((item) => ({ item, ...parseDateRange(item.daterange) }));
+  const current = parsed.filter((p) => p.current);
+  const past = parsed.filter((p) => !p.current);
+
+  const buildOrg = (item: TimelineRole) => ({
+    '@type': 'Organization',
+    name: item.company,
+    ...(item.url ? { url: item.url } : {}),
+  });
+
+  const buildRole = (
+    entry: (typeof parsed)[number],
+    relation: 'worksFor' | 'alumniOf',
+  ) => ({
+    '@type': 'OrganizationRole',
+    roleName: entry.item.title,
+    ...(entry.startDate ? { startDate: entry.startDate } : {}),
+    ...(entry.endDate ? { endDate: entry.endDate } : {}),
+    description: entry.item.text,
+    ...(entry.item.location ? { location: entry.item.location } : {}),
+    [relation]: buildOrg(entry.item),
+  });
+
+  return {
+    ...personRef(),
+    ...(current.length
+      ? { worksFor: current.map((p) => buildRole(p, 'worksFor')) }
+      : {}),
+    ...(past.length
+      ? { alumniOf: past.map((p) => buildRole(p, 'alumniOf')) }
+      : {}),
+  };
+};
+
 export const buildGraph = (...nodes: Record<string, unknown>[]) => ({
   '@context': 'https://schema.org',
   '@graph': nodes,

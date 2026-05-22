@@ -213,7 +213,120 @@
           "href": "/projects"
         }
       },
+      {
+        "kind": "timeline",
+        "eyebrow": "The long version",
+        "title": "Career timeline",
+        "lede": "Twenty years across agencies, global brands, and developer-tooling startups — building, leading, and advocating for the teams behind the platforms.",
+        "tone": "light",
 
+        "items": [
+          {
+            "daterange": "September 2024 - Present",
+            "text": "At Contentstack, Tim Benniks is the Developer Experience Lead, leading the evolution of developer experience toward AI driven tooling and workflows. He focuses on defining the strategy for developer onboarding and product usage, designing and building MCP servers, MCP Hub, official AI Skills, and Agent integrations, creating DX frameworks that blend AI, orchestration, and platform thinking, producing content, talks, demos, starters, and videos showcasing modern developer workflows, and working with engineering and product teams to bring AI capabilities directly into the platform. The goal is simple: reduce cognitive load, improve developer velocity, and make composable architectures actually enjoyable to work with.",
+            "company": "Contentstack",
+            "title": "Developer Experience Lead",
+            "location": "Remote",
+            "url": "https://contentstack.com"
+          },
+          {
+            "daterange": "August 2023 - September 2024",
+            "text": "At Hygraph, Tim Benniks is the Developer Relations Lead, driving outreach and awareness initiatives. In this role, he connects with the developer community through engaging content, live streams, and industry events. Tim's efforts are focused on showcasing Hygraph's capabilities, fostering strong relationships with developers and partners, and promoting the adoption of headless CMS solutions. His work enhances Hygraph's visibility and empowers developers to build innovative and scalable applications using Hygraph's platform.",
+            "company": "Hygraph",
+            "title": "Developer Relations Lead for Outreach and Awareness",
+            "location": "Remote",
+            "url": "https://hygraph.com"
+          },
+          {
+            "daterange": "March 2021 - October 2025",
+            "text": "At the beginning of my tenure as a member of the Technical Council, I played a pivotal role in shaping the decision-making processes for new member admissions for SI's. Diligently evaluated potential members to ensure they adhered to Microservices, API-first, Cloud-native, and Headless (MACH) architecture principles. As a group of dedicated Council members, we were instrumental in maintaining the high standards of the alliance, fostering innovation, and ensuring that new entrants contributed meaningfully to the MACH ecosystem.",
+            "company": "MACH Alliance",
+            "title": "Member of Tech Council",
+            "location": "Remote",
+            "url": "https://machalliance.org"
+          },
+          {
+            "daterange": "January 2023 - August 2023",
+            "text": "Played a crucial role in engaging and educating the developer community. Inspire and Empower is the motto. Responsibilities included creating educational content, live streaming, speaking at conferences, and providing guidance to developers to effectively utilize Uniform's cutting-edge platform. My work significantly contributed to increasing Uniform's visibility and adoption within the tech community, fostering a vibrant and informed user base.",
+            "company": "Uniform",
+            "title": "Director of Developer Relations",
+            "location": "Remote",
+            "url": "https://uniform.dev"
+          },
+          {
+            "daterange": "February 2021 - January 2023",
+            "text": "Joined Uniform as Principal Developer Advocate. Developer Relations, defining the perception of Uniform to technical people in the community of developers, partners, and customers. Setting up processes, KPIs, and their measurement, creating content (written and video) around DXC, and speaking at conferences. In 2021 this was a one man team so the scope was wide ranging. In 2022 this is scoped down as the company grows and other disciplines take more responsibilities.",
+            "company": "Uniform",
+            "title": "Principal Developer Advocate",
+            "location": "Remote",
+            "url": "https://uniform.dev"
+          },
+          {
+            "daterange": "March 2018 - February 2021",
+            "text": "A global role representing front-end developers across Valtech. Setting up best practices around team management, pitching, and use of MACH technology. Helping Global clients to achieve digital transformation at scale. Clients include: P&G, Rolex, LVMH",
+            "company": "Valtech",
+            "title": "Director of Web Development",
+            "location": "Paris Area, France",
+            "url": "https://www.valtech.com"
+          },
+          {
+            "daterange": "April 2017 - January 2020",
+            "text": "Global front-end lead on the website factory program for L'Oréal. Leading teams in France, US and Ukraine. In charge of code quality across projects, front-end architecture, tech stack decisions. Leading from code perspective, not from a high level management point of view. Sitecore, Azure, Vue.js, Accessibility compliance, unit testing, media asset management, performance, scss architecture, JSS. Brands: Kerastase, Garnier, Redken, Essie, L'Oréal Paris, La Roche Posay, Vichy.",
+            "company": "Valtech",
+            "title": "Global Front-End Lead",
+            "location": "Paris Area, France",
+            "url": "https://www.valtech.com"
+          },
+          {
+            "daterange": "April 2015 - April 2017",
+            "text": "Dividing time between being tech lead and developer. In this role the focus is on bringing partners together to create an agile and flexible team to deliver high quality work. Doing development when needed. Streamlining client processes and decision making with creative innovation, tech limitations and client goals in mind. Knowledge and experience: Gigya, Smartfocus, Webtrends, Cloudinary, Fredhopper, MailChimp, AEM, Hybris and Sitecore. Clients: Chanel, Hermès, Google, Nike.",
+            "company": "AKQA",
+            "title": "Technical Delivery Manager",
+            "location": "Paris Area, France",
+            "url": "https://www.akqa.com"
+          },
+          {
+            "daterange": "March 2014 - April 2015",
+            "text": "Next to development the job included: leading the tech team on a content level, presenting to peers, guiding juniors and interns and working closely with external tech partners. Clients: Chanel, Hermès, Red Bull, Martell, Google, Nike",
+            "company": "AKQA",
+            "title": "Principal Web Developer",
+            "location": "Paris Area, France",
+            "url": "https://www.akqa.com"
+          },
+          {
+            "daterange": "January 2011 - March 2014",
+            "text": "Worked on front-end architecture for big multi-market platforms and through the line campaigns. Prototyping had a prominent place in the work. Clients: Heineken, Tommy Hilfiger, Mini, Nike, EA Sports, Philips.",
+            "company": "AKQA",
+            "title": "Senior Web Developer",
+            "location": "Amsterdam Area, Netherlands",
+            "url": "https://www.akqa.com"
+          },
+          {
+            "daterange": "May 2010 - December 2010",
+            "text": "Worked closely with the backend developers. The goal was to be a bridge between the two disciplines and therefore making the work process more agile. Clients: Transavia.com, AutoTrader, VUmc, Nutricia, Stadgenoot, KLM, RDC.",
+            "company": "Mirabeau",
+            "title": "Front-End Developer",
+            "location": "Netherlands",
+            "url": "https://www.mirabeau.nl"
+          },
+          {
+            "daterange": "January 2010 - May 2010",
+            "text": "Responsible for the quality assurance of code. Made sure deadlines were hit, helped out with the personal goals of team members and handled resourcing as an additional task.",
+            "company": "Mediamatic",
+            "title": "Team Lead Front-End Development",
+            "location": "Amsterdam",
+            "url": "https://www.mediamatic.net"
+          },
+          {
+            "daterange": "January 2008 - January 2010",
+            "text": "Responsible for the overall look and feel of websites built with the anyMeta CMS. This included animations, placement of elements and interaction. Rebuilt the whole template system and CSS framework of the anyMeta CMS in 2008. In 2009 the focus was on the rebuild of the JavaScript architecture. During this time Mediamatic worked with the first versions of oAuth and social network logins before Facebook became big in Europe. Clients: Picnic, Pakhuis de Zwijger, Women INC, Mediamatic.net, Mediamatic Travel, Museum de Paviljoens.",
+            "company": "Mediamatic",
+            "title": "Front-End Engineer",
+            "location": "Amsterdam",
+            "url": "https://www.mediamatic.net"
+          }
+        ]
+      },
       {
         "kind": "card-grid",
         "eyebrow": "On camera",

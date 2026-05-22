@@ -161,6 +161,24 @@ const pages = defineCollection({
           cta: cta.optional(),
         }),
         z.object({
+          kind: z.literal('timeline'),
+          eyebrow: z.string().optional(),
+          title: z.string(),
+          lede: z.string().optional(),
+          tone: z.enum(['light', 'dark']).default('light'),
+          cta: cta.optional(),
+          items: z.array(
+            z.object({
+              daterange: z.string(),
+              company: z.string(),
+              title: z.string(),
+              location: z.string().optional(),
+              url: z.string().url().optional(),
+              text: z.string(),
+            }),
+          ),
+        }),
+        z.object({
           kind: z.literal('cta-strip'),
           text: z.string(),
           em: z.string().optional(),

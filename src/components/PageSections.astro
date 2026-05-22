@@ -6,6 +6,7 @@ import CardGridSection from "./sections/CardGridSection.astro";
 import CardRowsSection from "./sections/CardRowsSection.astro";
 import ImageTextSection from "./sections/ImageTextSection.astro";
 import CtaStrip from "./sections/CtaStrip.astro";
+import TimelineSection from "./sections/TimelineSection.astro";
 import type { AstroComponentFactory } from "astro/runtime/server/index.js";
 import {
   resolvePageSections,
@@ -31,6 +32,7 @@ const sectionComponents: Record<
   "card-rows": CardRowsSection,
   "image-text": ImageTextSection,
   "cta-strip": CtaStrip,
+  timeline: TimelineSection,
 };
 ---
 

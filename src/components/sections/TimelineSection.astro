@@ -1,0 +1,139 @@
+---
+import Section from '../primitives/Section.astro';
+import SectionHeading from '../primitives/SectionHeading.astro';
+import ArrowLink from '../primitives/ArrowLink.astro';
+import JsonLd from '../primitives/JsonLd.astro';
+import { buildGraph, careerTimelineSchema, type TimelineRole } from '../../lib/schema';
+
+type TimelineItem = TimelineRole;
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  tone?: 'light' | 'dark';
+  items: TimelineItem[];
+  cta?: { label: string; href: string };
+  bordered?: boolean;
+}
+
+const {
+  eyebrow,
+  title,
+  lede,
+  tone = 'light',
+  items,
+  cta,
+  bordered = true,
+} = Astro.props;
+
+const dark = tone === 'dark';
+
+const jsonLd = buildGraph(careerTimelineSchema(items));
+---
+
+<JsonLd data={jsonLd} />
+
+<Section tone={tone} bordered={bordered}>
+  <SectionHeading eyebrow={eyebrow} title={title} lede={lede} dark={dark} />
+
+  <ol
+    class:list={[
+      'mt-12 relative border-l',
+      dark ? 'border-line-dark' : 'border-line-strong',
+    ]}
+  >
+    {
+      items.map((item) => (
+        <li class="group relative pl-8 pb-10 last:pb-0 md:pl-12">
+          <span
+            class:list={[
+              'absolute left-0 top-2 -translate-x-1/2 h-3 w-3 rounded-full ring-4 transition-transform duration-200 group-hover:scale-125',
+              dark
+                ? 'bg-accent-bright ring-bg-dark'
+                : 'bg-accent ring-bg',
+            ]}
+            aria-hidden="true"
+          />
+
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-[200px_1fr] md:gap-10">
+            <div class="flex flex-col gap-1">
+              <time
+                class:list={[
+                  'font-mono text-xs uppercase tracking-wide',
+                  dark ? 'text-cream-subtle' : 'text-ink-subtle',
+                ]}
+              >
+                {item.daterange}
+              </time>
+              {item.location && (
+                <span
+                  class:list={[
+                    'text-xs',
+                    dark ? 'text-cream-subtle' : 'text-ink-subtle',
+                  ]}
+                >
+                  {item.location}
+                </span>
+              )}
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <h3
+                class:list={[
+                  'font-serif text-2xl font-medium leading-tight',
+                  dark ? 'text-cream' : 'text-ink',
+                ]}
+              >
+                {item.title}
+              </h3>
+              <p
+                class:list={[
+                  'text-sm font-medium',
+                  dark ? 'text-cream-muted' : 'text-ink-muted',
+                ]}
+              >
+                {item.url ? (
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class:list={[
+                      'inline-flex items-baseline gap-1 underline underline-offset-2 transition-colors',
+                      dark
+                        ? 'decoration-line-dark hover:text-accent-bright'
+                        : 'decoration-line-strong hover:text-accent',
+                    ]}
+                  >
+                    {item.company}
+                    <span aria-hidden="true" class="text-xs">↗</span>
+                  </a>
+                ) : (
+                  item.company
+                )}
+              </p>
+              <p
+                class:list={[
+                  'text-md leading-relaxed',
+                  dark ? 'text-cream-muted' : 'text-ink-muted',
+                ]}
+              >
+                {item.text}
+              </p>
+            </div>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+
+  {
+    cta && (
+      <div class="mt-12">
+        <ArrowLink href={cta.href} dark={dark}>
+          {cta.label}
+        </ArrowLink>
+      </div>
+    )
+  }
+</Section>
