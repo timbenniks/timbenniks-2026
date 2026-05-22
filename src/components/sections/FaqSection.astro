@@ -1,0 +1,35 @@
+---
+import Section from '../primitives/Section.astro';
+import SectionHeading from '../primitives/SectionHeading.astro';
+import FaqList from '../primitives/FaqList.astro';
+import type { FaqEntry } from '../../lib/schema';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  tone?: 'light' | 'dark';
+  items: FaqEntry[];
+  bordered?: boolean;
+}
+
+const {
+  eyebrow,
+  title,
+  lede,
+  tone = 'light',
+  items,
+  bordered = true,
+} = Astro.props;
+
+const dark = tone === 'dark';
+---
+
+<Section tone={tone} bordered={bordered}>
+  <div class="grid grid-cols-1 gap-10 md:grid-cols-[1fr_1.4fr] md:gap-16">
+    <SectionHeading eyebrow={eyebrow} title={title} lede={lede} dark={dark} />
+    <div>
+      <FaqList items={items} dark={dark} />
+    </div>
+  </div>
+</Section>

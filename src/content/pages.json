@@ -342,6 +342,47 @@
         }
       },
       {
+        "kind": "faq",
+        "eyebrow": "Common questions",
+        "title": "About Tim, in eight answers",
+        "lede": "The quick version of who Tim is, what he works on, and where his focus sits today.",
+        "tone": "light",
+        "items": [
+          {
+            "question": "Who is Tim Benniks?",
+            "answer": "Tim Benniks is an engineer and product thinker focused on developer platforms, extensibility, and AI-augmented software development. His work explores how teams can move beyond shipping faster toward building systems that developers adopt and trust."
+          },
+          {
+            "question": "What does Tim work on today?",
+            "answer": "Tim designs developer platforms and extensibility ecosystems, helping teams turn developer experience into a strategic advantage. He focuses on platform adoption, composable architectures, and navigating the realities of AI-accelerated development."
+          },
+          {
+            "question": "What is Tim's role at Contentstack?",
+            "answer": "Tim is Developer Experience Lead at Contentstack, where he works on platform extensibility, developer tooling, and initiatives that help teams build on the platform with confidence and speed."
+          },
+          {
+            "question": "What did Tim do before focusing on developer platforms?",
+            "answer": "Tim spent many years in agencies and product companies building large-scale digital platforms for global brands. This experience shaped his systems thinking and his focus on real-world complexity, adoption, and long-term maintainability."
+          },
+          {
+            "question": "Why does Tim write and speak about AI and engineering?",
+            "answer": "Tim explores how AI is changing the role of engineers, not by replacing them, but by increasing the importance of architecture, judgment, and taste. His work focuses on helping teams adopt AI without losing engineering discipline."
+          },
+          {
+            "question": "What topics does Tim cover in his talks and writing?",
+            "answer": "His work centers on developer platforms, AI-augmented engineering, the convergence of engineering and product, and why developer experience has become a core product strategy."
+          },
+          {
+            "question": "Where can I find Tim's latest talks and writing?",
+            "answer": "You can explore Tim's latest articles, talks, and videos on this site. He regularly shares insights on platform design, AI workflows, and the evolving role of engineers in modern organizations."
+          },
+          {
+            "question": "Can I invite Tim to speak or collaborate?",
+            "answer": "Yes. Tim speaks at conferences and advises teams on developer platforms, AI adoption, and developer experience strategy. Reach out via the contact page or connect on LinkedIn."
+          }
+        ]
+      },
+      {
         "kind": "cta-strip",
         "text": "Need a stage, a podcast guest, or a developer team that needs sharpening?",
         "em": "Let's talk.",

@@ -1,0 +1,66 @@
+---
+import JsonLd from './JsonLd.astro';
+import { buildGraph, faqPageSchema, type FaqEntry } from '../../lib/schema';
+
+interface Props {
+  items: FaqEntry[];
+  dark?: boolean;
+  emitJsonLd?: boolean;
+}
+
+const { items, dark = false, emitJsonLd = true } = Astro.props;
+---
+
+{emitJsonLd && <JsonLd data={buildGraph(faqPageSchema(items))} />}
+
+<div
+  class:list={[
+    'flex flex-col border-t',
+    dark ? 'border-line-dark' : 'border-line',
+  ]}
+>
+  {
+    items.map((item) => (
+      <details
+        class:list={[
+          'group border-b',
+          dark ? 'border-line-dark' : 'border-line',
+        ]}
+      >
+        <summary
+          class:list={[
+            'faq-summary flex cursor-pointer list-none items-baseline justify-between gap-6 py-5 transition-colors',
+            dark ? 'text-cream hover:text-accent-bright' : 'text-ink hover:text-accent',
+          ]}
+        >
+          <span class="font-serif text-xl font-medium leading-snug md:text-2xl">
+            {item.question}
+          </span>
+          <span
+            aria-hidden="true"
+            class:list={[
+              'shrink-0 text-2xl leading-none transition-transform duration-200 group-open:rotate-45',
+              dark ? 'text-cream-subtle' : 'text-ink-subtle',
+            ]}
+          >
+            +
+          </span>
+        </summary>
+        <div
+          class:list={[
+            'pb-6 pr-10 text-md leading-relaxed',
+            dark ? 'text-cream-muted' : 'text-ink-muted',
+          ]}
+        >
+          {item.answer}
+        </div>
+      </details>
+    ))
+  }
+</div>
+
+<style>
+  .faq-summary::-webkit-details-marker {
+    display: none;
+  }
+</style>

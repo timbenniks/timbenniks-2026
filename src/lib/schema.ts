@@ -199,6 +199,21 @@ export const careerTimelineSchema = (items: TimelineRole[]) => {
   };
 };
 
+export type FaqEntry = { question: string; answer: string };
+
+export const faqPageSchema = (items: FaqEntry[], opts?: { url?: string }) => ({
+  '@type': 'FAQPage',
+  ...(opts?.url ? { '@id': `${opts.url}#faq`, mainEntityOfPage: opts.url } : {}),
+  mainEntity: items.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer,
+    },
+  })),
+});
+
 export const buildGraph = (...nodes: Record<string, unknown>[]) => ({
   '@context': 'https://schema.org',
   '@graph': nodes,

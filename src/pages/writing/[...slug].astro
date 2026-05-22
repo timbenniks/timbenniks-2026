@@ -6,7 +6,8 @@ import Container from '../../components/primitives/Container.astro';
 import Eyebrow from '../../components/primitives/Eyebrow.astro';
 import Meta from '../../components/primitives/Meta.astro';
 import JsonLd from '../../components/primitives/JsonLd.astro';
-import { blogPostingSchema, breadcrumbSchema, buildGraph } from '../../lib/schema';
+import FaqList from '../../components/primitives/FaqList.astro';
+import { blogPostingSchema, breadcrumbSchema, buildGraph, faqPageSchema } from '../../lib/schema';
 import { tagLabel } from '../../lib/tags';
 import { siteUrl } from '../../data/site';
 
@@ -40,6 +41,7 @@ const readingMinutes =
     : typeof readingTime === 'string'
       ? parseInt(readingTime, 10) || undefined
       : undefined;
+const faqs = entry.data.faqs ?? [];
 const articleGraph = buildGraph(
   blogPostingSchema({
     url: articleURL,
@@ -55,6 +57,7 @@ const articleGraph = buildGraph(
     { name: 'writing', url: siteUrl('/writing') },
     { name: entry.data.title.toLowerCase(), url: articleURL },
   ]),
+  ...(faqs.length ? [faqPageSchema(faqs, { url: articleURL })] : []),
 );
 ---
 
@@ -115,6 +118,15 @@ const articleGraph = buildGraph(
         <div class="article-body mx-auto mt-10 max-w-[720px] space-y-5 text-ink leading-relaxed">
           <Content />
         </div>
+
+        {faqs.length > 0 && (
+          <aside class="mx-auto mt-16 max-w-[720px] border-t border-line pt-10">
+            <h2 class="mb-6 font-serif text-3xl font-medium text-ink">
+              Frequently asked questions
+            </h2>
+            <FaqList items={faqs} emitJsonLd={false} />
+          </aside>
+        )}
       </article>
     </Container>
   </Section>

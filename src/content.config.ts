@@ -18,6 +18,14 @@ const writing = defineCollection({
       tags: z.array(z.string()).default([]),
       canonical_url: z.string().optional(),
       reading_time: z.union([z.string(), z.number()]).optional(),
+      faqs: z
+        .array(
+          z.object({
+            question: z.string(),
+            answer: z.string(),
+          }),
+        )
+        .optional(),
       draft: z.boolean().default(false),
     })
     .loose(),
@@ -159,6 +167,19 @@ const pages = defineCollection({
           equalWidth: z.boolean().default(false),
           imageSide: z.enum(['left', 'right']).default('left'),
           cta: cta.optional(),
+        }),
+        z.object({
+          kind: z.literal('faq'),
+          eyebrow: z.string().optional(),
+          title: z.string(),
+          lede: z.string().optional(),
+          tone: z.enum(['light', 'dark']).default('light'),
+          items: z.array(
+            z.object({
+              question: z.string(),
+              answer: z.string(),
+            }),
+          ),
         }),
         z.object({
           kind: z.literal('timeline'),
