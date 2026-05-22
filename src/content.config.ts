@@ -100,7 +100,7 @@ const pages = defineCollection({
               preload: z.boolean().default(false),
             })
             .optional(),
-          imageLeft: z.boolean().default(false),
+          imageSide: z.enum(['left', 'right']).default('right'),
         }),
         z.object({
           kind: z.literal('quote-callout'),
@@ -108,6 +108,7 @@ const pages = defineCollection({
           attribution: z.string().optional(),
           cta: cta.optional(),
           tone: z.enum(['light', 'dark']).default('dark'),
+          align: z.enum(['left', 'right']).default('left'),
           backgroundImage: z
             .object({
               src: z.string().url(),

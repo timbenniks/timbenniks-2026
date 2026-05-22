@@ -153,7 +153,7 @@
           "eager": true,
           "preload": true
         },
-        "imageLeft": true
+        "imageSide": "left"
       },
       {
         "kind": "image-text",
@@ -191,11 +191,12 @@
           "href": "/writing"
         },
         "tone": "dark",
+        "align": "right",
         "backgroundImage": {
-          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1677741163/Tim/332085412_586030710041652_2407035883321360255_n.jpg",
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1677741163/website/tim-hero.png",
           "width": 1280,
           "height": 550,
-          "opacity": 0.34
+          "opacity": 0.6
         }
       },
       {
@@ -226,21 +227,6 @@
           "label": "All videos",
           "href": "/videos"
         }
-      },
-
-      {
-        "kind": "image-text",
-        "eyebrow": "Beyond the work",
-        "title": "Slower pace, clearer thinking",
-        "lede": "I live in the French countryside, where the slower pace is a useful counterweight to an industry obsessed with speed.",
-        "body": "Some of my best ideas arrive away from the keyboard. My goal is not to predict trends, but to make sense of the shifts we are already living through and turn them into useful products, talks, and writing.",
-        "image": {
-          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1280,h_550,c_thumb/website/tim-hero.png",
-          "alt": "Tim Benniks in his countryside office",
-          "width": 1280,
-          "height": 550
-        },
-        "imageSize": 360
       },
       {
         "kind": "cta-strip",

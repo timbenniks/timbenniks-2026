@@ -5,6 +5,7 @@ import Button from "../primitives/Button.astro";
 import { heroSplitWidths } from "../../lib/image-widths";
 
 type Variant = "primary" | "secondary" | "accent" | "ghost";
+type ImageSide = "left" | "right";
 
 interface Props {
   headline: { lead: string; em: string; tail: string };
@@ -18,10 +19,10 @@ interface Props {
     widths?: number[];
     eager?: boolean;
   };
-  imageLeft?: boolean;
+  imageSide?: ImageSide;
 }
 
-const { headline, subline, ctas = [], image, imageLeft = false } = Astro.props;
+const { headline, subline, ctas = [], image, imageSide = "right" } = Astro.props;
 
 const widths = image?.widths ?? heroSplitWidths;
 ---
@@ -33,7 +34,7 @@ const widths = image?.widths ?? heroSplitWidths;
     <div
       class:list={[
         "max-w-[700px] mb-12 md:mb-0",
-        imageLeft && "md:order-2 md:ml-auto",
+        imageSide === "left" && "md:order-2 md:ml-auto",
       ]}
     >
       <h1 class="font-serif text-6xl md:text-8xl">
@@ -60,7 +61,7 @@ const widths = image?.widths ?? heroSplitWidths;
         <div
           class:list={[
             "flex items-center justify-center",
-            imageLeft && "md:order-1",
+            imageSide === "left" && "md:order-1",
           ]}
         >
           <Image
