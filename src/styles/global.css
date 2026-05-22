@@ -31,6 +31,10 @@
   --radius-lg: 14px;
 
   --container-site: 1440px;
+
+  --max-width-prose-sm: 560px;
+  --max-width-prose: 640px;
+  --max-width-prose-lg: 720px;
 }
 
 @layer base {

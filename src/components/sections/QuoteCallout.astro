@@ -34,7 +34,7 @@ const {
 <Section tone={tone} padding="xl" class="relative isolate overflow-hidden">
   <p
     class:list={[
-      "max-w-[700px] font-serif font-normal text-5xl md:text-7xl",
+      "max-w-prose-lg font-serif font-normal text-5xl md:text-7xl",
       align === "right" && "md:ml-auto",
     ]}
   >
@@ -46,7 +46,7 @@ const {
     attribution && (
       <p
         class:list={[
-          "mt-6 max-w-[700px] text-xl",
+          "mt-6 max-w-prose-lg text-xl",
           align === "right" && "md:ml-auto",
         ]}
       >
@@ -57,7 +57,7 @@ const {
   {
     cta && (
       <div
-        class:list={["mt-8 max-w-[700px]", align === "right" && "md:ml-auto"]}
+        class:list={["mt-8 max-w-prose-lg", align === "right" && "md:ml-auto"]}
       >
         <Button href={cta.href} variant="accent">
           {cta.label}

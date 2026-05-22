@@ -1,0 +1,81 @@
+---
+import { Image } from "astro:assets";
+import MediaFrame from "../primitives/MediaFrame.astro";
+import Meta from "../primitives/Meta.astro";
+import type { CardItem, CardKind } from "../../lib/card";
+import { cardFeatureWidths } from "../../lib/image-widths";
+
+interface Props {
+  item: CardItem;
+  eager?: boolean;
+}
+
+const { item, eager = false } = Astro.props;
+
+const imgLoading = eager ? "eager" : "lazy";
+const imgFetchPriority = eager ? "high" : "auto";
+const imgDecoding = eager ? "sync" : "async";
+
+const defaultCta: Record<CardKind, string> = {
+  article: "Read the article",
+  video: "Watch the video",
+  talk: "View talk",
+  project: "Learn more",
+};
+const ctaLabel = item.ctaLabel ?? defaultCta[item.kind];
+
+const bylineParts = [item.date, ...(item.meta ?? [])].filter(Boolean) as string[];
+
+const playIcon = `<svg viewBox="0 0 12 12" class="ml-0.5 h-3.5 w-3.5 fill-bg-dark"><path d="M2 1l9 5-9 5z" /></svg>`;
+
+const Wrapper = item.href ? "a" : "div";
+const wrapperAttrs = item.href ? { href: item.href } : {};
+---
+
+<article class="group">
+  <Wrapper
+    {...wrapperAttrs}
+    class:list={[
+      "flex flex-col gap-3 rounded-sm no-underline",
+      item.href && "cursor-pointer",
+    ]}
+  >
+    {item.image && (
+      <MediaFrame aspect="landscape" hoverable>
+        <Image
+          src={item.image}
+          widths={cardFeatureWidths}
+          sizes="(min-width: 1024px) 720px, 100vw"
+          alt=""
+          width={900}
+          height={675}
+          loading={imgLoading}
+          fetchpriority={imgFetchPriority}
+          decoding={imgDecoding}
+          class="h-full w-full object-cover"
+        />
+        {item.kind === "video" && (
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 transition-transform duration-200 group-hover:scale-110">
+              <Fragment set:html={playIcon} />
+            </div>
+          </div>
+        )}
+      </MediaFrame>
+    )}
+    {bylineParts.length > 0 && <Meta items={bylineParts} />}
+    <h3 class="font-serif text-3xl text-ink underline">
+      {item.title}
+    </h3>
+    {item.description && (
+      <p class="text-md text-ink-muted line-clamp-2 md:line-clamp-none">
+        {item.description}
+      </p>
+    )}
+    {item.href && (
+      <span class="mt-4 hidden md:inline-flex items-center justify-center rounded-full bg-accent px-4 py-2.25 text-sm font-medium text-white transition-colors duration-150 group-hover:bg-accent-bright self-start">
+        {ctaLabel}
+      </span>
+    )}
+  </Wrapper>
+</article>

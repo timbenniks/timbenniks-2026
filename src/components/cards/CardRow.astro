@@ -1,0 +1,103 @@
+---
+import TagPill from "../primitives/TagPill.astro";
+import type { CardItem } from "../../lib/card";
+
+interface Props {
+  item: CardItem;
+  isLast?: boolean;
+}
+
+const { item, isLast = false } = Astro.props;
+
+const linkAttrs = item.href
+  ? {
+      href: item.href,
+      ...(item.external
+        ? { target: "_blank", rel: "noopener noreferrer" }
+        : {}),
+    }
+  : null;
+---
+
+{item.kind === "talk" ? (
+  <div
+    class:list={[
+      "grid grid-cols-1 items-baseline gap-2 border-t border-line py-6 md:grid-cols-[136px_1fr_auto] md:items-center md:gap-8",
+      isLast && "border-b border-line",
+    ]}
+  >
+    <span class="text-xs uppercase text-ink-subtle md:hidden">{item.date}</span>
+    {item.dateParts && (
+      <time
+        class="hidden w-24 rounded-sm border border-line bg-bg-soft px-3 py-2.5 text-center md:flex md:flex-col md:items-center md:gap-1"
+        datetime={item.dateISO}
+      >
+        <span class="font-serif text-4xl leading-none font-medium text-ink tabular-nums">
+          {item.dateParts.day}
+        </span>
+        <span class="flex gap-1 text-[0.68rem] leading-tight font-medium tracking-wide text-ink-subtle uppercase">
+          <span>{item.dateParts.month}</span>
+          <span>{item.dateParts.year}</span>
+        </span>
+      </time>
+    )}
+    <div>
+      <h3 class="mb-1 font-serif text-xl font-medium text-ink">
+        {linkAttrs ? (
+          <a {...linkAttrs} class="hover:underline underline-offset-[3px]">
+            {item.title}
+            {item.external && (
+              <>
+                <span aria-hidden="true" class="ml-1 text-accent">↗</span>
+                <span class="sr-only"> (opens in a new tab)</span>
+              </>
+            )}
+          </a>
+        ) : (
+          item.title
+        )}
+      </h3>
+      {item.badge && <p class="text-sm text-ink-subtle">{item.badge}</p>}
+    </div>
+    {item.location && (
+      <span class="text-xs tracking-wide whitespace-nowrap text-ink-subtle">
+        {item.location}
+      </span>
+    )}
+  </div>
+) : (
+  <article class="group">
+    <a
+      {...linkAttrs}
+      class="flex flex-col gap-2 rounded-sm border-t border-line py-6 no-underline md:flex-row md:items-baseline md:gap-8"
+    >
+      {item.date && (
+        <time
+          class="shrink-0 font-mono text-xs uppercase tracking-wide text-ink-subtle md:w-32"
+          datetime={item.dateISO}
+        >
+          {item.date}
+        </time>
+      )}
+      <div class="flex-1">
+        <h3 class="font-serif text-2xl font-medium leading-tight text-ink group-hover:underline group-hover:underline-offset-[3px]">
+          {item.title}
+        </h3>
+        {item.description && (
+          <p class="mt-2 text-sm text-ink-muted line-clamp-2">
+            {item.description}
+          </p>
+        )}
+        {item.tags && item.tags.length > 0 && (
+          <ul class="mt-3 flex flex-wrap gap-2" role="list">
+            {item.tags.slice(0, 4).map((label) => (
+              <li>
+                <TagPill size="sm">{label}</TagPill>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </a>
+  </article>
+)}

@@ -1,0 +1,28 @@
+---
+interface Props {
+  label: string;
+  value: string | number;
+  dark?: boolean;
+}
+
+const { label, value, dark = false } = Astro.props;
+---
+
+<div>
+  <dt
+    class:list={[
+      'font-mono text-xs uppercase tracking-wide',
+      dark ? 'text-cream-subtle' : 'text-ink-subtle',
+    ]}
+  >
+    {label}
+  </dt>
+  <dd
+    class:list={[
+      'mt-1 font-serif text-4xl tabular-nums',
+      dark ? 'text-cream' : 'text-ink',
+    ]}
+  >
+    {value}
+  </dd>
+</div>

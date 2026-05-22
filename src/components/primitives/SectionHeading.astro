@@ -22,7 +22,7 @@ const { eyebrow, title, lede, dark = false } = Astro.props;
     {title}
   </h2>
   {lede && (
-    <p class:list={['max-w-[560px] text-base', dark ? 'text-cream-muted' : 'text-ink-muted']}>
+    <p class:list={['max-w-prose-sm text-base', dark ? 'text-cream-muted' : 'text-ink-muted']}>
       {lede}
     </p>
   )}

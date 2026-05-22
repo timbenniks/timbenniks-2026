@@ -1,0 +1,50 @@
+---
+type Tone = 'default' | 'accent';
+type Size = 'sm' | 'md';
+
+interface Props {
+  href?: string;
+  tone?: Tone;
+  size?: Size;
+  count?: number;
+  class?: string;
+}
+
+const {
+  href,
+  tone = 'default',
+  size = 'md',
+  count,
+  class: className = '',
+} = Astro.props;
+
+const sizes: Record<Size, string> = {
+  sm: 'px-2.5 py-0.5 text-[11px] tracking-wide',
+  md: 'px-3 py-1 text-xs',
+};
+
+const tones: Record<Tone, string> = {
+  default: 'text-ink-muted',
+  accent: 'text-accent',
+};
+
+const hover: Record<Tone, string> = {
+  default: 'hover:border-ink hover:text-ink',
+  accent: 'hover:border-accent hover:text-accent-bright',
+};
+
+const base = 'inline-flex items-center gap-1 rounded-full border border-line-strong no-underline';
+const classes = [base, sizes[size], tones[tone], href && hover[tone], className];
+---
+
+{href ? (
+  <a href={href} class:list={classes}>
+    <slot />
+    {typeof count === 'number' && <span class="text-ink-subtle">· {count}</span>}
+  </a>
+) : (
+  <span class:list={classes}>
+    <slot />
+    {typeof count === 'number' && <span class="text-ink-subtle">· {count}</span>}
+  </span>
+)}

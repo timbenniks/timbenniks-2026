@@ -1,0 +1,131 @@
+---
+import { Image } from "astro:assets";
+import MediaFrame from "../primitives/MediaFrame.astro";
+import Meta from "../primitives/Meta.astro";
+import TagPill from "../primitives/TagPill.astro";
+import type { CardItem } from "../../lib/card";
+import { cardStandardWidths } from "../../lib/image-widths";
+
+interface Props {
+  item: CardItem;
+  eager?: boolean;
+}
+
+const { item, eager = false } = Astro.props;
+
+const imgLoading = eager ? "eager" : "lazy";
+const imgFetchPriority = eager ? "high" : "auto";
+const imgDecoding = eager ? "sync" : "async";
+
+const bylineParts = [item.date, ...(item.meta ?? [])].filter(Boolean) as string[];
+
+const playIcon = `<svg viewBox="0 0 12 12" class="ml-0.5 h-3.5 w-3.5 fill-bg-dark"><path d="M2 1l9 5-9 5z" /></svg>`;
+---
+
+{item.kind === "project" ? (
+  <article class="flex flex-col gap-3 border border-line-dark bg-bg-dark-card p-7 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-line-dark-hover">
+    {item.badge && (
+      <span class="font-mono text-xs font-medium uppercase text-accent-bright">
+        {item.badge}
+      </span>
+    )}
+    <h3 class="font-serif text-2xl font-medium text-cream">{item.title}</h3>
+    {item.description && (
+      <p class="text-sm text-cream-muted">{item.description}</p>
+    )}
+    {item.meta && item.meta.length > 0 && (
+      <p class="mt-auto pt-2 font-mono text-xs text-cream-subtle">
+        {item.meta.join(" · ")}
+      </p>
+    )}
+  </article>
+) : item.href ? (
+  <article class="group">
+    <a
+      href={item.href}
+      class="flex flex-col gap-2.5 rounded-sm no-underline"
+    >
+      <MediaFrame aspect="video" class="relative">
+        {item.image && (
+          <Image
+            src={item.image}
+            widths={cardStandardWidths}
+            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+            alt=""
+            width={640}
+            height={360}
+            loading={imgLoading}
+            fetchpriority={imgFetchPriority}
+            decoding={imgDecoding}
+            class="absolute inset-0 h-full w-full object-cover"
+          />
+        )}
+        {item.kind === "video" && (
+          <>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 transition-transform duration-200 group-hover:scale-110">
+                <Fragment set:html={playIcon} />
+              </div>
+            </div>
+            {item.duration && (
+              <span class="absolute bottom-2 right-2 rounded-sm bg-bg-dark/85 px-1.5 py-0.5 font-mono text-[11px] text-cream">
+                {item.duration}
+              </span>
+            )}
+          </>
+        )}
+      </MediaFrame>
+      {item.kind === "video"
+        ? item.badge && (
+            <p class="text-xs tracking-wide text-ink-subtle">{item.badge}</p>
+          )
+        : bylineParts.length > 0 && <Meta items={bylineParts} />}
+      <h3
+        class:list={[
+          "font-serif font-medium text-ink leading-tight",
+          item.kind === "video" ? "text-xl line-clamp-2" : "text-2xl",
+        ]}
+      >
+        {item.title}
+      </h3>
+      {item.kind !== "video" && item.description && (
+        <p class="text-sm text-ink-muted line-clamp-3">{item.description}</p>
+      )}
+      {item.kind === "article" && item.tags && item.tags.length > 0 && (
+        <ul class="mt-1 flex flex-wrap gap-2" role="list">
+          {item.tags.slice(0, 3).map((label) => (
+            <li>
+              <TagPill size="sm">{label}</TagPill>
+            </li>
+          ))}
+        </ul>
+      )}
+    </a>
+  </article>
+) : (
+  <article class="flex flex-col gap-2.5">
+    <MediaFrame aspect="video">
+      {item.image && (
+        <Image
+          src={item.image}
+          widths={cardStandardWidths}
+          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+          alt=""
+          width={640}
+          height={360}
+          loading={imgLoading}
+          fetchpriority={imgFetchPriority}
+          decoding={imgDecoding}
+          class="h-full w-full object-cover"
+        />
+      )}
+    </MediaFrame>
+    {bylineParts.length > 0 && <Meta items={bylineParts} />}
+    <h3 class="font-serif text-2xl font-medium text-ink leading-tight">
+      {item.title}
+    </h3>
+    {item.description && (
+      <p class="text-sm text-ink-muted line-clamp-3">{item.description}</p>
+    )}
+  </article>
+)}
