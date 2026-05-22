@@ -393,5 +393,32 @@
         }
       }
     ]
+  },
+  "writing": {
+    "metadata": {
+      "title": "Writing",
+      "description": "Essays on developer experience, AI-accelerated engineering, composable platforms, and the trade-offs that don't make it into the marketing.",
+      "keywords": "developer experience, AI engineering, composable architecture, MACH, headless, platform engineering, essays"
+    },
+    "sections": [
+      {
+        "kind": "hero",
+        "headline": {
+          "lead": "Ponderings on the",
+          "em": "content space",
+          "tail": "in 2026."
+        },
+        "subline": "Developer experience, AI-accelerated engineering, composable platforms, and the trade-offs that don't make it into the marketing.",
+        "image": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778496050/website/tim-writer.png",
+          "alt": "Sketched portrait of Tim Benniks at his desk",
+          "width": 1489,
+          "height": 992,
+          "widths": [360, 480, 640, 768, 960],
+          "eager": true,
+          "preload": true
+        }
+      }
+    ]
   }
 }

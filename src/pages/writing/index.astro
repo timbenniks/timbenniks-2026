@@ -1,19 +1,27 @@
 ---
-import { getCollection } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Section from '../../components/primitives/Section.astro';
-import Container from '../../components/primitives/Container.astro';
-import JsonLd from '../../components/primitives/JsonLd.astro';
-import Card from '../../components/Card.astro';
-import { articleToCard } from '../../lib/card';
-import { breadcrumbSchema, buildGraph } from '../../lib/schema';
-import { tagLabel } from '../../lib/tags';
-import { yearsActive } from '../../lib/stats';
-import { siteUrl } from '../../data/site';
+import { getCollection, getEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PagePreloadLinks from "../../components/PagePreloadLinks.astro";
+import PageSections from "../../components/PageSections.astro";
+import Section from "../../components/primitives/Section.astro";
+import Eyebrow from "../../components/primitives/Eyebrow.astro";
+import JsonLd from "../../components/primitives/JsonLd.astro";
+import Card from "../../components/Card.astro";
+import { articleToCard } from "../../lib/card";
+import { breadcrumbSchema, buildGraph } from "../../lib/schema";
+import { tagLabel } from "../../lib/tags";
+import { yearsActive } from "../../lib/stats";
+import { siteUrl } from "../../data/site";
 
-const entries = (await getCollection('writing', ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
-);
+const page = await getEntry("pages", "writing");
+if (!page) {
+  throw new Error("Missing content for pages/writing");
+}
+const { metadata, sections } = page.data;
+
+const entries = (
+  await getCollection("writing", ({ data }) => !data.draft)
+).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
 const tagCounts = new Map<string, number>();
 for (const e of entries) {
@@ -25,78 +33,64 @@ const popularTags = [...tagCounts.entries()]
   .map(([tag, count]) => ({ tag, count }));
 
 const allItems = entries.map((e) => articleToCard(e));
-const featuredItem = allItems[0];
-const restItems = allItems.slice(1);
 
 const totalEssays = entries.length;
 const years = yearsActive(entries);
 
 const graph = buildGraph(
   breadcrumbSchema([
-    { name: 'home', url: siteUrl('/') },
-    { name: 'writing', url: siteUrl('/writing') },
+    { name: "home", url: siteUrl("/") },
+    { name: "writing", url: siteUrl("/writing") },
   ]),
 );
 ---
 
-<BaseLayout
-  title="Writing"
-  description="Essays on developer experience, AI-accelerated engineering, and composable platforms."
-  keywords="developer experience, AI engineering, composable architecture, MACH, headless, platform engineering"
->
+<BaseLayout {...metadata}>
+  <PagePreloadLinks slot="head" sections={sections} />
   <JsonLd slot="head" data={graph} />
 
-  <Section padding="lg">
-    <Container padded={false}>
-      <div class="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1.2fr] lg:items-end">
-        <div class="max-w-[640px]">
-          <p class="font-mono text-xs uppercase tracking-wide text-ink-subtle">The journal</p>
-          <h1 class="mt-4 font-serif text-6xl md:text-7xl leading-tight">
-            Essays on the work of
-            <em class="italic text-accent">building software</em>
-            in 2026.
-          </h1>
-          <p class="mt-8 text-xl text-ink-muted">
-            Developer experience, AI-accelerated engineering, composable platforms, and the trade-offs
-            that don't make it into the marketing.
-          </p>
-          <dl class="mt-10 grid grid-cols-3 gap-6 max-w-[460px]">
-            <div>
-              <dt class="font-mono text-xs uppercase tracking-wide text-ink-subtle">Essays</dt>
-              <dd class="mt-1 font-serif text-3xl text-ink tabular-nums">{totalEssays}</dd>
-            </div>
-            <div>
-              <dt class="font-mono text-xs uppercase tracking-wide text-ink-subtle">Tags</dt>
-              <dd class="mt-1 font-serif text-3xl text-ink tabular-nums">{tagCounts.size}</dd>
-            </div>
-            <div>
-              <dt class="font-mono text-xs uppercase tracking-wide text-ink-subtle">Years</dt>
-              <dd class="mt-1 font-serif text-3xl text-ink tabular-nums">{years}</dd>
-            </div>
-          </dl>
-        </div>
+  <PageSections sections={sections} />
 
-        {featuredItem && (
-          <div>
-            <p class="mb-4 font-mono text-xs uppercase tracking-wide text-ink-subtle">Latest</p>
-            <Card item={featuredItem} format="feature" eager />
-          </div>
-        )}
+  <Section bordered padding="sm">
+    <dl class="grid grid-cols-3 gap-4 max-w-130">
+      <div>
+        <dt class="font-mono text-xs uppercase tracking-wide text-ink-subtle">
+          Essays
+        </dt>
+        <dd class="mt-1 font-serif text-4xl text-ink tabular-nums">
+          {totalEssays}
+        </dd>
       </div>
-    </Container>
+      <div>
+        <dt class="font-mono text-xs uppercase tracking-wide text-ink-subtle">
+          Tags
+        </dt>
+        <dd class="mt-1 font-serif text-4xl text-ink tabular-nums">
+          {tagCounts.size}
+        </dd>
+      </div>
+      <div>
+        <dt class="font-mono text-xs uppercase tracking-wide text-ink-subtle">
+          Years
+        </dt>
+        <dd class="mt-1 font-serif text-4xl text-ink tabular-nums">{years}</dd>
+      </div>
+    </dl>
   </Section>
 
   <Section bordered padding="md">
-    <div class="flex flex-wrap items-center gap-2">
-      <span class="font-mono text-xs uppercase tracking-wide text-ink-subtle">Browse by tag:</span>
-      {popularTags.map(({ tag, count }) => (
-        <a
-          href={`/writing/tag/${tag}`}
-          class="rounded-full border border-line-strong px-3 py-1 text-xs text-ink-muted hover:border-ink hover:text-ink"
-        >
-          {tagLabel(tag)} <span class="text-ink-subtle">· {count}</span>
-        </a>
-      ))}
+    <Eyebrow>Browse by tag</Eyebrow>
+    <div class="mt-4 flex flex-wrap items-center gap-2">
+      {
+        popularTags.map(({ tag, count }) => (
+          <a
+            href={`/writing/tag/${tag}`}
+            class="rounded-full border border-line-strong px-3 py-1 text-xs text-ink-muted hover:border-ink hover:text-ink"
+          >
+            {tagLabel(tag)} <span class="text-ink-subtle">· {count}</span>
+          </a>
+        ))
+      }
       <a
         href="/search"
         class="rounded-full border border-line-strong px-3 py-1 text-xs text-accent hover:border-accent hover:text-accent-bright"
@@ -105,8 +99,17 @@ const graph = buildGraph(
       </a>
     </div>
 
-    <div class="mt-10 flex flex-col" data-pagefind-ignore>
-      {restItems.map((item) => <Card item={item} format="row" />)}
-    </div>
+    <ul
+      class="mt-12 grid grid-cols-1 gap-x-5 gap-y-12 md:grid-cols-2 lg:grid-cols-3"
+      data-pagefind-ignore
+    >
+      {
+        allItems.map((item, i) => (
+          <li>
+            <Card item={item} format="standard" eager={i < 3} />
+          </li>
+        ))
+      }
+    </ul>
   </Section>
 </BaseLayout>

@@ -185,6 +185,15 @@ const playIcon = `<svg viewBox="0 0 12 12" class="ml-0.5 h-3.5 w-3.5 fill-bg-dar
               {item.description}
             </p>
           )}
+          {item.kind === "article" && item.tags && item.tags.length > 0 && (
+            <div class="mt-1 flex flex-wrap gap-2">
+              {item.tags.slice(0, 3).map((label) => (
+                <span class="rounded-full border border-line-strong px-2.5 py-0.5 text-[11px] tracking-wide text-ink-muted">
+                  {label}
+                </span>
+              ))}
+            </div>
+          )}
         </a>
       ) : (
         <>
