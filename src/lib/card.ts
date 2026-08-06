@@ -45,12 +45,21 @@ function talkDateInfo(d: Date) {
   return { display: `${day} ${month} ${year}`, parts: { day, month, year } };
 }
 
+/** Normalize frontmatter `reading_time` (number or "N min read") to a display string. */
+export function formatReadingTime(raw: string | number | undefined): string | undefined {
+  if (raw === undefined || raw === null || raw === '') return undefined;
+  if (typeof raw === 'number') return `${raw} min read`;
+  const s = String(raw).trim();
+  if (/min\s*read/i.test(s)) return s;
+  const n = parseInt(s, 10);
+  return Number.isNaN(n) ? s : `${n} min read`;
+}
+
 export function articleToCard(
   entry: CollectionEntry<'writing'>,
   opts: { ctaLabel?: string } = {},
 ): CardItem {
-  const { reading_time } = entry.data;
-  const read = reading_time ? `${reading_time} min read` : '5 min read';
+  const read = formatReadingTime(entry.data.reading_time) ?? '5 min read';
 
   return {
     kind: 'article',

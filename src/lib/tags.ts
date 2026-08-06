@@ -234,6 +234,7 @@ const RAW_OLD_TO_NEW: Record<string, CanonicalTag> = {
   engineering: 'craft',
   fundamentals: 'craft',
   philosophy: 'craft',
+  writing: 'craft',
   'technical-debt': 'craft',
   'technical debt': 'craft',
   legacy: 'craft',
@@ -287,6 +288,8 @@ const RAW_OLD_TO_NEW: Record<string, CanonicalTag> = {
   // content-ops
   content: 'content-ops',
   'content-ops': 'content-ops',
+  'content-management': 'content-ops',
+  'content management': 'content-ops',
   'content-modeling': 'content-ops',
   'content modeling': 'content-ops',
   'content-graph': 'content-ops',

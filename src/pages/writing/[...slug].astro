@@ -8,6 +8,7 @@ import Meta from '../../components/primitives/Meta.astro';
 import JsonLd from '../../components/primitives/JsonLd.astro';
 import FaqList from '../../components/primitives/FaqList.astro';
 import { blogPostingSchema, breadcrumbSchema, buildGraph, faqPageSchema } from '../../lib/schema';
+import { formatReadingTime } from '../../lib/card';
 import { tagLabel } from '../../lib/tags';
 import { siteUrl } from '../../data/site';
 
@@ -28,19 +29,14 @@ const formatted = entry.data.date.toLocaleDateString('en-US', {
   day: 'numeric',
 });
 
-const readingTime = entry.data.reading_time;
-const metaItems = [formatted, readingTime ? `${readingTime} min read` : ''].filter(
-  Boolean,
-) as string[];
+const readingLabel = formatReadingTime(entry.data.reading_time);
+const metaItems = [formatted, readingLabel].filter(Boolean) as string[];
 const description = entry.data.description ?? entry.data.title;
 
 const articleURL = siteUrl(`/writing/${entry.id}`);
-const readingMinutes =
-  typeof readingTime === 'number'
-    ? readingTime
-    : typeof readingTime === 'string'
-      ? parseInt(readingTime, 10) || undefined
-      : undefined;
+const readingMinutes = readingLabel
+  ? parseInt(readingLabel, 10) || undefined
+  : undefined;
 const faqs = entry.data.faqs ?? [];
 const articleGraph = buildGraph(
   blogPostingSchema({

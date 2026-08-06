@@ -73,7 +73,13 @@ If the traditional _T-shaped_ model showed depth in one area and breadth across 
 -   The **AI halo** around the T is what makes it _super_: it accelerates learning, automates translation between domains, and amplifies decision-making.
     
 
-![Super-T Framework visualization showing the traditional T-shape enhanced with an AI halo that connects disciplines and amplifies both depth and breadth](https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto/w_800/website/super-t.png)
+<img
+  src="https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_800/website/super-t.png"
+  alt="Super-T Framework visualization showing the traditional T-shape enhanced with an AI halo that connects disciplines and amplifies both depth and breadth"
+  width="800"
+  height="450"
+  loading="lazy"
+/>
 
 In practice, a Super-T person:
 
