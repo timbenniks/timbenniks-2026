@@ -1,0 +1,56 @@
+---
+import Section from '../primitives/Section.astro';
+import SectionHeading from '../primitives/SectionHeading.astro';
+import Container from '../primitives/Container.astro';
+import { editAttr, editPath } from '../../lib/admin/edit-path';
+
+interface Props {
+  editBase?: string;
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  items: { term: string; value: string; href?: string }[];
+}
+
+const { editBase, eyebrow, title, lede, items } = Astro.props;
+---
+
+<Section bordered padding="lg">
+  <Container padded={false}>
+    <div class="grid grid-cols-1 gap-12 md:grid-cols-[1fr_1.2fr]">
+      <div>
+        <SectionHeading editBase={editBase} eyebrow={eyebrow} title={title} lede={lede} />
+      </div>
+      <dl class="flex flex-col">
+        {items.map((row, i) => (
+          <div
+            class:list={[
+              'grid grid-cols-1 gap-1 border-line py-5 md:grid-cols-[160px_1fr] md:gap-8 border-b',
+              i === 0 && 'border-t',
+            ]}
+          >
+            <dt
+              class="font-mono text-xs uppercase tracking-wide text-ink-subtle md:pt-1"
+              {...editAttr(editPath(editBase, 'items', i, 'term'))}
+            >
+              {row.term}
+            </dt>
+            <dd class="font-serif text-lg leading-snug text-ink">
+              {row.href ? (
+                <a
+                  href={row.href}
+                  class="underline underline-offset-[3px] hover:text-accent"
+                  {...editAttr(editPath(editBase, 'items', i, 'value'))}
+                >
+                  {row.value}
+                </a>
+              ) : (
+                <span {...editAttr(editPath(editBase, 'items', i, 'value'))}>{row.value}</span>
+              )}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </Container>
+</Section>

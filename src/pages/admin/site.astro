@@ -1,0 +1,24 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../components/admin/AdminLayout.astro';
+import { readSiteForAdmin } from '../../lib/admin/site-store';
+
+const site = await readSiteForAdmin();
+const initial = JSON.stringify({ site });
+---
+
+<AdminLayout title="Admin · Site chrome" active="site">
+  <Fragment slot="actions">
+    <span class="chip" id="chip">Saved</span>
+    <a class="btn-secondary" href="/admin/changes">Changes</a>
+    <a class="btn-secondary" href="/admin/preview/home?edit=1" target="_blank" rel="noopener"
+      >Preview home</a
+    >
+    <button type="button" class="primary" id="save" disabled>Save</button>
+  </Fragment>
+
+  <div id="app" data-initial={initial}></div>
+
+  <script slot="scripts" is:inline type="module" src="/admin/site-editor.js"></script>
+</AdminLayout>

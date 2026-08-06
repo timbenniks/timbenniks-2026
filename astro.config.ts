@@ -1,12 +1,14 @@
 import { defineConfig, fontProviders } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 import sitemap from "@astrojs/sitemap";
+import vercel from "@astrojs/vercel";
 
 const CLOUDINARY_CLOUD_NAME =
   process.env.PUBLIC_CLOUDINARY_CLOUD_NAME ?? "dwfcofnrd";
 
 export default defineConfig({
   site: "https://timbenniks.dev",
+  adapter: vercel(),
 
   build: {
     inlineStylesheets: "always",
@@ -69,7 +71,8 @@ export default defineConfig({
       filter: (page) =>
         !/\.(md|txt|xml)$/.test(page) &&
         !page.endsWith("/search") &&
-        !page.endsWith("/search/"),
+        !page.endsWith("/search/") &&
+        !page.includes("/admin"),
     }),
   ],
 });

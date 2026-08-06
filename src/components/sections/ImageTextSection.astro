@@ -4,8 +4,10 @@ import Section from "../primitives/Section.astro";
 import SectionHeading from "../primitives/SectionHeading.astro";
 import ArrowLink from "../primitives/ArrowLink.astro";
 import { renderMarkdown } from "../../lib/render-markdown";
+import { editAttr, editPath } from "../../lib/admin/edit-path";
 
 interface Props {
+  editBase?: string;
   eyebrow?: string;
   title: string;
   lede?: string;
@@ -19,6 +21,7 @@ interface Props {
 }
 
 const {
+  editBase,
   eyebrow,
   title,
   lede,
@@ -42,7 +45,7 @@ const bodyHtml = body ? await renderMarkdown(body) : "";
 ---
 
 <Section bordered={bordered}>
-  <SectionHeading eyebrow={eyebrow} title={title} />
+  <SectionHeading editBase={editBase} eyebrow={eyebrow} title={title} />
 
   <div
     class:list={[
@@ -71,16 +74,22 @@ const bodyHtml = body ? await renderMarkdown(body) : "";
           "w-full object-cover",
           equalWidth ? "" : "h-full",
         ]}
+        {...editAttr(editPath(editBase, 'image', 'src'))}
       />
     </div>
 
     <div class:list={[imageSide === "right" && "md:order-1"]}>
-      {lede && <p class="font-serif text-xl leading-snug text-ink">{lede}</p>}
+      {lede && (
+        <p class="font-serif text-xl leading-snug text-ink" {...editAttr(editPath(editBase, 'lede'))}>
+          {lede}
+        </p>
+      )}
       {
         bodyHtml && (
           <div
             class="image-text-body mt-4 text-base text-ink-muted"
             set:html={bodyHtml}
+            {...editAttr(editPath(editBase, 'body'))}
           />
         )
       }
@@ -88,7 +97,9 @@ const bodyHtml = body ? await renderMarkdown(body) : "";
       {
         cta && (
           <div class="mt-7">
-            <ArrowLink href={cta.href}>{cta.label}</ArrowLink>
+            <ArrowLink href={cta.href}>
+              <span {...editAttr(editPath(editBase, 'cta', 'label'))}>{cta.label}</span>
+            </ArrowLink>
           </div>
         )
       }

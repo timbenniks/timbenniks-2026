@@ -2,6 +2,8 @@
 dist/
 # generated types
 .astro/
+# admin visual-editor preview drafts (local)
+.cache/
 
 # dependencies
 node_modules/
@@ -22,3 +24,4 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+.vercel/

@@ -5,6 +5,7 @@ import FaqList from '../primitives/FaqList.astro';
 import type { FaqEntry } from '../../lib/schema';
 
 interface Props {
+  editBase?: string;
   eyebrow?: string;
   title: string;
   lede?: string;
@@ -14,6 +15,7 @@ interface Props {
 }
 
 const {
+  editBase,
   eyebrow,
   title,
   lede,
@@ -27,9 +29,9 @@ const dark = tone === 'dark';
 
 <Section tone={tone} bordered={bordered}>
   <div class="grid grid-cols-1 gap-10 md:grid-cols-[1fr_1.4fr] md:gap-16">
-    <SectionHeading eyebrow={eyebrow} title={title} lede={lede} dark={dark} />
+    <SectionHeading editBase={editBase} eyebrow={eyebrow} title={title} lede={lede} dark={dark} />
     <div>
-      <FaqList items={items} dark={dark} />
+      <FaqList editBase={editBase} items={items} dark={dark} />
     </div>
   </div>
 </Section>

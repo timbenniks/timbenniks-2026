@@ -1,20 +1,41 @@
 ---
 import Container from '../primitives/Container.astro';
 import Button from '../primitives/Button.astro';
+import { editAttr, editPath } from '../../lib/admin/edit-path';
 
 interface Props {
+  editBase?: string;
   text: string;
   em?: string;
-  cta: { label: string; href: string; variant?: 'primary' | 'secondary' | 'accent' };
+  ctas: { label: string; href: string; variant?: 'primary' | 'secondary' | 'accent' }[];
 }
 
-const { text, em, cta } = Astro.props;
+const { editBase, text, em, ctas } = Astro.props;
+
+const externalCta = (href: string) =>
+  href.startsWith('http') || href.startsWith('mailto:');
 ---
 
 <Container as="section" class="flex flex-wrap items-center justify-between gap-8 pt-12 pb-20">
   <p class="max-w-prose-sm font-serif font-normal text-2xl">
-    {text}
-    {em && <em class="text-accent italic font-normal">{em}</em>}
+    <span {...editAttr(editPath(editBase, 'text'))}>{text}</span>
+    {em && (
+      <em class="text-accent italic font-normal" {...editAttr(editPath(editBase, 'em'))}>
+        {em}
+      </em>
+    )}
   </p>
-  <Button href={cta.href} variant={cta.variant ?? 'accent'} size="lg">{cta.label}</Button>
+  <div class="flex flex-wrap gap-3">
+    {ctas.map((cta, i) => (
+      <Button
+        href={cta.href}
+        variant={cta.variant ?? 'accent'}
+        size="lg"
+        target={externalCta(cta.href) && cta.href.startsWith('http') ? '_blank' : undefined}
+        rel={externalCta(cta.href) && cta.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+      >
+        <span {...editAttr(editPath(editBase, 'ctas', i, 'label'))}>{cta.label}</span>
+      </Button>
+    ))}
+  </div>
 </Container>

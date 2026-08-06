@@ -1,5 +1,7 @@
 ---
-import { footerColumns, footerHuman, newsletter } from "../data/site";
+import { loadSiteChrome } from "../lib/site-chrome";
+
+const { footerColumns, footerHuman, newsletter } = await loadSiteChrome();
 ---
 
 <footer id="newsletter" class="border-t border-line bg-bg-warm pt-16 pb-8">

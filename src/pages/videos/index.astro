@@ -1,95 +1,17 @@
 ---
-import { getCollection, getEntry } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PagePreloadLinks from "../../components/PagePreloadLinks.astro";
 import PageSections from "../../components/PageSections.astro";
-import Section from "../../components/primitives/Section.astro";
-import Eyebrow from "../../components/primitives/Eyebrow.astro";
 import JsonLd from "../../components/primitives/JsonLd.astro";
-import StatTile from "../../components/primitives/StatTile.astro";
-import TagPill from "../../components/primitives/TagPill.astro";
-import Card from "../../components/Card.astro";
-import { videoToCard } from "../../lib/card";
-import { breadcrumbSchema, buildGraph } from "../../lib/schema";
-import { yearsActive } from "../../lib/stats";
-import { siteUrl } from "../../data/site";
+import { loadPage, pageBreadcrumbGraph } from "../../lib/page";
 
-const page = await getEntry("pages", "videos");
-if (!page) {
-  throw new Error("Missing content for pages/videos");
-}
+const page = await loadPage("videos");
 const { metadata, sections } = page.data;
-
-const entries = (await getCollection("videos")).sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
-);
-
-const playlistCounts = new Map<string, number>();
-for (const e of entries) {
-  playlistCounts.set(
-    e.data.playlist,
-    (playlistCounts.get(e.data.playlist) ?? 0) + 1,
-  );
-}
-const playlists = [...playlistCounts.entries()]
-  .sort((a, b) => b[1] - a[1])
-  .map(([playlist, count]) => ({ playlist, count }));
-
-const allItems = await Promise.all(entries.map(videoToCard));
-
-const totalVideos = entries.length;
-const years = yearsActive(entries);
-
-const graph = buildGraph(
-  breadcrumbSchema([
-    { name: "home", url: siteUrl("/") },
-    { name: "videos", url: siteUrl("/videos") },
-  ]),
-);
+const graph = pageBreadcrumbGraph("videos");
 ---
 
 <BaseLayout {...metadata}>
   <PagePreloadLinks slot="head" sections={sections} />
   <JsonLd slot="head" data={graph} />
-
   <PageSections sections={sections} />
-
-  <Section bordered padding="sm">
-    <dl class="grid grid-cols-3 gap-4 max-w-130">
-      <StatTile label="Videos" value={totalVideos} />
-      <StatTile label="Playlists" value={playlists.length} />
-      <StatTile label="Years" value={years} />
-    </dl>
-  </Section>
-
-  <Section bordered padding="md">
-    <Eyebrow>Browse by playlist</Eyebrow>
-    <ul class="mt-4 flex flex-wrap items-center gap-2" role="list">
-      {playlists.map(({ playlist, count }) => (
-        <li>
-          <TagPill
-            href={`/videos/playlist/${playlist.replace(/\s+/g, "-")}`}
-            count={count}
-          >
-            {playlist}
-          </TagPill>
-        </li>
-      ))}
-      <li>
-        <TagPill href="/search" tone="accent">Search everything →</TagPill>
-      </li>
-    </ul>
-
-    <ul
-      class="mt-12 grid grid-cols-1 gap-x-5 gap-y-12 md:grid-cols-2 lg:grid-cols-3"
-      data-pagefind-ignore
-      role="list"
-    >
-      {allItems.map((item, i) => (
-        <li>
-          <Card item={item} format="standard" eager={i < 3} />
-        </li>
-      ))}
-    </ul>
-  </Section>
 </BaseLayout>

@@ -1,0 +1,104 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../components/admin/AdminLayout.astro';
+import { getPagePath, listAdminPageIds, readPagesForAdmin } from '../../lib/admin/pages-store';
+import '../../lib/admin/section-catalog-align';
+
+const all = await readPagesForAdmin();
+const ids = await listAdminPageIds();
+const pages = ids.map((id) => ({
+  id,
+  path: getPagePath(all[id]!, id),
+  title: all[id]!.metadata.title,
+}));
+---
+
+<AdminLayout title="Admin · Pages" active="pages">
+  <div class="dash-intro">
+    <h2>Pages</h2>
+    <p>
+      Open a page to edit. <strong>Save</strong> commits to the <code>cms</code> branch; publish from
+      <a href="/admin/changes">Changes</a>.
+    </p>
+  </div>
+
+  <details class="create">
+    <summary>
+      <span class="create-title">New page</span>
+      <span class="create-hint">Catch-all route</span>
+    </summary>
+    <div class="create-body">
+      <div class="create-grid">
+        <div class="field">
+          <label for="new-id">Id</label>
+          <input id="new-id" placeholder="my-page" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="new-path">Path</label>
+          <input id="new-path" placeholder="/my-page" autocomplete="off" />
+        </div>
+        <div class="field field-span">
+          <label for="new-title">Title</label>
+          <input id="new-title" placeholder="Page title" autocomplete="off" />
+        </div>
+      </div>
+      <div class="create-actions">
+        <button type="button" class="primary" id="create">Create page</button>
+        <span class="err" id="create-err"></span>
+      </div>
+    </div>
+  </details>
+
+  <ul class="page-table">
+    {
+      pages.map((p) => (
+        <li>
+          <a class="page-row" href={`/admin/pages/${p.id}`}>
+            <div>
+              <strong>{p.title}</strong>
+              <div class="meta">
+                <span class="mono">{p.id}</span>
+              </div>
+            </div>
+            <span class="path">{p.path}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <script slot="scripts" is:inline type="module">
+    import { apiFetch } from '/admin/lib/api.js';
+
+    const idInput = document.getElementById('new-id');
+    const pathInput = document.getElementById('new-path');
+    idInput?.addEventListener('input', () => {
+      if (!pathInput || pathInput.dataset.touched === '1') return;
+      const id = idInput.value.trim();
+      pathInput.value = id ? `/${id}` : '';
+    });
+    pathInput?.addEventListener('input', () => {
+      pathInput.dataset.touched = '1';
+    });
+
+    document.getElementById('create')?.addEventListener('click', async () => {
+      const err = document.getElementById('create-err');
+      if (err) err.textContent = '';
+      const id = document.getElementById('new-id')?.value?.trim() || '';
+      const path = document.getElementById('new-path')?.value?.trim() || '';
+      const title = document.getElementById('new-title')?.value?.trim() || '';
+      try {
+        const data = await apiFetch('/api/admin/pages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, path, title }),
+          errorMessage: 'Create failed',
+        });
+        location.href = `/admin/pages/${data.id}`;
+      } catch (e) {
+        if (err) err.textContent = e.message || String(e);
+      }
+    });
+  </script>
+</AdminLayout>

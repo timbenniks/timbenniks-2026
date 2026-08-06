@@ -6,21 +6,32 @@ interface Props {
   sections: CollectionEntry<"pages">["data"]["sections"];
 }
 
-const preloadedHeroImage = Astro.props.sections.find(
-  (section) => section.kind === "hero" && section.image?.preload,
-);
+const { sections } = Astro.props;
 
-const heroPreloaded =
-  preloadedHeroImage?.kind === "hero" && preloadedHeroImage.image?.preload
-    ? await getImage({
-        src: preloadedHeroImage.image.src,
-        width:
-          preloadedHeroImage.image.widths?.at(-1) ??
-          preloadedHeroImage.image.width,
-        widths: preloadedHeroImage.image.widths,
-        alt: preloadedHeroImage.image.alt,
-      })
+const hero = sections.find((section) => section.kind === "hero");
+
+const preloadSrc =
+  hero?.kind === "hero"
+    ? hero.image?.preload
+      ? hero.image
+      : hero.gallery?.[0]
+        ? {
+            src: hero.gallery[0].src,
+            width: 1280,
+            widths: [640, 960, 1280],
+            alt: hero.gallery[0].alt,
+          }
+        : null
     : null;
+
+const heroPreloaded = preloadSrc
+  ? await getImage({
+      src: preloadSrc.src,
+      width: "widths" in preloadSrc && preloadSrc.widths ? preloadSrc.widths.at(-1)! : preloadSrc.width,
+      widths: "widths" in preloadSrc ? preloadSrc.widths : undefined,
+      alt: preloadSrc.alt,
+    })
+  : null;
 ---
 
 {

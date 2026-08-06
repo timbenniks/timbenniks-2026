@@ -8,11 +8,20 @@ import ImageTextSection from "./sections/ImageTextSection.astro";
 import CtaStrip from "./sections/CtaStrip.astro";
 import TimelineSection from "./sections/TimelineSection.astro";
 import FaqSection from "./sections/FaqSection.astro";
+import StatsSection from "./sections/StatsSection.astro";
+import BrowseSection from "./sections/BrowseSection.astro";
+import InventorySection from "./sections/InventorySection.astro";
+import CopyBlocksSection from "./sections/CopyBlocksSection.astro";
+import PhotoGridSection from "./sections/PhotoGridSection.astro";
+import TopicGridSection from "./sections/TopicGridSection.astro";
+import FactsheetSection from "./sections/FactsheetSection.astro";
 import type { AstroComponentFactory } from "astro/runtime/server/index.js";
 import {
   resolvePageSections,
   type ResolvedPageSection,
 } from "../lib/page-sections";
+import { isEditMarkupEnabled } from "../lib/admin/edit-mode";
+import { sectionEditAttrs } from "../lib/admin/edit-path";
 
 interface Props {
   sections: Parameters<typeof resolvePageSections>[0];
@@ -21,6 +30,7 @@ interface Props {
 const resolvedSections: ResolvedPageSection[] = await resolvePageSections(
   Astro.props.sections,
 );
+const editEnabled = isEditMarkupEnabled();
 
 const sectionComponents: Record<
   ResolvedPageSection["kind"],
@@ -35,12 +45,29 @@ const sectionComponents: Record<
   "cta-strip": CtaStrip,
   timeline: TimelineSection,
   faq: FaqSection,
+  stats: StatsSection,
+  browse: BrowseSection,
+  inventory: InventorySection,
+  "copy-blocks": CopyBlocksSection,
+  "photo-grid": PhotoGridSection,
+  "topic-grid": TopicGridSection,
+  factsheet: FactsheetSection,
 };
 ---
 
 {
-  resolvedSections.map((section) => {
+  resolvedSections.map((section, i) => {
     const Component = sectionComponents[section.kind];
-    return <Component {...section} />;
+    return (
+      <div
+        class:list={[editEnabled && "tb-ve-block"]}
+        {...sectionEditAttrs(i, section.kind)}
+      >
+        <Component
+          {...section}
+          editBase={editEnabled ? `sections.${i}` : undefined}
+        />
+      </div>
+    );
   })
 }

@@ -3,11 +3,13 @@ import { Image } from "astro:assets";
 import Section from "../primitives/Section.astro";
 import Button from "../primitives/Button.astro";
 import { fullBleedWidths } from "../../lib/image-widths";
+import { editAttr, editPath } from "../../lib/admin/edit-path";
 
 type Tone = "light" | "dark";
 type Align = "left" | "right";
 
 interface Props {
+  editBase?: string;
   headline: { lead: string; em: string; tail: string };
   attribution?: string;
   cta?: { label: string; href: string };
@@ -22,6 +24,7 @@ interface Props {
 }
 
 const {
+  editBase,
   headline,
   attribution,
   cta,
@@ -38,9 +41,9 @@ const {
       align === "right" && "md:ml-auto",
     ]}
   >
-    {headline.lead}
-    <em class="font-normal italic">{" "}{headline.em}{" "}</em>
-    {headline.tail}
+    <span {...editAttr(editPath(editBase, 'headline', 'lead'))}>{headline.lead}</span>
+    <em class="font-normal italic" {...editAttr(editPath(editBase, 'headline', 'em'))}>{" "}{headline.em}{" "}</em>
+    <span {...editAttr(editPath(editBase, 'headline', 'tail'))}>{headline.tail}</span>
   </p>
   {
     attribution && (
@@ -49,6 +52,7 @@ const {
           "mt-6 max-w-prose-lg text-xl",
           align === "right" && "md:ml-auto",
         ]}
+        {...editAttr(editPath(editBase, 'attribution'))}
       >
         {attribution}
       </p>
@@ -60,7 +64,7 @@ const {
         class:list={["mt-8 max-w-prose-lg", align === "right" && "md:ml-auto"]}
       >
         <Button href={cta.href} variant="accent">
-          {cta.label}
+          <span {...editAttr(editPath(editBase, 'cta', 'label'))}>{cta.label}</span>
         </Button>
       </div>
     )
@@ -80,6 +84,7 @@ const {
         decoding="async"
         class="mt-12 h-auto w-full object-cover md:absolute md:inset-0 md:-z-10 md:mt-0 md:h-full md:opacity-(--bg-opacity)"
         style={`--bg-opacity:${backgroundImage.opacity ?? 0.4}`}
+        {...editAttr(editPath(editBase, 'backgroundImage', 'src'))}
       />
     )
   }

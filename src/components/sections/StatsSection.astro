@@ -1,0 +1,23 @@
+---
+import Section from '../primitives/Section.astro';
+import StatTile from '../primitives/StatTile.astro';
+
+interface Props {
+  editBase?: string;
+  items: { label: string; value: string | number }[];
+}
+
+const { items } = Astro.props;
+const cols =
+  items.length >= 4
+    ? 'grid-cols-2 md:grid-cols-4 max-w-160'
+    : 'grid-cols-3 max-w-130';
+---
+
+<Section bordered padding="sm">
+  <dl class:list={['grid gap-4', cols]}>
+    {items.map((item) => (
+      <StatTile label={item.label} value={item.value} />
+    ))}
+  </dl>
+</Section>

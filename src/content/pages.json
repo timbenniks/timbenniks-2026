@@ -1,5 +1,6 @@
 {
   "home": {
+    "path": "/",
     "metadata": {
       "title": "I used to build websites. Now I build what builds them",
       "description": "Developer Experience Lead at Contentstack. Writing, talks, and videos on developer tools, AI-accelerated engineering, and composable architecture.",
@@ -31,10 +32,17 @@
           "alt": "Sketched portrait of Tim Benniks",
           "width": 807,
           "height": 947,
-          "widths": [360, 480, 640, 768, 960],
+          "widths": [
+            360,
+            480,
+            640,
+            768,
+            960
+          ],
           "eager": true,
           "preload": true
-        }
+        },
+        "imageSide": "right"
       },
       {
         "kind": "quote-callout",
@@ -49,6 +57,7 @@
           "href": "/writing/when-output-is-cheap-taste-is-everything"
         },
         "tone": "dark",
+        "align": "left",
         "backgroundImage": {
           "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1743504260/website/tim_on_stage-1.png",
           "width": 2355,
@@ -62,7 +71,10 @@
         "lede": "Essays on developer experience, AI-accelerated engineering, and the platforms that hold it all up.",
         "source": "writing",
         "limit": 3,
-        "cta": { "label": "All writing", "href": "/writing" }
+        "cta": {
+          "label": "All writing",
+          "href": "/writing"
+        }
       },
       {
         "kind": "card-grid",
@@ -71,10 +83,14 @@
         "lede": "Platform work, MCP servers, and the occasional weekend experiment. Real code, real trade-offs, work in progress.",
         "source": "projects",
         "limit": 4,
-        "columns": 2,
+        "columns": 3,
         "tone": "dark",
         "class": "mt-16",
-        "cta": { "label": "All projects", "href": "/projects" }
+        "cta": {
+          "label": "All projects",
+          "href": "/projects"
+        },
+        "pagefindIgnore": false
       },
       {
         "kind": "image-text",
@@ -88,7 +104,12 @@
           "width": 624,
           "height": 624
         },
-        "cta": { "label": "Full bio", "href": "/about" }
+        "equalWidth": false,
+        "imageSide": "left",
+        "cta": {
+          "label": "Full bio",
+          "href": "/about"
+        }
       },
       {
         "kind": "card-grid",
@@ -98,31 +119,47 @@
         "source": "videos",
         "limit": 3,
         "columns": 3,
-        "cta": { "label": "All videos", "href": "/videos" }
+        "tone": "light",
+        "cta": {
+          "label": "All videos",
+          "href": "/videos"
+        },
+        "pagefindIgnore": false
       },
       {
         "kind": "card-rows",
         "eyebrow": "Stages",
         "title": "Where I've been",
         "source": "speaking",
-        "limit": 4,
-        "cta": { "label": "All talks", "href": "/speaking" }
+        "limit": 3,
+        "window": "all",
+        "hideWhenEmpty": false,
+        "cta": {
+          "label": "All talks",
+          "href": "/speaking"
+        }
       },
       {
         "kind": "cta-strip",
         "text": "Got a stage, a podcast, or a developer team that needs sharpening?",
         "em": " Let's talk.",
-        "cta": { "label": "Press kit & booking", "href": "/press-kit" }
+        "ctas": [
+          {
+            "label": "Press kit & booking",
+            "href": "/press-kit"
+          }
+        ]
       }
     ]
   },
   "about": {
+    "path": "/about",
     "metadata": {
       "title": "About Tim Benniks",
       "description": "Tim Benniks designs developer platforms and builds AI-augmented products. Developer Experience Lead at Contentstack, speaker, writer, and content creator.",
-      "keywords": "Tim Benniks, developer experience, developer platforms, AI-augmented engineering, Contentstack, speaker, content creator",
       "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1280,h_550,c_thumb/website/tim-hero.png",
-      "imageAlt": "Tim Benniks in his countryside office"
+      "imageAlt": "Tim Benniks in his countryside office",
+      "keywords": "Tim Benniks, developer experience, developer platforms, AI-augmented engineering, Contentstack, speaker, content creator"
     },
     "sections": [
       {
@@ -150,7 +187,10 @@
           "alt": "Tim Benniks drawn",
           "width": 1081,
           "height": 868,
-          "widths": [640, 960],
+          "widths": [
+            640,
+            960
+          ],
           "eager": true,
           "preload": true
         },
@@ -162,18 +202,15 @@
         "title": "The short version",
         "lede": "For most of my career, I have worked at the intersection of engineering, product, and developer experience.",
         "body": "I've led platform initiatives, built extensibility ecosystems, and helped global teams adopt composable architectures that developers actually use. \n\nToday, my work focuses on how AI is reshaping software development, the growing overlap between engineers and product leaders, and why developer experience has become a strategic advantage rather than a support function.\n\nI didn’t set out to become a platform thinker. I started as an engineer who cared deeply about how things were built and how teams worked together. \n\n Agency life taught me scale. Working with global brands meant building systems that could survive real-world complexity, not just demos. Later, in the startup world, I focused on developer ecosystems, SDKs, and the surfaces that determine whether a platform is adopted or ignored. \n\nAlong the way, I discovered something that shaped my career: the success of a platform has less to do with features and more to do with the experience of building on it.\n\nThat insight pulled me toward developer experience, platform strategy, and eventually product ownership.",
-        "imageSize": 300,
-        "equalWidth": true,
-        "imageSide": "right",
         "image": {
           "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1280,h_550,c_thumb/Tim/speaking.png",
           "alt": "Tim Benniks drawn",
           "width": 1725,
-          "height": 2096,
-          "widths": [640, 960],
-          "eager": false,
-          "preload": false
+          "height": 2096
         },
+        "imageSize": 300,
+        "equalWidth": true,
+        "imageSide": "right",
         "cta": {
           "label": "Find speaking info",
           "href": "/press-kit"
@@ -212,7 +249,8 @@
         "cta": {
           "label": "See the workbench",
           "href": "/projects"
-        }
+        },
+        "pagefindIgnore": false
       },
       {
         "kind": "timeline",
@@ -220,111 +258,110 @@
         "title": "Career timeline",
         "lede": "Twenty years across agencies, global brands, and developer-tooling startups — building, leading, and advocating for the teams behind the platforms.",
         "tone": "light",
-
         "items": [
           {
             "daterange": "September 2024 - Present",
-            "text": "At Contentstack, Tim Benniks is the Developer Experience Lead, leading the evolution of developer experience toward AI driven tooling and workflows. He focuses on defining the strategy for developer onboarding and product usage, designing and building MCP servers, MCP Hub, official AI Skills, and Agent integrations, creating DX frameworks that blend AI, orchestration, and platform thinking, producing content, talks, demos, starters, and videos showcasing modern developer workflows, and working with engineering and product teams to bring AI capabilities directly into the platform. The goal is simple: reduce cognitive load, improve developer velocity, and make composable architectures actually enjoyable to work with.",
             "company": "Contentstack",
             "title": "Developer Experience Lead",
             "location": "Remote",
-            "url": "https://contentstack.com"
+            "url": "https://contentstack.com",
+            "text": "At Contentstack, Tim Benniks is the Developer Experience Lead, leading the evolution of developer experience toward AI driven tooling and workflows. He focuses on defining the strategy for developer onboarding and product usage, designing and building MCP servers, MCP Hub, official AI Skills, and Agent integrations, creating DX frameworks that blend AI, orchestration, and platform thinking, producing content, talks, demos, starters, and videos showcasing modern developer workflows, and working with engineering and product teams to bring AI capabilities directly into the platform. The goal is simple: reduce cognitive load, improve developer velocity, and make composable architectures actually enjoyable to work with."
           },
           {
             "daterange": "August 2023 - September 2024",
-            "text": "At Hygraph, Tim Benniks is the Developer Relations Lead, driving outreach and awareness initiatives. In this role, he connects with the developer community through engaging content, live streams, and industry events. Tim's efforts are focused on showcasing Hygraph's capabilities, fostering strong relationships with developers and partners, and promoting the adoption of headless CMS solutions. His work enhances Hygraph's visibility and empowers developers to build innovative and scalable applications using Hygraph's platform.",
             "company": "Hygraph",
             "title": "Developer Relations Lead for Outreach and Awareness",
             "location": "Remote",
-            "url": "https://hygraph.com"
+            "url": "https://hygraph.com",
+            "text": "At Hygraph, Tim Benniks is the Developer Relations Lead, driving outreach and awareness initiatives. In this role, he connects with the developer community through engaging content, live streams, and industry events. Tim's efforts are focused on showcasing Hygraph's capabilities, fostering strong relationships with developers and partners, and promoting the adoption of headless CMS solutions. His work enhances Hygraph's visibility and empowers developers to build innovative and scalable applications using Hygraph's platform."
           },
           {
             "daterange": "March 2021 - October 2025",
-            "text": "At the beginning of my tenure as a member of the Technical Council, I played a pivotal role in shaping the decision-making processes for new member admissions for SI's. Diligently evaluated potential members to ensure they adhered to Microservices, API-first, Cloud-native, and Headless (MACH) architecture principles. As a group of dedicated Council members, we were instrumental in maintaining the high standards of the alliance, fostering innovation, and ensuring that new entrants contributed meaningfully to the MACH ecosystem.",
             "company": "MACH Alliance",
             "title": "Member of Tech Council",
             "location": "Remote",
-            "url": "https://machalliance.org"
+            "url": "https://machalliance.org",
+            "text": "At the beginning of my tenure as a member of the Technical Council, I played a pivotal role in shaping the decision-making processes for new member admissions for SI's. Diligently evaluated potential members to ensure they adhered to Microservices, API-first, Cloud-native, and Headless (MACH) architecture principles. As a group of dedicated Council members, we were instrumental in maintaining the high standards of the alliance, fostering innovation, and ensuring that new entrants contributed meaningfully to the MACH ecosystem."
           },
           {
             "daterange": "January 2023 - August 2023",
-            "text": "Played a crucial role in engaging and educating the developer community. Inspire and Empower is the motto. Responsibilities included creating educational content, live streaming, speaking at conferences, and providing guidance to developers to effectively utilize Uniform's cutting-edge platform. My work significantly contributed to increasing Uniform's visibility and adoption within the tech community, fostering a vibrant and informed user base.",
             "company": "Uniform",
             "title": "Director of Developer Relations",
             "location": "Remote",
-            "url": "https://uniform.dev"
+            "url": "https://uniform.dev",
+            "text": "Played a crucial role in engaging and educating the developer community. Inspire and Empower is the motto. Responsibilities included creating educational content, live streaming, speaking at conferences, and providing guidance to developers to effectively utilize Uniform's cutting-edge platform. My work significantly contributed to increasing Uniform's visibility and adoption within the tech community, fostering a vibrant and informed user base."
           },
           {
             "daterange": "February 2021 - January 2023",
-            "text": "Joined Uniform as Principal Developer Advocate. Developer Relations, defining the perception of Uniform to technical people in the community of developers, partners, and customers. Setting up processes, KPIs, and their measurement, creating content (written and video) around DXC, and speaking at conferences. In 2021 this was a one man team so the scope was wide ranging. In 2022 this is scoped down as the company grows and other disciplines take more responsibilities.",
             "company": "Uniform",
             "title": "Principal Developer Advocate",
             "location": "Remote",
-            "url": "https://uniform.dev"
+            "url": "https://uniform.dev",
+            "text": "Joined Uniform as Principal Developer Advocate. Developer Relations, defining the perception of Uniform to technical people in the community of developers, partners, and customers. Setting up processes, KPIs, and their measurement, creating content (written and video) around DXC, and speaking at conferences. In 2021 this was a one man team so the scope was wide ranging. In 2022 this is scoped down as the company grows and other disciplines take more responsibilities."
           },
           {
             "daterange": "March 2018 - February 2021",
-            "text": "A global role representing front-end developers across Valtech. Setting up best practices around team management, pitching, and use of MACH technology. Helping Global clients to achieve digital transformation at scale. Clients include: P&G, Rolex, LVMH",
             "company": "Valtech",
             "title": "Director of Web Development",
             "location": "Paris Area, France",
-            "url": "https://www.valtech.com"
+            "url": "https://www.valtech.com",
+            "text": "A global role representing front-end developers across Valtech. Setting up best practices around team management, pitching, and use of MACH technology. Helping Global clients to achieve digital transformation at scale. Clients include: P&G, Rolex, LVMH"
           },
           {
             "daterange": "April 2017 - January 2020",
-            "text": "Global front-end lead on the website factory program for L'Oréal. Leading teams in France, US and Ukraine. In charge of code quality across projects, front-end architecture, tech stack decisions. Leading from code perspective, not from a high level management point of view. Sitecore, Azure, Vue.js, Accessibility compliance, unit testing, media asset management, performance, scss architecture, JSS. Brands: Kerastase, Garnier, Redken, Essie, L'Oréal Paris, La Roche Posay, Vichy.",
             "company": "Valtech",
             "title": "Global Front-End Lead",
             "location": "Paris Area, France",
-            "url": "https://www.valtech.com"
+            "url": "https://www.valtech.com",
+            "text": "Global front-end lead on the website factory program for L'Oréal. Leading teams in France, US and Ukraine. In charge of code quality across projects, front-end architecture, tech stack decisions. Leading from code perspective, not from a high level management point of view. Sitecore, Azure, Vue.js, Accessibility compliance, unit testing, media asset management, performance, scss architecture, JSS. Brands: Kerastase, Garnier, Redken, Essie, L'Oréal Paris, La Roche Posay, Vichy."
           },
           {
             "daterange": "April 2015 - April 2017",
-            "text": "Dividing time between being tech lead and developer. In this role the focus is on bringing partners together to create an agile and flexible team to deliver high quality work. Doing development when needed. Streamlining client processes and decision making with creative innovation, tech limitations and client goals in mind. Knowledge and experience: Gigya, Smartfocus, Webtrends, Cloudinary, Fredhopper, MailChimp, AEM, Hybris and Sitecore. Clients: Chanel, Hermès, Google, Nike.",
             "company": "AKQA",
             "title": "Technical Delivery Manager",
             "location": "Paris Area, France",
-            "url": "https://www.akqa.com"
+            "url": "https://www.akqa.com",
+            "text": "Dividing time between being tech lead and developer. In this role the focus is on bringing partners together to create an agile and flexible team to deliver high quality work. Doing development when needed. Streamlining client processes and decision making with creative innovation, tech limitations and client goals in mind. Knowledge and experience: Gigya, Smartfocus, Webtrends, Cloudinary, Fredhopper, MailChimp, AEM, Hybris and Sitecore. Clients: Chanel, Hermès, Google, Nike."
           },
           {
             "daterange": "March 2014 - April 2015",
-            "text": "Next to development the job included: leading the tech team on a content level, presenting to peers, guiding juniors and interns and working closely with external tech partners. Clients: Chanel, Hermès, Red Bull, Martell, Google, Nike",
             "company": "AKQA",
             "title": "Principal Web Developer",
             "location": "Paris Area, France",
-            "url": "https://www.akqa.com"
+            "url": "https://www.akqa.com",
+            "text": "Next to development the job included: leading the tech team on a content level, presenting to peers, guiding juniors and interns and working closely with external tech partners. Clients: Chanel, Hermès, Red Bull, Martell, Google, Nike"
           },
           {
             "daterange": "January 2011 - March 2014",
-            "text": "Worked on front-end architecture for big multi-market platforms and through the line campaigns. Prototyping had a prominent place in the work. Clients: Heineken, Tommy Hilfiger, Mini, Nike, EA Sports, Philips.",
             "company": "AKQA",
             "title": "Senior Web Developer",
             "location": "Amsterdam Area, Netherlands",
-            "url": "https://www.akqa.com"
+            "url": "https://www.akqa.com",
+            "text": "Worked on front-end architecture for big multi-market platforms and through the line campaigns. Prototyping had a prominent place in the work. Clients: Heineken, Tommy Hilfiger, Mini, Nike, EA Sports, Philips."
           },
           {
             "daterange": "May 2010 - December 2010",
-            "text": "Worked closely with the backend developers. The goal was to be a bridge between the two disciplines and therefore making the work process more agile. Clients: Transavia.com, AutoTrader, VUmc, Nutricia, Stadgenoot, KLM, RDC.",
             "company": "Mirabeau",
             "title": "Front-End Developer",
             "location": "Netherlands",
-            "url": "https://www.mirabeau.nl"
+            "url": "https://www.mirabeau.nl",
+            "text": "Worked closely with the backend developers. The goal was to be a bridge between the two disciplines and therefore making the work process more agile. Clients: Transavia.com, AutoTrader, VUmc, Nutricia, Stadgenoot, KLM, RDC."
           },
           {
             "daterange": "January 2010 - May 2010",
-            "text": "Responsible for the quality assurance of code. Made sure deadlines were hit, helped out with the personal goals of team members and handled resourcing as an additional task.",
             "company": "Mediamatic",
             "title": "Team Lead Front-End Development",
             "location": "Amsterdam",
-            "url": "https://www.mediamatic.net"
+            "url": "https://www.mediamatic.net",
+            "text": "Responsible for the quality assurance of code. Made sure deadlines were hit, helped out with the personal goals of team members and handled resourcing as an additional task."
           },
           {
             "daterange": "January 2008 - January 2010",
-            "text": "Responsible for the overall look and feel of websites built with the anyMeta CMS. This included animations, placement of elements and interaction. Rebuilt the whole template system and CSS framework of the anyMeta CMS in 2008. In 2009 the focus was on the rebuild of the JavaScript architecture. During this time Mediamatic worked with the first versions of oAuth and social network logins before Facebook became big in Europe. Clients: Picnic, Pakhuis de Zwijger, Women INC, Mediamatic.net, Mediamatic Travel, Museum de Paviljoens.",
             "company": "Mediamatic",
             "title": "Front-End Engineer",
             "location": "Amsterdam",
-            "url": "https://www.mediamatic.net"
+            "url": "https://www.mediamatic.net",
+            "text": "Responsible for the overall look and feel of websites built with the anyMeta CMS. This included animations, placement of elements and interaction. Rebuilt the whole template system and CSS framework of the anyMeta CMS in 2008. In 2009 the focus was on the rebuild of the JavaScript architecture. During this time Mediamatic worked with the first versions of oAuth and social network logins before Facebook became big in Europe. Clients: Picnic, Pakhuis de Zwijger, Women INC, Mediamatic.net, Mediamatic Travel, Museum de Paviljoens."
           }
         ]
       },
@@ -340,7 +377,8 @@
         "cta": {
           "label": "All videos",
           "href": "/videos"
-        }
+        },
+        "pagefindIgnore": false
       },
       {
         "kind": "faq",
@@ -387,15 +425,18 @@
         "kind": "cta-strip",
         "text": "Need a stage, a podcast guest, or a developer team that needs sharpening?",
         "em": "Let's talk.",
-        "cta": {
-          "label": "Press kit & booking",
-          "href": "/press-kit",
-          "variant": "primary"
-        }
+        "ctas": [
+          {
+            "label": "Press kit & booking",
+            "href": "/press-kit",
+            "variant": "primary"
+          }
+        ]
       }
     ]
   },
   "videos": {
+    "path": "/videos",
     "metadata": {
       "title": "Videos",
       "description": "Workshops, demos, livestreams, and recorded conversations from the YouTube channel and Contentstack streams.",
@@ -404,6 +445,12 @@
     "sections": [
       {
         "kind": "hero",
+        "headline": {
+          "lead": "Workshops, demos, and",
+          "em": "live conversations.",
+          "tail": ""
+        },
+        "subline": "Long-form content from the YouTube channel, Contentstack livestreams, and the occasional late-night experiment.",
         "ctas": [
           {
             "label": "Watch on YouTube",
@@ -416,22 +463,31 @@
           "alt": "Tim Benniks drawn",
           "width": 1536,
           "height": 1024,
-          "widths": [640, 960],
+          "widths": [
+            640,
+            960
+          ],
           "eager": true,
           "preload": true
         },
-
-        "imageSide": "left",
-        "headline": {
-          "lead": "Workshops, demos, and",
-          "em": "live conversations.",
-          "tail": ""
-        },
-        "subline": "Long-form content from the YouTube channel, Contentstack livestreams, and the occasional late-night experiment."
+        "imageSide": "left"
+      },
+      {
+        "kind": "stats",
+        "source": "videos"
+      },
+      {
+        "kind": "browse",
+        "source": "videos",
+        "eyebrow": "Browse by playlist",
+        "searchHref": "/search",
+        "columns": 3,
+        "pagefindIgnore": true
       }
     ]
   },
   "writing": {
+    "path": "/writing",
     "metadata": {
       "title": "Writing",
       "description": "Essays on developer experience, AI-accelerated engineering, composable platforms, and the trade-offs that don't make it into the marketing.",
@@ -446,15 +502,598 @@
           "tail": "in 2026."
         },
         "subline": "Developer experience, AI-accelerated engineering, composable platforms, and the trade-offs that don't make it into the marketing.",
+        "ctas": [],
         "image": {
           "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778496050/website/tim-writer.png",
           "alt": "Sketched portrait of Tim Benniks at his desk",
           "width": 1489,
           "height": 992,
-          "widths": [360, 480, 640, 768, 960],
+          "widths": [
+            360,
+            480,
+            640,
+            768,
+            960
+          ],
           "eager": true,
           "preload": true
-        }
+        },
+        "imageSide": "right"
+      },
+      {
+        "kind": "stats",
+        "source": "writing"
+      },
+      {
+        "kind": "browse",
+        "source": "writing",
+        "eyebrow": "Browse by tag",
+        "searchHref": "/search",
+        "columns": 3,
+        "pagefindIgnore": true
+      }
+    ]
+  },
+  "speaking": {
+    "path": "/speaking",
+    "metadata": {
+      "title": "Speaking",
+      "description": "Conference talks, workshops, and podcast appearances on developer experience, AI agents, and composable architecture.",
+      "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto,w_1280/Tim/Tim%20On%20Stage.jpg",
+      "keywords": "speaker, keynote, conference, workshop, podcast, developer experience, AI agents"
+    },
+    "sections": [
+      {
+        "kind": "hero",
+        "eyebrow": "Stages",
+        "headline": {
+          "lead": "Six years on stage.",
+          "em": "Still showing up.",
+          "tail": ""
+        },
+        "subline": "Keynotes, technical deep-dives, panels, and podcasts on developer experience, AI-augmented engineering, and composable architecture. Available for events worldwide.",
+        "ctas": [
+          {
+            "label": "Press kit & booking",
+            "href": "/press-kit",
+            "variant": "primary"
+          }
+        ],
+        "image": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1677741363/Tim/vuejs.amsterdam_conference_talk.jpg",
+          "alt": "Tim Benniks speaking on stage at Vue.js Amsterdam",
+          "width": 2355,
+          "height": 1011,
+          "widths": [
+            640,
+            960
+          ],
+          "eager": true,
+          "preload": true
+        },
+        "imageSide": "left"
+      },
+      {
+        "kind": "stats",
+        "source": "speaking"
+      },
+      {
+        "kind": "card-rows",
+        "eyebrow": "Upcoming",
+        "title": "Where I'll be next",
+        "source": "speaking",
+        "window": "upcoming",
+        "hideWhenEmpty": true
+      },
+      {
+        "kind": "card-rows",
+        "eyebrow": "The archive",
+        "title": "All past talks",
+        "lede": "The newest at the top.",
+        "source": "speaking",
+        "window": "past",
+        "hideWhenEmpty": false
+      }
+    ]
+  },
+  "projects": {
+    "path": "/projects",
+    "metadata": {
+      "title": "Projects",
+      "description": "Platform work, MCP servers, SDKs, and the occasional weekend experiment.",
+      "keywords": "MCP, SDK, platform engineering, AI agents, open source"
+    },
+    "sections": [
+      {
+        "kind": "hero",
+        "eyebrow": "The workbench",
+        "headline": {
+          "lead": "Platform work, MCP servers,",
+          "em": "and weekend experiments.",
+          "tail": ""
+        },
+        "subline": "Real code with real trade-offs. Some of this is shipping in production for thousands of developers. Some of it is a Saturday afternoon. Both are on the list — that's the point.",
+        "ctas": [],
+        "imageSide": "right"
+      },
+      {
+        "kind": "card-grid",
+        "source": "projects",
+        "columns": 3,
+        "tone": "light",
+        "pagefindIgnore": false
+      },
+      {
+        "kind": "cta-strip",
+        "text": "Want to collaborate, contribute, or pull a weekend experiment into production?",
+        "em": " Get in touch.",
+        "ctas": [
+          {
+            "label": "hi@timbenniks.dev",
+            "href": "mailto:hi@timbenniks.dev",
+            "variant": "accent"
+          }
+        ]
+      }
+    ]
+  },
+  "uses": {
+    "path": "/uses",
+    "metadata": {
+      "title": "Uses",
+      "description": "The hardware, software, and audio/video kit Tim Benniks uses to build, write, livestream, and ship every day.",
+      "keywords": "uses, gear, hardware, software, livestream setup, podcast setup, recording, dev setup"
+    },
+    "sections": [
+      {
+        "kind": "hero",
+        "eyebrow": "/uses",
+        "headline": {
+          "lead": "The kit that",
+          "em": "does the job",
+          "tail": "— and gets out of the way."
+        },
+        "subline": "A running inventory of the hardware, editor, terminal, and recording gear that gets me through a working day. Updated when something actually changes — not when something new ships.",
+        "ctas": [],
+        "imageSide": "right"
+      },
+      {
+        "kind": "inventory",
+        "eyebrow": "Office",
+        "title": "Computer & desk",
+        "lede": "A workspace that doubles as a recording studio. Always one button-click from being ready to roll.",
+        "tone": "light",
+        "groups": [
+          {
+            "heading": "Compute",
+            "items": [
+              {
+                "name": "14\" MacBook Pro",
+                "note": "M3, 36GB"
+              },
+              {
+                "name": "LG UltraFine 32UN500-W",
+                "note": "32\" 4K"
+              },
+              {
+                "name": "CalDigit TS3+ dock"
+              },
+              {
+                "name": "Logitech MX Master 3"
+              },
+              {
+                "name": "Custom mechanical keyboards",
+                "note": "Tactile, lubed, swapped often"
+              }
+            ]
+          },
+          {
+            "heading": "Desk",
+            "items": [
+              {
+                "name": "Yaasa Pro II sit/stand desk"
+              },
+              {
+                "name": "Autonomous ErgoChair 2"
+              },
+              {
+                "name": "Elgato Stream Deck",
+                "note": "Full size + Mini"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "inventory",
+        "eyebrow": "Studio",
+        "title": "Audio & video",
+        "lede": "Built to record talks, livestreams, and YouTube without thinking about gear. Mattresses on the wall — they absorb audio surprisingly well.",
+        "tone": "dark",
+        "groups": [
+          {
+            "heading": "Audio",
+            "items": [
+              {
+                "name": "Rode Rodecaster Pro",
+                "note": "Main interface"
+              },
+              {
+                "name": "Rode Streamer X"
+              },
+              {
+                "name": "Focusrite Scarlett Solo · 3rd gen"
+              },
+              {
+                "name": "Shure SM7b + TritonAudio FetHead"
+              },
+              {
+                "name": "Shure NT4",
+                "note": "Stereo for music"
+              },
+              {
+                "name": "M-Audio BX5 monitors"
+              }
+            ]
+          },
+          {
+            "heading": "Camera",
+            "items": [
+              {
+                "name": "Sony ZV-E10 + Sigma 16mm f/1.4"
+              },
+              {
+                "name": "Sony ZV-1",
+                "note": "B-cam, vlogs"
+              }
+            ]
+          },
+          {
+            "heading": "Lights",
+            "items": [
+              {
+                "name": "Elgato Key Lights + Flex Arms"
+              },
+              {
+                "name": "Godox TL 60 tube lights"
+              },
+              {
+                "name": "Aputure Amaran 100D + Godox light dome"
+              },
+              {
+                "name": "Aputure Amaran 60D S + 50cm lantern softbox"
+              },
+              {
+                "name": "Aputure Amaran P60x"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "inventory",
+        "eyebrow": "Software",
+        "title": "What runs all day",
+        "lede": "A small kit, swapped slowly. The fewer surprises in the editor, the more attention left for the work.",
+        "tone": "light",
+        "groups": [
+          {
+            "heading": "Editor & terminal",
+            "items": [
+              {
+                "name": "Visual Studio Code",
+                "note": "Night Owl · Material Icon Theme"
+              },
+              {
+                "name": "Warp",
+                "note": "with zsh"
+              },
+              {
+                "name": "Claude Code",
+                "note": "For the heavy lifting"
+              }
+            ]
+          },
+          {
+            "heading": "Browsers",
+            "items": [
+              {
+                "name": "Arc",
+                "note": "Daily driver"
+              },
+              {
+                "name": "Chrome",
+                "note": "For DevTools"
+              }
+            ]
+          },
+          {
+            "heading": "Design & video",
+            "items": [
+              {
+                "name": "Figma"
+              },
+              {
+                "name": "DaVinci Resolve",
+                "note": "YouTube edits"
+              },
+              {
+                "name": "OBS",
+                "note": "Livestreaming"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "inventory",
+        "eyebrow": "Off the clock",
+        "title": "Music",
+        "lede": "What happens after the laptop closes. Mostly tube amps, mostly old pedals, mostly loud.",
+        "tone": "dark",
+        "groups": [
+          {
+            "heading": "Amps",
+            "items": [
+              {
+                "name": "Marshall JCM-900"
+              },
+              {
+                "name": "Fender Blues Deluxe Tweed Reissue"
+              }
+            ]
+          },
+          {
+            "heading": "Pedals",
+            "items": [
+              {
+                "name": "Ibanez TS9",
+                "note": "1984"
+              },
+              {
+                "name": "Maxon TS808"
+              },
+              {
+                "name": "Fulltone OCD"
+              },
+              {
+                "name": "Fulltone Full Drive"
+              },
+              {
+                "name": "Boss DD5 · CE2"
+              },
+              {
+                "name": "Cry Baby wah"
+              }
+            ]
+          },
+          {
+            "heading": "Guitars",
+            "items": [
+              {
+                "name": "Vintage Fenders, PRS, Gibson"
+              },
+              {
+                "name": "Ibanez, Sire, Epiphone"
+              },
+              {
+                "name": "Taylor acoustic"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "cta-strip",
+        "text": "The list changes slowly on purpose.",
+        "em": " Stable tools, sharper attention.",
+        "ctas": [
+          {
+            "label": "hi@timbenniks.dev",
+            "href": "mailto:hi@timbenniks.dev",
+            "variant": "accent"
+          }
+        ]
+      }
+    ]
+  },
+  "press-kit": {
+    "path": "/press-kit",
+    "metadata": {
+      "title": "Press kit & booking",
+      "description": "Bios, headshots, on-stage photos, speaker topics, and contact details for booking Tim Benniks for conferences, podcasts, and developer events.",
+      "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto,w_1280/Presskit/tim_aug_2023_no_logo.png",
+      "keywords": "press kit, speaker bio, headshots, booking, conference speaker, keynote, podcast guest"
+    },
+    "sections": [
+      {
+        "kind": "hero",
+        "eyebrow": "Press kit",
+        "headline": {
+          "lead": "Booking, bios, and the",
+          "em": "good photos.",
+          "tail": ""
+        },
+        "subline": "Everything you need to introduce me on stage, on a panel, or in your show notes — without having to email me twice.",
+        "ctas": [
+          {
+            "label": "Email Tim",
+            "href": "mailto:hi@timbenniks.dev",
+            "variant": "primary"
+          },
+          {
+            "label": "LinkedIn",
+            "href": "https://linkedin.com/in/timbenniks",
+            "variant": "secondary"
+          }
+        ],
+        "gallery": [
+          {
+            "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/Tim/tim_june_2024.jpg",
+            "alt": "Tim Benniks portrait, June 2024",
+            "label": "Studio portrait · 2024",
+            "featured": true
+          },
+          {
+            "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/presskit/tim_aug_2023_no_logo.png",
+            "alt": "Tim Benniks portrait, August 2023",
+            "label": "Studio portrait · 2023",
+            "featured": false
+          },
+          {
+            "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/presskit/IMG_0144",
+            "alt": "Tim Benniks candid portrait",
+            "label": "On-location · 2024",
+            "featured": false
+          }
+        ],
+        "imageSide": "right"
+      },
+      {
+        "kind": "copy-blocks",
+        "eyebrow": "The bios",
+        "title": "Copy and paste",
+        "lede": "Two lengths, both written to be lifted directly. Pronouns: he/him.",
+        "items": [
+          {
+            "label": "Short · 60 words",
+            "body": "Developer Experience and Product leader at Contentstack, where he drives DX, Developer Hub & Marketplace, MCP, and Agent Skills. With 20 years of experience building for global brands, he now focuses on shaping developer-facing products and AI-driven workflows. Tim is a frequent speaker, content creator, and Co-chair of the Enterprise AI Agents Workgroup at the MACH Alliance.",
+            "style": "serif"
+          },
+          {
+            "label": "Long · 110 words",
+            "body": "Tim Benniks is a Developer Experience and Product leader with over 20 years of experience building digital platforms for some of the world's biggest brands, including Nike, Google, CHANEL, Louis Vuitton, and Procter & Gamble. He currently leads Developer Experience at Contentstack, where he also operates as Product Manager across Developer Experience, Developer Hub & Marketplace, Contentstack MCP, and Agent Skills. His work sits at the intersection of product, developers, and emerging AI workflows — with a focus on making complex systems usable, scalable, and actually enjoyable to build with.",
+            "style": "muted"
+          }
+        ]
+      },
+      {
+        "kind": "photo-grid",
+        "eyebrow": "On stage",
+        "title": "Photos for show notes",
+        "lede": "Click to open at full resolution. Credit isn't required, but a Bluesky tag never hurts.",
+        "tone": "dark",
+        "columns": 3,
+        "aspect": "video",
+        "items": [
+          {
+            "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/Presskit/FDLC2019_462.jpg",
+            "alt": "Tim Benniks speaking at FDLC",
+            "label": "FDLC keynote",
+            "width": 1600,
+            "height": 900
+          },
+          {
+            "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/Tim/IMG_1020.jpg",
+            "alt": "Tim Benniks on stage",
+            "label": "Conference talk",
+            "width": 1600,
+            "height": 900
+          },
+          {
+            "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/website/tim_on_stage.png",
+            "alt": "Tim Benniks on stage in front of a live audience",
+            "label": "Live audience",
+            "width": 1600,
+            "height": 900
+          }
+        ]
+      },
+      {
+        "kind": "topic-grid",
+        "eyebrow": "Speaker topics",
+        "title": "What I talk about",
+        "lede": "Keynotes, technical deep-dives, and panel topics. Every talk is rebuilt for the audience — these are starting points, not a fixed deck.",
+        "items": [
+          {
+            "title": "Developer experience as product strategy",
+            "body": "Why DX is no longer polish on top of the platform — it is the platform. How to instrument, design, and prioritize it with real engineering rigor."
+          },
+          {
+            "title": "AI-augmented engineering",
+            "body": "What changes when generation cost goes to zero. Taste as a technical skill, the new bottlenecks, and the team shapes that win."
+          },
+          {
+            "title": "Composable architecture, beyond the buzzword",
+            "body": "MACH, headless, and the real wiring that makes composable systems shippable in the enterprise — including where they break."
+          },
+          {
+            "title": "Agents at the content layer",
+            "body": "How MCP, agent skills, and headless content infrastructure meet. What enterprises actually do with agents once the demo is over."
+          }
+        ],
+        "pills": [
+          "vuejs.amsterdam · keynote",
+          "JAMstack Conf · headless DXP",
+          "Headless Conf · agents at the content layer",
+          "DevWorld Conference · AI-augmented DevRel",
+          "Contentstack ContentCon · keynote",
+          "AI4DEVS Amsterdam · taste as a technical skill"
+        ],
+        "pillsLabel": "Recent stages",
+        "noteBefore": "See ",
+        "noteHref": "/speaking",
+        "noteLinkLabel": "all talks",
+        "noteAfter": " for the full list — over 100 events across the last six years."
+      },
+      {
+        "kind": "factsheet",
+        "eyebrow": "The factsheet",
+        "title": "Everything else",
+        "lede": "The details for your CRM, your event ops sheet, or your producer.",
+        "items": [
+          {
+            "term": "Name",
+            "value": "Tim Benniks"
+          },
+          {
+            "term": "Title",
+            "value": "Developer Experience Lead, Contentstack"
+          },
+          {
+            "term": "Co-chair",
+            "value": "MACH Alliance · Enterprise AI Agents Workgroup"
+          },
+          {
+            "term": "Ambassador",
+            "value": "Nuxt · Cloudinary · Supabase · Algolia"
+          },
+          {
+            "term": "Based in",
+            "value": "Greater Toulouse, France"
+          },
+          {
+            "term": "Languages",
+            "value": "English, Dutch, French"
+          },
+          {
+            "term": "Email",
+            "value": "hi@timbenniks.dev",
+            "href": "mailto:hi@timbenniks.dev"
+          },
+          {
+            "term": "LinkedIn",
+            "value": "linkedin.com/in/timbenniks",
+            "href": "https://linkedin.com/in/timbenniks"
+          }
+        ]
+      },
+      {
+        "kind": "cta-strip",
+        "text": "Got a stage, a podcast, or a developer team that needs sharpening?",
+        "em": " Let's talk.",
+        "ctas": [
+          {
+            "label": "Email Tim",
+            "href": "mailto:hi@timbenniks.dev",
+            "variant": "accent"
+          },
+          {
+            "label": "LinkedIn",
+            "href": "https://linkedin.com/in/timbenniks",
+            "variant": "secondary"
+          }
+        ]
       }
     ]
   }

@@ -1,0 +1,42 @@
+---
+import Section from '../primitives/Section.astro';
+import SectionHeading from '../primitives/SectionHeading.astro';
+import { editAttr, editPath } from '../../lib/admin/edit-path';
+
+interface Props {
+  editBase?: string;
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  items: { label: string; body: string; style?: 'serif' | 'muted' }[];
+}
+
+const { editBase, eyebrow, title, lede, items } = Astro.props;
+---
+
+<Section bordered padding="lg">
+  <SectionHeading editBase={editBase} eyebrow={eyebrow} title={title} lede={lede} />
+  <div class="mt-12 grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-16">
+    {items.map((item, i) => (
+      <div>
+        <p
+          class="font-mono text-xs uppercase tracking-wide text-ink-subtle"
+          {...editAttr(editPath(editBase, 'items', i, 'label'))}
+        >
+          {item.label}
+        </p>
+        <p
+          class:list={[
+            'mt-4 leading-snug',
+            item.style === 'muted'
+              ? 'text-base leading-relaxed text-ink-muted'
+              : 'font-serif text-xl text-ink',
+          ]}
+          {...editAttr(editPath(editBase, 'items', i, 'body'))}
+        >
+          {item.body}
+        </p>
+      </div>
+    ))}
+  </div>
+</Section>

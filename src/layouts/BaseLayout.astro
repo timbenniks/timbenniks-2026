@@ -7,6 +7,7 @@ import SiteFooter from "../components/SiteFooter.astro";
 import SEO from "../components/primitives/SEO.astro";
 import JsonLd from "../components/primitives/JsonLd.astro";
 import { buildGraph, personSchema, websiteSchema, webPageSchema } from "../lib/schema";
+import { isEditMarkupEnabled } from "../lib/admin/edit-mode";
 
 interface Props {
   title: string;
@@ -34,6 +35,7 @@ const baseGraph = buildGraph(
   websiteSchema(),
   personSchema(),
 );
+const editMarkupEnabled = isEditMarkupEnabled();
 ---
 
 <html lang="en">
@@ -57,6 +59,18 @@ const baseGraph = buildGraph(
     }
     <JsonLd data={baseGraph} />
     <slot name="head" />
+    {
+      // Only when edit markup is enabled (admin preview SSR, or TB_EDIT_MODE).
+      // Full bridge loads client-side for ?edit=1 iframes.
+      editMarkupEnabled && (
+        <script is:inline type="module">
+          const params = new URLSearchParams(location.search);
+          if (params.get('edit') === '1' && window.parent !== window) {
+            import('/admin/bridge.js');
+          }
+        </script>
+      )
+    }
   </head>
   <body class="bg-bg text-ink antialiased">
     <a

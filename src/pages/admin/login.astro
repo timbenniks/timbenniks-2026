@@ -1,0 +1,77 @@
+---
+export const prerender = false;
+
+const next = Astro.url.searchParams.get('next') || '/admin';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin login</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        background: #faf9f7;
+        color: #1a1a1a;
+      }
+      form {
+        width: min(360px, 92vw);
+        padding: 1.5rem;
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        border-radius: 10px;
+      }
+      label { display: block; font-size: 0.85rem; margin-bottom: 0.35rem; }
+      input {
+        width: 100%;
+        padding: 0.65rem 0.75rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+      }
+      button {
+        width: 100%;
+        padding: 0.7rem;
+        border: 0;
+        border-radius: 6px;
+        background: #1a1a1a;
+        color: #fff;
+        cursor: pointer;
+      }
+      .err { color: #b42318; font-size: 0.85rem; margin-bottom: 0.75rem; min-height: 1.2em; }
+    </style>
+  </head>
+  <body>
+    <form id="login">
+      <h1 style="margin-top:0;font-size:1.2rem">Admin login</h1>
+      <div class="err" id="err"></div>
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required />
+      <button type="submit">Sign in</button>
+    </form>
+    <script is:inline define:vars={{ next }}>
+      document.getElementById('login')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const password = document.getElementById('password').value;
+        const err = document.getElementById('err');
+        err.textContent = '';
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password }),
+        });
+        if (!res.ok) {
+          err.textContent = 'Invalid password';
+          return;
+        }
+        location.href = next;
+      });
+    </script>
+  </body>
+</html>

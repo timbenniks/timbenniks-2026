@@ -1,0 +1,66 @@
+---
+import { isDevAuthBypass } from '../../lib/admin/auth';
+
+interface Props {
+  title: string;
+  active: 'pages' | 'site' | 'changes';
+  /** Optional label under Changes nav (e.g. cms → main). */
+  changesDesc?: string;
+}
+
+const { title, active, changesDesc = 'Review & publish' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="stylesheet" href="/admin/admin-dashboard.css" />
+    <slot name="head" />
+  </head>
+  <body class="dash">
+    <header class="dash-top">
+      <div class="brand">
+        <h1>Admin</h1>
+        <span class="slug">timbenniks.dev</span>
+      </div>
+      <div class="dash-actions">
+        <slot name="actions" />
+        {isDevAuthBypass() && <span class="dev-badge">Dev auth bypass</span>}
+        <button type="button" class="ghost" id="logout">Log out</button>
+      </div>
+    </header>
+
+    <div class="dash-body">
+      <aside class="dash-nav" aria-label="Workspace">
+        <p class="dash-nav-label">Workspace</p>
+        <a class={active === 'pages' ? 'active' : undefined} href="/admin">
+          Pages
+          <span class="desc">Content &amp; SEO</span>
+        </a>
+        <a class={active === 'site' ? 'active' : undefined} href="/admin/site">
+          Site chrome
+          <span class="desc">Nav &amp; footer</span>
+        </a>
+        <a class={active === 'changes' ? 'active' : undefined} href="/admin/changes">
+          Changes
+          <span class="desc">{changesDesc}</span>
+        </a>
+      </aside>
+
+      <div class="dash-main">
+        <div class="dash-main-inner">
+          <slot />
+        </div>
+      </div>
+    </div>
+
+    <script is:inline type="module">
+      import { bindAdminLogout } from '/admin/lib/logout.js';
+      bindAdminLogout();
+    </script>
+    <slot name="scripts" />
+  </body>
+</html>

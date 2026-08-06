@@ -1,0 +1,66 @@
+---
+import Section from '../primitives/Section.astro';
+import Eyebrow from '../primitives/Eyebrow.astro';
+import TagPill from '../primitives/TagPill.astro';
+import Card from '../Card.astro';
+import type { CardItem } from '../../lib/card';
+import { editAttr, editPath } from '../../lib/admin/edit-path';
+
+interface Props {
+  editBase?: string;
+  eyebrow?: string;
+  pills: { label: string; href: string; count: number }[];
+  searchHref?: string;
+  items?: CardItem[];
+  columns?: 2 | 3;
+  pagefindIgnore?: boolean;
+}
+
+const {
+  editBase,
+  eyebrow,
+  pills,
+  searchHref,
+  items = [],
+  columns = 3,
+  pagefindIgnore = false,
+} = Astro.props;
+
+const gridCols = columns === 2 ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3';
+---
+
+<Section bordered padding="md">
+  {eyebrow && (
+    <Eyebrow>
+      <span {...editAttr(editPath(editBase, 'eyebrow'))}>{eyebrow}</span>
+    </Eyebrow>
+  )}
+  <ul class="mt-4 flex flex-wrap items-center gap-2" role="list">
+    {pills.map(({ label, href, count }) => (
+      <li>
+        <TagPill href={href} count={count}>
+          {label}
+        </TagPill>
+      </li>
+    ))}
+    {searchHref && (
+      <li>
+        <TagPill href={searchHref} tone="accent">Search everything →</TagPill>
+      </li>
+    )}
+  </ul>
+
+  {items.length > 0 && (
+    <ul
+      class:list={['mt-12 grid grid-cols-1 gap-x-5 gap-y-12', gridCols]}
+      data-pagefind-ignore={pagefindIgnore ? true : undefined}
+      role="list"
+    >
+      {items.map((item, i) => (
+        <li>
+          <Card item={item} format="standard" eager={i < 3} />
+        </li>
+      ))}
+    </ul>
+  )}
+</Section>

@@ -6,6 +6,7 @@ import Card from '../Card.astro';
 import type { CardItem } from '../../lib/card';
 
 interface Props {
+  editBase?: string;
   eyebrow?: string;
   title: string;
   lede?: string;
@@ -14,9 +15,11 @@ interface Props {
   bordered?: boolean;
   padding?: 'sm' | 'md' | 'lg' | 'xl';
   closeBorder?: boolean;
+  hideWhenEmpty?: boolean;
 }
 
 const {
+  editBase,
   eyebrow,
   title,
   lede,
@@ -25,21 +28,30 @@ const {
   bordered = true,
   padding,
   closeBorder = true,
+  hideWhenEmpty = false,
 } = Astro.props;
 ---
 
-<Section bordered={bordered} padding={padding}>
-  <SectionHeading eyebrow={eyebrow} title={title} lede={lede} />
+{
+  !(hideWhenEmpty && items.length === 0) && (
+    <Section bordered={bordered} padding={padding}>
+      <SectionHeading editBase={editBase} eyebrow={eyebrow} title={title} lede={lede} />
 
-  <div class="mt-6 flex flex-col">
-    {items.map((item, i) => (
-      <Card item={item} format="row" isLast={closeBorder && i === items.length - 1} />
-    ))}
-  </div>
+      <div class="mt-6 flex flex-col">
+        {items.map((item, i) => (
+          <Card
+            item={item}
+            format="row"
+            isLast={closeBorder && i === items.length - 1}
+          />
+        ))}
+      </div>
 
-  {cta && (
-    <div class="mt-10">
-      <ArrowLink href={cta.href}>{cta.label}</ArrowLink>
-    </div>
-  )}
-</Section>
+      {cta && (
+        <div class="mt-10">
+          <ArrowLink href={cta.href}>{cta.label}</ArrowLink>
+        </div>
+      )}
+    </Section>
+  )
+}

@@ -1,15 +1,11 @@
 ---
-import { getEntry } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PagePreloadLinks from "../components/PagePreloadLinks.astro";
 import PageSections from "../components/PageSections.astro";
+import { loadPage } from "../lib/page";
 
-const home = await getEntry("pages", "home");
-if (!home) {
-  throw new Error("Missing content for pages/home");
-}
-
-const { metadata, sections } = home.data;
+const page = await loadPage("home");
+const { metadata, sections } = page.data;
 ---
 
 <BaseLayout {...metadata}>

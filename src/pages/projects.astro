@@ -1,63 +1,17 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Section from '../components/primitives/Section.astro';
-import Container from '../components/primitives/Container.astro';
-import Card from '../components/Card.astro';
-import JsonLd from '../components/primitives/JsonLd.astro';
-import ArrowLink from '../components/primitives/ArrowLink.astro';
-import { getCollection } from 'astro:content';
-import { breadcrumbSchema, buildGraph } from '../lib/schema';
-import { projectToCard } from '../lib/card';
-import { siteUrl } from '../data/site';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PagePreloadLinks from "../components/PagePreloadLinks.astro";
+import PageSections from "../components/PageSections.astro";
+import JsonLd from "../components/primitives/JsonLd.astro";
+import { loadPage, pageBreadcrumbGraph } from "../lib/page";
 
-const projects = (await getCollection('projects')).sort(
-  (a, b) => a.data.order - b.data.order,
-);
-
-const graph = buildGraph(
-  breadcrumbSchema([
-    { name: 'home', url: siteUrl('/') },
-    { name: 'projects', url: siteUrl('/projects') },
-  ]),
-);
-
-const items = projects.map(projectToCard);
+const page = await loadPage("projects");
+const { metadata, sections } = page.data;
+const graph = pageBreadcrumbGraph("projects");
 ---
 
-<BaseLayout
-  title="Projects"
-  description="Platform work, MCP servers, SDKs, and the occasional weekend experiment."
-  keywords="MCP, SDK, platform engineering, AI agents, open source"
->
+<BaseLayout {...metadata}>
+  <PagePreloadLinks slot="head" sections={sections} />
   <JsonLd slot="head" data={graph} />
-
-  <Section tone="dark" padding="xl">
-    <Container padded={false}>
-      <p class="font-mono text-xs uppercase tracking-wide text-accent-bright">The workbench</p>
-      <h1 class="mt-4 max-w-[820px] font-serif text-6xl md:text-7xl leading-tight text-cream">
-        Platform work, MCP servers,
-        <em class="italic text-accent-bright">and weekend experiments.</em>
-      </h1>
-      <p class="mt-8 max-w-[680px] text-xl text-cream-muted">
-        Real code with real trade-offs. Some of this is shipping in production for thousands of
-        developers. Some of it is a Saturday afternoon. Both are on the list — that's the point.
-      </p>
-    </Container>
-
-    <ul class="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-      {items.map((item) => (
-        <li>
-          <Card item={item} format="standard" />
-        </li>
-      ))}
-    </ul>
-  </Section>
-
-  <Container as="section" class="flex flex-wrap items-center justify-between gap-8 pt-16 pb-24">
-    <p class="max-w-[600px] font-serif text-2xl">
-      Want to collaborate, contribute, or pull a weekend experiment into production?
-      <em class="italic font-normal text-accent">Get in touch.</em>
-    </p>
-    <ArrowLink href="mailto:hi@timbenniks.dev">hi@timbenniks.dev</ArrowLink>
-  </Container>
+  <PageSections sections={sections} />
 </BaseLayout>

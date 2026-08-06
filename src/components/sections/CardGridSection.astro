@@ -8,8 +8,9 @@ import type { CardItem } from '../../lib/card';
 type Tone = 'light' | 'dark';
 
 interface Props {
+  editBase?: string;
   eyebrow?: string;
-  title: string;
+  title?: string;
   lede?: string;
   items: CardItem[];
   columns?: 2 | 3;
@@ -18,9 +19,11 @@ interface Props {
   cta?: { label: string; href: string };
   padding?: 'sm' | 'md' | 'lg' | 'xl';
   class?: string;
+  pagefindIgnore?: boolean;
 }
 
 const {
+  editBase,
   eyebrow,
   title,
   lede,
@@ -31,10 +34,12 @@ const {
   cta,
   padding,
   class: className,
+  pagefindIgnore = false,
 } = Astro.props;
 
 const gridCols = columns === 2 ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3';
 const dark = tone === 'dark';
+const showHeading = Boolean(eyebrow || title || lede);
 ---
 
 <Section
@@ -43,12 +48,22 @@ const dark = tone === 'dark';
   bordered={bordered}
   class={className}
 >
-  <SectionHeading eyebrow={eyebrow} title={title} lede={lede} dark={dark} />
+  {showHeading && title && (
+    <SectionHeading editBase={editBase} eyebrow={eyebrow} title={title} lede={lede} dark={dark} />
+  )}
 
-  <ul class:list={['mt-10 grid grid-cols-1 gap-5', gridCols, columns === 3 && 'gap-x-5 gap-y-10']}>
-    {items.map((item) => (
+  <ul
+    class:list={[
+      'grid grid-cols-1 gap-5',
+      showHeading && title ? 'mt-10' : '',
+      gridCols,
+      columns === 3 && 'gap-x-5 gap-y-10',
+    ]}
+    data-pagefind-ignore={pagefindIgnore ? true : undefined}
+  >
+    {items.map((item, i) => (
       <li>
-        <Card item={item} format="standard" />
+        <Card item={item} format="standard" eager={i < 3} />
       </li>
     ))}
   </ul>

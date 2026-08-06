@@ -1,14 +1,16 @@
 ---
 import JsonLd from './JsonLd.astro';
 import { buildGraph, faqPageSchema, type FaqEntry } from '../../lib/schema';
+import { editAttr, editPath } from '../../lib/admin/edit-path';
 
 interface Props {
+  editBase?: string;
   items: FaqEntry[];
   dark?: boolean;
   emitJsonLd?: boolean;
 }
 
-const { items, dark = false, emitJsonLd = true } = Astro.props;
+const { editBase, items, dark = false, emitJsonLd = true } = Astro.props;
 ---
 
 {emitJsonLd && <JsonLd data={buildGraph(faqPageSchema(items))} />}
@@ -20,7 +22,7 @@ const { items, dark = false, emitJsonLd = true } = Astro.props;
   ]}
 >
   {
-    items.map((item) => (
+    items.map((item, i) => (
       <details
         class:list={[
           'group border-b',
@@ -33,7 +35,10 @@ const { items, dark = false, emitJsonLd = true } = Astro.props;
             dark ? 'text-cream hover:text-accent-bright' : 'text-ink hover:text-accent',
           ]}
         >
-          <span class="font-serif text-xl font-medium leading-snug md:text-2xl">
+          <span
+            class="font-serif text-xl font-medium leading-snug md:text-2xl"
+            {...editAttr(editPath(editBase, 'items', i, 'question'))}
+          >
             {item.question}
           </span>
           <span
@@ -51,6 +56,7 @@ const { items, dark = false, emitJsonLd = true } = Astro.props;
             'pb-6 pr-10 text-md leading-relaxed',
             dark ? 'text-cream-muted' : 'text-ink-muted',
           ]}
+          {...editAttr(editPath(editBase, 'items', i, 'answer'))}
         >
           {item.answer}
         </div>

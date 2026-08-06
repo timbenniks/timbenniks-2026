@@ -1,0 +1,44 @@
+{
+  "nav": [
+    { "label": "Home", "href": "/" },
+    { "label": "About", "href": "/about" },
+    { "label": "Writing", "href": "/writing" },
+    { "label": "Videos", "href": "/videos" },
+    { "label": "Speaking", "href": "/speaking" },
+    { "label": "Projects", "href": "/projects" },
+    { "label": "Uses", "href": "/uses" }
+  ],
+  "newsletter": {
+    "heading": "The good stuff, occasionally.",
+    "body": "One email when there's something worth reading. No drip campaign, no funnel, just writing."
+  },
+  "footerColumns": [
+    {
+      "heading": "Read",
+      "links": [
+        { "label": "Writing", "href": "/writing" },
+        { "label": "Videos", "href": "/videos" },
+        { "label": "Speaking", "href": "/speaking" }
+      ]
+    },
+    {
+      "heading": "About",
+      "links": [
+        { "label": "About Tim", "href": "/about" },
+        { "label": "Press kit", "href": "/press-kit" },
+        { "label": "Uses", "href": "/uses" },
+        { "label": "Projects", "href": "/projects" }
+      ]
+    },
+    {
+      "heading": "Elsewhere",
+      "links": [
+        { "label": "LinkedIn", "href": "https://linkedin.com/in/timbenniks" },
+        { "label": "YouTube", "href": "https://youtube.com/timbenniks" },
+        { "label": "GitHub", "href": "https://github.com/timbenniks" },
+        { "label": "Bluesky", "href": "https://bsky.app/profile/timbenniks.dev" }
+      ]
+    }
+  ],
+  "footerHuman": "Crafted by hand. No tokens were burnt in the making of this website."
+}

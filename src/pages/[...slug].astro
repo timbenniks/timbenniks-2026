@@ -1,0 +1,44 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PagePreloadLinks from "../components/PagePreloadLinks.astro";
+import PageSections from "../components/PageSections.astro";
+import JsonLd from "../components/primitives/JsonLd.astro";
+import { loadPage, pageBreadcrumbGraph } from "../lib/page";
+import {
+  findPageByPath,
+  listCatchAllPages,
+} from "../lib/admin/pages-store";
+
+export async function getStaticPaths() {
+  const pages = await listCatchAllPages();
+  return pages.map(({ id, path }) => ({
+    params: { slug: path.replace(/^\//, "") },
+    props: { pageId: id },
+  }));
+}
+
+interface Props {
+  pageId?: string;
+}
+
+const props = Astro.props as Props;
+let pageId = props.pageId;
+
+if (!pageId) {
+  const match = await findPageByPath(Astro.url.pathname);
+  if (!match) {
+    return new Response(null, { status: 404, statusText: "Not Found" });
+  }
+  pageId = match.id;
+}
+
+const page = await loadPage(pageId);
+const { metadata, sections } = page.data;
+const graph = pageBreadcrumbGraph(page.data.path, pageId);
+---
+
+<BaseLayout {...metadata}>
+  <PagePreloadLinks slot="head" sections={sections} />
+  <JsonLd slot="head" data={graph} />
+  <PageSections sections={sections} />
+</BaseLayout>

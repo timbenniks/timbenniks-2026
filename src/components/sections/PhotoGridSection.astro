@@ -1,0 +1,78 @@
+---
+import { Image } from 'astro:assets';
+import Section from '../primitives/Section.astro';
+import SectionHeading from '../primitives/SectionHeading.astro';
+import { cardThirdsWidths } from '../../lib/image-widths';
+import { editAttr, editPath } from '../../lib/admin/edit-path';
+
+interface Props {
+  editBase?: string;
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  tone?: 'light' | 'dark';
+  columns?: 2 | 3;
+  aspect?: 'video' | 'portrait';
+  items: {
+    src: string;
+    alt: string;
+    label?: string;
+    width?: number;
+    height?: number;
+  }[];
+}
+
+const {
+  editBase,
+  eyebrow,
+  title,
+  lede,
+  tone = 'light',
+  columns = 3,
+  aspect = 'video',
+  items,
+} = Astro.props;
+
+const dark = tone === 'dark';
+const gridCols = columns === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3';
+const aspectClass = aspect === 'portrait' ? 'aspect-4/5' : 'aspect-video';
+---
+
+<Section tone={tone} padding="lg">
+  <SectionHeading editBase={editBase} eyebrow={eyebrow} title={title} lede={lede} dark={dark} />
+  <div class:list={['mt-12 grid grid-cols-1 gap-5', gridCols]}>
+    {items.map((p, i) => (
+      <a
+        href={p.src}
+        target="_blank"
+        rel="noopener noreferrer"
+        class:list={[
+          'group relative overflow-hidden',
+          aspectClass,
+          dark ? 'border border-line-dark' : 'border border-line',
+        ]}
+      >
+        <Image
+          src={p.src}
+          widths={cardThirdsWidths}
+          sizes={columns === 3 ? '(min-width: 768px) 33vw, 100vw' : '(min-width: 768px) 50vw, 100vw'}
+          width={p.width ?? 1600}
+          height={p.height ?? 900}
+          alt={p.alt}
+          loading="lazy"
+          decoding="async"
+          class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+          {...editAttr(editPath(editBase, 'items', i, 'src'))}
+        />
+        {p.label && (
+          <span
+            class="absolute bottom-2 left-2 rounded-sm bg-bg-dark/80 px-2 py-1 font-mono text-[10px] uppercase tracking-wide text-cream"
+            {...editAttr(editPath(editBase, 'items', i, 'label'))}
+          >
+            {p.label}
+          </span>
+        )}
+      </a>
+    ))}
+  </div>
+</Section>

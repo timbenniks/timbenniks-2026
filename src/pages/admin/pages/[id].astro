@@ -1,0 +1,61 @@
+---
+export const prerender = false;
+
+import { SECTION_KINDS, type PageId } from '../../../lib/page-schema';
+import {
+  getPagePath,
+  isAdminPageId,
+  readPagesForAdmin,
+} from '../../../lib/admin/pages-store';
+
+const id = Astro.params.id ?? '';
+if (!(await isAdminPageId(id))) {
+  return Astro.redirect('/admin');
+}
+const pageId = id as PageId;
+const all = await readPagesForAdmin();
+const page = all[pageId];
+if (!page) {
+  return Astro.redirect('/admin');
+}
+
+const liveUrl = getPagePath(page, pageId);
+const previewUrl = `/admin/preview/${pageId}?edit=1`;
+const initial = JSON.stringify({
+  id: pageId,
+  page,
+  previewUrl,
+  liveUrl,
+  sectionKinds: SECTION_KINDS,
+  cloudinary: {
+    cloudName:
+      import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dwfcofnrd',
+    apiKey: import.meta.env.PUBLIC_CLOUDINARY_API_KEY || '',
+  },
+});
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edit · {pageId}</title>
+    <link rel="stylesheet" href="/admin/editor.css" />
+    <!-- MCP-B WebMCP polyfill: document.modelContext + extension bridge -->
+    <script is:inline>
+      window.__webModelContextOptions = {
+        autoInitialize: true,
+        nativeModelContextBehavior: 'preserve',
+        installTestingShim: 'if-missing',
+      };
+    </script>
+    <script is:inline src="/admin/vendor/mcp-b-global.iife.js"></script>
+  </head>
+  <body>
+    <div id="app" data-initial={initial}></div>
+    <script is:inline type="module" src="/admin/editor.js"></script>
+    <script is:inline type="module" src="/admin/webmcp-tools.js"></script>
+    <script is:inline type="module" src="/admin/webmcp-agent.js"></script>
+  </body>
+</html>

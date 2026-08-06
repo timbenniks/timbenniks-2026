@@ -2,11 +2,11 @@
 
 Personal site of Tim Benniks. Writing, talks, videos, projects.
 
-Static Astro 6 site, deployed to Vercel. Zero JS frameworks in the browser, zero hydration islands. Designed to be fast, accessible, machine-readable, and dead simple to maintain.
+Static Astro 7 site, deployed to Vercel. Zero JS frameworks in the browser, zero hydration islands. Designed to be fast, accessible, machine-readable, and dead simple to maintain.
 
 ## Stack
 
-- **[Astro 6](https://astro.build)** — static output, no framework runtime, content collections.
+- **[Astro 7](https://astro.build)** — static output, no framework runtime, content collections.
 - **[Tailwind CSS 4](https://tailwindcss.com)** — design tokens declared via `@theme` in [`src/styles/global.css`](src/styles/global.css).
 - **Astro Fonts API** — self-hosted Fraunces / Inter / JetBrains Mono through the Google provider, with `size-adjust` fallbacks.
 - **[Pagefind](https://pagefind.app)** — build-time full-text + faceted search at [`/search`](src/pages/search.astro).

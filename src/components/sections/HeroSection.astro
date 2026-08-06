@@ -2,12 +2,16 @@
 import { Image } from "astro:assets";
 import Section from "../primitives/Section.astro";
 import Button from "../primitives/Button.astro";
-import { heroSplitWidths } from "../../lib/image-widths";
+import Eyebrow from "../primitives/Eyebrow.astro";
+import { heroSplitWidths, headshotPrimaryWidths } from "../../lib/image-widths";
+import { editAttr, editPath } from "../../lib/admin/edit-path";
 
 type Variant = "primary" | "secondary" | "accent" | "ghost";
 type ImageSide = "left" | "right";
 
 interface Props {
+  editBase?: string;
+  eyebrow?: string;
   headline: { lead: string; em: string; tail: string };
   subline?: string;
   ctas?: { label: string; href: string; variant?: Variant }[];
@@ -19,42 +23,70 @@ interface Props {
     widths?: number[];
     eager?: boolean;
   };
+  gallery?: {
+    src: string;
+    alt: string;
+    label?: string;
+    featured?: boolean;
+  }[];
   imageSide?: ImageSide;
 }
 
 const {
+  editBase,
+  eyebrow,
   headline,
   subline,
   ctas = [],
   image,
+  gallery,
   imageSide = "right",
 } = Astro.props;
 
 const widths = image?.widths ?? heroSplitWidths;
+const hasMedia = Boolean(image || (gallery && gallery.length > 0));
+const externalCta = (href: string) =>
+  href.startsWith("http") || href.startsWith("mailto:");
 ---
 
 <Section padding="lg">
   <div
-    class:list={["grid grid-cols-1 items-center", image && "md:grid-cols-2"]}
+    class:list={["grid grid-cols-1 items-center", hasMedia && "md:grid-cols-2", gallery && "gap-12"]}
   >
     <div
       class:list={[
         "max-w-prose-lg mb-12 md:mb-0",
-        imageSide === "left" && "md:order-2 md:ml-auto",
+        imageSide === "left" && !gallery && "md:order-2 md:ml-auto",
       ]}
     >
-      <h1 class="font-serif text-6xl md:text-8xl">
-        {headline.lead}
-        <em class="italic text-accent">{" "}{headline.em}{" "}</em>
-        {headline.tail}
+      {eyebrow && (
+        <Eyebrow>
+          <span {...editAttr(editPath(editBase, 'eyebrow'))}>{eyebrow}</span>
+        </Eyebrow>
+      )}
+      <h1 class:list={["font-serif text-6xl md:text-8xl", eyebrow && "mt-4"]}>
+        <span {...editAttr(editPath(editBase, 'headline', 'lead'))}>{headline.lead}</span>
+        <em class="italic text-accent" {...editAttr(editPath(editBase, 'headline', 'em'))}>
+          {" "}{headline.em}{" "}
+        </em>
+        <span {...editAttr(editPath(editBase, 'headline', 'tail'))}>{headline.tail}</span>
       </h1>
-      {subline && <p class="mt-8 text-xl text-ink-muted">{subline}</p>}
+      {subline && (
+        <p class="mt-8 text-xl text-ink-muted" {...editAttr(editPath(editBase, 'subline'))}>
+          {subline}
+        </p>
+      )}
       {
         ctas.length > 0 && (
           <div class="mt-8 flex flex-wrap gap-3">
-            {ctas.map((cta) => (
-              <Button href={cta.href} variant={cta.variant ?? "primary"}>
-                {cta.label}
+            {ctas.map((cta, i) => (
+              <Button
+                href={cta.href}
+                variant={cta.variant ?? "primary"}
+                target={externalCta(cta.href) && cta.href.startsWith("http") ? "_blank" : undefined}
+                rel={externalCta(cta.href) && cta.href.startsWith("http") ? "noopener noreferrer" : undefined}
+              >
+                <span {...editAttr(editPath(editBase, 'ctas', i, 'label'))}>{cta.label}</span>
               </Button>
             ))}
           </div>
@@ -63,26 +95,69 @@ const widths = image?.widths ?? heroSplitWidths;
     </div>
 
     {
-      image && (
-        <div
-          class:list={[
-            "flex items-center justify-center",
-            imageSide === "left" && "md:order-1",
-          ]}
-        >
-          <Image
-            src={image.src}
-            widths={widths}
-            sizes="(min-width: 768px) 33vw, 100vw"
-            alt={image.alt}
-            width={image.width}
-            height={image.height}
-            loading={image.eager ? "eager" : "lazy"}
-            fetchpriority={image.eager ? "high" : "auto"}
-            decoding={image.eager ? "sync" : "async"}
-            class="w-full max-h-[642px] object-contain"
-          />
+      gallery && gallery.length > 0 ? (
+        <div class="grid grid-cols-3 gap-3">
+          {gallery.map((h, i) => (
+            <a
+              href={h.src}
+              target="_blank"
+              rel="noopener noreferrer"
+              class:list={[
+                "group relative overflow-hidden border border-line bg-bg-soft aspect-4/5",
+                (h.featured || i === 0) && "col-span-2 row-span-2",
+              ]}
+            >
+              <Image
+                src={h.src}
+                widths={headshotPrimaryWidths}
+                sizes={
+                  h.featured || i === 0
+                    ? "(min-width: 768px) 50vw, 66vw"
+                    : "(min-width: 768px) 16vw, 33vw"
+                }
+                width={1280}
+                height={1600}
+                alt={h.alt}
+                loading={i === 0 ? "eager" : "lazy"}
+                fetchpriority={i === 0 ? "high" : "auto"}
+                decoding={i === 0 ? "sync" : "async"}
+                class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                {...editAttr(editPath(editBase, 'gallery', i, 'src'))}
+              />
+              {h.label && (
+                <span
+                  class="absolute bottom-2 left-2 rounded-sm bg-bg-dark/80 px-2 py-1 font-mono text-[10px] uppercase tracking-wide text-cream opacity-0 transition-opacity group-hover:opacity-100"
+                  {...editAttr(editPath(editBase, 'gallery', i, 'label'))}
+                >
+                  {h.label}
+                </span>
+              )}
+            </a>
+          ))}
         </div>
+      ) : (
+        image && (
+          <div
+            class:list={[
+              "flex items-center justify-center",
+              imageSide === "left" && "md:order-1",
+            ]}
+          >
+            <Image
+              src={image.src}
+              widths={widths}
+              sizes="(min-width: 768px) 33vw, 100vw"
+              alt={image.alt}
+              width={image.width}
+              height={image.height}
+              loading={image.eager ? "eager" : "lazy"}
+              fetchpriority={image.eager ? "high" : "auto"}
+              decoding={image.eager ? "sync" : "async"}
+              class="w-full max-h-[642px] object-contain"
+              {...editAttr(editPath(editBase, 'image', 'src'))}
+            />
+          </div>
+        )
       )
     }
   </div>

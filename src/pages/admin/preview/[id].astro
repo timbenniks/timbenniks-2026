@@ -1,0 +1,30 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PagePreloadLinks from '../../../components/PagePreloadLinks.astro';
+import PageSections from '../../../components/PageSections.astro';
+import { loadPage } from '../../../lib/page';
+import { isAdminPageId } from '../../../lib/admin/pages-store';
+import { isAdminAuthed } from '../../../lib/admin/auth';
+import type { PageId } from '../../../lib/page-schema';
+
+if (!isAdminAuthed(Astro.request)) {
+  return Astro.redirect(`/admin/login?next=${encodeURIComponent(Astro.url.pathname)}`);
+}
+
+const id = Astro.params.id ?? '';
+if (!(await isAdminPageId(id))) {
+  return new Response('Unknown page', { status: 404 });
+}
+
+const page = await loadPage(id as PageId);
+const { metadata, sections } = page.data;
+
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+
+<BaseLayout {...metadata} noindex={true}>
+  <PagePreloadLinks slot="head" sections={sections} />
+  <PageSections sections={sections} />
+</BaseLayout>
