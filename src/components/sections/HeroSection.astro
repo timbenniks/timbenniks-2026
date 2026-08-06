@@ -22,7 +22,13 @@ interface Props {
   imageSide?: ImageSide;
 }
 
-const { headline, subline, ctas = [], image, imageSide = "right" } = Astro.props;
+const {
+  headline,
+  subline,
+  ctas = [],
+  image,
+  imageSide = "right",
+} = Astro.props;
 
 const widths = image?.widths ?? heroSplitWidths;
 ---
@@ -39,7 +45,7 @@ const widths = image?.widths ?? heroSplitWidths;
     >
       <h1 class="font-serif text-6xl md:text-8xl">
         {headline.lead}
-        <em class="italic text-accent">{headline.em}</em>
+        <em class="italic text-accent">{" "}{headline.em}{" "}</em>
         {headline.tail}
       </h1>
       {subline && <p class="mt-8 text-xl text-ink-muted">{subline}</p>}

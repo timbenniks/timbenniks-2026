@@ -101,6 +101,7 @@ export function projectToCard(entry: CollectionEntry<'projects'>): CardItem {
   return {
     kind: 'project',
     title: entry.data.title,
+    href: `/projects/${entry.id}`,
     description: entry.data.description,
     badge: entry.data.tag,
     meta: [entry.data.meta],

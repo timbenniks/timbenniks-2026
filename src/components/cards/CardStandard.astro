@@ -23,13 +23,16 @@ const playIcon = `<svg viewBox="0 0 12 12" class="ml-0.5 h-3.5 w-3.5 fill-bg-dar
 ---
 
 {item.kind === "project" ? (
-  <article class="flex flex-col gap-3 border border-line-dark bg-bg-dark-card p-7 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-line-dark-hover">
+  <a
+    href={item.href}
+    class="group flex h-full flex-col gap-3 border border-line-dark bg-bg-dark-card p-7 no-underline transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-line-dark-hover"
+  >
     {item.badge && (
       <span class="font-mono text-xs font-medium uppercase text-accent-bright">
         {item.badge}
       </span>
     )}
-    <h3 class="font-serif text-2xl font-medium text-cream">{item.title}</h3>
+    <h3 class="font-serif text-2xl font-medium text-cream group-hover:text-accent-bright">{item.title}</h3>
     {item.description && (
       <p class="text-sm text-cream-muted">{item.description}</p>
     )}
@@ -38,7 +41,7 @@ const playIcon = `<svg viewBox="0 0 12 12" class="ml-0.5 h-3.5 w-3.5 fill-bg-dar
         {item.meta.join(" · ")}
       </p>
     )}
-  </article>
+  </a>
 ) : item.href ? (
   <article class="group">
     <a

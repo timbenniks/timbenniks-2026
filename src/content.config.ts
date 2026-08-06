@@ -68,13 +68,18 @@ const projects = defineCollection({
     description: z.string(),
     meta: z.string(),
     order: z.number().default(999),
+    // Optional outbound links, surfaced on the card footer and detail page.
+    github: z.url().optional(),
+    live: z.url().optional(),
+    docs: z.url().optional(),
+    npm: z.string().optional(),
   }),
 });
 
 const cta = z.object({ label: z.string(), href: z.string() });
 const headline = z.object({ lead: z.string(), em: z.string(), tail: z.string() });
 const remoteImage = z.object({
-  src: z.string().url(),
+  src: z.url(),
   alt: z.string(),
   width: z.number(),
   height: z.number(),
@@ -86,8 +91,8 @@ const pages = defineCollection({
     metadata: z.object({
       title: z.string(),
       description: z.string(),
-      canonical: z.string().url().optional(),
-      image: z.string().url().optional(),
+      canonical: z.url().optional(),
+      image: z.url().optional(),
       imageAlt: z.string().optional(),
       keywords: z.string().optional(),
       noindex: z.boolean().optional(),
@@ -119,7 +124,7 @@ const pages = defineCollection({
           align: z.enum(['left', 'right']).default('left'),
           backgroundImage: z
             .object({
-              src: z.string().url(),
+              src: z.url(),
               width: z.number(),
               height: z.number(),
               opacity: z.number().optional(),
@@ -194,7 +199,7 @@ const pages = defineCollection({
               company: z.string(),
               title: z.string(),
               location: z.string().optional(),
-              url: z.string().url().optional(),
+              url: z.url().optional(),
               text: z.string(),
             }),
           ),

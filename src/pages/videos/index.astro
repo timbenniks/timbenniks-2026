@@ -1,114 +1,93 @@
 ---
-import { getCollection } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Section from '../../components/primitives/Section.astro';
-import Container from '../../components/primitives/Container.astro';
-import JsonLd from '../../components/primitives/JsonLd.astro';
-import Card from '../../components/Card.astro';
-import { videoToCard } from '../../lib/card';
-import { breadcrumbSchema, buildGraph } from '../../lib/schema';
-import { yearsActive } from '../../lib/stats';
-import { siteUrl } from '../../data/site';
+import { getCollection, getEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PagePreloadLinks from "../../components/PagePreloadLinks.astro";
+import PageSections from "../../components/PageSections.astro";
+import Section from "../../components/primitives/Section.astro";
+import Eyebrow from "../../components/primitives/Eyebrow.astro";
+import JsonLd from "../../components/primitives/JsonLd.astro";
+import StatTile from "../../components/primitives/StatTile.astro";
+import TagPill from "../../components/primitives/TagPill.astro";
+import Card from "../../components/Card.astro";
+import { videoToCard } from "../../lib/card";
+import { breadcrumbSchema, buildGraph } from "../../lib/schema";
+import { yearsActive } from "../../lib/stats";
+import { siteUrl } from "../../data/site";
 
-const entries = (await getCollection('videos')).sort(
+const page = await getEntry("pages", "videos");
+if (!page) {
+  throw new Error("Missing content for pages/videos");
+}
+const { metadata, sections } = page.data;
+
+const entries = (await getCollection("videos")).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );
 
 const playlistCounts = new Map<string, number>();
 for (const e of entries) {
-  playlistCounts.set(e.data.playlist, (playlistCounts.get(e.data.playlist) ?? 0) + 1);
+  playlistCounts.set(
+    e.data.playlist,
+    (playlistCounts.get(e.data.playlist) ?? 0) + 1,
+  );
 }
 const playlists = [...playlistCounts.entries()]
   .sort((a, b) => b[1] - a[1])
   .map(([playlist, count]) => ({ playlist, count }));
 
 const allItems = await Promise.all(entries.map(videoToCard));
-const featuredItem = allItems[0];
-const restItems = allItems.slice(1);
 
 const totalVideos = entries.length;
 const years = yearsActive(entries);
 
 const graph = buildGraph(
   breadcrumbSchema([
-    { name: 'home', url: siteUrl('/') },
-    { name: 'videos', url: siteUrl('/videos') },
+    { name: "home", url: siteUrl("/") },
+    { name: "videos", url: siteUrl("/videos") },
   ]),
 );
 ---
 
-<BaseLayout
-  title="Videos"
-  description="Workshops, demos, livestreams, and recorded conversations from the YouTube channel and Contentstack streams."
-  keywords="livestream, workshop, tutorial, YouTube, Contentstack, developer experience"
->
+<BaseLayout {...metadata}>
+  <PagePreloadLinks slot="head" sections={sections} />
   <JsonLd slot="head" data={graph} />
 
-  <Section padding="lg">
-    <Container padded={false}>
-      <div class="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1.2fr] lg:items-end">
-        <div class="max-w-[640px]">
-          <p class="font-mono text-xs uppercase tracking-wide text-ink-subtle">On camera</p>
-          <h1 class="mt-4 font-serif text-6xl md:text-7xl leading-tight">
-            Workshops, demos, and
-            <em class="italic text-accent">live conversations.</em>
-          </h1>
-          <p class="mt-8 text-xl text-ink-muted">
-            Long-form content from the YouTube channel, Contentstack livestreams, and the occasional
-            late-night experiment. Most are unedited — that is the point.
-          </p>
-          <dl class="mt-10 grid grid-cols-3 gap-6 max-w-[460px]">
-            <div>
-              <dt class="font-mono text-xs uppercase tracking-wide text-ink-subtle">Videos</dt>
-              <dd class="mt-1 font-serif text-3xl text-ink tabular-nums">{totalVideos}</dd>
-            </div>
-            <div>
-              <dt class="font-mono text-xs uppercase tracking-wide text-ink-subtle">Playlists</dt>
-              <dd class="mt-1 font-serif text-3xl text-ink tabular-nums">{playlists.length}</dd>
-            </div>
-            <div>
-              <dt class="font-mono text-xs uppercase tracking-wide text-ink-subtle">Years</dt>
-              <dd class="mt-1 font-serif text-3xl text-ink tabular-nums">{years}</dd>
-            </div>
-          </dl>
-        </div>
+  <PageSections sections={sections} />
 
-        {featuredItem && (
-          <div>
-            <p class="mb-4 font-mono text-xs uppercase tracking-wide text-ink-subtle">Latest</p>
-            <Card item={featuredItem} format="feature" eager />
-          </div>
-        )}
-      </div>
-    </Container>
+  <Section bordered padding="sm">
+    <dl class="grid grid-cols-3 gap-4 max-w-130">
+      <StatTile label="Videos" value={totalVideos} />
+      <StatTile label="Playlists" value={playlists.length} />
+      <StatTile label="Years" value={years} />
+    </dl>
   </Section>
 
   <Section bordered padding="md">
-    <div class="flex flex-wrap items-center gap-2">
-      <span class="font-mono text-xs uppercase tracking-wide text-ink-subtle">Browse by playlist:</span>
+    <Eyebrow>Browse by playlist</Eyebrow>
+    <ul class="mt-4 flex flex-wrap items-center gap-2" role="list">
       {playlists.map(({ playlist, count }) => (
-        <a
-          href={`/videos/playlist/${playlist.replace(/\s+/g, '-')}`}
-          class="rounded-full border border-line-strong px-3 py-1 text-xs text-ink-muted hover:border-ink hover:text-ink"
-        >
-          {playlist} <span class="text-ink-subtle">· {count}</span>
-        </a>
+        <li>
+          <TagPill
+            href={`/videos/playlist/${playlist.replace(/\s+/g, "-")}`}
+            count={count}
+          >
+            {playlist}
+          </TagPill>
+        </li>
       ))}
-      <a
-        href="/search"
-        class="rounded-full border border-line-strong px-3 py-1 text-xs text-accent hover:border-accent hover:text-accent-bright"
-      >
-        Search everything →
-      </a>
-    </div>
+      <li>
+        <TagPill href="/search" tone="accent">Search everything →</TagPill>
+      </li>
+    </ul>
 
     <ul
-      class="mt-10 grid grid-cols-1 gap-x-5 gap-y-10 md:grid-cols-2 lg:grid-cols-3"
+      class="mt-12 grid grid-cols-1 gap-x-5 gap-y-12 md:grid-cols-2 lg:grid-cols-3"
       data-pagefind-ignore
+      role="list"
     >
-      {restItems.map((item) => (
+      {allItems.map((item, i) => (
         <li>
-          <Card item={item} format="standard" />
+          <Card item={item} format="standard" eager={i < 3} />
         </li>
       ))}
     </ul>

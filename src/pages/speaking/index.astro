@@ -1,26 +1,26 @@
 ---
-import { getCollection } from 'astro:content';
-import { Image } from 'astro:assets';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Section from '../../components/primitives/Section.astro';
-import Container from '../../components/primitives/Container.astro';
-import Card from '../../components/Card.astro';
-import JsonLd from '../../components/primitives/JsonLd.astro';
-import Button from '../../components/primitives/Button.astro';
-import { talkToCard } from '../../lib/card';
-import { breadcrumbSchema, buildGraph } from '../../lib/schema';
-import { yearsActive } from '../../lib/stats';
-import { siteUrl } from '../../data/site';
-import { fullBleedWidths } from '../../lib/image-widths';
+import { getCollection } from "astro:content";
+import { Image } from "astro:assets";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Section from "../../components/primitives/Section.astro";
+import Container from "../../components/primitives/Container.astro";
+import Card from "../../components/Card.astro";
+import JsonLd from "../../components/primitives/JsonLd.astro";
+import Button from "../../components/primitives/Button.astro";
+import { talkToCard } from "../../lib/card";
+import { breadcrumbSchema, buildGraph } from "../../lib/schema";
+import { yearsActive } from "../../lib/stats";
+import { siteUrl } from "../../data/site";
+import { fullBleedWidths } from "../../lib/image-widths";
 
 const graph = buildGraph(
   breadcrumbSchema([
-    { name: 'home', url: siteUrl('/') },
-    { name: 'speaking', url: siteUrl('/speaking') },
+    { name: "home", url: siteUrl("/") },
+    { name: "speaking", url: siteUrl("/speaking") },
   ]),
 );
 
-const entries = (await getCollection('speaking')).sort(
+const entries = (await getCollection("speaking")).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );
 
@@ -49,7 +49,7 @@ const pastItems = past.map(talkToCard);
 
   <Section tone="dark" padding="xl" class="relative isolate overflow-hidden">
     <Image
-      src="https://res.cloudinary.com/dwfcofnrd/image/upload/v1743504260/website/tim_on_stage-1.png"
+      src="https://res.cloudinary.com/dwfcofnrd/image/upload/v1677741363/Tim/vuejs.amsterdam_conference_talk.jpg"
       widths={fullBleedWidths}
       sizes="100vw"
       width={2355}
@@ -62,14 +62,17 @@ const pastItems = past.map(talkToCard);
     />
 
     <div class="max-w-[800px]">
-      <p class="font-mono text-xs uppercase tracking-wide text-cream-subtle">Stages</p>
+      <p class="font-mono text-xs uppercase tracking-wide text-cream-subtle">
+        Stages
+      </p>
       <h1 class="mt-4 font-serif text-6xl md:text-7xl leading-tight">
         Six years on stage.
         <em class="italic text-accent">Still showing up.</em>
       </h1>
       <p class="mt-8 text-xl text-cream-muted max-w-[680px]">
-        Keynotes, technical deep-dives, panels, and podcasts on developer experience, AI-augmented
-        engineering, and composable architecture. Available for events worldwide.
+        Keynotes, technical deep-dives, panels, and podcasts on developer
+        experience, AI-augmented engineering, and composable architecture.
+        Available for events worldwide.
       </p>
       <div class="mt-8">
         <Button href="/press-kit" variant="accent">Press kit & booking</Button>
@@ -78,45 +81,72 @@ const pastItems = past.map(talkToCard);
 
     <dl class="mt-16 grid grid-cols-2 gap-6 max-w-[700px] md:grid-cols-4">
       <div>
-        <dt class="font-mono text-xs uppercase tracking-wide text-cream-subtle">Talks</dt>
-        <dd class="mt-1 font-serif text-4xl text-cream tabular-nums">{entries.length}</dd>
+        <dt class="font-mono text-xs uppercase tracking-wide text-cream-subtle">
+          Talks
+        </dt>
+        <dd class="mt-1 font-serif text-4xl text-cream tabular-nums">
+          {entries.length}
+        </dd>
       </div>
       <div>
-        <dt class="font-mono text-xs uppercase tracking-wide text-cream-subtle">Conferences</dt>
-        <dd class="mt-1 font-serif text-4xl text-cream tabular-nums">{conferences.size}</dd>
+        <dt class="font-mono text-xs uppercase tracking-wide text-cream-subtle">
+          Conferences
+        </dt>
+        <dd class="mt-1 font-serif text-4xl text-cream tabular-nums">
+          {conferences.size}
+        </dd>
       </div>
       <div>
-        <dt class="font-mono text-xs uppercase tracking-wide text-cream-subtle">Cities</dt>
-        <dd class="mt-1 font-serif text-4xl text-cream tabular-nums">{locations.size}</dd>
+        <dt class="font-mono text-xs uppercase tracking-wide text-cream-subtle">
+          Cities
+        </dt>
+        <dd class="mt-1 font-serif text-4xl text-cream tabular-nums">
+          {locations.size}
+        </dd>
       </div>
       <div>
-        <dt class="font-mono text-xs uppercase tracking-wide text-cream-subtle">Years</dt>
-        <dd class="mt-1 font-serif text-4xl text-cream tabular-nums">{years}</dd>
+        <dt class="font-mono text-xs uppercase tracking-wide text-cream-subtle">
+          Years
+        </dt>
+        <dd class="mt-1 font-serif text-4xl text-cream tabular-nums">
+          {years}
+        </dd>
       </div>
     </dl>
   </Section>
 
-  {upcomingItems.length > 0 && (
-    <Section bordered padding="lg">
-      <Container padded={false}>
-        <p class="font-mono text-xs uppercase tracking-wide text-accent">Upcoming</p>
-        <h2 class="mt-3 font-serif text-4xl text-ink">Where I'll be next</h2>
-      </Container>
+  {
+    upcomingItems.length > 0 && (
+      <Section bordered padding="lg">
+        <Container padded={false}>
+          <p class="font-mono text-xs uppercase tracking-wide text-accent">
+            Upcoming
+          </p>
+          <h2 class="mt-3 font-serif text-4xl text-ink">Where I'll be next</h2>
+        </Container>
 
-      <div class="mt-10 flex flex-col">
-        {upcomingItems.map((item, i) => (
-          <Card item={item} format="row" isLast={i === upcomingItems.length - 1} />
-        ))}
-      </div>
-    </Section>
-  )}
+        <div class="mt-10 flex flex-col">
+          {upcomingItems.map((item, i) => (
+            <Card
+              item={item}
+              format="row"
+              isLast={i === upcomingItems.length - 1}
+            />
+          ))}
+        </div>
+      </Section>
+    )
+  }
 
   <Section bordered padding="lg">
     <Container padded={false}>
-      <p class="font-mono text-xs uppercase tracking-wide text-ink-subtle">The archive</p>
+      <p class="font-mono text-xs uppercase tracking-wide text-ink-subtle">
+        The archive
+      </p>
       <h2 class="mt-3 font-serif text-4xl text-ink">All past talks</h2>
       <p class="mt-3 max-w-[600px] text-base text-ink-muted">
-        {past.length} talks across {conferences.size} conferences, {years} years. The newest at the top.
+        {past.length} talks across {conferences.size} conferences, {years} years.
+        The newest at the top.
       </p>
     </Container>
 

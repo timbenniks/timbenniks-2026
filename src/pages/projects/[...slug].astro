@@ -1,0 +1,86 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../../components/primitives/Section.astro';
+import Container from '../../components/primitives/Container.astro';
+import Eyebrow from '../../components/primitives/Eyebrow.astro';
+import ArrowLink from '../../components/primitives/ArrowLink.astro';
+import JsonLd from '../../components/primitives/JsonLd.astro';
+import { breadcrumbSchema, buildGraph } from '../../lib/schema';
+import { siteUrl } from '../../data/site';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('projects');
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+interface Props {
+  entry: CollectionEntry<'projects'>;
+}
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const { title, tag, description, meta, github, live, docs, npm } = entry.data;
+
+const links = [
+  live && { label: 'Live', href: live },
+  docs && { label: 'Docs', href: docs },
+  github && { label: 'GitHub', href: github },
+  npm && { label: 'npm', href: `https://www.npmjs.com/package/${npm}` },
+].filter(Boolean) as { label: string; href: string }[];
+
+const url = siteUrl(`/projects/${entry.id}`);
+const graph = buildGraph(
+  breadcrumbSchema([
+    { name: 'home', url: siteUrl('/') },
+    { name: 'projects', url: siteUrl('/projects') },
+    { name: title.toLowerCase(), url },
+  ]),
+);
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  keywords={tag}
+>
+  <JsonLd slot="head" data={graph} />
+
+  <Section tone="dark" padding="xl">
+    <Container padded={false}>
+      <Eyebrow>
+        <a href="/projects" class="text-accent-bright hover:underline">← All projects</a>
+      </Eyebrow>
+      <p class="mt-6 font-mono text-xs font-medium uppercase tracking-wide text-accent-bright">{tag}</p>
+      <h1 class="mt-4 max-w-[820px] font-serif text-5xl md:text-6xl leading-tight text-cream">
+        {title}
+      </h1>
+      <p class="mt-6 max-w-[680px] text-xl text-cream-muted">{description}</p>
+      <p class="mt-6 font-mono text-xs text-cream-subtle">{meta}</p>
+      {links.length > 0 && (
+        <div class="mt-8 flex flex-wrap gap-3">
+          {links.map((l) => (
+            <a
+              href={l.href}
+              class="rounded-full border border-line-dark px-4 py-1.5 font-mono text-xs tracking-wide text-cream no-underline transition-colors hover:border-accent-bright hover:text-accent-bright"
+              target="_blank"
+              rel="noopener"
+            >
+              {l.label} ↗
+            </a>
+          ))}
+        </div>
+      )}
+    </Container>
+  </Section>
+
+  <Section padding="lg" contained={false}>
+    <Container>
+      <div class="article-body mx-auto max-w-[720px] space-y-5 text-ink leading-relaxed">
+        <Content />
+      </div>
+      <div class="mx-auto mt-16 max-w-[720px] border-t border-line pt-10">
+        <ArrowLink href="/projects">Back to all projects</ArrowLink>
+      </div>
+    </Container>
+  </Section>
+</BaseLayout>

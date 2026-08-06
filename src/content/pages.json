@@ -70,6 +70,7 @@
         "title": "What I'm building",
         "lede": "Platform work, MCP servers, and the occasional weekend experiment. Real code, real trade-offs, work in progress.",
         "source": "projects",
+        "limit": 4,
         "columns": 2,
         "tone": "dark",
         "class": "mt-16",
@@ -110,7 +111,7 @@
       {
         "kind": "cta-strip",
         "text": "Got a stage, a podcast, or a developer team that needs sharpening?",
-        "em": "Let's talk.",
+        "em": " Let's talk.",
         "cta": { "label": "Press kit & booking", "href": "/press-kit" }
       }
     ]
@@ -391,6 +392,42 @@
           "href": "/press-kit",
           "variant": "primary"
         }
+      }
+    ]
+  },
+  "videos": {
+    "metadata": {
+      "title": "Videos",
+      "description": "Workshops, demos, livestreams, and recorded conversations from the YouTube channel and Contentstack streams.",
+      "keywords": "livestream, workshop, tutorial, YouTube, Contentstack, developer experience, videos"
+    },
+    "sections": [
+      {
+        "kind": "hero",
+        "ctas": [
+          {
+            "label": "Watch on YouTube",
+            "href": "https://www.youtube.com/c/timbenniks",
+            "variant": "primary"
+          }
+        ],
+        "image": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/website/time-video-sketch.png",
+          "alt": "Tim Benniks drawn",
+          "width": 1536,
+          "height": 1024,
+          "widths": [640, 960],
+          "eager": true,
+          "preload": true
+        },
+
+        "imageSide": "left",
+        "headline": {
+          "lead": "Workshops, demos, and",
+          "em": "live conversations.",
+          "tail": ""
+        },
+        "subline": "Long-form content from the YouTube channel, Contentstack livestreams, and the occasional late-night experiment."
       }
     ]
   },
