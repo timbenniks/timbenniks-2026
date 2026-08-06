@@ -7,10 +7,8 @@ canonical_url: https://timbenniks.dev/writing/the-tool-catalog-is-the-product
 reading_time: 5 min read
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto/v1779882834/website/mcp-stuff.png
 tags:
-  - ai
-  - api
-  - dx
-  - mcp
+  - ai-engineering
+  - api-design
   - developer-experience
 faqs:
   - question: Why expose MCP tool definitions as JSON?
@@ -31,7 +29,7 @@ head:
     - property: twitter:description
       content: "We exposed Contentstack MCP tool definitions through a server endpoint as JSON. That sounds small, but it changes the product shape. The hosted MCP server becomes one official implementation of a reusable tool catalog, while developers can build their own MCPs with their own auth, hosting, filtering, and governance. This is what AI-first developer tooling should feel like: polished defaults on top of portable primitives."
     - property: keywords
-      content: ai, api, dx, mcp, developer-experience
+      content: ai-engineering, api-design, developer-experience
 ---
 
 We exposed our Contentstack MCP tool definitions as JSON from a server endpoint. That sounds like a small technical detail, but I think it is a bigger product move than it looks.

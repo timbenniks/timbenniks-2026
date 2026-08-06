@@ -7,13 +7,11 @@ canonical_url: https://timbenniks.dev/writing/off-platform-ai-and-on-platform-ai
 reading_time: 8 min read
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/v1779099112/website/ai-security.png
 tags:
-  - ai
-  - architecture
-  - composable
-  - api
-  - orchestration
-  - dxp
-  - web development
+  - composable-architecture
+  - ai-engineering
+  - api-design
+  - content-ops
+  - frontend
 faqs:
   - question: What is the main difference between off-platform AI and on-platform AI in this model?
     answer: Off-platform AI is the reach layer. It uses APIs, MCP, and agent skills to bring AI into the tools where people already work, such as IDEs, custom agents, and external copilots. It optimizes for experimentation, flexibility, and broad coverage across systems. On-platform AI is the trust layer. Through Agent OS, Polaris, and AI Credits, it manages permissions, spend, brand context, review and approval flows, and audit trails. Off-platform AI focuses on access and experimentation, while on-platform AI focuses on governance, accountability, and running AI as a reliable business capability.
@@ -31,7 +29,7 @@ head:
     - property: twitter:description
       content: Enterprise AI is spreading into every tool where work happens, from IDE agents to browser assistants, but governance, spend control, and brand safety are lagging behind. This article explains a two-layer architecture for solving that tension. Off-platform AI, powered by APIs, MCP, and agent skills, acts as the reach layer that lets developers and teams experiment, prototype, and orchestrate across systems from within their preferred tools. On-platform AI, delivered through Agent OS, Polaris, and AI Credits, is the trust layer that handles permissions, spend visibility, brand context, review workflows, and auditability. Rather than choosing between open access and tight governance, enterprises should use both layers together so external AI gathers context while governed on-platform capabilities execute business-critical work safely.
     - property: keywords
-      content: ai, architecture, composable, api, orchestration, dxp, web development
+      content: composable-architecture, ai-engineering, api-design, content-ops, frontend
 ---
 
 Enterprise AI is moving faster than enterprise governance. That is the contradiction most digital leaders are managing right now, whether they say it out loud or not.

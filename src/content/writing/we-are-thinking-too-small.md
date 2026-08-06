@@ -6,12 +6,10 @@ date: "2026-06-20T10:00:00Z"
 canonical_url: https://timbenniks.dev/writing/ai-coding-agents-and-the-end-of-glue-software
 reading_time: 6 min read
 tags:
-  - ai
-  - architecture
-  - web development
-  - composable
-  - cloudinary
-  - devops
+  - composable-architecture
+  - ai-engineering
+  - cloud-infra
+  - frontend
 faqs:
   - question: How do AI coding agents change the economics of software development?
     answer: AI coding agents dramatically reduce the cost and time required to write and refactor code, similar to how cloud infrastructure removed the capital and risk constraints of buying physical servers. This makes experimentation cheap, shrinks the need for large dedicated teams for narrow tasks, and opens the door to building broader, more ambitious platforms. Instead of needing an army of engineers to cover the long tail of enterprise features, a small team can steer agents to produce highly specialized functionality on demand.
@@ -19,7 +17,7 @@ faqs:
     answer: Glue software emerged because it was too expensive and risky to rebuild everything from scratch, so teams stitched together many narrow SaaS tools and APIs. With AI agents able to generate entire services in minutes, the bottleneck becomes reading docs and debugging integrations, not writing code. In this new environment, building custom, cohesive services tailored to your needs is often faster and more maintainable than wiring together a dozen third-party systems, making much of the traditional integration layer obsolete.
   - question: What should developers do differently in this new AI-driven era?
     answer: Developers should stop using AI merely to speed up existing workflows and instead question the constraints that created those workflows. They should explore larger, previously abandoned ideas that once required big teams, and push until they find genuine architectural limits rather than human-typing limits. Practically, this means being willing to rebuild parts of the stack, embrace unified platforms that tie runtime, infra, and tooling together, and treat the cost of reinventing key components as near zero when it unlocks better, more integrated products.
-draft: true
+draft: false
 head:
   meta:
     - property: twitter:title
@@ -27,7 +25,7 @@ head:
     - property: twitter:description
       content: AI coding agents are not a threat to developer jobs, they are a fundamental shift in the economics of software creation. Just as the cloud removed the risk and capital cost of infrastructure, AI is removing the cost of writing and refactoring code. This kills the old moats that protected horizontal enterprise platforms and makes rebuilding wide, deeply integrated stacks viable. Instead of spending years stitching together narrow SaaS tools and APIs, teams can let agents generate bespoke services quickly and cheaply. The real risk is using AI only to speed up legacy glue work. Developers who win will treat the cost of reinventing the wheel as effectively zero and pursue much larger, previously impossible product ideas.
     - property: keywords
-      content: ai, architecture, web development, composable, cloudinary, devops
+      content: composable-architecture, ai-engineering, cloud-infra, frontend
     - property: twitter:image
       content: https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto/v1781945621/website/think-bigger.png
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto/v1781945621/website/think-bigger.png

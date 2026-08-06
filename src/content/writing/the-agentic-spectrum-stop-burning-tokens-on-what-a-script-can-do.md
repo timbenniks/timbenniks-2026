@@ -7,11 +7,9 @@ canonical_url: https://timbenniks.dev/writing/stop-burning-tokens-on-what-a-scri
 reading_time: 5 min read
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/v1780573551/website/ldbm4jak4514xydu4sdg.jpg
 tags:
-  - ai
-  - agents
-  - mcp
-  - automation
-  - content-management
+  - ai-engineering
+  - content-ops
+  - cloud-infra
 faqs:
   - question: When should I use a script instead of an AI agent?
     answer: "Use a script when the task is a loop with a known shape: the same operation repeated across many items, like updating a field on 351 entries. An agent re-reasons about every item and pays the reasoning cost each time. A script reasons once, at the moment you write it, then executes for free. If you can describe the rule that applies to every item up front, you want a script. Reach for an agent only when the work genuinely changes from item to item in ways no rule can capture."
@@ -31,7 +29,7 @@ head:
     - property: twitter:description
       content: AI workflows sit on a spectrum, from a single LLM-assisted task to a fully autonomous agent. Most real content work belongs near the low end, yet people keep reaching for the autonomous end and paying for it in tokens.
     - property: keywords
-      content: ai, agents, mcp, automation, content-management
+      content: ai-engineering, content-ops, cloud-infra
 
 ---
 

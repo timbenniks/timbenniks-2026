@@ -53,7 +53,15 @@ Eleven months of creative work landed on a tiny dev team. Five weeks to make it 
 
 No framework worth mentioning. No modern tooling. jQuery 2, the DOM, Grunt.js, and whatever I could invent under pressure. So I built the missing parts.
 
-## ![Tim Working](https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto/website/nfs1.png)The custom-everything era
+## The custom-everything era
+
+<img
+  src="https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_960/website/nfs1.png"
+  alt="Tim Working"
+  width="960"
+  height="540"
+  loading="lazy"
+/>
 
 The 2013 codebase is a museum of painful necessity. I wrote a custom router with history management and deep linking. Built state management around a global `window.jsonData` object. Bolted together a JavaScript templating layer with Mustache. Wrote a tweening engine for frame-by-frame animations. Built a DOM-scanning bootstrap system to initialise JavaScript from markup. Handled audio control, canvas animation, subtitle tracks, localisation, and build tooling. Same app, 35 languages.
 
@@ -93,7 +101,15 @@ Modern frameworks absorbed the pain. The community turned repeated suffering int
 
 Good. Boring is what success looks like in software. Boring means thousands of developers no longer need to solve the same problem in parallel.
 
-## ![](https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto/website/nfs2.png)Get off my lawn!
+## Get off my lawn!
+
+<img
+  src="https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_960/website/nfs2.png"
+  alt=""
+  width="960"
+  height="540"
+  loading="lazy"
+/>
 
 There's a version of this story that curdles into a "back in my day" lecture. Real developers used to understand the browser. Everyone now just imports abstractions they don't deserve. I've felt the pull of that narrative. I rejected it deliberately.
 
@@ -107,7 +123,15 @@ The modern skill isn't rebuilding every abstraction from scratch to prove you ca
 
 That distinction matters more now than ever.
 
-## ![](https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto/website/nfs3.png)AI is just the next layer
+## AI is just the next layer
+
+<img
+  src="https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_960/website/nfs3.png"
+  alt=""
+  width="960"
+  height="540"
+  loading="lazy"
+/>
 
 At Vue.js Amsterdam I framed it this way.
 

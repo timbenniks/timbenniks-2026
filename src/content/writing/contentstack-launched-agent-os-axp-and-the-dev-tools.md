@@ -7,11 +7,9 @@ canonical_url: https://timbenniks.dev/writing/contentstack-launched-agent-os-axp
 reading_time: 5 min read
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto/v1781077576/website/cs.png
 tags:
-  - ai
-  - mcp
+  - composable-architecture
+  - ai-engineering
   - developer-experience
-  - composable
-  - contentstack
 faqs:
   - question: What is Contentstack AXP and how is it different from the old positioning?
     answer: "AXP stands for Agentic Experience Platform. It is the new name for how Contentstack fits together: Content Cloud for structured, governed content, Data Cloud for real-time customer context, and Agent OS as the layer where agents take action on both. The rebrand from DXP to AXP is not marketing paint. It reflects a real architectural bet that agents need grounding in content, context, and brand to do anything useful at enterprise scale."
@@ -33,7 +31,7 @@ head:
     - property: twitter:description
       content: Contentstack just made Agent OS generally available, renamed the platform to AXP, and shipped a pile of developer tooling. I helped build the AI side, and I am happily biased about why this one is different.
     - property: keywords
-      content: ai, mcp, developer-experience, composable, contentstack
+      content: composable-architecture, ai-engineering, developer-experience
 
 ---
 
