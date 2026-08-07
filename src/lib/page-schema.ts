@@ -78,6 +78,10 @@ export const pageSectionSchema = z.discriminatedUnion('kind', [
     ...headingFields,
     source,
     limit: z.number().optional(),
+    /** Filter writing/videos: match any of these tags (OR). */
+    tags: z.array(z.string()).optional(),
+    /** Filter videos by playlist name or slug. Ignored for other sources. */
+    playlist: z.string().optional(),
     columns: z.union([z.literal(2), z.literal(3)]).default(3),
     tone,
     class: z.string().optional(),

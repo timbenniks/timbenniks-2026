@@ -1,12 +1,14 @@
 ---
 export const prerender = false;
 
+import { getCollection } from 'astro:content';
 import { SECTION_KINDS, type PageId } from '../../../lib/page-schema';
 import {
   getPagePath,
   isAdminPageId,
   readPagesForAdmin,
 } from '../../../lib/admin/pages-store';
+import { CANONICAL_TAGS, TAG_LABELS } from '../../../lib/tags';
 
 const id = Astro.params.id ?? '';
 if (!(await isAdminPageId(id))) {
@@ -21,12 +23,22 @@ if (!page) {
 
 const liveUrl = getPagePath(page, pageId);
 const previewUrl = `/admin/preview/${pageId}?edit=1`;
+const videoEntries = await getCollection('videos');
+const playlists = [
+  ...new Set(videoEntries.map((e) => e.data.playlist).filter(Boolean)),
+].sort((a, b) => a.localeCompare(b));
+
 const initial = JSON.stringify({
   id: pageId,
   page,
   previewUrl,
   liveUrl,
   sectionKinds: SECTION_KINDS,
+  canonicalTags: CANONICAL_TAGS.map((slug) => ({
+    value: slug,
+    label: TAG_LABELS[slug],
+  })),
+  playlists: playlists.map((value) => ({ value, label: value })),
   cloudinary: {
     cloudName:
       import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dwfcofnrd',

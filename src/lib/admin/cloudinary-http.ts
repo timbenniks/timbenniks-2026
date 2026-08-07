@@ -31,6 +31,24 @@ export type SearchResult = {
   body: Record<string, unknown>;
 };
 
+/** Surface undici/Node fetch cause (ENOTFOUND, ECONNREFUSED, etc.) beyond bare "fetch failed". */
+function formatFetchError(err: unknown): string {
+  if (!(err instanceof Error)) return String(err);
+  const cause = (err as Error & { cause?: unknown }).cause;
+  if (cause instanceof Error && cause.message) {
+    return `${err.message}: ${cause.message}`;
+  }
+  if (cause != null && typeof cause === 'object' && 'code' in cause) {
+    const code = String((cause as { code?: unknown }).code || '');
+    const msg =
+      'message' in cause && (cause as { message?: unknown }).message
+        ? String((cause as { message?: unknown }).message)
+        : '';
+    return [err.message, code, msg].filter(Boolean).join(': ');
+  }
+  return err.message || String(err);
+}
+
 function asContextMap(raw: unknown): Record<string, string> {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
   const out: Record<string, string> = {};
@@ -107,10 +125,11 @@ export async function cloudinarySearch(
       body: JSON.stringify(payload),
     });
   } catch (err) {
+    const message = formatFetchError(err);
     return {
       ok: false,
       status: 502,
-      data: { error: { message: err instanceof Error ? err.message : String(err) } },
+      data: { error: { message } },
       rawText: '',
     };
   }

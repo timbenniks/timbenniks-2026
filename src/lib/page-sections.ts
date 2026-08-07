@@ -36,6 +36,47 @@ const hasSource = (section: PageSection): section is SourceSection =>
 const pickItems = (items: CardItem[], limit?: number) =>
   limit ? items.slice(0, limit) : items;
 
+const playlistSlug = (name: string) => name.replace(/\s+/g, '-');
+
+const matchesTags = (entryTags: string[], selected: string[]) =>
+  selected.some((tag) => entryTags.includes(tag));
+
+const matchesPlaylist = (entryPlaylist: string, selected: string) =>
+  entryPlaylist === selected || playlistSlug(entryPlaylist) === selected;
+
+type CardGridSection = Extract<PageSection, { kind: 'card-grid' }>;
+
+const hasCardGridFilters = (section: CardGridSection) =>
+  Boolean(section.tags?.length) || Boolean(section.playlist);
+
+async function loadFilteredCardGridItems(
+  section: CardGridSection,
+): Promise<CardItem[]> {
+  const selectedTags = section.tags?.filter(Boolean) ?? [];
+  const playlist = section.playlist?.trim() || undefined;
+
+  if (section.source === 'writing' && selectedTags.length) {
+    const entries = await getCollection(
+      'writing',
+      ({ data }) => !data.draft && matchesTags(data.tags, selectedTags),
+    );
+    return sortByDateDesc(entries).map((entry) => articleToCard(entry));
+  }
+
+  if (section.source === 'videos' && (selectedTags.length || playlist)) {
+    const entries = await getCollection('videos', ({ data }) => {
+      if (playlist && !matchesPlaylist(data.playlist, playlist)) return false;
+      if (selectedTags.length && !matchesTags(data.tags, selectedTags)) {
+        return false;
+      }
+      return true;
+    });
+    return Promise.all(sortByDateDesc(entries).map(videoToCard));
+  }
+
+  return loadSourceItems(section.source);
+}
+
 async function loadSourceItems(source: SourceName): Promise<CardItem[]> {
   if (source === 'writing') {
     const entries = await getCollection('writing', ({ data }) => !data.draft);
@@ -192,6 +233,16 @@ export async function resolvePageSections(
         return {
           ...section,
           items: pickItems(filtered, section.limit),
+        };
+      }
+
+      if (section.kind === 'card-grid' && hasCardGridFilters(section)) {
+        return {
+          ...section,
+          items: pickItems(
+            await loadFilteredCardGridItems(section),
+            section.limit,
+          ),
         };
       }
 

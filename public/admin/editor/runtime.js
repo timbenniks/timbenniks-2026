@@ -13,6 +13,8 @@ import {
   SECTION_FORM,
   LIST_SPECS,
   SKIP_LEAF,
+  CANONICAL_TAG_OPTIONS,
+  PLAYLIST_OPTIONS,
 } from './catalog.js';
 import { icon } from './icons.js';
 import {
@@ -575,12 +577,18 @@ export function bootEditor() {
         checkpoint();
         fieldEditCheckpointed = true;
       }
-      setByPath(draft, path, input.value);
+      const value = input.value;
+      // Clearing optional backgroundImage.src should drop the whole object (Zod needs w/h with src).
+      if (path.endsWith('.backgroundImage.src') && !String(value || '').trim()) {
+        deleteByPath(draft, path.replace(/\.src$/, ''));
+      } else {
+        setByPath(draft, path, value);
+      }
       markDirty();
       if (kind === 'image' || path.endsWith('.src')) {
-        postToFrame('setAttr', { path, attr: 'src', value: input.value });
+        postToFrame('setAttr', { path, attr: 'src', value });
       } else {
-        postToFrame('setText', { path, value: input.value });
+        postToFrame('setText', { path, value });
       }
       selectedPath = path;
       postToFrame('highlight', { path });
@@ -714,6 +722,84 @@ export function bootEditor() {
     return raw;
   }
 
+  function normalizeOption(opt) {
+    if (opt && typeof opt === 'object' && 'value' in opt) {
+      return { value: String(opt.value), label: String(opt.label ?? opt.value) };
+    }
+    return { value: String(opt), label: String(opt) };
+  }
+
+  function resolveFieldOptions(def) {
+    if (def.optionsFrom === 'canonicalTags') {
+      const fromBoot = boot.canonicalTags;
+      if (Array.isArray(fromBoot) && fromBoot.length) {
+        return fromBoot.map(normalizeOption);
+      }
+      return CANONICAL_TAG_OPTIONS.map(normalizeOption);
+    }
+    if (def.optionsFrom === 'playlists') {
+      const fromBoot = boot.playlists;
+      if (Array.isArray(fromBoot) && fromBoot.length) {
+        return fromBoot.map(normalizeOption);
+      }
+      return PLAYLIST_OPTIONS.map(normalizeOption);
+    }
+    return (def.options || []).map(normalizeOption);
+  }
+
+  function fieldMatchesShowWhen(def, section) {
+    if (!def.showWhen || typeof def.showWhen !== 'object') return true;
+    return Object.entries(def.showWhen).every(([key, allowed]) => {
+      const current = section?.[key];
+      const list = Array.isArray(allowed) ? allowed : [allowed];
+      return list.includes(current);
+    });
+  }
+
+  function clearCardGridFiltersForSource(section) {
+    if (!section || section.kind !== 'card-grid') return false;
+    let changed = false;
+    const source = section.source;
+    if (source !== 'writing' && source !== 'videos') {
+      if ('tags' in section) {
+        delete section.tags;
+        changed = true;
+      }
+    }
+    if (source !== 'videos') {
+      if ('playlist' in section) {
+        delete section.playlist;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+
+  function clearSourceDependentFilters(section) {
+    let changed = clearCardGridFiltersForSource(section);
+    if (section?.kind === 'card-rows' && section.source !== 'speaking') {
+      if (section.window && section.window !== 'all') {
+        section.window = 'all';
+        changed = true;
+      }
+      if (section.hideWhenEmpty) {
+        section.hideWhenEmpty = false;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+
+  function deleteByPath(obj, path) {
+    const parts = path.split('.');
+    let cur = obj;
+    for (let i = 0; i < parts.length - 1; i++) {
+      if (cur == null || typeof cur !== 'object') return;
+      cur = cur[parts[i]];
+    }
+    if (cur && typeof cur === 'object') delete cur[parts[parts.length - 1]];
+  }
+
   function appendFieldControl(container, sectionIndex, def, opts = {}) {
     const path = `sections.${sectionIndex}.${def.key}`;
     const current = getByPath(draft, path);
@@ -731,22 +817,118 @@ export function bootEditor() {
 
     const isQuery = opts.group === 'query';
     let control;
+    const options = resolveFieldOptions(def);
+
+    if (def.type === 'multi-select') {
+      const selected = Array.isArray(current) ? current.map(String) : [];
+      control = document.createElement('div');
+      control.className = 'multi-select';
+      control.id = pathToFieldId(path);
+      control.setAttribute('role', 'group');
+      control.setAttribute('aria-label', label);
+      options.forEach((opt) => {
+        const row = document.createElement('label');
+        row.className = 'multi-select-option';
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.value = opt.value;
+        input.checked = selected.includes(opt.value);
+        input.addEventListener('change', () => {
+          checkpoint();
+          const next = [...control.querySelectorAll('input:checked')].map(
+            (el) => el.value,
+          );
+          if (next.length) setByPath(draft, path, next);
+          else deleteByPath(draft, path);
+          markDirty();
+          selectedPath = path;
+          schedulePersistPreview(
+            sectionIndex,
+            isQuery ? 'Updating collection preview…' : 'Updating preview…',
+          );
+        });
+        const span = document.createElement('span');
+        span.textContent = opt.label;
+        row.appendChild(input);
+        row.appendChild(span);
+        control.appendChild(row);
+      });
+      wrap.appendChild(control);
+      container.appendChild(wrap);
+      return path;
+    }
+
+    if (def.type === 'boolean') {
+      wrap.classList.add('field-boolean');
+      wrap.innerHTML = '';
+      const row = document.createElement('label');
+      row.className = 'boolean-option';
+      row.htmlFor = pathToFieldId(path);
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.id = pathToFieldId(path);
+      input.checked = current === true;
+      input.addEventListener('change', () => {
+        checkpoint();
+        setByPath(draft, path, input.checked);
+        markDirty();
+        selectedPath = path;
+        schedulePersistPreview(
+          sectionIndex,
+          isQuery ? 'Updating collection preview…' : 'Updating preview…',
+        );
+      });
+      input.addEventListener('focus', () => {
+        selectedPath = path;
+        highlightFieldInForm(path);
+      });
+      const text = document.createElement('span');
+      text.textContent = label;
+      row.appendChild(input);
+      row.appendChild(text);
+      wrap.appendChild(row);
+      if (def.hint) {
+        const hint = document.createElement('p');
+        hint.className = 'field-hint';
+        hint.textContent = def.hint;
+        wrap.appendChild(hint);
+      }
+      container.appendChild(wrap);
+      return path;
+    }
 
     if (def.type === 'select') {
       control = document.createElement('select');
       control.id = pathToFieldId(path);
-      (def.options || []).forEach((opt) => {
+      if (def.allowEmpty) {
+        const empty = document.createElement('option');
+        empty.value = '';
+        empty.textContent = def.emptyLabel || 'Any';
+        control.appendChild(empty);
+      }
+      options.forEach((opt) => {
         const o = document.createElement('option');
-        o.value = String(opt);
-        o.textContent = String(opt);
+        o.value = opt.value;
+        o.textContent = opt.label;
         control.appendChild(o);
       });
       control.value = current == null ? '' : String(current);
       control.addEventListener('change', () => {
         checkpoint();
-        setByPath(draft, path, coerceFieldValue(def, control.value));
+        const isSourceField = def.key === 'source';
+        if (def.allowEmpty && control.value === '') {
+          deleteByPath(draft, path);
+        } else {
+          setByPath(draft, path, coerceFieldValue(def, control.value));
+        }
+        if (isSourceField) {
+          clearSourceDependentFilters(draft.sections[sectionIndex]);
+        }
         markDirty();
         selectedPath = path;
+        if (isSourceField) {
+          renderSectionFields(sectionIndex, path);
+        }
         schedulePersistPreview(
           sectionIndex,
           isQuery ? 'Updating collection preview…' : 'Updating preview…',
@@ -765,7 +947,11 @@ export function bootEditor() {
       control.value = current == null ? '' : String(current);
       control.addEventListener('change', () => {
         checkpoint();
-        setByPath(draft, path, coerceFieldValue(def, control.value));
+        if (def.allowEmpty && control.value === '') {
+          deleteByPath(draft, path);
+        } else {
+          setByPath(draft, path, coerceFieldValue(def, control.value));
+        }
         markDirty();
         selectedPath = path;
         schedulePersistPreview(sectionIndex, 'Updating collection preview…');
@@ -832,7 +1018,27 @@ export function bootEditor() {
       wrap.className = 'field';
       const label = def.label || key;
       wrap.innerHTML = `<label for="${pathToFieldId(path)}">${label}<span class="field-path">${path.split('.').slice(2).join('.')}</span></label>`;
-      if (def.type === 'select') {
+      if (def.type === 'boolean') {
+        wrap.classList.add('field-boolean');
+        wrap.innerHTML = '';
+        const row = document.createElement('label');
+        row.className = 'boolean-option';
+        row.htmlFor = pathToFieldId(path);
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.id = pathToFieldId(path);
+        input.checked = current === true;
+        input.addEventListener('change', () => {
+          checkpoint();
+          setByPath(draft, path, input.checked);
+          markDirty();
+        });
+        const text = document.createElement('span');
+        text.textContent = label;
+        row.appendChild(input);
+        row.appendChild(text);
+        wrap.appendChild(row);
+      } else if (def.type === 'select') {
         const control = document.createElement('select');
         control.id = pathToFieldId(path);
         (def.options || []).forEach((opt) => {
@@ -1096,6 +1302,10 @@ export function bootEditor() {
       const body = document.createElement('div');
       body.className = 'field-group-body';
       form.query.forEach((def) => {
+        if (!fieldMatchesShowWhen(def, section)) {
+          covered.add(`sections.${index}.${def.key}`);
+          return;
+        }
         covered.add(`sections.${index}.${def.key}`);
         appendFieldControl(body, index, def, { group: 'query' });
       });
@@ -1125,12 +1335,11 @@ export function bootEditor() {
     });
 
     const extraPaths = editableLeafPaths(section, `sections.${index}`).filter((p) => {
-      if (covered.has(p)) return false;
       if (SKIP_LEAF.test(p)) return false;
       if (/\.variant$/.test(p)) return false;
       if (pathCoveredByLists(p, index, section.kind)) return false;
       for (const key of covered) {
-        if (p === key) return false;
+        if (p === key || p.startsWith(`${key}.`)) return false;
       }
       const val = getByPath(draft, p);
       return typeof val === 'string';

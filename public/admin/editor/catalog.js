@@ -260,6 +260,42 @@ export const SOURCE_BROWSE = ['writing', 'videos'];
 export const VARIANT_CTA = ['primary', 'secondary', 'accent', 'ghost'];
 export const VARIANT_STRIP = ['primary', 'secondary', 'accent'];
 
+/** Fallback tag options when boot payload is missing (slugs + labels). */
+export const CANONICAL_TAG_OPTIONS = [
+  { value: 'composable-architecture', label: 'Composable architecture' },
+  { value: 'cms', label: 'CMS' },
+  { value: 'api-design', label: 'API design' },
+  { value: 'frontend', label: 'Frontend' },
+  { value: 'performance', label: 'Performance' },
+  { value: 'cloud-infra', label: 'Cloud & infra' },
+  { value: 'developer-experience', label: 'Developer experience' },
+  { value: 'ai-engineering', label: 'AI engineering' },
+  { value: 'craft', label: 'Craft' },
+  { value: 'personalization', label: 'Personalization' },
+  { value: 'devrel', label: 'DevRel' },
+  { value: 'product-strategy', label: 'Product strategy' },
+  { value: 'content-ops', label: 'Content ops' },
+  { value: 'career', label: 'Career' },
+  { value: 'media-production', label: 'Media production' },
+  { value: 'personal', label: 'Personal' },
+  { value: 'opinion', label: 'Opinion' },
+];
+
+/** Fallback playlist names when boot payload is missing. */
+export const PLAYLIST_OPTIONS = [
+  'alive-and-kicking',
+  'contentstack',
+  'headless-creator',
+  'hygraph',
+  'live-contentstack',
+  'live-hygraph',
+  'live-uniform',
+  'misc-streams',
+  'mp',
+  'tim',
+  'uniform',
+].map((value) => ({ value, label: value }));
+
 /** Typed form controls per section kind. Query fields first; strings fall through after. */
 export const SECTION_FORM = {
   hero: {
@@ -282,6 +318,12 @@ export const SECTION_FORM = {
       { key: 'attribution', type: 'text' },
       { key: 'tone', type: 'select', options: ['light', 'dark'] },
       { key: 'align', type: 'select', options: ['left', 'right'] },
+      {
+        key: 'backgroundImage.src',
+        type: 'url',
+        label: 'Background image',
+        hint: 'Optional. Clear the URL to remove. Width/height fill in from Browse.',
+      },
       { key: 'cta.label', type: 'text', label: 'CTA label' },
       { key: 'cta.href', type: 'text', label: 'CTA href' },
     ],
@@ -302,6 +344,24 @@ export const SECTION_FORM = {
   'card-grid': {
     query: [
       { key: 'source', type: 'select', options: SOURCE_ALL, label: 'Source' },
+      {
+        key: 'tags',
+        type: 'multi-select',
+        optionsFrom: 'canonicalTags',
+        label: 'Tags',
+        hint: 'Match any selected tag (writing & videos)',
+        showWhen: { source: ['writing', 'videos'] },
+      },
+      {
+        key: 'playlist',
+        type: 'select',
+        optionsFrom: 'playlists',
+        allowEmpty: true,
+        emptyLabel: 'Any playlist',
+        label: 'Playlist',
+        hint: 'Videos only',
+        showWhen: { source: ['videos'] },
+      },
       { key: 'limit', type: 'number', min: 1, max: 24, label: 'Limit' },
       { key: 'columns', type: 'select', options: ['2', '3'], coerce: 'number', label: 'Columns' },
       { key: 'tone', type: 'select', options: ['light', 'dark'], label: 'Tone' },
@@ -324,6 +384,14 @@ export const SECTION_FORM = {
         options: ['all', 'upcoming', 'past'],
         label: 'Window',
         hint: 'Filter dated speaking entries',
+        showWhen: { source: ['speaking'] },
+      },
+      {
+        key: 'hideWhenEmpty',
+        type: 'boolean',
+        label: 'Hide when empty',
+        hint: 'Skip this section if the window has no talks',
+        showWhen: { source: ['speaking'] },
       },
     ],
     fields: [
@@ -381,6 +449,20 @@ export const SECTION_FORM = {
       { key: 'title', type: 'text' },
       { key: 'lede', type: 'textarea' },
       { key: 'pillsLabel', type: 'text' },
+      {
+        key: 'noteBefore',
+        type: 'text',
+        label: 'Note before link',
+        hint: 'Optional footer note — text before the link',
+      },
+      { key: 'noteHref', type: 'text', label: 'Note link href' },
+      { key: 'noteLinkLabel', type: 'text', label: 'Note link label' },
+      {
+        key: 'noteAfter',
+        type: 'text',
+        label: 'Note after link',
+        hint: 'Text after the link',
+      },
     ],
   },
   factsheet: {
@@ -402,6 +484,21 @@ export const SECTION_FORM = {
         hint: 'Markdown supported — bold, links, paragraphs. Preview updates after Save.',
       },
       { key: 'imageSide', type: 'select', options: ['left', 'right'] },
+      {
+        key: 'equalWidth',
+        type: 'boolean',
+        label: 'Equal width columns',
+        hint: 'Split text and image 50/50',
+      },
+      {
+        key: 'imageSize',
+        type: 'number',
+        min: 80,
+        max: 800,
+        allowEmpty: true,
+        label: 'Image size (px)',
+        hint: 'Optional max image width when not equal-width',
+      },
       { key: 'image.src', type: 'url', label: 'Image URL' },
       { key: 'image.alt', type: 'text', label: 'Image alt' },
       { key: 'cta.label', type: 'text', label: 'CTA label' },
@@ -457,11 +554,18 @@ export const LIST_SPECS = {
         src: 'https://res.cloudinary.com/dwfcofnrd/image/upload/website/tim-hero-square.png',
         alt: 'Gallery image',
         label: 'Shot',
+        featured: false,
       }),
       fields: [
         { key: 'src', type: 'url', label: 'Image URL' },
         { key: 'alt', type: 'text' },
         { key: 'label', type: 'text' },
+        {
+          key: 'featured',
+          type: 'boolean',
+          label: 'Featured',
+          hint: 'Larger span in the gallery grid',
+        },
       ],
     },
   ],
