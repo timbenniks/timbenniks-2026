@@ -149,9 +149,9 @@
             "href": "/press-kit"
           },
           {
-            "label": "New CTA",
+            "label": "dddd",
             "href": "/",
-            "variant": "accent"
+            "variant": "secondary"
           }
         ]
       }
