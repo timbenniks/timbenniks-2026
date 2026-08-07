@@ -8,7 +8,11 @@ const CLOUDINARY_CLOUD_NAME =
 
 export default defineConfig({
   site: "https://timbenniks.dev",
-  adapter: vercel(),
+  adapter: vercel({
+    // Dynamic fs reads of these paths are invisible to NFT; without this the
+    // serverless function looks for /var/task/src/content/*.json and ENOENTs.
+    includeFiles: ["./src/content/pages.json", "./src/content/site.json"],
+  }),
 
   build: {
     inlineStylesheets: "always",
