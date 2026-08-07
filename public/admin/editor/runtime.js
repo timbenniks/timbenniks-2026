@@ -346,6 +346,46 @@ export function bootEditor() {
     return title || null;
   }
 
+  /** Compact prompt seed so the agent knows which section the editor is looking at. */
+  function sectionAgentDraft(section, index) {
+    const n = String(index).padStart(2, '0');
+    const lines = [
+      `I'm editing section ${n} (index ${index}): ${section.kind}.`,
+      `Use tools against sections.${index} (get_section / set_field / patch_section).`,
+    ];
+    const bits = [];
+    if (typeof section.title === 'string' && section.title.trim()) {
+      bits.push(`title “${section.title.trim()}”`);
+    }
+    if (typeof section.eyebrow === 'string' && section.eyebrow.trim()) {
+      bits.push(`eyebrow “${section.eyebrow.trim()}”`);
+    }
+    if (typeof section.source === 'string' && section.source.trim()) {
+      const lim = section.limit != null ? ` · limit ${section.limit}` : '';
+      bits.push(`source ${section.source}${lim}`);
+    }
+    const lead =
+      section.headline?.lead ||
+      (typeof section.lede === 'string' ? section.lede : '') ||
+      (typeof section.text === 'string' ? section.text : '');
+    if (typeof lead === 'string' && lead.trim()) {
+      bits.push(`lead “${lead.trim().slice(0, 100)}${lead.trim().length > 100 ? '…' : ''}”`);
+    }
+    if (bits.length) lines.push(`Currently: ${bits.join(' · ')}.`);
+    lines.push('', '');
+    return lines.join('\n');
+  }
+
+  function askAgentAboutSection(index) {
+    const section = s.draft.sections[index];
+    if (!section) return;
+    if (!window.__tbAgent?.draftPrompt) {
+      setStatus('Agent is not available — set OPENAI_API_KEY on the server.', 'error');
+      return;
+    }
+    window.__tbAgent.draftPrompt(sectionAgentDraft(section, index));
+  }
+
   function renderSections() {
     s.sectionsEl.innerHTML = '';
     s.draft.sections.forEach((section, i) => {
@@ -442,8 +482,16 @@ export function bootEditor() {
     }
     s.sectionHeadingEl.innerHTML = `
       <p class="label">Section ${String(index).padStart(2, '0')}</p>
-      <h3>${section.kind}</h3>
+      <div class="section-heading-row">
+        <h3>${section.kind}</h3>
+        <button type="button" class="section-ai-btn" data-ask-agent title="Ask agent about this section" aria-label="Ask agent about this section">
+          ${icon('agent', 'icon icon-sm')}
+        </button>
+      </div>
     `;
+    s.sectionHeadingEl.querySelector('[data-ask-agent]')?.addEventListener('click', () => {
+      askAgentAboutSection(index);
+    });
     s.sectionFieldsEl.innerHTML = '';
 
     const form = SECTION_FORM[section.kind] || { fields: [] };

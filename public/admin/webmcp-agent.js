@@ -30,6 +30,33 @@ async function boot() {
   const messages = [{ role: 'system', content: SYSTEM_PROMPT }];
   let busy = false;
 
+  /** Prefill the composer without sending — used by section “Ask AI” buttons. */
+  function draftPrompt(text, { open = true, append = false } = {}) {
+    const draft = String(text || '');
+    if (!draft.trim()) return;
+    if (open) window.__tbEditorChrome?.setAgentOpen(true);
+    const existing = ui.input.value;
+    if (append && existing.trim()) {
+      const glue = existing.endsWith('\n') ? '\n' : '\n\n';
+      ui.input.value = `${existing.trimEnd()}${glue}${draft}`;
+    } else {
+      ui.input.value = draft;
+    }
+    requestAnimationFrame(() => {
+      ui.input.focus();
+      const len = ui.input.value.length;
+      ui.input.setSelectionRange(len, len);
+    });
+  }
+
+  window.__tbAgent = {
+    draftPrompt,
+    focusComposer() {
+      window.__tbEditorChrome?.setAgentOpen(true);
+      ui.input.focus();
+    },
+  };
+
   appendBubble(
     ui.log,
     'assistant',

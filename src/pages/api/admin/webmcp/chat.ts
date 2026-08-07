@@ -20,6 +20,17 @@ function openaiKey(): string {
   return fromProcess || fromVite;
 }
 
+/** GPT-5 / reasoning models only accept the default temperature (1). */
+function supportsCustomTemperature(model: string): boolean {
+  const m = model.toLowerCase();
+  return !(
+    m.startsWith('gpt-5') ||
+    m.startsWith('o1') ||
+    m.startsWith('o3') ||
+    m.startsWith('o4')
+  );
+}
+
 export const GET: APIRoute = async ({ request }) => {
   if (!isAdminAuthed(request)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
@@ -76,8 +87,10 @@ export const POST: APIRoute = async ({ request }) => {
   const payload: Record<string, unknown> = {
     model,
     messages,
-    temperature: 0.4,
   };
+  if (supportsCustomTemperature(model)) {
+    payload.temperature = 0.4;
+  }
   if (Array.isArray(body.tools) && body.tools.length) {
     payload.tools = body.tools;
     payload.tool_choice = 'auto';

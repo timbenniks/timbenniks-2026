@@ -769,11 +769,46 @@ a.commit-msg:hover { color: var(--accent); }
   color: var(--accent);
   margin: 0 0 0.2rem;
 }
+.section-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
 .section-heading h3 {
   margin: 0;
   font-size: 1rem;
   font-weight: 650;
   letter-spacing: -0.02em;
+  min-width: 0;
+}
+.section-ai-btn {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s var(--ease), border-color 0.15s var(--ease), background 0.15s var(--ease);
+}
+.section-ai-btn:hover {
+  color: var(--accent);
+  border-color: color-mix(in oklab, var(--accent) 35%, var(--line));
+  background: var(--accent-mid);
+}
+.section-ai-btn:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-mid);
+}
+/* Hide until OpenAI agent rail is enabled */
+#app:has(#agent-rail-group[hidden]) .section-ai-btn {
+  display: none;
 }
 .field {
   margin-bottom: 0.85rem;

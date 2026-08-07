@@ -27,6 +27,17 @@ export function visionCandidateCap(): number {
   return Math.min(24, Math.max(4, Math.round(n)));
 }
 
+/** GPT-5 / reasoning models only accept the default temperature (1). */
+function supportsCustomTemperature(model: string): boolean {
+  const m = model.toLowerCase();
+  return !(
+    m.startsWith('gpt-5') ||
+    m.startsWith('o1') ||
+    m.startsWith('o3') ||
+    m.startsWith('o4')
+  );
+}
+
 const HINT_SYNONYMS: Record<string, string[]> = {
   stage: ['speaking', 'talk', 'keynote', 'speaker'],
   conference: ['talk', 'keynote', 'speaking', 'meetup'],
@@ -237,7 +248,7 @@ Rules:
     },
     body: JSON.stringify({
       model,
-      temperature: 0.1,
+      ...(supportsCustomTemperature(model) ? { temperature: 0.1 } : {}),
       response_format: { type: 'json_object' },
       max_tokens: 800,
       messages: [{ role: 'user', content }],
