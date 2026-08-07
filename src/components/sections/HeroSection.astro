@@ -51,7 +51,11 @@ const externalCta = (href: string) =>
 
 <Section padding="lg">
   <div
-    class:list={["grid grid-cols-1 items-center", hasMedia && "md:grid-cols-2", gallery && "gap-12"]}
+    class:list={[
+      "grid grid-cols-1 items-center",
+      hasMedia && "md:grid-cols-2",
+      gallery ? "gap-12" : hasMedia && "gap-10 md:gap-8 lg:gap-12",
+    ]}
   >
     <div
       class:list={[
@@ -64,7 +68,12 @@ const externalCta = (href: string) =>
           <span {...editAttr(editPath(editBase, 'eyebrow'))}>{eyebrow}</span>
         </Eyebrow>
       )}
-      <h1 class:list={["font-serif text-6xl md:text-8xl", eyebrow && "mt-4"]}>
+      <h1
+        class:list={[
+          "font-serif text-5xl leading-[0.95] sm:text-6xl lg:text-7xl xl:text-8xl",
+          eyebrow && "mt-4",
+        ]}
+      >
         <span {...editAttr(editPath(editBase, 'headline', 'lead'))}>{headline.lead}</span>
         <em class="italic text-accent" {...editAttr(editPath(editBase, 'headline', 'em'))}>
           {" "}{headline.em}{" "}
@@ -72,13 +81,16 @@ const externalCta = (href: string) =>
         <span {...editAttr(editPath(editBase, 'headline', 'tail'))}>{headline.tail}</span>
       </h1>
       {subline && (
-        <p class="mt-8 text-xl text-ink-muted" {...editAttr(editPath(editBase, 'subline'))}>
+        <p
+          class="mt-6 text-lg text-ink-muted lg:mt-8 lg:text-xl"
+          {...editAttr(editPath(editBase, 'subline'))}
+        >
           {subline}
         </p>
       )}
       {
         ctas.length > 0 && (
-          <div class="mt-8 flex flex-wrap gap-3">
+          <div class="mt-6 flex flex-wrap gap-3 lg:mt-8">
             {ctas.map((cta, i) => (
               <Button
                 href={cta.href}
@@ -153,7 +165,7 @@ const externalCta = (href: string) =>
               loading={image.eager ? "eager" : "lazy"}
               fetchpriority={image.eager ? "high" : "auto"}
               decoding={image.eager ? "sync" : "async"}
-              class="w-full max-h-[642px] object-contain"
+              class="w-full max-h-[360px] object-contain sm:max-h-[420px] md:max-h-[380px] lg:max-h-[520px] xl:max-h-[642px]"
               {...editAttr(editPath(editBase, 'image', 'src'))}
             />
           </div>
