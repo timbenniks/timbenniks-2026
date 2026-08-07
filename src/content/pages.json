@@ -82,7 +82,7 @@
         "title": "What I'm building",
         "lede": "Platform work, MCP servers, and the occasional weekend experiment. Real code, real trade-offs, work in progress.",
         "source": "projects",
-        "limit": 4,
+        "limit": 6,
         "columns": 3,
         "tone": "dark",
         "class": "mt-16",
