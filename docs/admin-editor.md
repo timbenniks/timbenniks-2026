@@ -14,6 +14,15 @@ Git CMS model on Vercel: **Save** commits to a working **`cms`** branch; **Chang
 
 Without `GITHUB_TOKEN`, Save only updates the local working tree (no commit). Changes/Publish will report that GitHub is not configured.
 
+### E2E tests
+
+```bash
+npm run test:e2e:install   # once
+npm run test:e2e
+```
+
+Playwright starts `astro dev` with a fixed `ADMIN_PASSWORD` (auth gating on) and clears `GITHUB_TOKEN` so publish/discard stay disabled. Specs live in `e2e/` and cover login, pages desk, visual editor, site chrome, media, changes, and admin APIs.
+
 ## Content model
 
 | File | Role |
