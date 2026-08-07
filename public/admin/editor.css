@@ -142,6 +142,7 @@ button, select, input, textarea {
   gap: 0.5rem;
   align-items: center;
 }
+.history-btns {
   display: flex;
   gap: 0.15rem;
   border: 1px solid var(--line);
@@ -588,9 +589,34 @@ button:disabled { opacity: 0.45; cursor: default; }
 
 /* One shared header band height across form + page + agent */
 .panel-header,
-.form-tabs,
+.form-tabs {
+  flex-shrink: 0;
+  height: 44px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0 0.85rem;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
 .panel-header .panel-title,
-.form-tabs button,
+.form-tabs button {
+  display: inline-flex;
+  align-items: center;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0 0.55rem;
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
 .panel-header .panel-title {
   color: var(--ink);
   border-bottom-color: var(--accent);

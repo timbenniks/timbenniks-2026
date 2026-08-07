@@ -219,7 +219,7 @@ function buildTools() {
     {
       name: 'set_field',
       description:
-        'Set a single field by path. Prefer this for copy edits so the preview updates live. Paths can be absolute (sections.0.headline.lead, metadata.title) or relative to sectionIndex (headline.lead). Set structural=true for query fields (source, limit, columns) that need a preview reload.',
+        'Set a single field by path. Prefer this for copy edits so the preview updates live. Paths can be absolute (sections.0.headline.lead, metadata.title) or relative to sectionIndex (headline.lead). Content query fields (source, limit, tags, playlist, columns, window, hideWhenEmpty, …) and other select/number/boolean controls automatically reload the preview — structural is optional and only needed as an override.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -228,7 +228,7 @@ function buildTools() {
             description: 'Field path, e.g. sections.0.subline or headline.lead',
           },
           value: {
-            description: 'New value (string, number, or boolean)',
+            description: 'New value (string, number, boolean, or string[] for multi-select tags)',
           },
           sectionIndex: {
             type: 'integer',
@@ -237,7 +237,8 @@ function buildTools() {
           },
           structural: {
             type: 'boolean',
-            description: 'If true, reload preview after set (for source/limit/etc.)',
+            description:
+              'Force preview reload. Usually unnecessary — query fields and select/number/boolean controls auto-reload.',
             default: false,
           },
         },

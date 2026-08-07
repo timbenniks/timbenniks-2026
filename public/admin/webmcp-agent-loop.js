@@ -12,6 +12,7 @@ Rules:
 - Use tools to inspect and change the page. Prefer get_editor_state first.
 - Prefer existing section kinds from list_section_kinds. Never invent kinds.
 - For copy edits use set_field so the preview updates live.
+- Content query fields (source, limit, tags, playlist, columns, window, …) auto-reload the preview via set_field — no structural flag needed.
 - For whole-block rewrites use patch_section or replace_section.
 - Match Tim's voice: clear, concrete, no corporate fluff, short sentences.
 - Do NOT call save_to_cms unless the human explicitly asks to save.
@@ -80,7 +81,7 @@ function toolDefsFromWebMcp() {
     ],
     [
       'set_field',
-      'Set one field by path. Live preview for copy. structural:true for source/limit/etc.',
+      'Set one field by path. Live preview for copy. Query fields (source/limit/tags/…) auto-reload preview.',
       {
         path: { type: 'string' },
         value: {},

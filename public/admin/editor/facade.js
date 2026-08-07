@@ -34,6 +34,59 @@ export function createVisualEditorFacade(s) {
     return `sections.${idx}.${raw.replace(/^\./, '')}`;
   }
 
+  /** Match catalog field defs so agent edits can mirror UI preview-reload rules. */
+  function lookupFieldDef(fullPath) {
+    const m = String(fullPath).match(/^sections\.(\d+)\.(.+)$/);
+    if (!m) return null;
+    const idx = Number(m[1]);
+    const rel = m[2];
+    const section = s.draft.sections[idx];
+    if (!section) return null;
+    const form = SECTION_FORM[section.kind];
+    const queryDef = (form?.query || []).find((f) => f.key === rel);
+    if (queryDef) return { idx, rel, section, def: queryDef, isQuery: true };
+    const fieldDef = (form?.fields || []).find(
+      (f) => f.key === rel || (f.key && rel.startsWith(`${f.key}.`)),
+    );
+    return { idx, rel, section, def: fieldDef || null, isQuery: false };
+  }
+
+  function needsPreviewReload(info, structuralFlag) {
+    if (structuralFlag) return true;
+    if (!info) return false;
+    if (info.isQuery) return true;
+    if (info.def && ['select', 'number', 'boolean', 'multi-select'].includes(info.def.type)) {
+      return true;
+    }
+    const leaf = String(info.rel || '').split('.')[0];
+    return /^(source|limit|columns|tags|playlist|window|hideWhenEmpty)$/.test(leaf);
+  }
+
+  function coerceAgentValue(def, value) {
+    if (!def) return value;
+    if (def.type === 'multi-select') {
+      if (Array.isArray(value)) return value.map(String);
+      if (value == null || value === '') return [];
+      if (typeof value === 'string') {
+        try {
+          const parsed = JSON.parse(value);
+          if (Array.isArray(parsed)) return parsed.map(String);
+        } catch {
+          /* treat as comma/space list */
+        }
+        return value
+          .split(/[,\s]+/)
+          .map((t) => t.trim())
+          .filter(Boolean);
+      }
+      return [String(value)];
+    }
+    if (typeof s.coerceFieldValue === 'function') {
+      return s.coerceFieldValue(def, value);
+    }
+    return value;
+  }
+
   function collectImageSrcPaths(value, prefix, out) {
     if (!value || typeof value !== 'object') return;
     if (Array.isArray(value)) {
@@ -204,19 +257,29 @@ export function createVisualEditorFacade(s) {
     },
     setField({ path, value, sectionIndex, structural = false }) {
       const fullPath = resolveFieldPath(path, sectionIndex);
+      const info = lookupFieldDef(fullPath);
+      const nextValue = coerceAgentValue(info?.def, value);
+      const reload = needsPreviewReload(info, Boolean(structural));
       s.checkpoint();
-      if (structural) {
-        s.setByPath(s.draft, fullPath, value);
-        const m = String(fullPath).match(/^sections\.(\d+)/);
-        const idx = m ? Number(m[1]) : s.selectedSection;
+      if (reload) {
+        s.setByPath(s.draft, fullPath, nextValue);
+        let idx = info?.idx;
+        if (idx == null) {
+          const sectionMatch = String(fullPath).match(/^sections\.(\d+)/);
+          idx = sectionMatch ? Number(sectionMatch[1]) : s.selectedSection;
+        }
+        if ((info?.rel === 'source' || info?.def?.key === 'source') && s.draft.sections[idx]) {
+          s.clearSourceDependentFilters?.(s.draft.sections[idx]);
+        }
         s.selectedSection = idx;
+        s.selectedPath = fullPath;
         return s.refreshAfterStructural(idx).then(() => {
           s.selectSection(idx, { keepPath: true, focusPath: fullPath });
           s.setStatus(`Agent set ${fullPath}`, 'ok');
-          return { path: fullPath, value: s.getByPath(s.draft, fullPath) };
+          return { path: fullPath, value: s.getByPath(s.draft, fullPath), previewReloaded: true };
         });
       }
-      s.applyLiveLeaf(fullPath, value);
+      s.applyLiveLeaf(fullPath, nextValue);
       const m = String(fullPath).match(/^sections\.(\d+)/);
       if (m) {
         s.selectedSection = Number(m[1]);
@@ -226,7 +289,7 @@ export function createVisualEditorFacade(s) {
         s.renderMeta();
       }
       s.setStatus(`Agent set ${fullPath}`, 'ok');
-      return { path: fullPath, value: s.getByPath(s.draft, fullPath) };
+      return { path: fullPath, value: s.getByPath(s.draft, fullPath), previewReloaded: false };
     },
     updateMetadata(fields) {
       if (!fields || typeof fields !== 'object') throw new Error('fields object required');
