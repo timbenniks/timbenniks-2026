@@ -1,25 +1,12 @@
+/* Admin dashboard shell */
+@import url('./tokens.css');
+@import url('./primitives.css');
+
 :root {
-  color-scheme: light;
-  --ink: #1c1917;
-  --muted: #78716c;
-  --muted-2: #a8a29e;
-  --line: #e7e5e4;
-  --line-strong: #d6d3d1;
-  --accent: #e85d3a;
-  --accent-soft: #fff4f0;
   --bg: #f3f0eb;
-  --panel: #ffffff;
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --radius: 10px;
-  --radius-sm: 7px;
-  --shadow-sm: 0 1px 2px rgba(28, 25, 23, 0.04);
-  --sans: "Segoe UI", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
   --nav-w: 200px;
   --content-w: 560px;
 }
-
-* { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; }
 body.dash {
   font-family: var(--sans);
@@ -31,20 +18,6 @@ body.dash {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
-
-.mono { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
-
-.icon {
-  width: 16px;
-  height: 16px;
-  display: block;
-  flex-shrink: 0;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 1.85;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
 /* —— Top bar —— */
@@ -91,28 +64,13 @@ body.dash {
   font-weight: 650;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #92400e;
-  background: #fffbeb;
-  border: 1px solid #f5d78e;
+  color: var(--warn-fg);
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
   border-radius: 999px;
   padding: 0.25rem 0.5rem;
 }
 
-.chip {
-  font-size: 0.625rem;
-  font-weight: 650;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  padding: 0.3rem 0.55rem;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  color: var(--muted);
-  background: var(--bg);
-  white-space: nowrap;
-}
-.chip.dirty { border-color: #f5d78e; color: #92400e; background: #fffbeb; }
-.chip.ok { border-color: #bbf7d0; color: #166534; background: #f0fdf4; }
-.chip.error { border-color: #fecaca; color: #b91c1c; background: #fef2f2; }
 
 /* —— Shell —— */
 .dash-body {
@@ -267,13 +225,9 @@ body.dash:has(.media-dam-page) .dash-body {
 }
 
 .status {
-  font-size: 0.8125rem;
-  color: var(--muted);
   min-height: 1.2em;
   margin: 0 0 1rem;
 }
-.status.error { color: #b91c1c; }
-.status.ok { color: #166534; }
 
 /* —— Controls —— */
 button, input, textarea, select {
@@ -324,7 +278,7 @@ button.icon-btn:hover:not(:disabled) {
   border-color: var(--line);
 }
 button.icon-btn.danger:hover:not(:disabled) {
-  color: #b91c1c;
+  color: var(--err-fg);
   background: #fef2f2;
   border-color: #fecaca;
 }
@@ -362,13 +316,7 @@ input:focus, textarea:focus {
 }
 textarea { min-height: 4.25rem; resize: vertical; }
 
-.field { margin-bottom: 0.85rem; }
-.field:last-child { margin-bottom: 0; }
 .field label {
-  display: block;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--muted);
   margin-bottom: 0.25rem;
 }
 
@@ -396,8 +344,6 @@ textarea { min-height: 4.25rem; resize: vertical; }
   letter-spacing: -0.01em;
 }
 .hint {
-  font-size: 0.75rem;
-  color: var(--muted);
   margin: 0 0 0.85rem;
 }
 
@@ -512,7 +458,7 @@ textarea { min-height: 4.25rem; resize: vertical; }
   align-items: center;
   margin-top: 0.75rem;
 }
-.err { color: #b91c1c; font-size: 0.8125rem; }
+.err { color: var(--err-fg); font-size: 0.8125rem; }
 
 .sr-only {
   position: absolute;
@@ -879,7 +825,7 @@ textarea { min-height: 4.25rem; resize: vertical; }
   margin-top: 0.75rem;
 }
 button.danger {
-  color: #b91c1c;
+  color: var(--err-fg);
   border-color: #fecaca;
 }
 button.danger:hover:not(:disabled) {

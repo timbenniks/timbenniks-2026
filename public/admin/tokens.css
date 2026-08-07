@@ -1,0 +1,35 @@
+/* Shared admin design tokens */
+:root {
+  color-scheme: light;
+  --ink: #1c1917;
+  --muted: #78716c;
+  --muted-2: #a8a29e;
+  --line: #e7e5e4;
+  --line-strong: #d6d3d1;
+  --accent: #e85d3a;
+  --accent-soft: #fff4f0;
+  --accent-mid: rgba(232, 93, 58, 0.14);
+  --bg: #f5f2ee;
+  --panel: #ffffff;
+  --canvas: #cdc8c2;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+  --sans: "Segoe UI", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --radius: 10px;
+  --radius-sm: 7px;
+  --shadow-sm: 0 1px 2px rgba(28, 25, 23, 0.04);
+  --shadow-md: 0 8px 24px rgba(28, 25, 23, 0.1);
+  --ok-fg: #166534;
+  --ok-bg: #f0fdf4;
+  --ok-border: #bbf7d0;
+  --err-fg: #b91c1c;
+  --err-bg: #fef2f2;
+  --err-border: #fecaca;
+  --warn-fg: #92400e;
+  --warn-bg: #fffbeb;
+  --warn-border: #f5d78e;
+  --draft-fg: #1e40af;
+  --draft-bg: #eff6ff;
+  --draft-border: #bfdbfe;
+}
+* { box-sizing: border-box; }

@@ -1,5 +1,6 @@
 import { apiFetch } from './lib/api.js';
 import { escapeHtml } from './lib/utils.js';
+import { bindStatus, bindChip } from './lib/chrome.js';
 
 const statusEl = document.getElementById('status');
 const chip = document.getElementById('chip');
@@ -12,15 +13,8 @@ const publishBtn = document.getElementById('publish');
 const discardBtn = document.getElementById('discard');
 const commitMsg = document.getElementById('commit-msg');
 
-function setStatus(msg, cls = '') {
-  statusEl.textContent = msg;
-  statusEl.className = `status ${cls}`.trim();
-}
-
-function setChip(text, cls = '') {
-  chip.textContent = text;
-  chip.className = `chip ${cls}`.trim();
-}
+const setStatus = bindStatus(statusEl);
+const setChip = bindChip(chip);
 
 async function loadChanges() {
   setStatus('Loading compare…');

@@ -1,19 +1,7 @@
 import { apiFetch } from './lib/api.js';
 import { deepClone, escapeAttr } from './lib/utils.js';
-
-const ICONS = {
-  plus: '<path d="M12 5v14M5 12h14"/>',
-  up: '<path d="M12 19V5M5 12l7-7 7 7"/>',
-  down: '<path d="M12 5v14M19 12l-7 7-7-7"/>',
-  x: '<path d="M18 6L6 18M6 6l12 12"/>',
-};
-
-function icon(name) {
-  const body = ICONS[name];
-  return body
-    ? `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${body}</svg>`
-    : '';
-}
+import { icon } from './lib/icons.js';
+import { bindStatus, bindStateChip } from './lib/chrome.js';
 
 const root = document.getElementById('app');
 if (!root) {
@@ -96,29 +84,8 @@ const nlHeading = document.getElementById('nl-heading');
 const nlBody = document.getElementById('nl-body');
 const footerHuman = document.getElementById('footer-human');
 
-function setStatus(msg, cls = '') {
-  statusEl.textContent = msg;
-  statusEl.className = `status ${cls}`.trim();
-}
-
-function setChip(state) {
-  if (!chip) return;
-  chip.className = 'chip';
-  if (state === 'dirty') {
-    chip.classList.add('dirty');
-    chip.textContent = 'Unsaved';
-  } else if (state === 'ok') {
-    chip.classList.add('ok');
-    chip.textContent = 'Saved on cms';
-  } else if (state === 'error') {
-    chip.classList.add('error');
-    chip.textContent = 'Error';
-  } else if (state === 'saving') {
-    chip.textContent = 'Saving…';
-  } else {
-    chip.textContent = 'Saved on cms';
-  }
-}
+const setStatus = bindStatus(statusEl);
+const setChip = bindStateChip(chip);
 
 function markDirty() {
   dirty = true;

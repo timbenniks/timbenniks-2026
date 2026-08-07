@@ -1,0 +1,255 @@
+/* In-editor OpenAI agent rail */
+.tb-agent-header {
+  flex-shrink: 0;
+  height: 44px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0 0.85rem;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+
+.tb-agent-header .tb-agent-title {
+  display: inline-flex;
+  align-items: center;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0 0.55rem;
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.tb-agent-header .tb-agent-title {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+  padding-left: 0;
+}
+.tb-agent-header .tb-agent-sub { display: none; }
+
+
+/* Agent chat chrome */
+.tb-agent-log {
+  flex: 1;
+  overflow: auto;
+  padding: 0.85rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-height: 0;
+  background: #fff;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+.tb-agent-msg {
+  max-width: 100%;
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.tb-agent-msg.user {
+  align-self: flex-end;
+  background: var(--ink);
+  color: #fff;
+}
+.tb-agent-msg.assistant {
+  align-self: flex-start;
+  background: var(--bg);
+  color: var(--ink);
+  border: 0;
+}
+.tb-agent-msg.tool {
+  align-self: stretch;
+  background: transparent;
+  border: 0;
+  padding: 0.1rem 0.15rem;
+  color: var(--muted-2);
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+}
+.tb-agent-msg.error {
+  align-self: stretch;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+.tb-agent-figure {
+  margin: 0.45rem 0 0.15rem;
+  padding: 0;
+}
+.tb-agent-figure img {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  cursor: zoom-in;
+}
+.tb-agent-figure figcaption {
+  margin-top: 0.3rem;
+  font-size: 0.6875rem;
+  color: var(--muted-2);
+}
+.tb-agent-gallery-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-family: var(--sans) !important;
+  font-size: 0.75rem !important;
+  color: var(--muted) !important;
+}
+.tb-agent-gallery-head {
+  color: var(--muted);
+}
+.tb-agent-gallery-hint {
+  font-size: 0.6875rem;
+  color: var(--fg);
+  background: var(--accent-mid, rgba(0, 0, 0, 0.04));
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+}
+.tb-agent-gallery-status {
+  font-size: 0.6875rem;
+  padding: 0.3rem 0.45rem;
+  border-radius: 6px;
+}
+.tb-agent-gallery-status[data-tone='ok'] {
+  color: #0b6b3a;
+  background: #e8f7ef;
+}
+.tb-agent-gallery-status[data-tone='err'] {
+  color: #8a1f1f;
+  background: #fdecec;
+}
+.tb-agent-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+.tb-agent-thumb {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+}
+.tb-agent-thumb:hover {
+  border-color: var(--accent);
+}
+.tb-agent-thumb.is-applied {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-mid, rgba(0, 0, 0, 0.08));
+}
+.tb-agent-thumb img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: var(--bg);
+}
+.tb-agent-thumb-label {
+  display: block;
+  padding: 0.2rem 0.4rem 0.2rem;
+  font-size: 0.625rem;
+  color: var(--muted-2);
+  font-family: var(--mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tb-agent-thumb-actions {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem 0.35rem 0.4rem;
+}
+.tb-agent-use-btn,
+.tb-agent-open-btn {
+  flex: 1;
+  border-radius: 5px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font: inherit;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.28rem 0.35rem;
+  cursor: pointer;
+}
+.tb-agent-use-btn {
+  background: var(--fg, #111);
+  color: #fff;
+  border-color: var(--fg, #111);
+}
+.tb-agent-use-btn:hover {
+  filter: brightness(1.08);
+}
+.tb-agent-use-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.tb-agent-open-btn:hover {
+  border-color: var(--accent);
+}
+.tb-agent-composer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.45rem;
+  align-items: end;
+  padding: 0.75rem 0.85rem;
+  border-top: 1px solid var(--line);
+  background: #fff;
+  flex-shrink: 0;
+}
+.tb-agent-composer textarea {
+  resize: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.65rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  min-height: 2.6rem;
+  max-height: 6rem;
+  width: 100%;
+  line-height: 1.4;
+}
+.tb-agent-composer textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-mid);
+}
+.tb-agent-composer button.primary {
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  padding: 0.55rem 0.85rem;
+  cursor: pointer;
+  height: 2.6rem;
+}
+.tb-agent-composer button.primary:hover:not(:disabled) {
+  background: var(--accent);
+}
+.tb-agent-composer button.primary:disabled {
+  opacity: 0.45;
+  cursor: wait;
+}
