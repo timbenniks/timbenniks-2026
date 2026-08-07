@@ -68,16 +68,27 @@ Admin list/edit/preview read from the **`cms`** branch (with a short in-memory c
 ## Layout (page editor)
 
 ```
-┌────┬──────────────────────────┬─────────────────────┐
-│ico │ Top: page / devices / Save│                     │
-│nav │──────────────────────────│ Inspector            │
-│    │ Live preview (dominant)  │ Layers | Section | Meta│
-└────┴──────────────────────────┴─────────────────────┘
+┌──────────────────────────────┬────────────────┬────┐
+│ Top: page / devices / Save   │                │ico │
+│──────────────────────────────│ Primary panel  │nav │
+│ Live preview (dominant)      │ + Agent (opt.) │    │
+└──────────────────────────────┴────────────────┴────┘
 ```
 
+Right **activity rail** (top → bottom):
+
+1. **Inspector** — Layers / Section / Meta (same sidebar; click again to close)
+2. **Page** — Info / History (replaces Inspector; mutually exclusive)
+3. **Agent** — stacks beside the open primary panel (when `OPENAI_API_KEY` is set)
+4. Exit links — Pages / Site chrome / Changes
+
 - **Preview** (center): real site in an iframe (`?edit=1`); device toggles (Desktop / Mobile / Full)
-- **Inspector** (right): Layers tab (section list, reorder / duplicate / delete / add), Section fields, Meta for SEO
+- **Inspector:** Layers (section list, reorder / duplicate / delete / add), Section fields, Meta for SEO
+- **Info:** page id, path, live URL, edit/publish status, last commit on main, branch names
+- **History:** recent commits touching `pages.json` on the `cms` branch (highlights `cms: update <pageId>`)
 - Top bar: undo/redo, status chip, Changes link, **Save**
+
+Selecting a block in the preview opens Inspector → Section.
 
 ## Editing model
 
@@ -110,13 +121,13 @@ The page editor registers WebMCP tools so Chrome’s Model Context Tool Inspecto
 | `GITHUB_CMS_BRANCH` | Working branch, default `cms` |
 | `OPENAI_API_KEY` | Optional. Enables the in-editor Agent sidebar (WebMCP tool chat) |
 | `OPENAI_WEBMCP_MODEL` | Optional. Chat model, default `gpt-4.1` |
-| `OPENAI_WEBMCP_VISION_MODEL` | Optional. Vision rank for `search_images` `describe` (default: chat model or `gpt-4o`) |
+| `OPENAI_WEBMCP_VISION_MODEL` | Optional. Vision rank when `search_images` passes `vision:true` (default: chat model or `gpt-4o`) |
 | `CLOUDINARY_API_SECRET` | Optional. Enables Agent `search_images` / Admin Cloudinary search |
 | `CLOUDINARY_SEARCH_FOLDERS` | Comma-separated folder allowlist (default `website`) |
 | `CLOUDINARY_SEARCH_FOLDER` | Default folder when agent omits one; `*` / `all` / omit = all allowlisted folders |
 | `CLOUDINARY_SEARCH_TAGS` | Optional required tags |
 | `CLOUDINARY_SEARCH_PREFIX` | Optional public_id prefix |
-| `CLOUDINARY_VISION_CANDIDATES` | Optional. Max thumbs for vision rank (default `16`) |
+| `CLOUDINARY_VISION_CANDIDATES` | Optional. Max thumbs for vision fallback (default `20`) |
 | `PUBLIC_CLOUDINARY_CLOUD_NAME` | Cloudinary cloud for Browse + Agent |
 | `PUBLIC_CLOUDINARY_API_KEY` | Cloudinary API key for Browse + Agent |
 | `TB_EDIT_MODE` | Optional. `1`/`true` stamps `data-edit` / `data-section` on **all** pages for that build (debugging). Leave unset on production — public HTML stays clean. `/admin/preview/*` always gets edit markup so the visual editor works without this flag. |
@@ -147,7 +158,8 @@ If `main` has branch protection that blocks merges, Publish will fail until the 
 - postMessage channel: `tb-ve` with same-origin `targetOrigin` + `event.origin` checks
 - Shared admin client kit: [`public/admin/lib/api.js`](../public/admin/lib/api.js) (`apiFetch`), utils, messaging, logout
 - Page editor modules: [`public/admin/editor.js`](../public/admin/editor.js) boots [`public/admin/editor/`](../public/admin/editor/) (catalog, runtime, facade, …)
-- Shared GitHub helpers: [`src/lib/admin/github-git.ts`](../src/lib/admin/github-git.ts) (`putFile` retries once on 409)
+- Shared GitHub helpers: [`src/lib/admin/github-git.ts`](../src/lib/admin/github-git.ts) (`putFile` retries once on 409; `listCommits` for History sidebar)
+- Page editor history API: `GET /api/admin/pages/:id/history` (cms commits for `pages.json` + last main commit)
 - Page ids = keys of `pages.json` (kebab-case)
 - Preview draft store: `globalThis` + `.cache/admin-preview/` locally; on Vercel, durable artifact `src/content/.admin-preview-drafts.json` on `cms` via `savePageDraft` (`mode: 'draft-durable'`) — not `pages.json`
 - Dashboard shells use [`AdminLayout.astro`](../src/components/admin/AdminLayout.astro)

@@ -7,8 +7,8 @@ import {
   getPagePath,
   validatePageData,
   formatZodError,
-} from '../../../../lib/admin/pages-store';
-import { isAdminAuthed } from '../../../../lib/admin/auth';
+} from '../../../../../lib/admin/pages-store';
+import { isAdminAuthed } from '../../../../../lib/admin/auth';
 
 export const prerender = false;
 

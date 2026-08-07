@@ -52,7 +52,7 @@ OPENAI_WEBMCP_MODEL=gpt-4.1
 ```
 
 2. Restart `npm run dev`, open a page editor.
-3. Click the **sparkle / Agent** icon in the left rail → try: “Add an FAQ about consulting and tighten the hero subline.”
+3. Click the **sparkle / Agent** icon in the right rail → try: “Add an FAQ about consulting and tighten the hero subline.”
 
 Without the env var, the Agent rail stays disabled. Chrome’s Model Context Tool Inspector still works for the pure WebMCP demo.
 
@@ -119,14 +119,16 @@ After `search_images`, the Agent rail shows a thumbnail gallery. **Click Use** (
 - `format`: `png`, `jpg`, …
 - `tags`: extra tags to AND
 
-**Vision (what’s in the photo):** pass `describe` (e.g. `"Tim on stage at a conference"`). The API loads a shortlist from Admin Search (folder + filters + filename hints from the description), then ranks up to ~20 tiny Cloudinary thumbs (`w_256,q_30`) with OpenAI vision (`detail: low`). Matches include `visionScore` and `visionReason`. Needs `OPENAI_API_KEY` (same as the Agent rail).
+**Metadata-first search (default):** pass `describe` or `query` (e.g. `"Tim on stage at a conference"`). The API tokenizes the phrase and matches **tags**, Media Library **Title** (`context.caption`), **Description** (`context.alt`), filename, and public_id — then ranks by how many terms hit. Results include `title`, `description`, `tags`, `metadataScore`, and `metadataReason`. No vision call.
+
+**Vision (optional fallback):** pass `vision: true` only when metadata returns nothing useful. That ranks a shortlist of tiny Cloudinary thumbs (`w_256,q_30`) with OpenAI vision. Needs `OPENAI_API_KEY`.
 
 | Variable | Purpose | Default |
 |---|---|---|
 | `OPENAI_WEBMCP_VISION_MODEL` | Model for vision rank | `OPENAI_WEBMCP_MODEL` or `gpt-4o` |
 | `CLOUDINARY_VISION_CANDIDATES` | Max thumbs sent to vision | `20` (cap 24) |
 
-Results include `width`, `height`, `aspectRatio`, `orientation`, `format`, `tags`, `bytes`.
+Results include `width`, `height`, `aspectRatio`, `orientation`, `format`, `tags`, `title`, `description`, `bytes`.
 
 Demo prompt:
 
@@ -134,7 +136,7 @@ Demo prompt:
 Find a photo of me speaking on stage at a conference (landscape) and set it on the hero image. Do not save yet.
 ```
 
-The agent should call `search_images` with `describe` + `orientation: landscape`, then `set_image`.
+The agent should call `search_images` with `describe` + `orientation: landscape` (no `vision`), then ask you to click **Use**.
 
 ## Architecture
 

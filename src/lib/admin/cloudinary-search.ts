@@ -5,6 +5,7 @@ import {
   getCloudinarySearchScope,
   orientationFromSize,
   resolveSearchFolder,
+  tokenizeSearchTerms,
   type CloudinarySearchFilters,
   type CloudinarySearchScope,
 } from './cloudinary-scope';
@@ -18,9 +19,9 @@ import {
 
 export type SearchBody = {
   query?: string;
-  /** Natural-language scene description → OpenAI vision rerank on tiny thumbs. */
+  /** Natural-language scene / subject — searched against tags, title, description. */
   describe?: string;
-  /** If true and query is set, treat query as describe (no filename keyword search). */
+  /** If true, also rank a shortlist with OpenAI vision (optional; metadata is default). */
   vision?: boolean;
   folder?: string;
   maxResults?: number;
@@ -45,11 +46,21 @@ export type MappedAsset = {
   bytes?: number;
   folder: string;
   filename: string;
-  tags: unknown[];
+  tags: string[];
+  /** Cloudinary Media Library Title (context.caption). */
+  title: string | null;
+  /** Cloudinary Media Library Description (context.alt). */
+  description: string | null;
+  context: Record<string, string>;
   createdAt: unknown;
 };
 
-export type ScoredAsset = MappedAsset & { visionScore?: number; visionReason?: string };
+export type ScoredAsset = MappedAsset & {
+  metadataScore?: number;
+  metadataReason?: string;
+  visionScore?: number;
+  visionReason?: string;
+};
 
 export type VisionMeta = {
   used: boolean;
@@ -63,6 +74,12 @@ export type VisionMeta = {
   error?: string;
 };
 
+export type MetadataMeta = {
+  used: boolean;
+  terms: string[];
+  searchText: string | null;
+};
+
 export type SearchResult = {
   status: number;
   body: Record<string, unknown>;
@@ -70,6 +87,16 @@ export type SearchResult = {
 
 export function basicAuth(apiKey: string, apiSecret: string): string {
   return `Basic ${Buffer.from(`${apiKey}:${apiSecret}`).toString('base64')}`;
+}
+
+function asContextMap(raw: unknown): Record<string, string> {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (v == null) continue;
+    out[k] = String(v);
+  }
+  return out;
 }
 
 export function mapResources(resources: Array<Record<string, unknown>> | undefined): MappedAsset[] {
@@ -83,6 +110,9 @@ export function mapResources(resources: Array<Record<string, unknown>> | undefin
         : width && height
           ? Math.round((width / height) * 1000) / 1000
           : null;
+    const context = asContextMap(r.context);
+    const title = context.caption?.trim() || context.title?.trim() || null;
+    const description = context.alt?.trim() || context.description?.trim() || null;
     return {
       publicId,
       secureUrl: String(r.secure_url || r.url || ''),
@@ -99,7 +129,10 @@ export function mapResources(resources: Array<Record<string, unknown>> | undefin
             ? publicId.split('/').slice(0, -1).join('/')
             : '',
       filename: publicId.split('/').pop() || publicId,
-      tags: Array.isArray(r.tags) ? r.tags : [],
+      tags: Array.isArray(r.tags) ? r.tags.map(String) : [],
+      title,
+      description,
+      context,
       createdAt: r.created_at || null,
     };
   });
@@ -159,7 +192,7 @@ export async function cloudinarySearch(
   return { ok: res.ok, status: res.status, data, rawText };
 }
 
-/** OR-clause so hint terms surface older named assets into the vision shortlist. */
+/** OR-clause so hint terms surface named assets into a shortlist. */
 export function hintOrClause(terms: string[], folders: string[]): string | null {
   if (!terms.length) return null;
   const parts: string[] = [];
@@ -167,9 +200,9 @@ export function hintOrClause(terms: string[], folders: string[]): string | null 
     const safe = t.replace(/[^a-z0-9_-]/gi, '').toLowerCase();
     if (!safe) continue;
 
-    // Bare "tim*" matches time-video-sketch, timothy, etc. — require a separator.
     if (safe === 'tim') {
-      parts.push('tags=tim', 'filename:tim-*', 'filename:tim_*', 'filename:tim.*');
+      parts.push('tags=tim', 'tags:tim', 'filename:tim-*', 'filename:tim_*', 'filename:tim.*');
+      parts.push('context:tim', 'context.caption:tim', 'context.alt:tim');
       for (const f of folders) {
         const folder = f.replace(/"/g, '').replace(/\/$/, '');
         if (!folder) continue;
@@ -183,7 +216,13 @@ export function hintOrClause(terms: string[], folders: string[]): string | null 
       continue;
     }
 
-    parts.push(`filename:${safe}*`, `tags=${safe}`);
+    parts.push(
+      `filename:${safe}*`,
+      `tags:${safe}`,
+      `context:${safe}`,
+      `context.caption:${safe}`,
+      `context.alt:${safe}`,
+    );
     if (folders.length) {
       for (const f of folders) {
         const folder = f.replace(/"/g, '').replace(/\/$/, '');
@@ -236,11 +275,14 @@ export function publicScope() {
       format: 'png|jpg|webp|…',
       tags: 'string[]',
     },
+    metadata: {
+      note: 'Search uses tags + Media Library Title (context.caption) + Description (context.alt). Prefer describe/query; set vision:true only as a fallback.',
+    },
     vision: {
       enabled: Boolean(openaiKey()),
       model: visionModel(),
       maxCandidates: visionCandidateCap(),
-      note: 'Pass describe (or vision:true with a scene query) to rank tiny thumbs with OpenAI vision.',
+      note: 'Optional. Pass vision:true to rerank a metadata shortlist with OpenAI vision on tiny thumbs.',
     },
   };
 }
@@ -263,20 +305,103 @@ export function parseFilters(body: SearchBody): CloudinarySearchFilters {
   return filters;
 }
 
+/** Score how well an asset’s tags/title/description/filename match search terms. */
+export function scoreAssetMetadata(
+  asset: MappedAsset,
+  terms: string[],
+): { score: number; reason: string } {
+  if (!terms.length) return { score: 0, reason: '' };
+
+  const tags = asset.tags.map((t) => t.toLowerCase());
+  const title = (asset.title || '').toLowerCase();
+  const description = (asset.description || '').toLowerCase();
+  const contextBlob = Object.values(asset.context).join(' ').toLowerCase();
+  const filename = asset.filename.toLowerCase();
+  const publicId = asset.publicId.toLowerCase();
+
+  let score = 0;
+  const hits: string[] = [];
+
+  for (const term of terms) {
+    const t = term.toLowerCase();
+    let termScore = 0;
+    const where: string[] = [];
+
+    if (tags.some((tag) => tag === t)) {
+      termScore += 4;
+      where.push('tag');
+    } else if (tags.some((tag) => tag.includes(t) || t.includes(tag))) {
+      termScore += 2;
+      where.push('tag~');
+    }
+
+    if (title.includes(t)) {
+      termScore += 4;
+      where.push('title');
+    }
+    if (description.includes(t)) {
+      termScore += 3;
+      where.push('description');
+    } else if (contextBlob.includes(t) && !title.includes(t)) {
+      termScore += 2;
+      where.push('context');
+    }
+
+    if (filename.includes(t) || publicId.includes(t)) {
+      termScore += 1;
+      where.push('id');
+    }
+
+    if (termScore > 0) {
+      score += termScore;
+      hits.push(`${t}(${where.join('+')})`);
+    }
+  }
+
+  return {
+    score,
+    reason: hits.length ? hits.slice(0, 6).join(', ') : '',
+  };
+}
+
+export function rankByMetadata(assets: MappedAsset[], terms: string[]): ScoredAsset[] {
+  if (!terms.length) {
+    return assets.map((a) => ({ ...a, metadataScore: 0, metadataReason: '' }));
+  }
+
+  const scored = assets.map((asset) => {
+    const { score, reason } = scoreAssetMetadata(asset, terms);
+    return { ...asset, metadataScore: score, metadataReason: reason };
+  });
+
+  scored.sort((a, b) => {
+    const d = (b.metadataScore || 0) - (a.metadataScore || 0);
+    if (d !== 0) return d;
+    const at = a.createdAt ? String(a.createdAt) : '';
+    const bt = b.createdAt ? String(b.createdAt) : '';
+    return bt.localeCompare(at);
+  });
+
+  // Prefer assets that actually matched; keep zero-score fillers only if nothing hit.
+  const matched = scored.filter((a) => (a.metadataScore || 0) > 0);
+  return matched.length ? matched : scored;
+}
+
 type CollectParams = {
   scope: CloudinarySearchScope;
   folder: string | null;
-  metadataQuery: string;
-  describe: string;
+  searchText: string;
   cloudFilters: CloudinarySearchFilters;
   fetchSize: number;
   nextCursor?: string | undefined;
+  /** When true, also pull scene-hint + photo-folder shortlists (for vision fallback). */
+  widenForVision?: boolean;
 };
 
 type CollectedCandidates = {
   assets: MappedAsset[];
   expression: string;
-  hints: string[];
+  terms: string[];
   primaryOk: boolean;
   primaryStatus: number;
   primaryError?: string;
@@ -285,16 +410,17 @@ type CollectedCandidates = {
 };
 
 export async function collectCandidates(params: CollectParams): Promise<CollectedCandidates> {
-  const { scope, folder, metadataQuery, describe, cloudFilters, fetchSize, nextCursor } = params;
+  const { scope, folder, searchText, cloudFilters, fetchSize, nextCursor, widenForVision } =
+    params;
   const searchFolders = folder ? [folder] : scope.folders;
-  const expression = buildSearchExpression(metadataQuery, folder, scope, cloudFilters);
+  const expression = buildSearchExpression(searchText, folder, scope, cloudFilters);
   const basePayload: Record<string, unknown> = {
     expression,
     max_results: fetchSize,
     sort_by: [{ created_at: 'desc' }],
     with_field: ['tags', 'context'],
   };
-  if (nextCursor && !describe) basePayload.next_cursor = nextCursor;
+  if (nextCursor && !widenForVision) basePayload.next_cursor = nextCursor;
 
   const primary = await cloudinarySearch(
     scope.cloudName,
@@ -306,7 +432,7 @@ export async function collectCandidates(params: CollectParams): Promise<Collecte
     return {
       assets: [],
       expression,
-      hints: [],
+      terms: tokenizeSearchTerms(searchText),
       primaryOk: false,
       primaryStatus: primary.status,
       primaryError: primary.data.error?.message || `Cloudinary error ${primary.status}`,
@@ -322,11 +448,15 @@ export async function collectCandidates(params: CollectParams): Promise<Collecte
     }
   };
 
-  const hints = describe ? [...new Set([...SCENE_SEED_TERMS, ...visionHintTerms(describe)])] : [];
+  const terms = [
+    ...new Set([
+      ...tokenizeSearchTerms(searchText),
+      ...(widenForVision ? [...SCENE_SEED_TERMS, ...visionHintTerms(searchText)] : []),
+    ]),
+  ].slice(0, 14);
 
-  if (describe) {
-    // 1) Scene-keyword hits first (speaking/stage/talk/…) across scope
-    const sceneClause = hintOrClause(hints, searchFolders);
+  if (widenForVision && terms.length) {
+    const sceneClause = hintOrClause(terms, searchFolders);
     if (sceneClause) {
       const sceneExpr = buildSearchExpression('', folder, scope, cloudFilters);
       const scene = await cloudinarySearch(scope.cloudName, scope.apiKey, scope.apiSecret, {
@@ -338,7 +468,6 @@ export async function collectCandidates(params: CollectParams): Promise<Collecte
       if (scene.ok) addAll(scene.data.resources);
     }
 
-    // 2) Recent assets from Tim/Presskit (real photos), not website poster noise
     const photoFolders = personPhotoFolders(searchFolders);
     if (photoFolders.length) {
       const photoExpr = buildSearchExpression(
@@ -349,7 +478,7 @@ export async function collectCandidates(params: CollectParams): Promise<Collecte
       );
       const photos = await cloudinarySearch(scope.cloudName, scope.apiKey, scope.apiSecret, {
         expression: photoExpr,
-        max_results: fetchSize,
+        max_results: Math.min(fetchSize, 20),
         sort_by: [{ created_at: 'desc' }],
         with_field: ['tags', 'context'],
       });
@@ -357,20 +486,16 @@ export async function collectCandidates(params: CollectParams): Promise<Collecte
     }
   }
 
-  // 3) General recent in scope (fills remaining slots)
   addAll(primary.data.resources);
 
-  let list = [...byId.values()];
-  if (describe) list = list.slice(0, visionCandidateCap());
-
   return {
-    assets: list,
+    assets: [...byId.values()],
     expression,
-    hints,
+    terms: tokenizeSearchTerms(searchText),
     primaryOk: true,
     primaryStatus: primary.status,
     primaryNextCursor: primary.data.next_cursor || null,
-    primaryTotal: primary.data.total_count ?? list.length,
+    primaryTotal: primary.data.total_count ?? byId.size,
   };
 }
 
@@ -402,12 +527,10 @@ export async function runCloudinarySearch(body: SearchBody): Promise<SearchResul
 
   const rawQuery = typeof body.query === 'string' ? body.query.trim() : '';
   const describeRaw = typeof body.describe === 'string' ? body.describe.trim() : '';
-  const visionFlag = body.vision === true;
-  // Scene text for OpenAI vision (tiny thumbs). Prefer explicit `describe`.
-  const describe = describeRaw || (visionFlag && rawQuery ? rawQuery : '');
-  // Filename/tag keyword: keep `query` when `describe` is separate; drop it when
-  // vision:true reused query as the scene description.
-  const metadataQuery = describeRaw ? rawQuery : describe ? '' : rawQuery;
+  const wantVision = body.vision === true;
+
+  // Natural language + keywords both feed metadata search (tags / title / description).
+  const searchText = [describeRaw, rawQuery].filter(Boolean).join(' ').trim();
 
   const folderRes = resolveSearchFolder(
     typeof body.folder === 'string' ? body.folder : undefined,
@@ -417,49 +540,47 @@ export async function runCloudinarySearch(body: SearchBody): Promise<SearchResul
     return { status: 400, body: { error: folderRes.error, ...publicScope() } };
   }
 
-  if (describe && !openaiKey()) {
+  if (wantVision && !openaiKey()) {
     return {
       status: 503,
       body: {
         error:
-          'Vision search (describe) needs OPENAI_API_KEY on the server. Use plain query for filename/tag search.',
+          'vision:true needs OPENAI_API_KEY on the server. Omit vision to search tags/title/description only.',
         ...publicScope(),
       },
     };
   }
 
   const filters = parseFilters(body);
-  // For scene search, orientation is a soft preference — hard Cloudinary aspect
-  // filters drop portrait stage shots and shrink the vision shortlist too early.
-  const softOrientation = describe ? filters.orientation : undefined;
-  const cloudFilters: CloudinarySearchFilters = describe
-    ? { ...filters, orientation: undefined }
-    : filters;
+  // Soft orientation when we have free-text so we don't drop good tagged portraits early.
+  const softOrientation =
+    describeRaw || tokenizeSearchTerms(searchText).length > 1 ? filters.orientation : undefined;
+  const cloudFilters: CloudinarySearchFilters =
+    softOrientation != null ? { ...filters, orientation: undefined } : filters;
 
   const maxResults = Math.min(
     Math.max(Number(body.maxResults) || scope.maxResultsDefault, 1),
     scope.maxResultsCap,
   );
-  // Scene search always pulls a fat shortlist for vision — ignore tiny maxResults from the agent.
-  const fetchSize = describe
+  const fetchSize = wantVision
     ? Math.min(scope.maxResultsCap, Math.max(20, visionCandidateCap(), maxResults))
-    : maxResults;
-  const resultLimit = describe ? Math.max(maxResults, 6) : maxResults;
+    : Math.min(scope.maxResultsCap, Math.max(maxResults, searchText ? 24 : maxResults));
+  const resultLimit = Math.max(maxResults, describeRaw || wantVision ? 6 : maxResults);
 
-  const collect = (folder: string | null) =>
+  const collect = (folder: string | null, widenForVision = false) =>
     collectCandidates({
       scope,
       folder,
-      metadataQuery,
-      describe,
+      searchText,
       cloudFilters,
       fetchSize,
       nextCursor: body.nextCursor,
+      widenForVision,
     });
 
   let folderUsed = folderRes.folder;
-  let collected = await collect(folderUsed);
-  if (!collected.primaryOk && !describe) {
+  let collected = await collect(folderUsed, wantVision);
+  if (!collected.primaryOk) {
     return {
       status:
         collected.primaryStatus >= 400 && collected.primaryStatus < 600
@@ -472,9 +593,10 @@ export async function runCloudinarySearch(body: SearchBody): Promise<SearchResul
     };
   }
 
+  // If metadata query returned little and a single folder was locked, widen once.
   let widened = false;
-  if (describe && folderUsed && collected.assets.length < 10 && scope.folders.length > 1) {
-    const wider = await collect(null);
+  if (searchText && folderUsed && collected.assets.length < 8 && scope.folders.length > 1) {
+    const wider = await collect(null, wantVision);
     if (wider.assets.length > collected.assets.length) {
       collected = wider;
       folderUsed = null;
@@ -482,43 +604,42 @@ export async function runCloudinarySearch(body: SearchBody): Promise<SearchResul
     }
   }
 
-  let assets: ScoredAsset[] = collected.assets;
+  const terms = collected.terms.length ? collected.terms : tokenizeSearchTerms(searchText);
+  let assets: ScoredAsset[] = rankByMetadata(collected.assets, terms);
+  const metadataMeta: MetadataMeta = {
+    used: Boolean(searchText),
+    terms,
+    searchText: searchText || null,
+  };
+
   let visionMeta: VisionMeta = { used: false };
 
-  if (describe) {
+  if (wantVision && searchText) {
     try {
-      if (collected.assets.length < 6 && scope.folders.length > 1 && folderUsed) {
-        const wider = await collect(null);
-        if (wider.assets.length > collected.assets.length) {
-          collected = wider;
-          folderUsed = null;
-          widened = true;
-          assets = wider.assets;
-        }
-      }
-
+      const shortlist = assets.slice(0, visionCandidateCap());
       let ranked = await rankAssetsByVision({
-        describe,
-        assets: collected.assets,
+        describe: searchText,
+        assets: shortlist.length ? shortlist : collected.assets.slice(0, visionCandidateCap()),
         cloudName: scope.cloudName,
         maxResults: Math.max(resultLimit * 2, resultLimit),
       });
       visionMeta = {
         used: true,
-        describe,
+        describe: searchText,
         model: ranked.model,
         candidates: ranked.candidates,
-        hints: collected.hints,
+        hints: terms,
         widened,
         softOrientation,
       };
 
       if (!ranked.assets.length && folderRes.folder && !widened && scope.folders.length > 1) {
-        const wider = await collect(null);
+        const wider = await collect(null, true);
         if (wider.assets.length) {
+          const widerRanked = rankByMetadata(wider.assets, tokenizeSearchTerms(searchText));
           ranked = await rankAssetsByVision({
-            describe,
-            assets: wider.assets,
+            describe: searchText,
+            assets: widerRanked.slice(0, visionCandidateCap()),
             cloudName: scope.cloudName,
             maxResults: Math.max(resultLimit * 2, resultLimit),
           });
@@ -527,7 +648,7 @@ export async function runCloudinarySearch(body: SearchBody): Promise<SearchResul
           collected = wider;
           visionMeta.widened = true;
           visionMeta.candidates = ranked.candidates;
-          visionMeta.hints = wider.hints;
+          visionMeta.hints = wider.terms;
         }
       }
 
@@ -535,29 +656,44 @@ export async function runCloudinarySearch(body: SearchBody): Promise<SearchResul
         assets = preferOrientation(ranked.assets, softOrientation, resultLimit);
         visionMeta.emptyMatches = false;
       } else {
-        // Empty is better than returning random posters like time-video-sketch.
-        visionMeta.emptyMatches = true;
-        assets = [];
+        // Fall back to metadata ranking rather than returning empty.
+        assets = preferOrientation(
+          rankByMetadata(collected.assets, terms),
+          softOrientation,
+          resultLimit,
+        );
+        visionMeta.emptyMatches = assets.length === 0;
+        visionMeta.error = assets.length
+          ? 'Vision found no confident matches; showing metadata matches instead.'
+          : 'Vision and metadata found no matches.';
       }
     } catch (err) {
       visionMeta = {
         used: false,
-        describe,
-        hints: collected.hints,
+        describe: searchText,
+        hints: terms,
         widened,
         softOrientation,
         error: err instanceof Error ? err.message : String(err),
       };
-      assets = [];
+      assets = preferOrientation(
+        rankByMetadata(collected.assets, terms),
+        softOrientation,
+        resultLimit,
+      );
     }
+  } else {
+    assets = preferOrientation(assets, softOrientation, resultLimit);
   }
+
+  const emptyMeta = Boolean(searchText) && assets.length === 0;
 
   return {
     status: 200,
     body: {
       assets,
-      nextCursor: describe ? null : collected.primaryNextCursor,
-      totalCount: describe ? assets.length : collected.primaryTotal,
+      nextCursor: wantVision ? null : collected.primaryNextCursor,
+      totalCount: wantVision ? assets.length : collected.primaryTotal,
       expression: collected.expression,
       folder: folderUsed,
       foldersSearched: folderUsed ? [folderUsed] : scope.folders,
@@ -565,12 +701,15 @@ export async function runCloudinarySearch(body: SearchBody): Promise<SearchResul
         ...filters,
         ...(softOrientation ? { orientationApplied: 'soft' } : {}),
       },
-      describe: describe || null,
+      describe: describeRaw || null,
+      query: rawQuery || null,
+      metadata: metadataMeta,
       vision: visionMeta,
       scope: publicScope(),
-      hint:
-        describe && visionMeta.emptyMatches
-          ? 'Vision found no confident matches. Retry with describe only (omit folder), or a different scene phrase.'
+      hint: emptyMeta
+        ? 'No assets matched tags/title/description. Try different keywords, omit folder, or pass vision:true as a fallback.'
+        : visionMeta.error && assets.length
+          ? visionMeta.error
           : undefined,
     },
   };

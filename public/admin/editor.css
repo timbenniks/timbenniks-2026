@@ -38,12 +38,15 @@ button, select, input, textarea {
 }
 #app {
   display: grid;
-  grid-template-columns: var(--rail) 1fr auto auto;
+  /* Preview | inspector | agent | tool icons — icons sit next to the panels they toggle */
+  grid-template-columns: 1fr auto auto var(--rail);
   grid-template-rows: auto 1fr;
   height: 100vh;
   overflow: hidden;
   --agent: 0px;
 }
+#app.primary-collapsed { --form: 0px; }
+/* Back-compat if anything still toggles the old class */
 #app.form-collapsed { --form: 0px; }
 #app.agent-open { --agent: min(340px, 30vw); }
 
@@ -269,16 +272,16 @@ button.primary:disabled {
 }
 button:disabled { opacity: 0.45; cursor: default; }
 
-/* —— Left icon rail —— */
+/* —— Right icon rail (beside inspector / agent panels) —— */
 .icon-rail {
-  grid-column: 1;
+  grid-column: 4;
   grid-row: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
   padding: 0.65rem 0.4rem 0.75rem;
-  border-right: 1px solid var(--line);
+  border-left: 1px solid var(--line);
   background: var(--panel);
 }
 .rail-group {
@@ -292,6 +295,7 @@ button:disabled { opacity: 0.45; cursor: default; }
   width: 1px;
   min-height: 0.75rem;
 }
+.rail-divider,
 .rail-exit {
   padding-top: 0.55rem;
   border-top: 1px solid var(--line);
@@ -498,7 +502,7 @@ button:disabled { opacity: 0.45; cursor: default; }
 
 /* —— Preview —— */
 .preview {
-  grid-column: 2;
+  grid-column: 1;
   grid-row: 2;
   min-width: 0;
   background:
@@ -566,8 +570,9 @@ button:disabled { opacity: 0.45; cursor: default; }
   vertical-align: middle;
 }
 
-/* —— Shared right rails (form + agent) —— */
+/* —— Shared right rails (form + page + agent) —— */
 .form-rail,
+.page-rail,
 .agent-rail {
   display: flex;
   flex-direction: column;
@@ -576,14 +581,26 @@ button:disabled { opacity: 0.45; cursor: default; }
   border-left: 1px solid var(--line);
   overflow: hidden;
 }
-.form-rail {
-  grid-column: 3;
+.form-rail,
+.page-rail {
+  grid-column: 2;
   grid-row: 2;
   width: var(--form);
   transition: width 0.22s var(--ease);
 }
+.form-rail[hidden],
+.page-rail[hidden] {
+  display: none !important;
+}
+#app.primary-collapsed .form-rail,
+#app.primary-collapsed .page-rail,
+#app.form-collapsed .form-rail,
+#app.form-collapsed .page-rail {
+  width: 0;
+  border-left-color: transparent;
+}
 .agent-rail {
-  grid-column: 4;
+  grid-column: 3;
   grid-row: 2;
   width: var(--agent);
   transition: width 0.22s var(--ease), border-color 0.22s var(--ease);
@@ -611,7 +628,8 @@ button:disabled { opacity: 0.45; cursor: default; }
   min-width: 280px;
 }
 
-/* One shared header band height across form + agent */
+/* One shared header band height across form + page + agent */
+.panel-header,
 .form-tabs,
 .tb-agent-header {
   flex-shrink: 0;
@@ -624,6 +642,7 @@ button:disabled { opacity: 0.45; cursor: default; }
   border-bottom: 1px solid var(--line);
   background: #fff;
 }
+.panel-header .panel-title,
 .form-tabs button,
 .tb-agent-header .tb-agent-title {
   display: inline-flex;
@@ -640,6 +659,11 @@ button:disabled { opacity: 0.45; cursor: default; }
   color: var(--muted);
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
+}
+.panel-header .panel-title {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+  padding-left: 0;
 }
 .form-tabs button {
   flex: 1;
@@ -668,6 +692,106 @@ button:disabled { opacity: 0.45; cursor: default; }
   scrollbar-color: var(--line-strong) transparent;
 }
 .form-body[hidden] { display: none; }
+
+/* —— Info + History panes —— */
+.info-stack,
+.history-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.info-dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.info-dl > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.info-dl dt {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+.info-dl dd {
+  margin: 0;
+  font-size: 0.875rem;
+  word-break: break-word;
+}
+.info-dl code {
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  background: var(--bg);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+.info-dl a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.info-dl a:hover { text-decoration: underline; }
+.info-actions {
+  margin: 0.25rem 0 0;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+}
+.history-path {
+  margin: 0;
+}
+.commit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.commit-row {
+  padding: 0.65rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+.commit-row.is-page {
+  border-color: rgba(232, 93, 58, 0.35);
+  background: var(--accent-soft);
+}
+.commit-msg {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 550;
+  color: var(--ink);
+  text-decoration: none;
+  line-height: 1.35;
+}
+a.commit-msg:hover { color: var(--accent); }
+.commit-meta {
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+.commit-badge {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+  background: var(--accent-mid);
+  color: var(--accent);
+  font-family: var(--sans);
+  font-size: 0.625rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .section-heading {
   margin: 0 0 1rem;
   padding-bottom: 0.75rem;

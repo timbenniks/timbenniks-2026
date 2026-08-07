@@ -370,3 +370,57 @@ export async function discardCmsChanges(opts?: {
   );
   return { mode: 'github', commit };
 }
+
+export type GitCommitSummary = {
+  sha: string;
+  shortSha: string;
+  message: string;
+  date: string | null;
+  author: string | null;
+  htmlUrl: string | null;
+};
+
+/** Recent commits that touch `path` on branch/ref `sha` (branch name or commit SHA). */
+export async function listCommits(opts: {
+  path: string;
+  sha: string;
+  perPage?: number;
+}): Promise<GitCommitSummary[]> {
+  const { token, repo } = requireGitHubConfig();
+  const perPage = Math.min(Math.max(opts.perPage ?? 20, 1), 50);
+  const qs = new URLSearchParams({
+    path: opts.path,
+    sha: opts.sha,
+    per_page: String(perPage),
+  });
+  const { ok, status, data, text } = await ghJson<
+    Array<{
+      sha?: string;
+      html_url?: string;
+      commit?: {
+        message?: string;
+        author?: { name?: string; date?: string };
+        committer?: { name?: string; date?: string };
+      };
+    }>
+  >(`https://api.github.com/repos/${repo}/commits?${qs}`, { token });
+  if (!ok) throw new Error(`GitHub list commits failed: ${status} ${text}`);
+
+  return (data ?? []).map((c) => {
+    const message = (c.commit?.message ?? '').split('\n')[0] ?? '';
+    const date =
+      c.commit?.author?.date ?? c.commit?.committer?.date ?? null;
+    const author =
+      c.commit?.author?.name ?? c.commit?.committer?.name ?? null;
+    const sha = c.sha ?? '';
+    return {
+      sha,
+      shortSha: sha.slice(0, 7),
+      message,
+      date,
+      author,
+      htmlUrl: c.html_url ?? null,
+    };
+  });
+}
+

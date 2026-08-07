@@ -57,7 +57,10 @@ export function bootEditor() {
   let selectedPath = null;
   let selectedSection = 0;
   let iframeWin = null;
-  let formTab = 'layers';
+  /** @type {null | 'inspector' | 'page'} */
+  let primary = 'inspector';
+  let inspectorTab = 'layers';
+  let pageTab = 'info';
   let pendingInsertAt = null;
   let pendingHighlight = null;
   let pendingScroll = null;
@@ -96,23 +99,6 @@ export function bootEditor() {
       </div>
     </header>
 
-    <nav class="icon-rail" aria-label="Editor tools">
-      <div class="rail-group" role="group" aria-label="Panels">
-        <button type="button" id="toggle-form" class="rail-toggle" aria-pressed="true" title="Inspector" aria-label="Toggle inspector">
-          ${icon('form')}
-        </button>
-        <button type="button" id="toggle-agent" class="rail-toggle" aria-pressed="false" title="Agent" aria-label="Toggle agent" hidden>
-          ${icon('agent')}
-        </button>
-      </div>
-      <div class="rail-spacer" aria-hidden="true"></div>
-      <div class="rail-group rail-exit" role="group" aria-label="Leave editor">
-        <a class="rail-link" href="/admin" title="All pages" aria-label="All pages">${icon('pages')}</a>
-        <a class="rail-link" href="/admin/site" title="Site chrome" aria-label="Site chrome">${icon('chrome')}</a>
-        <a class="rail-link" href="/admin/changes" title="Changes" aria-label="Changes">${icon('external')}</a>
-      </div>
-    </nav>
-
     <div class="preview">
       <div class="preview-frame is-full" id="preview-frame">
         <iframe id="frame" src="${boot.previewUrl}" title="Preview"></iframe>
@@ -122,10 +108,8 @@ export function bootEditor() {
 
     <aside class="form-rail" id="form-panel">
       <div class="form-inner">
-        <div class="form-tabs">
-          <button type="button" data-tab="layers" class="active">Layers</button>
-          <button type="button" data-tab="section">Section</button>
-          <button type="button" data-tab="meta">Meta</button>
+        <div class="panel-header">
+          <span class="panel-title" id="inspector-title">Layers</span>
         </div>
         <div class="form-body layers-pane" id="layers-pane">
           <div class="layers-scroll">
@@ -146,9 +130,50 @@ export function bootEditor() {
       </div>
     </aside>
 
+    <aside class="page-rail" id="page-panel" hidden>
+      <div class="form-inner">
+        <div class="panel-header">
+          <span class="panel-title" id="page-title">Info</span>
+        </div>
+        <div class="form-body" id="info-pane">
+          <div class="info-stack" id="info-fields">
+            <p class="hint">Loading…</p>
+          </div>
+        </div>
+        <div class="form-body" id="history-pane" hidden>
+          <div class="history-stack" id="history-fields">
+            <p class="hint">Loading…</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
     <aside class="agent-rail is-disabled" id="agent-panel" aria-label="Editor agent">
       <div class="agent-rail-inner" id="agent-mount"></div>
     </aside>
+
+    <nav class="icon-rail" aria-label="Editor tools">
+      <div class="rail-group" role="group" aria-label="Inspector">
+        <button type="button" class="rail-toggle" data-primary="inspector" data-tab="layers" aria-pressed="true" title="Layers" aria-label="Layers">${icon('layers')}</button>
+        <button type="button" class="rail-toggle" data-primary="inspector" data-tab="section" aria-pressed="false" title="Section" aria-label="Section">${icon('section')}</button>
+        <button type="button" class="rail-toggle" data-primary="inspector" data-tab="meta" aria-pressed="false" title="Meta" aria-label="Meta">${icon('meta')}</button>
+      </div>
+      <div class="rail-group rail-divider" role="group" aria-label="Page">
+        <button type="button" class="rail-toggle" data-primary="page" data-tab="info" aria-pressed="false" title="Info" aria-label="Info">${icon('info')}</button>
+        <button type="button" class="rail-toggle" data-primary="page" data-tab="history" aria-pressed="false" title="Git history" aria-label="Git history">${icon('history')}</button>
+      </div>
+      <div class="rail-group rail-divider" role="group" aria-label="Agent" id="agent-rail-group" hidden>
+        <button type="button" id="toggle-agent" class="rail-toggle" aria-pressed="false" title="Agent" aria-label="Toggle agent">
+          ${icon('agent')}
+        </button>
+      </div>
+      <div class="rail-spacer" aria-hidden="true"></div>
+      <div class="rail-group rail-exit" role="group" aria-label="Leave editor">
+        <a class="rail-link" href="/admin" title="All pages" aria-label="All pages">${icon('pages')}</a>
+        <a class="rail-link" href="/admin/site" title="Site chrome" aria-label="Site chrome">${icon('chrome')}</a>
+        <a class="rail-link" href="/admin/changes" title="Changes" aria-label="Changes">${icon('external')}</a>
+      </div>
+    </nav>
 
     <div class="modal-backdrop" id="insert-modal" hidden>
       <div class="modal" role="dialog" aria-labelledby="insert-title">
@@ -182,6 +207,19 @@ export function bootEditor() {
   const layersPane = document.getElementById('layers-pane');
   const sectionPane = document.getElementById('section-pane');
   const metaPane = document.getElementById('meta-pane');
+  const formPanel = document.getElementById('form-panel');
+  const pagePanel = document.getElementById('page-panel');
+  const infoPane = document.getElementById('info-pane');
+  const historyPane = document.getElementById('history-pane');
+  const infoFieldsEl = document.getElementById('info-fields');
+  const historyFieldsEl = document.getElementById('history-fields');
+  const inspectorTitleEl = document.getElementById('inspector-title');
+  const pageTitleEl = document.getElementById('page-title');
+
+  /** @type {null | object} */
+  let historyCache = null;
+  /** @type {null | object} */
+  let changesCache = null;
 
   boot.sectionKinds.forEach((kind) => {
     for (const sel of [addKind, insertKind]) {
@@ -218,6 +256,7 @@ export function bootEditor() {
   }
 
   function setDirtyChip(state) {
+    dirtyChip.dataset.state = state;
     dirtyChip.className = 'chip';
     if (state === 'dirty') {
       dirtyChip.classList.add('dirty');
@@ -234,6 +273,7 @@ export function bootEditor() {
       dirtyChip.classList.add('ok');
       dirtyChip.textContent = 'Saved on cms';
     }
+    syncInfoEditStatus();
   }
 
   function checkpoint() {
@@ -300,8 +340,7 @@ export function bootEditor() {
     renderSections();
     renderSectionFields(index, opts.focusPath);
     if (opts.openSectionTab !== false) {
-      formTab = 'section';
-      syncFormTabs();
+      openInspector('section');
     }
     postToFrame('highlightSection', {
       index,
@@ -1203,8 +1242,7 @@ export function bootEditor() {
     selectedPath = payload.path || null;
     renderSections();
     renderSectionFields(selectedSection, selectedPath);
-    formTab = 'section';
-    syncFormTabs();
+    openInspector('section');
     if (selectedPath) {
       focusFieldInForm(selectedPath);
     }
@@ -1286,13 +1324,218 @@ export function bootEditor() {
     }
   }
 
-  function syncFormTabs() {
-    document.querySelectorAll('.form-tabs [data-tab]').forEach((btn) => {
-      btn.classList.toggle('active', btn.dataset.tab === formTab);
+  const INSPECTOR_TITLES = { layers: 'Layers', section: 'Section', meta: 'Meta' };
+  const PAGE_TITLES = { info: 'Info', history: 'History' };
+
+  function syncPrimaryChrome() {
+    root.classList.toggle('primary-collapsed', primary == null);
+    root.dataset.primary = primary || '';
+
+    formPanel.hidden = primary !== 'inspector';
+    pagePanel.hidden = primary !== 'page';
+
+    if (primary === 'inspector') {
+      inspectorTitleEl.textContent = INSPECTOR_TITLES[inspectorTab] || 'Inspector';
+      layersPane.hidden = inspectorTab !== 'layers';
+      sectionPane.hidden = inspectorTab !== 'section';
+      metaPane.hidden = inspectorTab !== 'meta';
+    }
+
+    if (primary === 'page') {
+      pageTitleEl.textContent = PAGE_TITLES[pageTab] || 'Page';
+      infoPane.hidden = pageTab !== 'info';
+      historyPane.hidden = pageTab !== 'history';
+    }
+
+    document.querySelectorAll('.rail-toggle[data-primary]').forEach((btn) => {
+      const match =
+        primary === btn.dataset.primary &&
+        ((primary === 'inspector' && btn.dataset.tab === inspectorTab) ||
+          (primary === 'page' && btn.dataset.tab === pageTab));
+      btn.setAttribute('aria-pressed', String(match));
     });
-    layersPane.hidden = formTab !== 'layers';
-    sectionPane.hidden = formTab !== 'section';
-    metaPane.hidden = formTab !== 'meta';
+  }
+
+  function openInspector(tab) {
+    inspectorTab = tab;
+    primary = 'inspector';
+    syncPrimaryChrome();
+  }
+
+  function openPage(tab) {
+    pageTab = tab;
+    primary = 'page';
+    syncPrimaryChrome();
+    if (tab === 'info') refreshInfoPanel();
+    if (tab === 'history') refreshHistoryPanel();
+  }
+
+  function closePrimary() {
+    primary = null;
+    syncPrimaryChrome();
+  }
+
+  function togglePrimary(kind, tab) {
+    if (kind === 'inspector') {
+      if (primary === 'inspector' && inspectorTab === tab) closePrimary();
+      else openInspector(tab);
+      return;
+    }
+    if (kind === 'page') {
+      if (primary === 'page' && pageTab === tab) closePrimary();
+      else openPage(tab);
+    }
+  }
+
+  function formatCommitDate(iso) {
+    if (!iso) return '—';
+    try {
+      return new Intl.DateTimeFormat(undefined, {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      }).format(new Date(iso));
+    } catch {
+      return iso;
+    }
+  }
+
+  function editStatusLabel() {
+    if (dirtyChip?.dataset.state === 'saving') return 'Saving…';
+    if (dirtyChip?.dataset.state === 'error') return 'Save error';
+    return dirty ? 'Unsaved' : 'Saved on cms';
+  }
+
+  async function fetchChangesStatus(force = false) {
+    if (!force && changesCache) return changesCache;
+    try {
+      changesCache = await apiFetch('/api/admin/changes', {
+        errorMessage: 'Could not load publish status',
+      });
+    } catch (err) {
+      changesCache = {
+        configured: false,
+        error: err.message || String(err),
+        aheadBy: 0,
+        pages: [],
+      };
+    }
+    return changesCache;
+  }
+
+  async function fetchHistory(force = false) {
+    if (!force && historyCache) return historyCache;
+    try {
+      historyCache = await apiFetch(`/api/admin/pages/${boot.id}/history`, {
+        errorMessage: 'Could not load history',
+      });
+    } catch (err) {
+      historyCache = {
+        configured: false,
+        error: err.message || String(err),
+        commits: [],
+        lastPublish: null,
+      };
+    }
+    return historyCache;
+  }
+
+  async function refreshInfoPanel() {
+    if (!infoFieldsEl) return;
+    infoFieldsEl.innerHTML = '<p class="hint">Loading…</p>';
+    const [changes, history] = await Promise.all([
+      fetchChangesStatus(true),
+      fetchHistory(false),
+    ]);
+    if (primary !== 'page' || pageTab !== 'info') return;
+
+    const title = draft?.metadata?.title || boot.id;
+    const path = slugPath;
+    const pageChange = (changes.pages || []).find((p) => p.id === boot.id);
+    let publishLabel = 'Unknown';
+    if (!changes.configured) {
+      publishLabel = 'GitHub not configured';
+    } else if ((changes.aheadBy || 0) === 0) {
+      publishLabel = 'In sync with main';
+    } else if (pageChange) {
+      publishLabel = `Pending publish · ${pageChange.change}`;
+    } else {
+      publishLabel = `${changes.aheadBy} commit${changes.aheadBy === 1 ? '' : 's'} ahead (other changes)`;
+    }
+
+    const last = history.lastPublish;
+    const lastHtml = last
+      ? last.htmlUrl
+        ? `<a href="${escapeHtml(last.htmlUrl)}" target="_blank" rel="noopener">${escapeHtml(last.shortSha)}</a> · ${escapeHtml(formatCommitDate(last.date))}`
+        : `${escapeHtml(last.shortSha)} · ${escapeHtml(formatCommitDate(last.date))}`
+      : history.configured === false
+        ? '—'
+        : 'No commits on main yet';
+
+    const mainB = changes.mainBranch || history.mainBranch || 'main';
+    const cmsB = changes.cmsBranch || history.cmsBranch || 'cms';
+
+    infoFieldsEl.innerHTML = `
+      <dl class="info-dl">
+        <div><dt>Page id</dt><dd><code>${escapeHtml(boot.id)}</code></dd></div>
+        <div><dt>Title</dt><dd>${escapeHtml(title)}</dd></div>
+        <div><dt>Path</dt><dd><code>${escapeHtml(path)}</code></dd></div>
+        <div><dt>Live URL</dt><dd><a href="${escapeHtml(liveUrl)}" target="_blank" rel="noopener">${escapeHtml(liveUrl)}</a></dd></div>
+        <div><dt>Edit status</dt><dd id="info-edit-status">${escapeHtml(editStatusLabel())}</dd></div>
+        <div><dt>Publish status</dt><dd>${escapeHtml(publishLabel)}</dd></div>
+        <div><dt>Last on main</dt><dd>${lastHtml}</dd></div>
+        <div><dt>Branches</dt><dd><code>${escapeHtml(cmsB)}</code> → <code>${escapeHtml(mainB)}</code></dd></div>
+      </dl>
+      <p class="info-actions">
+        <a class="open-live" href="/admin/changes">Review &amp; publish</a>
+      </p>
+    `;
+  }
+
+  function syncInfoEditStatus() {
+    const el = document.getElementById('info-edit-status');
+    if (el) el.textContent = editStatusLabel();
+  }
+
+  async function refreshHistoryPanel(force = false) {
+    if (!historyFieldsEl) return;
+    historyFieldsEl.innerHTML = '<p class="hint">Loading…</p>';
+    const data = await fetchHistory(force);
+    if (primary !== 'page' || pageTab !== 'history') return;
+
+    if (!data.configured) {
+      historyFieldsEl.innerHTML = `<p class="hint">${escapeHtml(data.error || 'GitHub is not configured. Set GITHUB_TOKEN and GITHUB_REPO to see commit history.')}</p>`;
+      return;
+    }
+
+    const commits = data.commits || [];
+    if (!commits.length) {
+      historyFieldsEl.innerHTML = '<p class="hint">No commits touch pages.json on the cms branch yet.</p>';
+      return;
+    }
+
+    const needle = `cms: update ${boot.id}`;
+    historyFieldsEl.innerHTML = `
+      <p class="hint history-path">Commits touching <code>${escapeHtml(data.path || 'src/content/pages.json')}</code> on <code>${escapeHtml(data.cmsBranch || 'cms')}</code></p>
+      <ul class="commit-list">
+        ${commits
+          .map((c) => {
+            const forPage = (c.message || '').includes(needle);
+            const msg = escapeHtml(c.message || '(no message)');
+            const meta = [
+              escapeHtml(c.shortSha || ''),
+              escapeHtml(formatCommitDate(c.date)),
+              c.author ? escapeHtml(c.author) : null,
+            ]
+              .filter(Boolean)
+              .join(' · ');
+            const body = c.htmlUrl
+              ? `<a href="${escapeHtml(c.htmlUrl)}" target="_blank" rel="noopener" class="commit-msg">${msg}</a>`
+              : `<span class="commit-msg">${msg}</span>`;
+            return `<li class="commit-row${forPage ? ' is-page' : ''}">${body}<div class="commit-meta">${meta}${forPage ? ' <span class="commit-badge">this page</span>' : ''}</div></li>`;
+          })
+          .join('')}
+      </ul>
+    `;
   }
 
   function setDevice(mode) {
@@ -1304,10 +1547,10 @@ export function bootEditor() {
     });
   }
 
-  document.getElementById('toggle-form').addEventListener('click', () => {
-    root.classList.toggle('form-collapsed');
-    const open = !root.classList.contains('form-collapsed');
-    document.getElementById('toggle-form').setAttribute('aria-pressed', String(open));
+  document.querySelectorAll('.rail-toggle[data-primary]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      togglePrimary(btn.dataset.primary, btn.dataset.tab);
+    });
   });
 
   document.getElementById('toggle-agent')?.addEventListener('click', () => {
@@ -1316,13 +1559,6 @@ export function bootEditor() {
 
   document.querySelectorAll('.devices [data-device]').forEach((btn) => {
     btn.addEventListener('click', () => setDevice(btn.dataset.device));
-  });
-
-  document.querySelectorAll('.form-tabs [data-tab]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      formTab = btn.dataset.tab;
-      syncFormTabs();
-    });
   });
 
   document.getElementById('add-section').addEventListener('click', () => {
@@ -1357,10 +1593,14 @@ export function bootEditor() {
       dirty = false;
       undoStack.length = 0;
       redoStack.length = 0;
+      historyCache = null;
+      changesCache = null;
       refreshChromeState('saved');
       const branch = data.branch || 'cms';
       setStatus(`Saved to ${branch} · ${data.mode} · ${data.commit} · Publish from Changes`, 'ok');
       reloadPreview(selectedSection);
+      if (primary === 'page' && pageTab === 'info') refreshInfoPane();
+      if (primary === 'page' && pageTab === 'history') refreshHistoryPanel(true);
     } catch (err) {
       refreshChromeState('error');
       setStatus(err.message || String(err), 'error');
@@ -1453,6 +1693,7 @@ export function bootEditor() {
   renderSections();
   renderSectionFields(0);
   setDevice('full');
+  syncPrimaryChrome();
   refreshChromeState('saved');
   syncHistoryButtons();
 
@@ -1489,7 +1730,7 @@ export function bootEditor() {
   function setAgentOpen(open) {
     const panel = document.getElementById('agent-panel');
     const btn = document.getElementById('toggle-agent');
-    if (!panel || !btn || btn.hidden) return;
+    if (!panel || !btn || btn.closest('#agent-rail-group')?.hidden) return;
     root.classList.toggle('agent-open', open);
     btn.setAttribute('aria-pressed', String(open));
     window.dispatchEvent(new CustomEvent('tb-agent-open', { detail: { open } }));
@@ -1497,9 +1738,10 @@ export function bootEditor() {
 
   window.__tbEditorChrome = {
     enableAgentToggle() {
+      const group = document.getElementById('agent-rail-group');
       const btn = document.getElementById('toggle-agent');
-      if (!btn) return;
-      btn.hidden = false;
+      if (group) group.hidden = false;
+      if (btn) btn.hidden = false;
     },
     setAgentOpen,
     isAgentOpen() {

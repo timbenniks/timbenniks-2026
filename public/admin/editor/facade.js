@@ -299,12 +299,16 @@ export function createVisualEditorFacade(s) {
         errorMessage: 'Cloudinary search failed',
       });
       const n = data.assets?.length ?? 0;
+      const metaNote =
+        data.metadata?.used && data.metadata?.terms?.length
+          ? ` (metadata: ${data.metadata.terms.slice(0, 5).join(', ')})`
+          : '';
       const visionNote = data.vision?.used
         ? ` (vision-ranked from ${data.vision.candidates} thumbs)`
         : data.vision?.error
-          ? ` (vision skipped: ${data.vision.error})`
+          ? ` (${data.vision.error})`
           : '';
-      s.setStatus(`Found ${n} Cloudinary images${visionNote}`, 'ok');
+      s.setStatus(`Found ${n} Cloudinary images${metaNote}${visionNote}`, 'ok');
       return data;
     },
     async getImageLibraryConfig() {

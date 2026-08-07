@@ -172,7 +172,15 @@ function appendQueryAndFilters(
 ): void {
   const q = query.trim().replace(/"/g, '');
   if (q) {
-    parts.push(`(public_id:${q}* OR filename:${q}* OR tags:${q} OR context:${q})`);
+    // Multi-word → OR of per-term matches across tags, contextual title/description,
+    // filename, and public_id. Single token keeps a tighter clause.
+    const terms = tokenizeSearchTerms(q);
+    if (terms.length <= 1) {
+      const t = terms[0] || q.toLowerCase();
+      parts.push(termMatchClause(t));
+    } else {
+      parts.push(`(${terms.map(termMatchClause).join(' OR ')})`);
+    }
   }
 
   const orientation = filters.orientation;
@@ -197,6 +205,74 @@ function appendQueryAndFilters(
     const t = String(tag).trim().replace(/"/g, '');
     if (t) parts.push(`tags="${t}"`);
   }
+}
+
+/** Tokenize a free-text search into Cloudinary-friendly terms (no stopwords). */
+export function tokenizeSearchTerms(text: string): string[] {
+  const stop = new Set([
+    'a',
+    'an',
+    'the',
+    'of',
+    'on',
+    'at',
+    'in',
+    'to',
+    'for',
+    'and',
+    'or',
+    'with',
+    'my',
+    'me',
+    'i',
+    'am',
+    'is',
+    'are',
+    'photo',
+    'photos',
+    'image',
+    'images',
+    'picture',
+    'pic',
+    'shot',
+    'showing',
+    'show',
+    'find',
+    'looking',
+    'like',
+    'someone',
+    'person',
+    'people',
+    'please',
+    'want',
+    'need',
+    'use',
+    'set',
+    'hero',
+  ]);
+  const raw = text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-_]/g, ' ')
+    .split(/\s+/)
+    .map((t) => t.trim())
+    .filter((t) => t.length >= 2 && !stop.has(t));
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const t of raw) {
+    if (seen.has(t)) continue;
+    seen.add(t);
+    out.push(t);
+    if (out.length >= 12) break;
+  }
+  return out;
+}
+
+/** Match one term against tags, contextual title/description, filename, public_id. */
+export function termMatchClause(term: string): string {
+  const safe = term.replace(/[^a-z0-9_-]/gi, '').toLowerCase();
+  if (!safe) return 'public_id:*';
+  // Title = context.caption, Description = context.alt in Cloudinary Media Library.
+  return `(tags:${safe} OR context:${safe} OR context.caption:${safe} OR context.alt:${safe} OR filename:${safe}* OR public_id:${safe}*)`;
 }
 
 export function orientationFromSize(

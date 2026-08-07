@@ -13,10 +13,11 @@ Rules:
 - Match Tim's voice: clear, concrete, no corporate fluff, short sentences.
 - Do NOT call save_to_cms unless the human explicitly asks to save.
 - For images: call get_image_library_config once if unsure, then search_images. After search_images, tell the human to click Use on a thumbnail — do NOT call set_image unless they ask you to pick for them.
-- For scene/content searches ALWAYS pass describe and OMIT folder (searches website + Tim + Presskit). Do not lock to one folder unless the human names it. Do not pass maxResults below 6 for describe searches.
-- orientation is a preference only with describe (server applies it softly). If assets is empty with vision.emptyMatches, say so — do not invent an image.
+- For scene/content searches pass describe (or query) with natural language / keywords. Assets are tagged with title + description in Cloudinary — metadata search is enough. OMIT folder unless the human names one.
+- Do NOT pass vision:true unless metadata results are empty or clearly wrong. Vision is a slow fallback, not the default.
+- orientation is a soft preference when describe/query is multi-word. If assets is empty, say so — do not invent an image.
 - Never invent Cloudinary URLs. Never search outside the configured folders.
-- When proposing an image to the human, include it as markdown: ![short label](https://res.cloudinary.com/...). The chat UI renders that as a thumbnail.
+- When proposing an image to the human, include it as markdown: ![short label](https://res.cloudinary.com/...). Prefer the asset title or description as the label when present. The chat UI renders that as a thumbnail.
 - After structural changes, briefly say what changed so the human can look at the preview.
 - Keep tool args valid JSON. Paths like sections.0.headline.lead or relative headline.lead with sectionIndex.`;
 
@@ -129,16 +130,18 @@ function toolDefsFromWebMcp() {
     ],
     [
       'search_images',
-      'Search Cloudinary. For scenes use describe and OMIT folder (searches whole allowlist). orientation is soft with describe.',
+      'Search Cloudinary by tags, title, and description. Pass describe or query; use vision:true only as a fallback. Omit folder unless named.',
       {
-        query: { type: 'string', description: 'Filename/tag keyword (optional with describe)' },
+        query: { type: 'string', description: 'Keywords (tags/title/description/filename)' },
         describe: {
           type: 'string',
-          description: 'Natural-language scene, e.g. Tim speaking on stage at a conference',
+          description:
+            'Natural-language scene, e.g. Tim speaking on stage — matched against tags + Media Library title/description',
         },
         vision: {
           type: 'boolean',
-          description: 'If true, treat query as describe instead of a filename keyword',
+          description:
+            'Optional. If true, also vision-rank a shortlist. Prefer metadata-only first; only set when metadata fails.',
         },
         folder: {
           type: 'string',
@@ -392,13 +395,16 @@ function appendImageResults(log, result) {
   const target = api?.resolveImageTarget?.() || api?.getState?.()?.imageTarget || null;
   const wrap = el('div', { className: 'tb-agent-msg tool tb-agent-gallery-wrap' });
   const visionBits = [];
+  if (result?.metadata?.used && result.metadata?.terms?.length) {
+    visionBits.push(`tags/title · ${result.metadata.terms.slice(0, 4).join(' ')}`);
+  }
   if (result?.vision?.used) {
     visionBits.push(`vision · ${result.vision.candidates || '?'} thumbs`);
     if (result.vision.widened) visionBits.push('widened to all folders');
     if (result.vision.emptyMatches) visionBits.push('no confident match');
     if (result.vision.softOrientation) visionBits.push(`prefer ${result.vision.softOrientation}`);
   } else if (result?.vision?.error) {
-    visionBits.push('vision failed — metadata only');
+    visionBits.push(String(result.vision.error).slice(0, 80));
   }
   if (result?.describe) visionBits.push(`“${String(result.describe).slice(0, 60)}”`);
 
@@ -445,16 +451,23 @@ function appendImageResults(log, result) {
   for (const asset of assets.slice(0, 12)) {
     const url = asset.secureUrl;
     if (!url || !isSafeImageUrl(url)) continue;
+    const displayName = asset.title || asset.filename || asset.publicId || 'Image';
     const card = el('div', {
       className: 'tb-agent-thumb',
-      title: [asset.publicId || asset.filename || 'Image', asset.visionReason || '']
+      title: [
+        displayName,
+        asset.description || '',
+        asset.metadataReason || '',
+        asset.visionReason || '',
+        (asset.tags || []).slice(0, 6).join(', '),
+      ]
         .filter(Boolean)
         .join(' — '),
     });
     card.append(
       el('img', {
         src: cloudinaryThumb(url, 240),
-        alt: asset.filename || asset.publicId || 'Image',
+        alt: asset.description || asset.title || asset.filename || asset.publicId || 'Image',
         loading: 'lazy',
         referrerpolicy: 'no-referrer',
       }),
@@ -462,10 +475,14 @@ function appendImageResults(log, result) {
     const label = el('span', {
       className: 'tb-agent-thumb-label',
       text: [
-        typeof asset.visionScore === 'number' ? `${Math.round(asset.visionScore * 100)}%` : '',
+        typeof asset.visionScore === 'number'
+          ? `${Math.round(asset.visionScore * 100)}%`
+          : typeof asset.metadataScore === 'number' && asset.metadataScore > 0
+            ? `★${asset.metadataScore}`
+            : '',
         asset.orientation || '',
-        asset.width && asset.height ? `${asset.width}×${asset.height}` : '',
-        asset.filename || asset.publicId || '',
+        (asset.tags || []).slice(0, 2).join(' ') || '',
+        displayName,
       ]
         .filter(Boolean)
         .join(' · '),
@@ -507,6 +524,8 @@ function appendImageResults(log, result) {
       useBtn.textContent = '…';
       try {
         const alt =
+          asset.description ||
+          asset.title ||
           asset.visionReason ||
           asset.filename ||
           asset.publicId ||
@@ -528,7 +547,7 @@ function appendImageResults(log, result) {
         appendBubble(
           log,
           'tool',
-          `↳ you chose ${asset.filename || asset.publicId} → ${applied.path || liveTarget.path}`,
+          `↳ you chose ${displayName} → ${applied.path || liveTarget.path}`,
         );
       } catch (err) {
         status.hidden = false;

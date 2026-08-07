@@ -322,24 +322,23 @@ function buildTools() {
     {
       name: 'search_images',
       description:
-        'Search Tim’s Cloudinary library within allowed folders. For “what’s in the photo” queries use describe (OpenAI vision on tiny thumbs). Returns publicId, secureUrl, width, height, orientation, tags; vision adds visionScore/visionReason.',
+        'Search Tim’s Cloudinary library within allowed folders. Matches tags + Media Library Title/Description (and filename). Pass describe or query for scenes. Set vision:true only as a fallback to rank tiny thumbs. Returns publicId, secureUrl, title, description, tags, metadataScore; vision adds visionScore/visionReason.',
       inputSchema: {
         type: 'object',
         properties: {
           query: {
             type: 'string',
-            description:
-              'Filename/public_id/tag keyword. Leave empty with describe to list recent scoped images then vision-rank.',
+            description: 'Keywords matched against tags, title, description, filename, public_id.',
           },
           describe: {
             type: 'string',
             description:
-              'Natural-language scene, e.g. "Tim on stage at a conference". Triggers vision rerank of a shortlist (~16 tiny thumbs).',
+              'Natural-language scene, e.g. "Tim on stage at a conference". Searches tags + title + description (no vision unless vision:true).',
           },
           vision: {
             type: 'boolean',
             description:
-              'If true and query is a scene description, treat query as describe (no filename search). Prefer explicit describe.',
+              'Optional fallback. If true, also vision-rank a metadata shortlist. Prefer metadata-only first.',
           },
           folder: {
             type: 'string',
