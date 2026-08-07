@@ -1,9 +1,19 @@
-/** Cloudinary Admin search orchestration (Browse / Agent). */
+/**
+ * Agent / WebMCP Cloudinary search — metadata ranking + optional vision.
+ * DAM browse/listing lives in cloudinary-browse.ts (no widen/vision heuristics).
+ */
 
+import { runCloudinaryBrowse } from './cloudinary-browse';
+import {
+  cloudinarySearch,
+  mapResources,
+  type MappedAsset,
+  type SearchResult,
+} from './cloudinary-http';
+import { publicScope } from './cloudinary-public';
 import {
   buildSearchExpression,
   getCloudinarySearchScope,
-  orientationFromSize,
   resolveSearchFolder,
   tokenizeSearchTerms,
   type CloudinarySearchFilters,
@@ -14,8 +24,11 @@ import {
   rankAssetsByVision,
   visionCandidateCap,
   visionHintTerms,
-  visionModel,
 } from './cloudinary-vision';
+
+export type { MappedAsset, SearchResult } from './cloudinary-http';
+export { publicScope } from './cloudinary-public';
+export { runCloudinaryBrowse } from './cloudinary-browse';
 
 export type SearchBody = {
   query?: string;
@@ -23,6 +36,11 @@ export type SearchBody = {
   describe?: string;
   /** If true, also rank a shortlist with OpenAI vision (optional; metadata is default). */
   vision?: boolean;
+  /**
+   * Pure library listing (DAM / Media picker empty search).
+   * Skips metadata relevance filtering; paginates by created_at.
+   */
+  browse?: boolean;
   folder?: string;
   maxResults?: number;
   nextCursor?: string;
@@ -33,26 +51,6 @@ export type SearchBody = {
   maxHeight?: number;
   format?: string;
   tags?: string[];
-};
-
-export type MappedAsset = {
-  publicId: string;
-  secureUrl: string;
-  width?: number;
-  height?: number;
-  aspectRatio: number | null;
-  orientation: 'portrait' | 'landscape' | 'square' | null;
-  format: string;
-  bytes?: number;
-  folder: string;
-  filename: string;
-  tags: string[];
-  /** Cloudinary Media Library Title (context.caption). */
-  title: string | null;
-  /** Cloudinary Media Library Description (context.alt). */
-  description: string | null;
-  context: Record<string, string>;
-  createdAt: unknown;
 };
 
 export type ScoredAsset = MappedAsset & {
@@ -80,119 +78,10 @@ export type MetadataMeta = {
   searchText: string | null;
 };
 
-export type SearchResult = {
-  status: number;
-  body: Record<string, unknown>;
-};
-
-export function basicAuth(apiKey: string, apiSecret: string): string {
-  return `Basic ${Buffer.from(`${apiKey}:${apiSecret}`).toString('base64')}`;
-}
-
-function asContextMap(raw: unknown): Record<string, string> {
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
-  const out: Record<string, string> = {};
-  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
-    if (v == null) continue;
-    out[k] = String(v);
-  }
-  return out;
-}
-
-export function mapResources(resources: Array<Record<string, unknown>> | undefined): MappedAsset[] {
-  return (resources || []).map((r) => {
-    const publicId = String(r.public_id || '');
-    const width = typeof r.width === 'number' ? r.width : undefined;
-    const height = typeof r.height === 'number' ? r.height : undefined;
-    const aspectRatio =
-      typeof r.aspect_ratio === 'number'
-        ? r.aspect_ratio
-        : width && height
-          ? Math.round((width / height) * 1000) / 1000
-          : null;
-    const context = asContextMap(r.context);
-    const title = context.caption?.trim() || context.title?.trim() || null;
-    const description = context.alt?.trim() || context.description?.trim() || null;
-    return {
-      publicId,
-      secureUrl: String(r.secure_url || r.url || ''),
-      width,
-      height,
-      aspectRatio,
-      orientation: orientationFromSize(width, height),
-      format: r.format ? String(r.format) : '',
-      bytes: typeof r.bytes === 'number' ? r.bytes : undefined,
-      folder:
-        typeof r.folder === 'string'
-          ? r.folder
-          : publicId.includes('/')
-            ? publicId.split('/').slice(0, -1).join('/')
-            : '',
-      filename: publicId.split('/').pop() || publicId,
-      tags: Array.isArray(r.tags) ? r.tags.map(String) : [],
-      title,
-      description,
-      context,
-      createdAt: r.created_at || null,
-    };
-  });
-}
-
-export async function cloudinarySearch(
-  cloudName: string,
-  apiKey: string,
-  apiSecret: string,
-  payload: Record<string, unknown>,
-): Promise<{
-  ok: boolean;
-  status: number;
-  data: {
-    resources?: Array<Record<string, unknown>>;
-    next_cursor?: string;
-    total_count?: number;
-    error?: { message?: string };
-  };
-  rawText: string;
-}> {
-  let res: Response;
-  try {
-    res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/resources/search`, {
-      method: 'POST',
-      headers: {
-        Authorization: basicAuth(apiKey, apiSecret),
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-  } catch (err) {
-    return {
-      ok: false,
-      status: 502,
-      data: { error: { message: err instanceof Error ? err.message : String(err) } },
-      rawText: '',
-    };
-  }
-  const rawText = await res.text();
-  let data: {
-    resources?: Array<Record<string, unknown>>;
-    next_cursor?: string;
-    total_count?: number;
-    error?: { message?: string };
-  } = {};
-  try {
-    data = rawText ? JSON.parse(rawText) : {};
-  } catch {
-    return {
-      ok: false,
-      status: 502,
-      data: { error: { message: rawText.slice(0, 400) } },
-      rawText,
-    };
-  }
-  return { ok: res.ok, status: res.status, data, rawText };
-}
-
-/** OR-clause so hint terms surface named assets into a shortlist. */
+/**
+ * OR-clause so hint terms surface named assets into a vision shortlist.
+ * Includes Tim-specific filename/tag boosts for this personal library (agent-only).
+ */
 export function hintOrClause(terms: string[], folders: string[]): string | null {
   if (!terms.length) return null;
   const parts: string[] = [];
@@ -236,7 +125,7 @@ export function hintOrClause(terms: string[], folders: string[]): string | null 
   return `(${parts.join(' OR ')})`;
 }
 
-/** Strong scene keywords — used even when the describe text is vague. */
+/** Scene keywords for vision shortlist widening (agent-only). */
 export const SCENE_SEED_TERMS = [
   'speaking',
   'stage',
@@ -252,39 +141,6 @@ export const SCENE_SEED_TERMS = [
 export function personPhotoFolders(folders: string[]): string[] {
   const preferred = folders.filter((f) => /^(tim|presskit)$/i.test(f));
   return preferred.length ? preferred : folders;
-}
-
-export function publicScope() {
-  const scope = getCloudinarySearchScope();
-  return {
-    enabled: Boolean(scope.cloudName && scope.apiKey && scope.apiSecret),
-    cloudName: scope.cloudName || null,
-    needsSecret: !scope.apiSecret,
-    folders: scope.folders,
-    defaultFolder: scope.defaultFolder,
-    searchesAllFoldersByDefault: scope.defaultFolder == null,
-    tags: scope.tags,
-    prefix: scope.prefix || null,
-    maxResultsDefault: scope.maxResultsDefault,
-    filters: {
-      orientation: ['portrait', 'landscape', 'square'],
-      minWidth: 'number',
-      maxWidth: 'number',
-      minHeight: 'number',
-      maxHeight: 'number',
-      format: 'png|jpg|webp|…',
-      tags: 'string[]',
-    },
-    metadata: {
-      note: 'Search uses tags + Media Library Title (context.caption) + Description (context.alt). Prefer describe/query; set vision:true only as a fallback.',
-    },
-    vision: {
-      enabled: Boolean(openaiKey()),
-      model: visionModel(),
-      maxCandidates: visionCandidateCap(),
-      note: 'Optional. Pass vision:true to rerank a metadata shortlist with OpenAI vision on tiny thumbs.',
-    },
-  };
 }
 
 export function parseFilters(body: SearchBody): CloudinarySearchFilters {
@@ -382,7 +238,6 @@ export function rankByMetadata(assets: MappedAsset[], terms: string[]): ScoredAs
     return bt.localeCompare(at);
   });
 
-  // Prefer assets that actually matched; keep zero-score fillers only if nothing hit.
   const matched = scored.filter((a) => (a.metadataScore || 0) > 0);
   return matched.length ? matched : scored;
 }
@@ -394,7 +249,7 @@ type CollectParams = {
   cloudFilters: CloudinarySearchFilters;
   fetchSize: number;
   nextCursor?: string | undefined;
-  /** When true, also pull scene-hint + photo-folder shortlists (for vision fallback). */
+  /** When true, also pull scene-hint + photo-folder shortlists (vision fallback only). */
   widenForVision?: boolean;
 };
 
@@ -510,7 +365,10 @@ function preferOrientation(
   return [...pref, ...rest].slice(0, resultLimit);
 }
 
-/** Run Admin Cloudinary search; returns HTTP status + JSON body (auth checked by route). */
+/**
+ * Run Admin Cloudinary search for the Agent / metadata queries.
+ * Empty / browse requests delegate to runCloudinaryBrowse (no agent heuristics).
+ */
 export async function runCloudinarySearch(body: SearchBody): Promise<SearchResult> {
   const scope = getCloudinarySearchScope();
   if (!scope.cloudName || !scope.apiKey || !scope.apiSecret) {
@@ -528,13 +386,23 @@ export async function runCloudinarySearch(body: SearchBody): Promise<SearchResul
   const rawQuery = typeof body.query === 'string' ? body.query.trim() : '';
   const describeRaw = typeof body.describe === 'string' ? body.describe.trim() : '';
   const wantVision = body.vision === true;
+  const wantBrowse = body.browse === true || (!rawQuery && !describeRaw && !wantVision);
 
-  // Natural language + keywords both feed metadata search (tags / title / description).
+  if (wantBrowse) {
+    return runCloudinaryBrowse({
+      folder: typeof body.folder === 'string' ? body.folder : undefined,
+      maxResults: body.maxResults,
+      nextCursor: body.nextCursor,
+      filters: parseFilters(body),
+    });
+  }
+
   const searchText = [describeRaw, rawQuery].filter(Boolean).join(' ').trim();
 
   const folderRes = resolveSearchFolder(
     typeof body.folder === 'string' ? body.folder : undefined,
     scope,
+    { preferDefault: true },
   );
   if (folderRes.error) {
     return { status: 400, body: { error: folderRes.error, ...publicScope() } };
@@ -552,7 +420,6 @@ export async function runCloudinarySearch(body: SearchBody): Promise<SearchResul
   }
 
   const filters = parseFilters(body);
-  // Soft orientation when we have free-text so we don't drop good tagged portraits early.
   const softOrientation =
     describeRaw || tokenizeSearchTerms(searchText).length > 1 ? filters.orientation : undefined;
   const cloudFilters: CloudinarySearchFilters =
@@ -593,7 +460,6 @@ export async function runCloudinarySearch(body: SearchBody): Promise<SearchResul
     };
   }
 
-  // If metadata query returned little and a single folder was locked, widen once.
   let widened = false;
   if (searchText && folderUsed && collected.assets.length < 8 && scope.folders.length > 1) {
     const wider = await collect(null, wantVision);
@@ -656,7 +522,6 @@ export async function runCloudinarySearch(body: SearchBody): Promise<SearchResul
         assets = preferOrientation(ranked.assets, softOrientation, resultLimit);
         visionMeta.emptyMatches = false;
       } else {
-        // Fall back to metadata ranking rather than returning empty.
         assets = preferOrientation(
           rankByMetadata(collected.assets, terms),
           softOrientation,
@@ -701,6 +566,7 @@ export async function runCloudinarySearch(body: SearchBody): Promise<SearchResul
         ...filters,
         ...(softOrientation ? { orientationApplied: 'soft' } : {}),
       },
+      browse: false,
       describe: describeRaw || null,
       query: rawQuery || null,
       metadata: metadataMeta,

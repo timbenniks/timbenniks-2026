@@ -1,4 +1,6 @@
-/** Rank Cloudinary assets with OpenAI vision on tiny thumbs (demo / agent search). */
+/** Rank Cloudinary assets with OpenAI vision on tiny thumbs (agent search fallback). */
+
+import { env } from './cloudinary-scope';
 
 export type VisionRankableAsset = {
   publicId: string;
@@ -10,17 +12,6 @@ export type VisionRankedAsset = VisionRankableAsset & {
   visionScore: number;
   visionReason: string;
 };
-
-function env(name: string): string {
-  const fromProcess = process.env[name]?.trim() || '';
-  if (fromProcess) return fromProcess;
-  try {
-    const meta = (import.meta as { env?: Record<string, unknown> }).env;
-    return String(meta?.[name] || '').trim();
-  } catch {
-    return '';
-  }
-}
 
 export function openaiKey(): string {
   return env('OPENAI_API_KEY');

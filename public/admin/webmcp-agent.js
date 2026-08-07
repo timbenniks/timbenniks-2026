@@ -3,6 +3,8 @@
  * Talks to /api/admin/webmcp/chat; tools run via __tbVisualEditor.
  */
 
+import { deliveryThumbUrl } from './lib/cloudinary-url.js';
+
 const SYSTEM_PROMPT = `You are co-editing Tim Benniks' marketing site in a live visual editor.
 
 Rules:
@@ -316,9 +318,7 @@ function isSafeImageUrl(url) {
 }
 
 function cloudinaryThumb(url, width = 320) {
-  if (!url.includes('res.cloudinary.com') || !url.includes('/upload/')) return url;
-  // Insert a lightweight transform after /upload/
-  return url.replace('/upload/', `/upload/c_limit,w_${width},f_auto,q_auto/`);
+  return deliveryThumbUrl(url, width, '', 'limit');
 }
 
 function createUi(mount) {

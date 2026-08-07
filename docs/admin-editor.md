@@ -79,13 +79,15 @@ Right **activity rail** (top → bottom):
 
 1. **Inspector** — Layers / Section / Meta (same sidebar; click again to close)
 2. **Page** — Info / History (replaces Inspector; mutually exclusive)
-3. **Agent** — stacks beside the open primary panel (when `OPENAI_API_KEY` is set)
-4. Exit links — Pages / Site chrome / Changes
+3. **Media** — Cloudinary library (browse, upload, enrich tags/title/description; insert into focused image field)
+4. **Agent** — stacks beside the open primary panel (when `OPENAI_API_KEY` is set)
+5. Exit links — Pages / Site chrome / Media desk / Changes
 
 - **Preview** (center): real site in an iframe (`?edit=1`); device toggles (Desktop / Mobile / Full)
 - **Inspector:** Layers (section list, reorder / duplicate / delete / add), Section fields, Meta for SEO
 - **Info:** page id, path, live URL, edit/publish status, last commit on main, branch names
 - **History:** recent commits touching `pages.json` on the `cms` branch (highlights `cms: update <pageId>`)
+- **Media:** full allowlisted library (All folders by default), search, upload, metadata edit — not limited to images already on the page. **Desk** opens `/admin/media`
 - Top bar: undo/redo, status chip, Changes link, **Save**
 
 Selecting a block in the preview opens Inspector → Section.
@@ -104,7 +106,17 @@ Selecting a block in the preview opens Inspector → Section.
 
 Structural/query edits push an in-memory preview draft and reload the iframe (avoids Vite wiping the editor). **Save** persists to GitHub `cms`. **Publish** is only on the Changes desk.
 
-Image URL fields open the **Cloudinary Media Library** via Browse Cloudinary (`PUBLIC_CLOUDINARY_CLOUD_NAME` + `PUBLIC_CLOUDINARY_API_KEY`).
+Image URL fields use the in-admin **Media** picker (**Browse**) — same allowlisted Admin Search scope as the Agent (`CLOUDINARY_SEARCH_FOLDERS` + `CLOUDINARY_API_SECRET`). Empty search **browses all allowlisted folders** (not only `CLOUDINARY_SEARCH_FOLDER`). Uploads and metadata edits go through signed/scoped APIs only.
+
+Standalone DAM: **`/admin/media`** (Workspace → Media) — same picker UI for library management without a page context.
+
+Media APIs (auth-gated):
+
+| Route | Role |
+|---|---|
+| `POST /api/admin/cloudinary/search` | Browse (`browse:true` / empty query) or Agent metadata/vision search; `folder: "all"` for every allowlisted folder |
+| `POST /api/admin/cloudinary/sign` | Signed upload params into an allowlisted folder |
+| `POST /api/admin/cloudinary/update` | Update tags + title (`context.caption`) + description (`context.alt`) |
 
 ## WebMCP (browser agents)
 
@@ -122,14 +134,14 @@ The page editor registers WebMCP tools so Chrome’s Model Context Tool Inspecto
 | `OPENAI_API_KEY` | Optional. Enables the in-editor Agent sidebar (WebMCP tool chat) |
 | `OPENAI_WEBMCP_MODEL` | Optional. Chat model, default `gpt-4.1` |
 | `OPENAI_WEBMCP_VISION_MODEL` | Optional. Vision rank when `search_images` passes `vision:true` (default: chat model or `gpt-4o`) |
-| `CLOUDINARY_API_SECRET` | Optional. Enables Agent `search_images` / Admin Cloudinary search |
+| `CLOUDINARY_API_SECRET` | **Required for Media + Agent images.** Server-only; enables search, signed upload, metadata update |
 | `CLOUDINARY_SEARCH_FOLDERS` | Comma-separated folder allowlist (default `website`) |
 | `CLOUDINARY_SEARCH_FOLDER` | Default folder when agent omits one; `*` / `all` / omit = all allowlisted folders |
 | `CLOUDINARY_SEARCH_TAGS` | Optional required tags |
 | `CLOUDINARY_SEARCH_PREFIX` | Optional public_id prefix |
 | `CLOUDINARY_VISION_CANDIDATES` | Optional. Max thumbs for vision fallback (default `20`) |
-| `PUBLIC_CLOUDINARY_CLOUD_NAME` | Cloudinary cloud for Browse + Agent |
-| `PUBLIC_CLOUDINARY_API_KEY` | Cloudinary API key for Browse + Agent |
+| `PUBLIC_CLOUDINARY_CLOUD_NAME` | Cloudinary cloud for delivery + Admin Media |
+| `PUBLIC_CLOUDINARY_API_KEY` | Cloudinary API key (used server-side with the secret for Admin APIs) |
 | `TB_EDIT_MODE` | Optional. `1`/`true` stamps `data-edit` / `data-section` on **all** pages for that build (debugging). Leave unset on production — public HTML stays clean. `/admin/preview/*` always gets edit markup so the visual editor works without this flag. |
 | `PUBLIC_TB_EDIT_MODE` | Same as `TB_EDIT_MODE` (either works) |
 | `TB_PREVIEW_DURABLE` | Optional. Set `1` locally to force the Vercel preview path (write preview drafts to the durable cms artifact) |

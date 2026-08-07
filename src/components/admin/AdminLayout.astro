@@ -3,7 +3,7 @@ import { isDevAuthBypass } from '../../lib/admin/auth';
 
 interface Props {
   title: string;
-  active: 'pages' | 'site' | 'changes';
+  active: 'pages' | 'site' | 'media' | 'changes';
   /** Optional label under Changes nav (e.g. cms → main). */
   changesDesc?: string;
 }
@@ -43,6 +43,10 @@ const { title, active, changesDesc = 'Review & publish' } = Astro.props;
         <a class={active === 'site' ? 'active' : undefined} href="/admin/site">
           Site chrome
           <span class="desc">Nav &amp; footer</span>
+        </a>
+        <a class={active === 'media' ? 'active' : undefined} href="/admin/media">
+          Media
+          <span class="desc">Cloudinary library</span>
         </a>
         <a class={active === 'changes' ? 'active' : undefined} href="/admin/changes">
           Changes

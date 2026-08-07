@@ -93,12 +93,14 @@ Browse Cloudinary in the form UI is a human widget. The Agent uses the Admin Sea
 | `CLOUDINARY_SEARCH_PREFIX` | Optional `public_id` prefix | — |
 | `CLOUDINARY_SEARCH_EXPRESSION` | Advanced: full base expression override | — |
 | `CLOUDINARY_SEARCH_MAX_RESULTS` | Default page size | `12` |
-| `CLOUDINARY_API_SECRET` | Required for Agent search | — |
+| `CLOUDINARY_API_SECRET` | Required for Agent search + Media DAM | — |
 
 Example `.env`:
 
 ```bash
 CLOUDINARY_API_SECRET=...
+PUBLIC_CLOUDINARY_CLOUD_NAME=...
+PUBLIC_CLOUDINARY_API_KEY=...
 CLOUDINARY_SEARCH_FOLDERS=website,Tim,Presskit
 CLOUDINARY_SEARCH_FOLDER=*
 # optional single default instead:
@@ -109,6 +111,8 @@ CLOUDINARY_SEARCH_FOLDER=*
 ```
 
 The agent cannot escape the allowlist (`folder=everything` → 400). Tools: `get_image_library_config`, `search_images`, `set_image`.
+
+Humans use the same allowlist via the editor **Media** rail, field **Browse** modal, and the standalone **`/admin/media`** desk (upload + metadata enrich). DAM browse is a thin listing path (no agent widen/vision heuristics). Agent `search_images` still prefers `CLOUDINARY_SEARCH_FOLDER` when set and folder is omitted; the Media UI defaults to **All folders**.
 
 After `search_images`, the Agent rail shows a thumbnail gallery. **Click Use** (or the card) to apply that asset to the selected section’s image field. **Open** previews the full Cloudinary URL. The agent is instructed to ask you to click rather than auto-applying.
 

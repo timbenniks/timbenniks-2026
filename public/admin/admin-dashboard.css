@@ -121,6 +121,13 @@ body.dash {
   grid-template-columns: var(--nav-w) minmax(0, 1fr);
   min-height: 0;
 }
+body.dash:has(.media-dam-page) {
+  height: 100vh;
+  overflow: hidden;
+}
+body.dash:has(.media-dam-page) .dash-body {
+  overflow: hidden;
+}
 
 .dash-nav {
   border-right: 1px solid var(--line);
@@ -169,6 +176,68 @@ body.dash {
 }
 .dash-main-inner {
   max-width: var(--content-w);
+}
+
+.dash-main:has(.media-dam-page) {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.dash-main:has(.media-dam-page) .dash-main-inner {
+  max-width: none;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 1.15rem 1.35rem 1.25rem;
+}
+.media-dam-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.media-dam-page .dash-intro {
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+.media-dam {
+  flex: 1;
+  min-height: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.media-dam .media-picker {
+  height: 100%;
+}
+.media-dam .media-body {
+  flex-direction: row;
+}
+.media-dam .media-grid {
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+}
+.media-dam .media-detail {
+  max-height: none;
+  width: min(300px, 32%);
+  flex: 0 0 min(300px, 32%);
+  border-top: 0;
+  border-left: 1px solid var(--line);
+  overflow: auto;
+}
+.media-dam .media-detail-preview img {
+  width: 100%;
+  height: auto;
+  max-height: 240px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: center;
 }
 
 .dash-intro {

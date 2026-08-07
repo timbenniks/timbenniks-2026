@@ -1,0 +1,47 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../components/admin/AdminLayout.astro';
+---
+
+<AdminLayout title="Admin · Media" active="media">
+  <Fragment slot="head">
+    <link rel="stylesheet" href="/admin/editor.css" />
+  </Fragment>
+
+  <Fragment slot="actions">
+    <span class="chip" id="media-chip">Library</span>
+    <a class="btn-secondary" href="/admin">Pages</a>
+  </Fragment>
+
+  <div class="media-dam-page">
+    <div class="dash-intro">
+      <h2>Media</h2>
+      <p>
+        Browse, upload, and enrich Cloudinary assets (tags, title, description). Folder scope matches
+        <code>CLOUDINARY_SEARCH_FOLDERS</code>.
+      </p>
+    </div>
+    <div id="media-dam" class="media-dam" aria-label="Media library"></div>
+  </div>
+
+  <script slot="scripts" is:inline type="module">
+    import { createMediaPicker } from '/admin/editor/media-picker.js';
+
+    const chip = document.getElementById('media-chip');
+    const mount = document.getElementById('media-dam');
+    const picker = createMediaPicker({
+      mount,
+      mode: 'manage',
+      variant: 'page',
+      hideInsert: true,
+      setStatus(msg, cls) {
+        if (!chip) return;
+        chip.textContent = msg || 'Library';
+        chip.classList.toggle('error', cls === 'error');
+        chip.classList.toggle('ok', cls === 'ok');
+      },
+    });
+    picker.refresh();
+  </script>
+</AdminLayout>

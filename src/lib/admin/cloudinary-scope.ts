@@ -1,6 +1,6 @@
 /** Cloudinary search scope for the admin Agent / Browse helpers. */
 
-function env(name: string): string {
+export function env(name: string): string {
   return (
     process.env[name]?.trim() ||
     String((import.meta as { env?: Record<string, unknown> }).env?.[name] || '').trim()
@@ -65,7 +65,8 @@ export function getCloudinarySearchScope(): CloudinarySearchScope {
   const prefix = env('CLOUDINARY_SEARCH_PREFIX');
   const baseExpression = env('CLOUDINARY_SEARCH_EXPRESSION');
   const maxResultsDefault = clampInt(env('CLOUDINARY_SEARCH_MAX_RESULTS'), 12, 1, 30);
-  const maxResultsCap = clampInt(env('CLOUDINARY_SEARCH_MAX_CAP'), 30, 1, 50);
+  /** Browse/DAM listings can request more per page than agent search defaults. */
+  const maxResultsCap = clampInt(env('CLOUDINARY_SEARCH_MAX_CAP'), 50, 1, 100);
 
   return {
     cloudName,
@@ -82,22 +83,29 @@ export function getCloudinarySearchScope(): CloudinarySearchScope {
 }
 
 function clampInt(raw: string, fallback: number, min: number, max: number): number {
-  const n = Number(raw);
-  if (!Number.isFinite(n)) return fallback;
+  const trimmed = String(raw ?? '').trim();
+  if (!trimmed) return fallback;
+  const n = Number(trimmed);
+  // Number('') is 0 (finite) — treat blank / non-positive as “use default”.
+  if (!Number.isFinite(n) || n <= 0) return fallback;
   return Math.min(max, Math.max(min, Math.round(n)));
 }
 
 export function resolveSearchFolder(
   requested: string | undefined,
   scope: CloudinarySearchScope,
+  opts?: { preferDefault?: boolean },
 ): { folder: string | null; error?: string } {
+  const preferDefault = opts?.preferDefault !== false;
   const req = (requested || '').trim();
   if (!scope.folders.length) {
     if (!req || req === '*' || /^all$/i.test(req)) return { folder: null };
     return { folder: req };
   }
   if (!req) {
-    return { folder: scope.defaultFolder };
+    // Agent search: narrow to CLOUDINARY_SEARCH_FOLDER when set.
+    // Browse / DAM: preferDefault:false → all allowlisted folders.
+    return { folder: preferDefault ? scope.defaultFolder : null };
   }
   if (req === '*' || /^all$/i.test(req)) {
     return { folder: null };

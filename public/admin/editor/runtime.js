@@ -23,6 +23,7 @@ import {
   pathCoveredByLists,
 } from './paths.js';
 import { createVisualEditorFacade } from './facade.js';
+import { createMediaPicker, openMediaPickerModal } from './media-picker.js';
 
 export function bootEditor() {
   const root = document.getElementById('app');
@@ -57,10 +58,12 @@ export function bootEditor() {
   let selectedPath = null;
   let selectedSection = 0;
   let iframeWin = null;
-  /** @type {null | 'inspector' | 'page'} */
+  /** @type {null | 'inspector' | 'page' | 'media'} */
   let primary = 'inspector';
   let inspectorTab = 'layers';
   let pageTab = 'info';
+  /** @type {ReturnType<typeof createMediaPicker> | null} */
+  let mediaPickerInstance = null;
   let pendingInsertAt = null;
   let pendingHighlight = null;
   let pendingScroll = null;
@@ -148,6 +151,16 @@ export function bootEditor() {
       </div>
     </aside>
 
+    <aside class="media-rail" id="media-panel" hidden>
+      <div class="form-inner media-rail-inner">
+        <div class="panel-header">
+          <span class="panel-title">Media</span>
+          <a class="panel-link hint" href="/admin/media" title="Open full Media desk">Desk</a>
+        </div>
+        <div class="media-rail-mount" id="media-mount"></div>
+      </div>
+    </aside>
+
     <aside class="agent-rail is-disabled" id="agent-panel" aria-label="Editor agent">
       <div class="agent-rail-inner" id="agent-mount"></div>
     </aside>
@@ -162,6 +175,9 @@ export function bootEditor() {
         <button type="button" class="rail-toggle" data-primary="page" data-tab="info" aria-pressed="false" title="Info" aria-label="Info">${icon('info')}</button>
         <button type="button" class="rail-toggle" data-primary="page" data-tab="history" aria-pressed="false" title="Git history" aria-label="Git history">${icon('history')}</button>
       </div>
+      <div class="rail-group rail-divider" role="group" aria-label="Media">
+        <button type="button" class="rail-toggle" data-primary="media" data-tab="library" aria-pressed="false" title="Media library" aria-label="Media library">${icon('media')}</button>
+      </div>
       <div class="rail-group rail-divider" role="group" aria-label="Agent" id="agent-rail-group" hidden>
         <button type="button" id="toggle-agent" class="rail-toggle" aria-pressed="false" title="Agent" aria-label="Toggle agent">
           ${icon('agent')}
@@ -171,6 +187,7 @@ export function bootEditor() {
       <div class="rail-group rail-exit" role="group" aria-label="Leave editor">
         <a class="rail-link" href="/admin" title="All pages" aria-label="All pages">${icon('pages')}</a>
         <a class="rail-link" href="/admin/site" title="Site chrome" aria-label="Site chrome">${icon('chrome')}</a>
+        <a class="rail-link" href="/admin/media" title="Media desk" aria-label="Media desk">${icon('media')}</a>
         <a class="rail-link" href="/admin/changes" title="Changes" aria-label="Changes">${icon('external')}</a>
       </div>
     </nav>
@@ -209,6 +226,8 @@ export function bootEditor() {
   const metaPane = document.getElementById('meta-pane');
   const formPanel = document.getElementById('form-panel');
   const pagePanel = document.getElementById('page-panel');
+  const mediaPanel = document.getElementById('media-panel');
+  const mediaMount = document.getElementById('media-mount');
   const infoPane = document.getElementById('info-pane');
   const historyPane = document.getElementById('history-pane');
   const infoFieldsEl = document.getElementById('info-fields');
@@ -348,6 +367,7 @@ export function bootEditor() {
       scroll: opts.scroll !== false,
     });
     syncBridgeMeta();
+    mediaPickerInstance?.syncInsertTarget?.();
   }
 
   function moveSection(from, to) {
@@ -570,71 +590,6 @@ export function bootEditor() {
   }
 
 
-  let cloudinaryScriptPromise = null;
-  let mediaLibrary = null;
-  let mediaLibraryInsertCb = null;
-
-  function loadCloudinaryMediaLibrary() {
-    if (window.cloudinary?.createMediaLibrary || window.cloudinary?.openMediaLibrary) {
-      return Promise.resolve();
-    }
-    if (cloudinaryScriptPromise) return cloudinaryScriptPromise;
-    cloudinaryScriptPromise = new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = 'https://media-library.cloudinary.com/global/all.js';
-      s.async = true;
-      s.onload = () => resolve();
-      s.onerror = () => reject(new Error('Failed to load Cloudinary Media Library'));
-      document.head.appendChild(s);
-    });
-    return cloudinaryScriptPromise;
-  }
-
-  function openCloudinaryStudio() {
-    const cfg = boot.cloudinary || {};
-    if (!cfg.cloudName) {
-      setStatus('Missing PUBLIC_CLOUDINARY_CLOUD_NAME', 'error');
-      return Promise.resolve(null);
-    }
-    return loadCloudinaryMediaLibrary().then(() => new Promise((resolve) => {
-      mediaLibraryInsertCb = (asset) => resolve(asset);
-      const options = {
-        cloud_name: cfg.cloudName,
-        multiple: false,
-        max_files: 1,
-        insert_caption: 'Use image',
-        search: { expression: 'resource_type:image' },
-      };
-      if (cfg.apiKey) options.api_key = cfg.apiKey;
-
-      const handlers = {
-        insertHandler(data) {
-          const asset = data?.assets?.[0] || null;
-          const cb = mediaLibraryInsertCb;
-          mediaLibraryInsertCb = null;
-          cb?.(asset);
-        },
-      };
-
-      try {
-        if (!mediaLibrary && window.cloudinary.createMediaLibrary) {
-          mediaLibrary = window.cloudinary.createMediaLibrary(options, handlers);
-        }
-        if (mediaLibrary?.show) {
-          mediaLibrary.show();
-        } else if (window.cloudinary.openMediaLibrary) {
-          window.cloudinary.openMediaLibrary(options, handlers);
-        } else {
-          throw new Error('Cloudinary Media Library API not available');
-        }
-      } catch (err) {
-        mediaLibraryInsertCb = null;
-        setStatus(err.message || String(err), 'error');
-        resolve(null);
-      }
-    }));
-  }
-
   function applyCloudinaryAsset(path, asset) {
     if (!asset) return;
     const url = asset.secure_url || asset.url;
@@ -711,12 +666,15 @@ export function bootEditor() {
     const browse = document.createElement('button');
     browse.type = 'button';
     browse.className = 'image-browse';
-    browse.innerHTML = `${icon('image', 'icon icon-sm')} Browse Cloudinary`;
+    browse.innerHTML = `${icon('media', 'icon icon-sm')} Browse`;
     browse.addEventListener('click', async () => {
       browse.disabled = true;
-      setStatus('Opening Cloudinary…');
+      setStatus('Opening media library…');
       try {
-        const asset = await openCloudinaryStudio();
+        const asset = await openMediaPickerModal({
+          setStatus,
+          getInsertTarget: () => ({ path, label: path }),
+        });
         if (!asset) {
           setStatus('No image selected');
           return;
@@ -725,11 +683,10 @@ export function bootEditor() {
         const url = asset.secure_url || asset.url || '';
         input.value = url;
         syncThumb(url);
-        // Refresh form so width/height/alt fields pick up new values.
         const match = path.match(/^sections\.(\d+)/);
         if (match) renderSectionFields(Number(match[1]), path);
         else if (path.startsWith('metadata.')) renderMeta();
-        setStatus('Image selected from Cloudinary', 'ok');
+        setStatus('Image selected', 'ok');
       } catch (err) {
         setStatus(err.message || String(err), 'error');
       } finally {
@@ -1333,6 +1290,7 @@ export function bootEditor() {
 
     formPanel.hidden = primary !== 'inspector';
     pagePanel.hidden = primary !== 'page';
+    mediaPanel.hidden = primary !== 'media';
 
     if (primary === 'inspector') {
       inspectorTitleEl.textContent = INSPECTOR_TITLES[inspectorTab] || 'Inspector';
@@ -1347,13 +1305,46 @@ export function bootEditor() {
       historyPane.hidden = pageTab !== 'history';
     }
 
+    if (primary === 'media') {
+      ensureMediaPicker();
+      mediaPickerInstance?.syncInsertTarget?.();
+    }
+
     document.querySelectorAll('.rail-toggle[data-primary]').forEach((btn) => {
       const match =
         primary === btn.dataset.primary &&
         ((primary === 'inspector' && btn.dataset.tab === inspectorTab) ||
-          (primary === 'page' && btn.dataset.tab === pageTab));
+          (primary === 'page' && btn.dataset.tab === pageTab) ||
+          (primary === 'media' && btn.dataset.tab === 'library'));
       btn.setAttribute('aria-pressed', String(match));
     });
+  }
+
+  function getMediaInsertTarget() {
+    return window.__tbVisualEditor?.resolveImageTarget?.() || null;
+  }
+
+  function ensureMediaPicker() {
+    if (mediaPickerInstance || !mediaMount) return;
+    mediaPickerInstance = createMediaPicker({
+      mount: mediaMount,
+      mode: 'manage',
+      setStatus,
+      getInsertTarget: getMediaInsertTarget,
+      onInsert(mapped) {
+        const target = getMediaInsertTarget();
+        if (!target?.path) {
+          setStatus('Select an image field in the inspector first', 'error');
+          return;
+        }
+        applyCloudinaryAsset(target.path, mapped);
+        const match = target.path.match(/^sections\.(\d+)/);
+        if (match) renderSectionFields(Number(match[1]), target.path);
+        else if (target.path.startsWith('metadata.')) renderMeta();
+        setStatus(`Inserted into ${target.label || target.path}`, 'ok');
+      },
+    });
+    mediaPickerInstance.refresh();
   }
 
   function openInspector(tab) {
@@ -1366,8 +1357,13 @@ export function bootEditor() {
     pageTab = tab;
     primary = 'page';
     syncPrimaryChrome();
-    if (tab === 'info') refreshInfoPanel();
+    if (tab === 'info') refreshInfoPane();
     if (tab === 'history') refreshHistoryPanel();
+  }
+
+  function openMedia() {
+    primary = 'media';
+    syncPrimaryChrome();
   }
 
   function closePrimary() {
@@ -1384,6 +1380,11 @@ export function bootEditor() {
     if (kind === 'page') {
       if (primary === 'page' && pageTab === tab) closePrimary();
       else openPage(tab);
+      return;
+    }
+    if (kind === 'media') {
+      if (primary === 'media') closePrimary();
+      else openMedia();
     }
   }
 
