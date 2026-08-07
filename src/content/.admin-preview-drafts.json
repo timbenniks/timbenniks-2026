@@ -1,0 +1,160 @@
+{
+  "home": {
+    "path": "/",
+    "metadata": {
+      "title": "I used to build websites. Now I build what builds them",
+      "description": "Developer Experience Lead at Contentstack. Writing, talks, and videos on developer tools, AI-accelerated engineering, and composable architecture.",
+      "keywords": "developer experience, AI-augmented engineering, composable architecture, developer relations, Contentstack, MACH Alliance"
+    },
+    "sections": [
+      {
+        "kind": "hero",
+        "headline": {
+          "lead": "I used to build",
+          "em": "websites.",
+          "tail": "Now I build what builds them."
+        },
+        "subline": "Developer Experience Lead at Contentstack. Co-chair, MACH Alliance Enterprise AI Agents Workgroup. Ambassador for Nuxt, Cloudinary, Supabase, and Algolia.",
+        "ctas": [
+          {
+            "label": "Read the writing",
+            "href": "/writing",
+            "variant": "primary"
+          },
+          {
+            "label": "More about Tim",
+            "href": "/about",
+            "variant": "secondary"
+          }
+        ],
+        "image": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778485778/website/tim-sketch-1.png",
+          "alt": "Sketched portrait of Tim Benniks",
+          "width": 807,
+          "height": 947,
+          "widths": [
+            360,
+            480,
+            640,
+            768,
+            960
+          ],
+          "eager": true,
+          "preload": true
+        },
+        "imageSide": "right"
+      },
+      {
+        "kind": "quote-callout",
+        "headline": {
+          "lead": "When output is cheap,",
+          "em": "taste",
+          "tail": "is everything."
+        },
+        "attribution": "This article elaborates how AI-generated, scale-built content collapses everything from blogs to other building blocks. AI-generated, scaled-built content collapses everything from blogs to other building blocks.",
+        "cta": {
+          "label": "Read the article",
+          "href": "/writing/when-output-is-cheap-taste-is-everything"
+        },
+        "tone": "dark",
+        "align": "left",
+        "backgroundImage": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1743504260/website/tim_on_stage-1.png",
+          "width": 2355,
+          "height": 1011
+        }
+      },
+      {
+        "kind": "feature-split",
+        "eyebrow": "The journal",
+        "title": "Recent writing",
+        "lede": "Essays on developer experience, AI-accelerated engineering, and the platforms that hold it all up.",
+        "source": "writing",
+        "limit": 3,
+        "cta": {
+          "label": "All writing",
+          "href": "/writing"
+        }
+      },
+      {
+        "kind": "card-grid",
+        "eyebrow": "The workbench",
+        "title": "What I'm building",
+        "lede": "Platform work, MCP servers, and the occasional weekend experiment. Real code, real trade-offs, work in progress.",
+        "source": "projects",
+        "limit": 6,
+        "columns": 3,
+        "tone": "dark",
+        "class": "mt-16",
+        "cta": {
+          "label": "All projects",
+          "href": "/projects"
+        },
+        "pagefindIgnore": false
+      },
+      {
+        "kind": "image-text",
+        "eyebrow": "The short version",
+        "title": "More about Tim",
+        "lede": "Twenty years building digital platforms for global brands. Now leading Developer Experience at Contentstack, shaping the future of developer-facing products and AI-driven workflows.",
+        "body": "Tim Benniks is a Developer Experience and Product leader at Contentstack, where he drives DX, Developer Hub & Marketplace, MCP, and Agent Skills. Tim is a frequent speaker, content creator, ambassador for Cloudinary, Supabase, Nuxt, Algolia and Co-chair of the Enterprise AI Agents Workgroup at the MACH Alliance.",
+        "image": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778486018/website/tim-hero-square.png",
+          "alt": "Tim Benniks",
+          "width": 624,
+          "height": 624
+        },
+        "equalWidth": false,
+        "imageSide": "left",
+        "cta": {
+          "label": "Full bio",
+          "href": "/about"
+        }
+      },
+      {
+        "kind": "card-grid",
+        "eyebrow": "On camera",
+        "title": "Videos & livestreams",
+        "lede": "Workshops, demos, and conversations from the YouTube channel and Contentstack streams.",
+        "source": "videos",
+        "limit": 3,
+        "columns": 3,
+        "tone": "light",
+        "cta": {
+          "label": "All videos",
+          "href": "/videos"
+        },
+        "pagefindIgnore": false
+      },
+      {
+        "kind": "card-rows",
+        "eyebrow": "Stages",
+        "title": "Where I've been",
+        "source": "speaking",
+        "limit": 3,
+        "window": "all",
+        "hideWhenEmpty": false,
+        "cta": {
+          "label": "All talks",
+          "href": "/speaking"
+        }
+      },
+      {
+        "kind": "cta-strip",
+        "text": "Got a stage, a podcast, or a developer team that needs sharpening?",
+        "em": " Let's talk.",
+        "ctas": [
+          {
+            "label": "Press kit & booking",
+            "href": "/press-kit"
+          },
+          {
+            "label": "New CTA",
+            "href": "/",
+            "variant": "accent"
+          }
+        ]
+      }
+    ]
+  }
+}
