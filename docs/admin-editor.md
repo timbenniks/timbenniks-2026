@@ -39,6 +39,14 @@ On `/admin`, use **New page**:
 
 The API rejects reserved paths (`/admin`, `/api`, `/search`, `/writing/…`, fixed hub paths, etc.) and collisions. New pages get a hero placeholder and are written to the **`cms`** branch only (not live until Publish).
 
+### Pages overview (sitemap)
+
+The Pages desk lists every page shell. Content hubs (`writing`, `videos`, `speaking`, `projects`) show a count badge and expand inline to browse collection entries (posts, playlists → videos, talks, projects).
+
+- Children load on expand via `GET /api/admin/content/{source}` (search + pagination; videos default to playlist groups).
+- **Edit layout** opens the visual page editor. **View** opens the public URL.
+- **Edit** on a child links to `/admin/content/{kind}/{id}` (stub for now — collection editors are not implemented yet).
+
 ## Git CMS workflow (`cms` → `main`)
 
 ```

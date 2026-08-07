@@ -1,0 +1,27 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../../components/admin/AdminLayout.astro';
+
+const kind = Astro.params.kind ?? '';
+const id = Astro.params.id ?? '';
+---
+
+<AdminLayout title="Admin · Content editing">
+  <div class="dash-intro">
+    <h2>Content editing</h2>
+    <p>
+      Editing <code>{kind}</code> entries isn’t available yet. Browse and view from
+      <a href="/admin">Pages</a>; layout and SEO still live in the page editor.
+    </p>
+  </div>
+  <div class="changes-banner">
+    <p style="margin:0">
+      Reserved route for future editors:
+      <code class="mono">/admin/content/{kind}/{id}</code>
+    </p>
+  </div>
+  <p style="margin-top:1rem">
+    <a class="btn-secondary" href="/admin">← Back to Pages</a>
+  </p>
+</AdminLayout>

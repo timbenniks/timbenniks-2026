@@ -1440,7 +1440,7 @@ export function bootEditor() {
     return historyCache;
   }
 
-  async function refreshInfoPanel() {
+  async function refreshInfoPane() {
     if (!infoFieldsEl) return;
     infoFieldsEl.innerHTML = '<p class="hint">Loading…</p>';
     const [changes, history] = await Promise.all([

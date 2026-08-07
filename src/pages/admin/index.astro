@@ -2,74 +2,139 @@
 export const prerender = false;
 
 import AdminLayout from '../../components/admin/AdminLayout.astro';
+import {
+  getHubContentCounts,
+  PAGE_HUB_SOURCE,
+  type HubSource,
+} from '../../lib/admin/content-index';
 import { getPagePath, listAdminPageIds, readPagesForAdmin } from '../../lib/admin/pages-store';
 import '../../lib/admin/section-catalog-align';
 
 const all = await readPagesForAdmin();
 const ids = await listAdminPageIds();
-const pages = ids.map((id) => ({
-  id,
-  path: getPagePath(all[id]!, id),
-  title: all[id]!.metadata.title,
-}));
+const counts = await getHubContentCounts();
+
+const pages = ids.map((id) => {
+  const hub = PAGE_HUB_SOURCE[id] as HubSource | undefined;
+  return {
+    id,
+    path: getPagePath(all[id]!, id),
+    title: all[id]!.metadata.title,
+    hub,
+    count: hub ? counts[hub] : undefined,
+    playlistCount: hub === 'videos' ? counts.playlists : undefined,
+  };
+});
 ---
 
 <AdminLayout title="Admin · Pages" active="pages">
-  <div class="dash-intro">
-    <h2>Pages</h2>
-    <p>
-      Open a page to edit. <strong>Save</strong> commits to the <code>cms</code> branch; publish from
-      <a href="/admin/changes">Changes</a>.
-    </p>
-  </div>
-
-  <details class="create">
-    <summary>
-      <span class="create-title">New page</span>
-      <span class="create-hint">Catch-all route</span>
-    </summary>
-    <div class="create-body">
-      <div class="create-grid">
-        <div class="field">
-          <label for="new-id">Id</label>
-          <input id="new-id" placeholder="my-page" autocomplete="off" />
-        </div>
-        <div class="field">
-          <label for="new-path">Path</label>
-          <input id="new-path" placeholder="/my-page" autocomplete="off" />
-        </div>
-        <div class="field field-span">
-          <label for="new-title">Title</label>
-          <input id="new-title" placeholder="Page title" autocomplete="off" />
-        </div>
-      </div>
-      <div class="create-actions">
-        <button type="button" class="primary" id="create">Create page</button>
-        <span class="err" id="create-err"></span>
-      </div>
+  <div class="pages-overview">
+    <div class="dash-intro">
+      <h2>Pages</h2>
+      <p>
+        Edit layout and SEO for each page. Expand a hub to browse posts, videos, talks, or
+        projects. <strong>Save</strong> commits to the <code>cms</code> branch; publish from
+        <a href="/admin/changes">Changes</a>.
+      </p>
     </div>
-  </details>
 
-  <ul class="page-table">
-    {
-      pages.map((p) => (
-        <li>
-          <a class="page-row" href={`/admin/pages/${p.id}`}>
-            <div>
-              <strong>{p.title}</strong>
-              <div class="meta">
-                <span class="mono">{p.id}</span>
+    <details class="create">
+      <summary>
+        <span class="create-title">New page</span>
+        <span class="create-hint">Catch-all route</span>
+      </summary>
+      <div class="create-body">
+        <div class="create-grid">
+          <div class="field">
+            <label for="new-id">Id</label>
+            <input id="new-id" placeholder="my-page" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="new-path">Path</label>
+            <input id="new-path" placeholder="/my-page" autocomplete="off" />
+          </div>
+          <div class="field field-span">
+            <label for="new-title">Title</label>
+            <input id="new-title" placeholder="Page title" autocomplete="off" />
+          </div>
+        </div>
+        <div class="create-actions">
+          <button type="button" class="primary" id="create">Create page</button>
+          <span class="err" id="create-err"></span>
+        </div>
+      </div>
+    </details>
+
+    <ul class="page-table" id="pages-overview">
+      {
+        pages.map((p) => (
+          <li class={p.hub ? 'page-group' : undefined} data-page-id={p.id} data-hub={p.hub}>
+            <div class="page-row page-row-header">
+              {p.hub ? (
+                <button
+                  type="button"
+                  class="page-expand"
+                  aria-expanded="false"
+                  aria-controls={`panel-${p.id}`}
+                  data-expand
+                  title="Show nested content"
+                >
+                  <svg class="icon chevron" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M6 4l4 4-4 4" />
+                  </svg>
+                </button>
+              ) : (
+                <span class="page-expand-spacer" aria-hidden="true" />
+              )}
+              <div class="page-row-main">
+                <strong>{p.title}</strong>
+                <div class="meta">
+                  <span class="mono">{p.id}</span>
+                  {p.count != null && (
+                    <span class="count-badge" title={p.hub === 'videos' && p.playlistCount != null ? `${p.count} videos · ${p.playlistCount} playlists` : undefined}>
+                      {p.count}
+                    </span>
+                  )}
+                </div>
               </div>
+              <span class="path">{p.path}</span>
+              <a class="page-edit-layout btn-secondary" href={`/admin/pages/${p.id}`}>
+                Edit layout
+              </a>
             </div>
-            <span class="path">{p.path}</span>
-          </a>
-        </li>
-      ))
-    }
-  </ul>
+            {p.hub && (
+              <div class="child-panel" id={`panel-${p.id}`} hidden data-source={p.hub}>
+                <div class="child-toolbar">
+                  <label class="sr-only" for={`search-${p.id}`}>
+                    Search {p.hub}
+                  </label>
+                  <input
+                    id={`search-${p.id}`}
+                    class="child-search"
+                    type="search"
+                    placeholder={p.hub === 'videos' ? 'Search playlists or videos…' : `Search ${p.hub}…`}
+                    autocomplete="off"
+                    data-search
+                  />
+                  <span class="child-status" data-status></span>
+                </div>
+                <ul class="child-list" data-list></ul>
+                <div class="child-footer" data-footer hidden>
+                  <button type="button" class="ghost" data-more>
+                    Load more
+                  </button>
+                </div>
+              </div>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
 
   <script slot="scripts" is:inline type="module">
     import { apiFetch } from '/admin/lib/api.js';
+    import { initPagesOverview } from '/admin/pages-overview.js';
 
     const idInput = document.getElementById('new-id');
     const pathInput = document.getElementById('new-path');
@@ -100,5 +165,7 @@ const pages = ids.map((id) => ({
         if (err) err.textContent = e.message || String(e);
       }
     });
+
+    initPagesOverview(document.getElementById('pages-overview'));
   </script>
 </AdminLayout>
