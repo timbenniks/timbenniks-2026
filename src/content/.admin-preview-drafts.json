@@ -131,7 +131,7 @@
         "eyebrow": "Stages",
         "title": "Where I've been",
         "source": "speaking",
-        "limit": 3,
+        "limit": 5,
         "window": "all",
         "hideWhenEmpty": false,
         "cta": {
