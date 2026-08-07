@@ -147,11 +147,6 @@
           {
             "label": "Press kit & booking",
             "href": "/press-kit"
-          },
-          {
-            "label": "New CTA",
-            "href": "/",
-            "variant": "accent"
           }
         ]
       }
