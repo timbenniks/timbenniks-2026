@@ -2,6 +2,11 @@
  * Agent rail DOM: bubbles, image gallery, composer mount.
  */
 import { deliveryThumbUrl } from './lib/cloudinary-url.js';
+import {
+  renderAgentMarkdown,
+  bindAgentMarkdownMedia,
+  isSafeImageUrl,
+} from './lib/render-agent-markdown.js';
 
 function el(tag, attrs = {}, children = []) {
   const node = document.createElement(tag);
@@ -19,20 +24,6 @@ function el(tag, attrs = {}, children = []) {
     node.append(typeof child === 'string' ? document.createTextNode(child) : child);
   }
   return node;
-}
-
-function isSafeImageUrl(url) {
-  try {
-    const u = new URL(url);
-    if (u.protocol !== 'https:') return false;
-    // Prefer Cloudinary; allow common image hosts used on this site.
-    return (
-      u.hostname === 'res.cloudinary.com' ||
-      /\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(u.pathname)
-    );
-  } catch {
-    return false;
-  }
 }
 
 function cloudinaryThumb(url, width = 320) {
@@ -57,48 +48,14 @@ function createUi(mount) {
   return { log, form, input, send };
 }
 
-function appendTextParts(parent, text) {
-  // Split markdown images ![alt](url) and bare https image URLs
-  const pattern =
-    /!\[([^\]]*)\]\((https:\/\/[^)\s]+)\)|(https:\/\/res\.cloudinary\.com\/[^\s)]+)/g;
-  let last = 0;
-  let match;
-  while ((match = pattern.exec(text))) {
-    if (match.index > last) {
-      parent.append(document.createTextNode(text.slice(last, match.index)));
-    }
-    const alt = match[1] != null ? match[1] : 'Cloudinary image';
-    const url = match[2] || match[3];
-    if (url && isSafeImageUrl(url)) {
-      const figure = el('figure', { className: 'tb-agent-figure' });
-      const img = el('img', {
-        src: cloudinaryThumb(url),
-        alt: alt || 'Image',
-        loading: 'lazy',
-        referrerpolicy: 'no-referrer',
-      });
-      img.addEventListener('click', () => window.open(url, '_blank', 'noopener'));
-      figure.append(img);
-      if (alt && match[1] != null && alt.trim()) {
-        figure.append(el('figcaption', { text: alt }));
-      }
-      parent.append(figure);
-    } else {
-      parent.append(document.createTextNode(match[0]));
-    }
-    last = match.index + match[0].length;
-  }
-  if (last < text.length) {
-    parent.append(document.createTextNode(text.slice(last)));
-  }
-}
-
 function appendBubble(log, role, text, extraClass = '') {
   const bubble = el('div', {
     className: `tb-agent-msg ${role}${extraClass ? ` ${extraClass}` : ''}`,
   });
-  if (role === 'assistant' || role === 'tool') {
-    appendTextParts(bubble, text);
+  if (role === 'assistant' && !extraClass.includes('error')) {
+    bubble.classList.add('tb-agent-md');
+    bubble.innerHTML = renderAgentMarkdown(text);
+    bindAgentMarkdownMedia(bubble);
   } else {
     bubble.textContent = text;
   }
@@ -297,7 +254,6 @@ export {
   createUi,
   appendBubble,
   appendImageResults,
-  appendTextParts,
   isSafeImageUrl,
   cloudinaryThumb,
 };
