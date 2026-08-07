@@ -346,13 +346,9 @@ export function bootEditor() {
     return title || null;
   }
 
-  /** Compact prompt seed so the agent knows which section the editor is looking at. */
-  function sectionAgentDraft(section, index) {
+  /** Context chip payload for the agent composer (not stuffed into the textarea). */
+  function sectionAgentContext(section, index) {
     const n = String(index).padStart(2, '0');
-    const lines = [
-      `I'm editing section ${n} (index ${index}): ${section.kind}.`,
-      `Use tools against sections.${index} (get_section / set_field / patch_section).`,
-    ];
     const bits = [];
     if (typeof section.title === 'string' && section.title.trim()) {
       bits.push(`title “${section.title.trim()}”`);
@@ -371,19 +367,32 @@ export function bootEditor() {
     if (typeof lead === 'string' && lead.trim()) {
       bits.push(`lead “${lead.trim().slice(0, 100)}${lead.trim().length > 100 ? '…' : ''}”`);
     }
-    if (bits.length) lines.push(`Currently: ${bits.join(' · ')}.`);
-    lines.push('', '');
-    return lines.join('\n');
+
+    const body = [
+      `I'm editing section ${n} (index ${index}): ${section.kind}.`,
+      `Use tools against sections.${index} (get_section / set_field / patch_section).`,
+      bits.length ? `Currently: ${bits.join(' · ')}.` : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    return {
+      label: `Section ${n} · ${section.kind}`,
+      detail: bits.join(' · '),
+      body,
+    };
   }
 
   function askAgentAboutSection(index) {
     const section = s.draft.sections[index];
     if (!section) return;
-    if (!window.__tbAgent?.draftPrompt) {
+    if (!window.__tbAgent?.setContext && !window.__tbAgent?.draftPrompt) {
       setStatus('Agent is not available — set OPENAI_API_KEY on the server.', 'error');
       return;
     }
-    window.__tbAgent.draftPrompt(sectionAgentDraft(section, index));
+    const ctx = sectionAgentContext(section, index);
+    if (window.__tbAgent.setContext) window.__tbAgent.setContext(ctx);
+    else window.__tbAgent.draftPrompt(ctx.body);
   }
 
   function renderSections() {

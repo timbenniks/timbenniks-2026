@@ -29,33 +29,71 @@ async function boot() {
   const ui = createUi(mount);
   const messages = [{ role: 'system', content: SYSTEM_PROMPT }];
   let busy = false;
+  /** @type {{ label: string, detail?: string, body: string } | null} */
+  let pendingContext = null;
 
-  /** Prefill the composer without sending — used by section “Ask AI” buttons. */
-  function draftPrompt(text, { open = true, append = false } = {}) {
-    const draft = String(text || '');
-    if (!draft.trim()) return;
-    if (open) window.__tbEditorChrome?.setAgentOpen(true);
-    const existing = ui.input.value;
-    if (append && existing.trim()) {
-      const glue = existing.endsWith('\n') ? '\n' : '\n\n';
-      ui.input.value = `${existing.trimEnd()}${glue}${draft}`;
-    } else {
-      ui.input.value = draft;
+  function renderContextChip() {
+    if (!pendingContext) {
+      ui.context.hidden = true;
+      ui.contextLabel.textContent = '';
+      ui.contextDetail.textContent = '';
+      ui.contextDetail.hidden = true;
+      ui.input.placeholder = 'Edit this page…';
+      return;
     }
-    requestAnimationFrame(() => {
-      ui.input.focus();
-      const len = ui.input.value.length;
-      ui.input.setSelectionRange(len, len);
-    });
+    ui.context.hidden = false;
+    ui.contextLabel.textContent = pendingContext.label;
+    const detail = String(pendingContext.detail || '').trim();
+    ui.contextDetail.textContent = detail;
+    ui.contextDetail.hidden = !detail;
+    ui.input.placeholder = 'What should we change?';
+  }
+
+  function clearContext() {
+    pendingContext = null;
+    renderContextChip();
+  }
+
+  /**
+   * Attach section/page context as a chip above the composer (not in the textarea).
+   * On send, `body` is prepended to the user message for the model.
+   */
+  function setContext(ctx, { open = true } = {}) {
+    const label = String(ctx?.label || '').trim();
+    const body = String(ctx?.body || '').trim();
+    if (!label || !body) return;
+    pendingContext = {
+      label,
+      detail: String(ctx?.detail || '').trim(),
+      body,
+    };
+    renderContextChip();
+    if (open) window.__tbEditorChrome?.setAgentOpen(true);
+    requestAnimationFrame(() => ui.input.focus());
+  }
+
+  /** @deprecated Prefer setContext — kept for callers that only have a text blob. */
+  function draftPrompt(text, { open = true } = {}) {
+    const body = String(text || '').trim();
+    if (!body) return;
+    const first = body.split('\n').find((l) => l.trim()) || 'Editor context';
+    setContext({ label: first.slice(0, 72), body }, { open });
   }
 
   window.__tbAgent = {
+    setContext,
+    clearContext,
     draftPrompt,
     focusComposer() {
       window.__tbEditorChrome?.setAgentOpen(true);
       ui.input.focus();
     },
   };
+
+  ui.contextClear.addEventListener('click', () => {
+    clearContext();
+    ui.input.focus();
+  });
 
   appendBubble(
     ui.log,
@@ -71,9 +109,13 @@ async function boot() {
     if (!window.__tbEditorChrome?.isAgentOpen()) {
       window.__tbEditorChrome?.setAgentOpen(true);
     }
+    const ctx = pendingContext;
+    const content = ctx ? `${ctx.body}\n\n${text}` : text;
     ui.input.value = '';
-    appendBubble(ui.log, 'user', text);
-    messages.push({ role: 'user', content: text });
+    clearContext();
+    const display = ctx ? `${text}\n\n↳ ${ctx.label}` : text;
+    appendBubble(ui.log, 'user', display);
+    messages.push({ role: 'user', content });
     busy = true;
     ui.send.disabled = true;
     try {

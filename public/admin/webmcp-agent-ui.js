@@ -37,15 +37,43 @@ function createUi(mount) {
   ]);
   const log = el('div', { className: 'tb-agent-log', id: 'tb-agent-log' });
   const form = el('form', { className: 'tb-agent-composer' });
+
+  const context = el('div', {
+    className: 'tb-agent-context',
+    hidden: true,
+    'aria-live': 'polite',
+  });
+  const contextBody = el('div', { className: 'tb-agent-context-body' });
+  const contextLabel = el('div', { className: 'tb-agent-context-label' });
+  const contextDetail = el('div', { className: 'tb-agent-context-detail' });
+  contextBody.append(contextLabel, contextDetail);
+  const contextClear = el('button', {
+    type: 'button',
+    className: 'tb-agent-context-clear',
+    'aria-label': 'Clear section context',
+    title: 'Clear context',
+    text: '×',
+  });
+  context.append(contextBody, contextClear);
+
   const input = el('textarea', {
     rows: '2',
     placeholder: 'Edit this page…',
     'aria-label': 'Message',
   });
   const send = el('button', { type: 'submit', className: 'primary', text: 'Send' });
-  form.append(input, send);
+  form.append(context, input, send);
   mount.append(header, log, form);
-  return { log, form, input, send };
+  return {
+    log,
+    form,
+    input,
+    send,
+    context,
+    contextLabel,
+    contextDetail,
+    contextClear,
+  };
 }
 
 function appendBubble(log, role, text, extraClass = '') {
