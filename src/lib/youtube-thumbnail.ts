@@ -1,3 +1,5 @@
+import { isAdminPreviewRequest } from './admin/request-context';
+
 export type YoutubeQuality = 'maxresdefault' | 'hqdefault';
 
 export function youtubeThumbnailUrl(videoId: string, quality: YoutubeQuality = 'maxresdefault'): string {
@@ -12,6 +14,11 @@ const probeCache = new Map<string, Promise<YoutubeQuality>>();
 export async function resolveYoutubeThumbnail(
   videoId: string,
 ): Promise<{ url: string; quality: YoutubeQuality }> {
+  // Admin preview reloads often — skip outbound HEAD probes and use the
+  // always-available hqdefault poster.
+  if (isAdminPreviewRequest()) {
+    return { url: youtubeThumbnailUrl(videoId, 'hqdefault'), quality: 'hqdefault' };
+  }
   const quality = await resolveQuality(videoId);
   return { url: youtubeThumbnailUrl(videoId, quality), quality };
 }

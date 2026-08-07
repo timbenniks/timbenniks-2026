@@ -2,7 +2,6 @@ import {
   getCmsPagesCached,
   getDurablePreviewDraft,
   getPreviewDraft,
-  invalidateCmsPagesCache,
   readPagesFile,
   readPagesForAdmin,
   validatePageData,
@@ -35,9 +34,8 @@ export async function loadPage(id: string) {
       };
     }
 
-    // Bypass short cms cache so we don't serve a stale tip for a few seconds
-    // after an intentional Save on another isolate.
-    invalidateCmsPagesCache();
+    // Use the short cms cache (savePageToCms refreshes it). Busting on every
+    // preview load forced a GitHub round-trip for each iframe reload.
     const cms = await getCmsPagesCached();
     if (cms?.[id]) {
       return {

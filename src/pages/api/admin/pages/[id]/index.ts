@@ -1,6 +1,5 @@
 import type { APIRoute } from 'astro';
 import {
-  isAdminPageId,
   readPagesForAdmin,
   savePageDraft,
   savePageToCms,
@@ -8,6 +7,7 @@ import {
   validatePageData,
   formatZodError,
 } from '../../../../../lib/admin/pages-store';
+import { isPageIdFormat } from '../../../../../lib/page-schema';
 import { isAdminAuthed } from '../../../../../lib/admin/auth';
 
 export const prerender = false;
@@ -17,13 +17,13 @@ export const GET: APIRoute = async ({ params, request }) => {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
   const id = params.id;
-  if (!id || !(await isAdminPageId(id))) {
+  if (!id || !isPageIdFormat(id)) {
     return new Response(JSON.stringify({ error: 'Unknown page' }), { status: 404 });
   }
   const all = await readPagesForAdmin();
   const page = all[id];
   if (!page) {
-    return new Response(JSON.stringify({ error: 'Missing page' }), { status: 404 });
+    return new Response(JSON.stringify({ error: 'Unknown page' }), { status: 404 });
   }
   return new Response(JSON.stringify({ id, page, path: getPagePath(page, id) }), {
     headers: { 'Content-Type': 'application/json' },
@@ -35,7 +35,12 @@ export const PUT: APIRoute = async ({ params, request }) => {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
   const id = params.id;
-  if (!id || !(await isAdminPageId(id))) {
+  if (!id || !isPageIdFormat(id)) {
+    return new Response(JSON.stringify({ error: 'Unknown page' }), { status: 404 });
+  }
+
+  const all = await readPagesForAdmin();
+  if (!(id in all)) {
     return new Response(JSON.stringify({ error: 'Unknown page' }), { status: 404 });
   }
 

@@ -74,12 +74,16 @@ export async function writePagesFile(data: Record<string, PageData>): Promise<vo
   await writeFile(pagesFilePath(), body, 'utf8');
 }
 
-/** Prefer cms branch when GitHub is configured; else filesystem. */
+/** Prefer cms branch when GitHub is configured; else filesystem. Uses short cms cache. */
 export async function readPagesForAdmin(): Promise<Record<string, PageData>> {
   if (hasGitHubConfig()) {
+    const cms = await getCmsPagesCached();
+    if (cms) return cms;
     await ensureCmsBranch();
     const file = await getFileFromCms(PAGES_REL);
-    return parsePagesJson(file.content);
+    const data = parsePagesJson(file.content);
+    previewStore().cmsPagesCache = { at: Date.now(), data };
+    return data;
   }
   return readPagesFile();
 }
@@ -491,21 +495,35 @@ export async function savePageDraft(
   // Vercel serverless: another isolate serves the iframe reload. Memory/disk
   // won't be there — persist a dedicated draft artifact on cms (not pages.json).
   if (needsDurablePreviewDraft() && hasGitHubConfig()) {
-    await ensureCmsBranch();
-    invalidateDurableDraftsCache();
-    const { data, sha } = await readDurablePreviewDraftsMap();
-    const next = { ...data, [pageId]: validated };
-    try {
-      const commit = await writeDurablePreviewDraftsMap(
+    const persistDurable = async () => {
+      await ensureCmsBranch();
+      invalidateDurableDraftsCache();
+      const { data, sha } = await readDurablePreviewDraftsMap();
+      const next = { ...data, [pageId]: validated };
+      return writeDurablePreviewDraftsMap(
         next,
         sha,
         `cms: preview-draft ${pageId}`,
       );
-      return { mode: 'draft-durable', commit, branch: cmsBranch() };
-    } catch (err) {
-      invalidateDurableDraftsCache();
-      throw err;
+    };
+
+    // On Vercel the next request may hit a different isolate — must await.
+    // Locally (even with TB_PREVIEW_DURABLE), this process already has memory,
+    // so don't block the preview reload on a GitHub round-trip.
+    if (process.env.VERCEL) {
+      try {
+        const commit = await persistDurable();
+        return { mode: 'draft-durable', commit, branch: cmsBranch() };
+      } catch (err) {
+        invalidateDurableDraftsCache();
+        throw err;
+      }
     }
+
+    void persistDurable().catch((err) => {
+      console.warn('[preview-draft] durable write failed:', err);
+      invalidateDurableDraftsCache();
+    });
   }
 
   return { mode: 'draft' };

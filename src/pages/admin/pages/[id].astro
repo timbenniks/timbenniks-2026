@@ -2,24 +2,24 @@
 export const prerender = false;
 
 import { getCollection } from 'astro:content';
-import { SECTION_KINDS, type PageId } from '../../../lib/page-schema';
+import {
+  SECTION_KINDS,
+  isPageIdFormat,
+  type PageId,
+} from '../../../lib/page-schema';
 import {
   getPagePath,
-  isAdminPageId,
   readPagesForAdmin,
 } from '../../../lib/admin/pages-store';
 import { CANONICAL_TAGS, TAG_LABELS } from '../../../lib/tags';
 
 const id = Astro.params.id ?? '';
-if (!(await isAdminPageId(id))) {
-  return Astro.redirect('/admin');
-}
-const pageId = id as PageId;
 const all = await readPagesForAdmin();
-const page = all[pageId];
+const page = isPageIdFormat(id) ? all[id] : undefined;
 if (!page) {
   return Astro.redirect('/admin');
 }
+const pageId = id as PageId;
 
 const liveUrl = getPagePath(page, pageId);
 const previewUrl = `/admin/preview/${pageId}?edit=1`;

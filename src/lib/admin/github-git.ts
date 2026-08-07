@@ -69,11 +69,21 @@ export async function getRefSha(branch: string): Promise<string | null> {
   return data?.object?.sha ?? null;
 }
 
+const CMS_TIP_CACHE_MS = 30_000;
+let cmsTipCache: { at: number; sha: string } | null = null;
+
 /** Create cms from main tip if missing. Returns cms tip sha. */
 export async function ensureCmsBranch(): Promise<string> {
+  if (cmsTipCache && Date.now() - cmsTipCache.at < CMS_TIP_CACHE_MS) {
+    return cmsTipCache.sha;
+  }
+
   const { token, repo } = requireGitHubConfig();
   const existing = await getRefSha(cmsBranch());
-  if (existing) return existing;
+  if (existing) {
+    cmsTipCache = { at: Date.now(), sha: existing };
+    return existing;
+  }
 
   const mainSha = await getRefSha(mainBranch());
   if (!mainSha) {
@@ -92,6 +102,7 @@ export async function ensureCmsBranch(): Promise<string> {
     },
   );
   if (!ok) throw new Error(`GitHub create cms branch failed: ${status} ${text}`);
+  cmsTipCache = { at: Date.now(), sha: mainSha };
   return mainSha;
 }
 
