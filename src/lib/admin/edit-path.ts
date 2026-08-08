@@ -6,6 +6,12 @@ export function editAttr(path: string | undefined): Record<string, string> {
   return { 'data-edit': path };
 }
 
+/** Stamp a list container (ctas, items, gallery, …) for in-preview “+” add affordances. */
+export function editListAttr(path: string | undefined): Record<string, string> {
+  if (!path || !isEditMarkupEnabled()) return {};
+  return { 'data-edit-list': path };
+}
+
 export function editPath(base: string | undefined, ...parts: (string | number)[]): string | undefined {
   if (!base) return undefined;
   return [base, ...parts.map(String)].join('.');

@@ -27,7 +27,7 @@ import {
 } from './paths.js';
 import { createVisualEditorFacade } from './facade.js';
 import type { VisualEditorFacade } from './facade.js';
-import { createMediaPicker } from './media-picker.js';
+import { createMediaPicker, openMediaPickerModal } from './media-picker.js';
 import { editorShellHtml } from './shell.js';
 import { createHistory } from './history.js';
 import { createFieldControls } from './field-controls.js';
@@ -36,7 +36,7 @@ import { createPreviewSync } from './preview-sync.js';
 import { createPagePanels } from './page-panels.js';
 import { bindStatus, bindStateChip } from '../lib/chrome.js';
 import type { ChipState } from '../lib/chrome.js';
-import { contentHash, getPageDraft, setPageDraft } from '../lib/draft-store.js';
+import { contentHash, getPageDraft, setPageDraft, listDraftPageIds } from '../lib/draft-store.js';
 import type { PageMetadata, PageSection, SectionKind } from '../lib/content.js';
 import type { DeviceMode, ImageTarget } from '../lib/facade.js';
 import type { FieldDef } from './catalog.js';
@@ -101,6 +101,7 @@ export function bootEditor() {
     draft: deepClone(boot.page),
     dirty: false,
     selectedPath: null,
+    inlineEditPath: null,
     selectedSection: 0,
     iframeWin: null,
     primary: 'inspector',
@@ -155,6 +156,127 @@ export function bootEditor() {
   s.inspectorTitleEl = document.getElementById('inspector-title');
   s.pageTitleEl = document.getElementById('page-title');
 
+  type PageListItem = { id: string; path: string; title?: string };
+  let pageListCache: PageListItem[] | null = null;
+  const pageSwitcherBtn = document.getElementById('page-switcher-btn') as HTMLButtonElement | null;
+  const pageSwitcherMenu = document.getElementById('page-switcher-menu');
+  const pageSwitcherList = document.getElementById('page-switcher-list');
+  const pageSwitcherFilter = document.getElementById('page-switcher-filter') as HTMLInputElement | null;
+
+  function closePageSwitcher() {
+    if (!pageSwitcherMenu || !pageSwitcherBtn) return;
+    pageSwitcherMenu.hidden = true;
+    pageSwitcherBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  function openPageSwitcher() {
+    if (!pageSwitcherMenu || !pageSwitcherBtn) return;
+    pageSwitcherMenu.hidden = false;
+    pageSwitcherBtn.setAttribute('aria-expanded', 'true');
+    void refreshPageSwitcherList();
+    requestAnimationFrame(() => pageSwitcherFilter?.focus());
+  }
+
+  function navigateToPage(id: string) {
+    if (!id || id === s.boot.id) {
+      closePageSwitcher();
+      return;
+    }
+    if (s.dirty) {
+      const ok = confirm('You have unsaved changes. Leave this page without saving?');
+      if (!ok) return;
+    }
+    window.location.href = `/admin/pages/${encodeURIComponent(id)}`;
+  }
+
+  function renderPageSwitcherList(pages: PageListItem[], draftIds: Set<string>, query = '') {
+    if (!pageSwitcherList) return;
+    const q = query.trim().toLowerCase();
+    const filtered = q
+      ? pages.filter((p) => {
+          const hay = `${p.id} ${p.path} ${p.title || ''}`.toLowerCase();
+          return hay.includes(q);
+        })
+      : pages;
+
+    if (!filtered.length) {
+      pageSwitcherList.innerHTML = `<p class="hint">${q ? 'No matching pages.' : 'No pages found.'}</p>`;
+      return;
+    }
+
+    pageSwitcherList.innerHTML = filtered
+      .map((p) => {
+        const current = p.id === s.boot.id;
+        const draft = draftIds.has(p.id);
+        const title =
+          p.title && p.title !== p.id
+            ? `<span class="page-switcher-item-title">${escapeHtml(p.title)}</span>`
+            : '';
+        return `<button type="button" class="page-switcher-item" role="option" data-page-id="${escapeHtml(p.id)}" aria-current="${current ? 'page' : 'false'}">
+          <span class="page-switcher-item-meta">
+            <span class="page-switcher-item-id">${escapeHtml(p.id)}</span>
+            <span class="page-switcher-item-path">${escapeHtml(p.path || '/')}</span>
+            ${title}
+          </span>
+          ${draft ? '<span class="page-switcher-draft">Draft</span>' : ''}
+        </button>`;
+      })
+      .join('');
+  }
+
+  async function refreshPageSwitcherList() {
+    if (!pageSwitcherList) return;
+    try {
+      if (!pageListCache) {
+        pageSwitcherList.innerHTML = '<p class="hint">Loading…</p>';
+        const data = await apiFetch<{ pages: PageListItem[] }>('/api/admin/pages', {
+          errorMessage: 'Failed to load pages',
+        });
+        pageListCache = Array.isArray(data.pages) ? data.pages : [];
+        pageListCache.sort((a, b) => a.id.localeCompare(b.id));
+      }
+      const draftIds = new Set(await listDraftPageIds());
+      renderPageSwitcherList(pageListCache, draftIds, pageSwitcherFilter?.value || '');
+    } catch (err) {
+      pageSwitcherList.innerHTML = `<p class="hint">${escapeHtml(err instanceof Error ? err.message : String(err))}</p>`;
+    }
+  }
+
+  pageSwitcherBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (pageSwitcherMenu?.hidden === false) closePageSwitcher();
+    else openPageSwitcher();
+  });
+
+  pageSwitcherFilter?.addEventListener('input', () => {
+    if (!pageListCache) return;
+    void listDraftPageIds().then((ids) => {
+      renderPageSwitcherList(pageListCache || [], new Set(ids), pageSwitcherFilter.value);
+    });
+  });
+
+  pageSwitcherList?.addEventListener('click', (e) => {
+    const btn = e.target instanceof Element ? e.target.closest('[data-page-id]') : null;
+    if (!(btn instanceof HTMLElement)) return;
+    const id = btn.getAttribute('data-page-id');
+    if (id) navigateToPage(id);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!pageSwitcherMenu || pageSwitcherMenu.hidden) return;
+    const t = e.target;
+    if (t instanceof Node && document.getElementById('page-switcher')?.contains(t)) return;
+    closePageSwitcher();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && pageSwitcherMenu && !pageSwitcherMenu.hidden) {
+      closePageSwitcher();
+      pageSwitcherBtn?.focus();
+    }
+  });
+
   boot.sectionKinds.forEach((kind) => {
     for (const sel of [s.addKind, s.insertKind]) {
       const opt = document.createElement('option');
@@ -186,6 +308,7 @@ export function bootEditor() {
     mountImageUrlField,
     bindLiveInput,
     focusFieldInForm,
+    highlightFieldInForm,
     renderListEditor,
     refreshInfoPane,
     syncInfoEditStatus,
@@ -712,6 +835,33 @@ export function bootEditor() {
   }
   s.renderSectionFields = renderSectionFields;
 
+  let imagePickerOpen = false;
+
+  async function openImagePickerForPath(path: string) {
+    if (!path || imagePickerOpen) return;
+    imagePickerOpen = true;
+    s.setStatus('Opening media library…');
+    try {
+      const asset = await openMediaPickerModal({
+        setStatus: s.setStatus,
+        getInsertTarget: () => ({ path, label: path }),
+      });
+      if (!asset) {
+        s.setStatus('No image selected');
+        return;
+      }
+      applyCloudinaryAsset(path, asset);
+      const match = path.match(/^sections\.(\d+)/);
+      if (match) renderSectionFields(Number(match[1]), path);
+      else if (path.startsWith('metadata.')) renderMeta();
+      s.setStatus('Image selected', 'ok');
+    } catch (err) {
+      s.setStatus(err instanceof Error ? err.message : String(err), 'error');
+    } finally {
+      imagePickerOpen = false;
+    }
+  }
+
   function handlePreviewSelect(payload: Partial<BridgeMessages['select']>) {
     const sectionIndex =
       typeof payload.sectionIndex === 'number'
@@ -928,6 +1078,19 @@ export function bootEditor() {
 
   window.addEventListener('keydown', (e) => {
     const mod = e.metaKey || e.ctrlKey;
+    if (!mod && e.key === 'Enter' && !e.shiftKey && !e.altKey) {
+      const t = e.target;
+      if (
+        t instanceof HTMLInputElement &&
+        s.selectedPath &&
+        t.id === pathToFieldId(s.selectedPath) &&
+        !s.inlineEditPath
+      ) {
+        e.preventDefault();
+        s.postToFrame('startInlineEdit', { path: s.selectedPath });
+        return;
+      }
+    }
     if (!mod) return;
     const key = e.key.toLowerCase();
     if (key === 's') {
@@ -979,6 +1142,63 @@ export function bootEditor() {
       handlePreviewSelect(data.payload || {});
       return;
     }
+    if (data.type === 'pickImage') {
+      const path = data.payload?.path;
+      if (!path) return;
+      // Keep inspector in sync even if select raced ahead.
+      if (typeof data.payload?.sectionIndex === 'number') {
+        s.selectedSection = data.payload.sectionIndex;
+      }
+      s.selectedPath = path;
+      renderSectionFields(s.selectedSection, path);
+      openInspector('section');
+      focusFieldInForm(path);
+      void openImagePickerForPath(path);
+      return;
+    }
+    if (data.type === 'inlineStart') {
+      const path = data.payload?.path;
+      if (!path) return;
+      const sectionIndex = Number(data.payload?.sectionIndex);
+      if (Number.isFinite(sectionIndex)) s.selectedSection = sectionIndex;
+      s.selectedPath = path;
+      s.inlineEditPath = path;
+      s.fieldEditCheckpointed = false;
+      renderSections();
+      renderSectionFields(s.selectedSection, s.selectedPath);
+      openInspector('section');
+      // Highlight the form field but keep focus in the preview for typing.
+      highlightFieldInForm(path);
+      syncBridgeMeta();
+      return;
+    }
+    if (data.type === 'inlineInput') {
+      const path = data.payload?.path;
+      if (!path) return;
+      const value = data.payload?.value ?? '';
+      if (!s.fieldEditCheckpointed) {
+        s.checkpoint();
+        s.fieldEditCheckpointed = true;
+      }
+      s.inlineEditPath = path;
+      setByPath(s.draft, path, value);
+      s.markDirty();
+      s.selectedPath = path;
+      const input = document.getElementById(pathToFieldId(path));
+      if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
+        if (input.value !== value) input.value = value;
+      }
+      highlightFieldInForm(path);
+      if (/^sections\.\d+\.title$/.test(path)) renderSections();
+      return;
+    }
+    if (data.type === 'inlineEnd') {
+      if (!data.payload?.path || s.inlineEditPath === data.payload.path) {
+        s.inlineEditPath = null;
+      }
+      s.fieldEditCheckpointed = false;
+      return;
+    }
     if (data.type === 'blockAction') {
       const { action, sectionIndex } =
         data.payload || ({} as Partial<BridgeMessages['blockAction']>);
@@ -994,6 +1214,34 @@ export function bootEditor() {
       const index = Number(data.payload?.index);
       if (!Number.isFinite(index)) return;
       openInsertModal(index);
+      return;
+    }
+    if (data.type === 'addListItem') {
+      const sectionIndex = Number(data.payload?.sectionIndex);
+      const listKey = String(data.payload?.listKey || '').trim();
+      if (!Number.isFinite(sectionIndex) || !listKey) return;
+      void (async () => {
+        try {
+          const api = window.__tbVisualEditor as VisualEditorFacade | undefined;
+          const result = await api?.addListItem({
+            sectionIndex,
+            listKey,
+          });
+          const index =
+            result && typeof result === 'object' && 'index' in result
+              ? Number((result as { index: number }).index)
+              : NaN;
+          if (!Number.isFinite(index)) return;
+          const focusPath = `sections.${sectionIndex}.${listKey}.${index}.label`;
+          selectSection(sectionIndex, {
+            keepPath: true,
+            focusPath,
+            scroll: true,
+          });
+        } catch (err) {
+          setStatus(err instanceof Error ? err.message : String(err), 'error');
+        }
+      })();
     }
   });
 
@@ -1106,10 +1354,11 @@ export function bootEditor() {
 
   window.__tbVisualEditor = createVisualEditorFacade(s);
 
-  /** Honor ?section=&path= from live-site hover CTAs. */
+  /** Honor ?section=&path=&addList= from live-site hover CTAs. */
   {
     const params = new URLSearchParams(location.search);
     const path = params.get('path');
+    const addList = params.get('addList');
     let index = Number(params.get('section'));
     if (!Number.isFinite(index) && path) {
       const m = path.match(/^sections\.(\d+)/);
@@ -1117,12 +1366,43 @@ export function bootEditor() {
     }
     if (Number.isFinite(index) && index >= 0 && index < s.draft.sections.length) {
       deepLinkScroll = true;
-      if (path) s.selectedPath = path;
+      if (path && !addList) s.selectedPath = path;
       selectSection(index, {
-        keepPath: Boolean(path),
-        focusPath: path,
+        keepPath: Boolean(path) && !addList,
+        focusPath: addList ? null : path,
         scroll: true,
       });
+
+      if (addList) {
+        const listKey = addList.trim();
+        void (async () => {
+          try {
+            const api = window.__tbVisualEditor as VisualEditorFacade | undefined;
+            const result = await api?.addListItem({
+              sectionIndex: index,
+              listKey,
+            });
+            const itemIndex =
+              result && typeof result === 'object' && 'index' in result
+                ? Number((result as { index: number }).index)
+                : NaN;
+            if (Number.isFinite(itemIndex)) {
+              const focusPath = `sections.${index}.${listKey}.${itemIndex}.label`;
+              selectSection(index, {
+                keepPath: true,
+                focusPath,
+                scroll: true,
+              });
+            }
+          } catch (err) {
+            setStatus(err instanceof Error ? err.message : String(err), 'error');
+          } finally {
+            const clean = new URL(location.href);
+            clean.searchParams.delete('addList');
+            history.replaceState(null, '', clean.pathname + clean.search);
+          }
+        })();
+      }
     }
   }
 

@@ -4,7 +4,7 @@ import Section from "../primitives/Section.astro";
 import Button from "../primitives/Button.astro";
 import Eyebrow from "../primitives/Eyebrow.astro";
 import { heroSplitWidths, headshotPrimaryWidths } from "../../lib/image-widths";
-import { editAttr, editPath } from "../../lib/admin/edit-path";
+import { editAttr, editListAttr, editPath } from "../../lib/admin/edit-path";
 
 type Variant = "primary" | "secondary" | "accent" | "ghost";
 type ImageSide = "left" | "right";
@@ -89,8 +89,11 @@ const externalCta = (href: string) =>
         </p>
       )}
       {
-        ctas.length > 0 && (
-          <div class="mt-6 flex flex-wrap gap-3 lg:mt-8">
+        (ctas.length > 0 || editBase) && (
+          <div
+            class="mt-6 inline-flex flex-wrap items-center gap-3 lg:mt-8"
+            {...editListAttr(editPath(editBase, 'ctas'))}
+          >
             {ctas.map((cta, i) => (
               <Button
                 href={cta.href}

@@ -16,9 +16,24 @@ export function editorShellHtml({ boot, slugPath, icon }: EditorShellOpts): stri
     <header class="topbar">
       <div class="brand">
         <a class="back" href="/admin">${icon('chevronLeft', 'icon icon-sm')} Pages</a>
-        <div class="page-meta">
-          <h1>${boot.id}</h1>
-          <span class="slug">${slugPath}</span>
+        <div class="page-switcher" id="page-switcher">
+          <div class="page-switcher-anchor">
+            <button type="button" class="page-switcher-btn" id="page-switcher-btn" aria-haspopup="listbox" aria-expanded="false" title="Switch page">
+              <span class="page-switcher-meta">
+                <span class="page-switcher-id">${boot.id}</span>
+                <span class="page-switcher-path">${slugPath}</span>
+              </span>
+              ${icon('down', 'icon icon-sm page-switcher-caret')}
+            </button>
+            <div class="page-switcher-menu" id="page-switcher-menu" role="listbox" hidden>
+              <div class="page-switcher-search">
+                <input type="text" id="page-switcher-filter" placeholder="Filter pages…" aria-label="Filter pages" autocomplete="off" spellcheck="false" />
+              </div>
+              <div class="page-switcher-list" id="page-switcher-list" role="presentation">
+                <p class="hint">Loading…</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="devices" role="group" aria-label="Preview width">

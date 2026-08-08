@@ -18,7 +18,7 @@ document.addEventListener(
   (e) => {
     const a = e.target instanceof Element ? e.target.closest('a[href]') : null;
     if (!a) return;
-    if (a.closest('[data-edit]') || a.closest('#tb-ve-chrome') || a.closest('.tb-ve-insert')) return;
+    if (a.closest('[data-edit]') || a.closest('#tb-ve-chrome') || a.closest('.tb-ve-insert') || a.closest('.tb-ve-list-add')) return;
     e.preventDefault();
     e.stopPropagation();
   },
@@ -57,6 +57,13 @@ if (!style) {
       outline: 2px solid #e85d3a !important;
       outline-offset: 2px;
       background-color: rgba(232, 93, 58, .1);
+    }
+    [data-edit][data-inline-editing="1"] {
+      cursor: text !important;
+      outline: 2px solid #e85d3a !important;
+      outline-offset: 2px;
+      background-color: rgba(232, 93, 58, .12);
+      box-shadow: 0 0 0 3px rgba(232, 93, 58, .18);
     }
     #tb-ve-chrome {
       position: absolute;
@@ -141,13 +148,17 @@ if (!style) {
     }
     .tb-ve-insert-btn {
       pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       width: 26px;
       height: 26px;
+      padding: 0;
       border-radius: 999px;
       border: 0;
       background: #e85d3a;
       color: #fff;
-      font: 700 16px/1 ui-sans-serif, system-ui, sans-serif;
+      font: 700 18px/1 ui-sans-serif, system-ui, sans-serif;
       cursor: pointer;
       opacity: 0;
       transform: scale(0.82);
@@ -155,12 +166,88 @@ if (!style) {
       box-shadow: 0 3px 10px rgba(232, 93, 58, .4);
       z-index: 1;
     }
+    .tb-ve-insert-btn::before {
+      content: '+';
+      display: block;
+      margin-top: -0.08em; /* optical center — + glyph sits low in the em box */
+    }
     .tb-ve-insert-hit:hover::before { background: rgba(232, 93, 58, .75); }
     .tb-ve-insert-hit:hover .tb-ve-insert-btn,
     .tb-ve-insert-btn:focus {
       opacity: 1;
       transform: scale(1);
     }
+    [data-edit-list] {
+      /* shrink-wrap so the in-flow + sits next to the last CTA, not at column edge */
+      width: fit-content;
+      max-width: 100%;
+    }
+    .tb-ve-list-add {
+      position: relative;
+      z-index: 30;
+      flex: 0 0 auto;
+      align-self: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      margin: 0;
+      padding: 0;
+      border-radius: 999px;
+      border: 0;
+      background: #e85d3a;
+      color: #fff;
+      font: 700 18px/1 ui-sans-serif, system-ui, sans-serif;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.82);
+      box-shadow: 0 3px 10px rgba(232, 93, 58, .4);
+      transition: opacity .15s ease, transform .15s ease;
+    }
+    .tb-ve-list-add::before {
+      content: '+';
+      display: block;
+      margin-top: -0.08em; /* optical center — + glyph sits low in the em box */
+    }
+    [data-edit-list]:hover > .tb-ve-list-add,
+    [data-edit-list]:focus-within > .tb-ve-list-add,
+    .tb-ve-list-add:hover,
+    .tb-ve-list-add:focus {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+    .tb-ve-img-pick {
+      position: fixed;
+      z-index: 2147483645;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      height: 28px;
+      padding: 0 0.55rem;
+      border: 0;
+      border-radius: 8px;
+      background: #1c1917;
+      color: #fff;
+      font: 600 11px/1 ui-sans-serif, system-ui, sans-serif;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(28,25,23,.28);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(2px);
+      transition: opacity .12s ease, transform .12s ease;
+    }
+    .tb-ve-img-pick[data-open="1"] {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .tb-ve-img-pick:hover { background: #292524; }
+    .tb-ve-img-pick svg { display: block; flex: 0 0 auto; }
   `;
   document.head.appendChild(style);
 }
@@ -169,6 +256,10 @@ let kinds: string[] = [];
 let selectedSection = 0;
 let chromeEl: HTMLDivElement | null = null;
 let menuOpen = false;
+let imgPickBtn: HTMLButtonElement | null = null;
+let imgPickPath: string | null = null;
+let imgPickField: Element | null = null;
+let imgPickHideTimer: ReturnType<typeof setTimeout> | null = null;
 
 function post<K extends keyof BridgeMessages>(type: K, payload: BridgeMessages[K]) {
   postToParent(type, payload);
@@ -205,6 +296,242 @@ function findEditable(path: string | null | undefined) {
 
 function findSection(index: number) {
   return document.querySelector(`[data-section="${index}"]`);
+}
+
+function ensureImgPickBtn(): HTMLButtonElement {
+  if (imgPickBtn) return imgPickBtn;
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'tb-ve-img-pick';
+  btn.hidden = true;
+  btn.title = 'Replace image';
+  btn.setAttribute('aria-label', 'Replace image');
+  btn.innerHTML = `
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+      <circle cx="8.5" cy="10.5" r="1.5"></circle>
+      <path d="M21 15l-5-5L5 19"></path>
+    </svg>
+    <span>Replace</span>
+  `;
+  btn.addEventListener('pointerenter', () => {
+    if (imgPickHideTimer) {
+      clearTimeout(imgPickHideTimer);
+      imgPickHideTimer = null;
+    }
+  });
+  btn.addEventListener('pointerleave', () => {
+    scheduleHideImgPick();
+  });
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    const path = imgPickPath;
+    if (!path) return;
+    const field = findEditable(path);
+    const sectionEl = field?.closest('[data-section]') || null;
+    const sectionIndex = sectionIndexOf(sectionEl) >= 0
+      ? sectionIndexOf(sectionEl)
+      : Number(path.match(/^sections\.(\d+)/)?.[1]);
+    if (!Number.isFinite(sectionIndex)) return;
+    setActiveSection(sectionIndex, path);
+    post('select', {
+      sectionIndex,
+      path,
+      kind: 'image',
+      value: field?.getAttribute('src') || field?.getAttribute('href') || '',
+    });
+    post('pickImage', { sectionIndex, path });
+  });
+  document.body.appendChild(btn);
+  imgPickBtn = btn;
+  return btn;
+}
+
+function placeImgPickBtn(field: Element) {
+  const btn = ensureImgPickBtn();
+  const r = field.getBoundingClientRect();
+  if (r.width < 8 || r.height < 8) {
+    hideImgPickBtn();
+    return;
+  }
+  const pad = 8;
+  const top = Math.max(pad, r.top + pad);
+  const left = Math.min(window.innerWidth - 108, Math.max(pad, r.right - 100));
+  btn.style.top = `${Math.round(top)}px`;
+  btn.style.left = `${Math.round(left)}px`;
+  btn.hidden = false;
+  btn.dataset.open = '1';
+}
+
+function hideImgPickBtn() {
+  if (imgPickHideTimer) {
+    clearTimeout(imgPickHideTimer);
+    imgPickHideTimer = null;
+  }
+  if (imgPickBtn) {
+    imgPickBtn.hidden = true;
+    imgPickBtn.dataset.open = '0';
+  }
+  imgPickPath = null;
+  imgPickField = null;
+}
+
+function scheduleHideImgPick() {
+  if (imgPickHideTimer) clearTimeout(imgPickHideTimer);
+  imgPickHideTimer = setTimeout(() => {
+    imgPickHideTimer = null;
+    hideImgPickBtn();
+  }, 160);
+}
+
+function showImgPickFor(field: Element) {
+  const path = field.getAttribute('data-edit');
+  if (!path || !isImageField(field, path)) return;
+  if (imgPickHideTimer) {
+    clearTimeout(imgPickHideTimer);
+    imgPickHideTimer = null;
+  }
+  imgPickField = field;
+  imgPickPath = path;
+  placeImgPickBtn(field);
+}
+
+const MULTILINE_TAGS = new Set(['P', 'DIV', 'LI', 'TD', 'TH', 'SECTION', 'ARTICLE', 'BLOCKQUOTE']);
+
+let inlineEl: HTMLElement | null = null;
+let inlinePath: string | null = null;
+
+function isImageField(field: Element, path: string | null) {
+  if (field.tagName === 'IMG') return true;
+  if (!path) return false;
+  // Only the binary/URL leaf — not `.image.alt` / `.gallery.N.label`.
+  return path.endsWith('.src') || /\.(image|gallery|backgroundImage)\.src$/.test(path);
+}
+
+function isUrlLikePath(path: string) {
+  return (
+    /\.(src|href|url|searchHref|noteHref)$/i.test(path) ||
+    path.includes('.backgroundImage.src')
+  );
+}
+
+function isMarkdownPath(path: string) {
+  const m = path.match(/^sections\.(\d+)\.body$/);
+  if (!m) return false;
+  return kinds[Number(m[1])] === 'image-text';
+}
+
+function isInlineEligible(field: Element, path: string | null) {
+  if (!path || !(field instanceof HTMLElement)) return false;
+  if (isImageField(field, path)) return false;
+  if (isUrlLikePath(path) || isMarkdownPath(path)) return false;
+  return true;
+}
+
+function inlineValue(el: HTMLElement) {
+  return el.innerText ?? el.textContent ?? '';
+}
+
+let inlineIgnoreBlurUntil = 0;
+
+function endInlineEdit(opts: { notify?: boolean } = {}) {
+  const el = inlineEl;
+  const path = inlinePath;
+  if (!el && !path) return;
+  if (el) {
+    el.removeAttribute('contenteditable');
+    el.removeAttribute('data-inline-editing');
+    el.removeEventListener('input', onInlineInput);
+    el.removeEventListener('keydown', onInlineKeydown);
+    el.removeEventListener('blur', onInlineBlur);
+  }
+  inlineEl = null;
+  inlinePath = null;
+  if (opts.notify !== false && path) {
+    post('inlineEnd', { path });
+  }
+}
+
+function onInlineInput() {
+  if (!inlineEl || !inlinePath) return;
+  let value = inlineValue(inlineEl);
+  if (!MULTILINE_TAGS.has(inlineEl.tagName)) {
+    value = value.replace(/\n/g, ' ');
+  }
+  post('inlineInput', { path: inlinePath, value });
+}
+
+function onInlineKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    e.stopPropagation();
+    endInlineEdit();
+    return;
+  }
+  if (e.key === 'Enter' && inlineEl && !MULTILINE_TAGS.has(inlineEl.tagName)) {
+    e.preventDefault();
+    endInlineEdit();
+  }
+}
+
+function onInlineBlur() {
+  if (Date.now() < inlineIgnoreBlurUntil) return;
+  setTimeout(() => {
+    if (!inlineEl) return;
+    if (Date.now() < inlineIgnoreBlurUntil) return;
+    if (document.activeElement === inlineEl) return;
+    if (inlineEl.contains(document.activeElement)) return;
+    endInlineEdit();
+  }, 0);
+}
+
+function enableContentEditable(field: HTMLElement) {
+  field.setAttribute('contenteditable', 'plaintext-only');
+  // Browsers that don't understand plaintext-only leave the node non-editable.
+  if (!field.isContentEditable) {
+    field.setAttribute('contenteditable', 'true');
+  }
+}
+
+function startInlineEdit(field: HTMLElement, path: string, sectionIndex: number) {
+  if (inlineEl === field && inlinePath === path) {
+    inlineIgnoreBlurUntil = Date.now() + 300;
+    field.focus({ preventScroll: true });
+    return;
+  }
+  endInlineEdit({ notify: true });
+
+  inlineEl = field;
+  inlinePath = path;
+  inlineIgnoreBlurUntil = Date.now() + 300;
+
+  field.setAttribute('data-inline-editing', '1');
+  enableContentEditable(field);
+
+  field.addEventListener('input', onInlineInput);
+  field.addEventListener('keydown', onInlineKeydown);
+  field.addEventListener('blur', onInlineBlur);
+
+  setActiveSection(sectionIndex, path);
+  const value = inlineValue(field);
+  post('inlineStart', { sectionIndex, path, value });
+
+  field.focus({ preventScroll: true });
+  try {
+    const sel = window.getSelection();
+    if (sel) {
+      const range = document.createRange();
+      range.selectNodeContents(field);
+      // Collapse to end so a click doesn't feel like a full wipe on first key.
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  } catch {
+    // Some nodes (e.g. void-ish) reject selectNodeContents — focus is enough.
+  }
 }
 
 function ensureChrome(): HTMLDivElement {
@@ -307,38 +634,86 @@ function setActivePath(path: string | null) {
   setActiveSection(index, path);
 }
 
+function listKeyFromPath(listPath: string): string | null {
+  const parts = String(listPath || '').split('.').filter(Boolean);
+  const key = parts[parts.length - 1];
+  return key || null;
+}
+
+function rebuildListAddButtons() {
+  document.querySelectorAll('.tb-ve-list-add').forEach((el) => el.remove());
+  document.querySelectorAll('[data-edit-list]').forEach((listEl) => {
+    const listPath = listEl.getAttribute('data-edit-list') || '';
+    const listKey = listKeyFromPath(listPath);
+    const sectionEl = listEl.closest('[data-section]');
+    const sectionIndex = sectionIndexOf(sectionEl);
+    if (!listKey || sectionIndex < 0) return;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tb-ve-list-add';
+    btn.textContent = '';
+    const singular = listKey.replace(/s$/, '');
+    btn.title = `Add ${singular}`;
+    btn.setAttribute('aria-label', `Add ${singular}`);
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      post('addListItem', { sectionIndex, listKey });
+    });
+    listEl.appendChild(btn);
+  });
+}
+
 function rebuildInsertZones() {
   document.querySelectorAll('.tb-ve-insert').forEach((el) => el.remove());
   const list = sections();
   const parent = list[0]?.parentElement;
-  if (!parent) return;
-
-  const makeZone = (atIndex: number) => {
-    const zone = document.createElement('div');
-    zone.className = 'tb-ve-insert';
-    zone.dataset.insertAt = String(atIndex);
-    zone.innerHTML = `
+  if (parent) {
+    const makeZone = (atIndex: number) => {
+      const zone = document.createElement('div');
+      zone.className = 'tb-ve-insert';
+      zone.dataset.insertAt = String(atIndex);
+      zone.innerHTML = `
       <div class="tb-ve-insert-hit">
-        <button type="button" class="tb-ve-insert-btn" title="Add section here" aria-label="Add section here">+</button>
+        <button type="button" class="tb-ve-insert-btn" title="Add section here" aria-label="Add section here"></button>
       </div>
     `;
-    zone.querySelector('button')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      post('addAt', { index: atIndex });
-    });
-    return zone;
-  };
+      zone.querySelector('button')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        post('addAt', { index: atIndex });
+      });
+      return zone;
+    };
 
-  list.forEach((sectionEl, i) => {
-    parent.insertBefore(makeZone(i), sectionEl);
-  });
-  parent.appendChild(makeZone(list.length));
+    list.forEach((sectionEl, i) => {
+      parent.insertBefore(makeZone(i), sectionEl);
+    });
+    parent.appendChild(makeZone(list.length));
+  }
+  rebuildListAddButtons();
 }
 
 function onClick(e: MouseEvent) {
   if (!(e.target instanceof Element)) return;
-  if (e.target.closest('#tb-ve-chrome') || e.target.closest('.tb-ve-insert')) return;
+  if (
+    e.target.closest('#tb-ve-chrome') ||
+    e.target.closest('.tb-ve-insert') ||
+    e.target.closest('.tb-ve-list-add') ||
+    e.target.closest('.tb-ve-img-pick')
+  ) {
+    return;
+  }
+
+  // Let the caret move inside an active inline field.
+  if (inlineEl && inlineEl.contains(e.target)) {
+    return;
+  }
+
+  if (inlineEl) {
+    endInlineEdit();
+  }
 
   const field = e.target.closest('[data-edit]');
   const sectionEl = e.target.closest('[data-section]');
@@ -354,15 +729,21 @@ function onClick(e: MouseEvent) {
 
   if (!Number.isFinite(index)) return;
 
+  // Plain-text leaves: edit in place (do not steal focus to the form).
+  if (field instanceof HTMLElement) {
+    const path = field.getAttribute('data-edit');
+    if (path && isInlineEligible(field, path)) {
+      startInlineEdit(field, path, index);
+      return;
+    }
+  }
+
   let path: string | null = null;
   let kind: SelectKind = 'text';
   let value = '';
   if (field) {
     path = field.getAttribute('data-edit');
-    const isImage =
-      field.tagName === 'IMG' ||
-      (path &&
-        (path.endsWith('.src') || path.includes('.image.') || path.includes('.gallery.')));
+    const isImage = isImageField(field, path);
     kind = isImage ? 'image' : 'text';
     value = isImage
       ? field.getAttribute('src') || field.getAttribute('href') || ''
@@ -379,6 +760,49 @@ function onClick(e: MouseEvent) {
 }
 
 document.addEventListener('click', onClick, true);
+
+document.addEventListener(
+  'pointerover',
+  (e) => {
+    if (!(e.target instanceof Element)) return;
+    if (e.target.closest('.tb-ve-img-pick')) return;
+    const field = e.target.closest('[data-edit]');
+    if (!field) return;
+    const path = field.getAttribute('data-edit');
+    if (!path || !isImageField(field, path)) return;
+    showImgPickFor(field);
+  },
+  true,
+);
+
+document.addEventListener(
+  'pointerout',
+  (e) => {
+    if (!(e.target instanceof Element)) return;
+    const field = e.target.closest('[data-edit]');
+    if (!field || field !== imgPickField) return;
+    const next = e.relatedTarget instanceof Element ? e.relatedTarget : null;
+    if (next && (field.contains(next) || next.closest('.tb-ve-img-pick'))) return;
+    scheduleHideImgPick();
+  },
+  true,
+);
+
+window.addEventListener(
+  'scroll',
+  () => {
+    if (imgPickField && imgPickBtn && !imgPickBtn.hidden) {
+      placeImgPickBtn(imgPickField);
+    }
+  },
+  true,
+);
+
+window.addEventListener('resize', () => {
+  if (imgPickField && imgPickBtn && !imgPickBtn.hidden) {
+    placeImgPickBtn(imgPickField);
+  }
+});
 
 document.addEventListener(
   'click',
@@ -448,6 +872,8 @@ window.addEventListener('message', (e) => {
     }
     case 'setText': {
       const { path, value } = msg.payload;
+      // Don't fight the caret while the user is typing in the preview.
+      if (inlinePath && path === inlinePath) return;
       const el = findEditable(path);
       if (el) el.textContent = value ?? '';
       return;
@@ -489,6 +915,8 @@ window.addEventListener('message', (e) => {
       return;
     }
     case 'moveSection': {
+      endInlineEdit({ notify: true });
+      hideImgPickBtn();
       const { from, to } = msg.payload;
       const list = sections();
       if (
@@ -516,6 +944,8 @@ window.addEventListener('message', (e) => {
       return;
     }
     case 'removeSection': {
+      endInlineEdit({ notify: true });
+      hideImgPickBtn();
       const el = findSection(msg.payload.index);
       if (el) el.remove();
       reindexSectionDom();
@@ -525,6 +955,8 @@ window.addEventListener('message', (e) => {
       return;
     }
     case 'insertSectionHtml': {
+      endInlineEdit({ notify: true });
+      hideImgPickBtn();
       const { index, html } = msg.payload;
       const list = sections();
       const parent = list[0]?.parentElement || document.querySelector('main') || document.body;
@@ -544,6 +976,8 @@ window.addEventListener('message', (e) => {
       return;
     }
     case 'replaceSectionHtml': {
+      endInlineEdit({ notify: true });
+      hideImgPickBtn();
       const { index, html } = msg.payload;
       const el = findSection(index);
       if (!el) return;
@@ -557,11 +991,28 @@ window.addEventListener('message', (e) => {
       return;
     }
     case 'reindexSections': {
+      endInlineEdit({ notify: true });
       if (Array.isArray(msg.payload.kinds)) {
         kinds = msg.payload.kinds;
       }
       reindexSectionDom();
       rebuildInsertZones();
+      return;
+    }
+    case 'endInlineEdit': {
+      endInlineEdit({ notify: true });
+      return;
+    }
+    case 'startInlineEdit': {
+      const path = msg.payload.path;
+      const field = findEditable(path);
+      if (!field || !(field instanceof HTMLElement) || !isInlineEligible(field, path)) return;
+      const sectionEl = field.closest('[data-section]');
+      const index = sectionIndexOf(sectionEl) >= 0
+        ? sectionIndexOf(sectionEl)
+        : Number(path.match(/^sections\.(\d+)/)?.[1]);
+      if (!Number.isFinite(index)) return;
+      startInlineEdit(field, path, index);
       return;
     }
     default: {

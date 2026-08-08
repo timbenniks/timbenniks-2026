@@ -95,7 +95,7 @@ The public site always serves the deployed filesystem from **`main`**. Publish n
 
 ```
 ┌──────────────────────────────┬────────────────┬────┐
-│ Top: page / devices / Save   │                │ico │
+│ Top: pages · switcher / devices│                │ico │
 │──────────────────────────────│ Primary panel  │nav │
 │ Live preview (dominant)      │ + Agent (opt.) │    │
 └──────────────────────────────┴────────────────┴────┘
@@ -109,6 +109,7 @@ Right **activity rail** (top → bottom):
 4. **Agent** — stacks beside the open primary panel (when `OPENAI_API_KEY` is set)
 5. Exit links — Pages / Site chrome / Media desk / Changes
 
+- **Page switcher** (top left, beside Pages): dropdown of all pages (filter + draft badges); warns if the current draft is unsaved
 - **Preview** (center): real site in an iframe (`?edit=1`); device toggles (Desktop / Mobile / Full)
 - **Inspector:** Layers (section list, reorder / duplicate / delete / add), Section fields, Meta for SEO
 - **Info:** page id, path, live URL, edit/publish status, last commit on main
@@ -122,13 +123,14 @@ Selecting a block in the preview opens Inspector → Section.
 
 1. Hover a **block** in the preview → orange outline
 2. Click the block → form rail fills; floating chrome shows kind + `⋯`
-3. Click a leaf field → input focuses; typing updates the preview live
-4. Nested lists (FAQ, CTAs, gallery, timeline, inventory, …): add / reorder / remove in the form
-5. Layers: drag the grip to reorder (or use move buttons)
-6. Between-block `+` inserts a section
-7. Status: **Unsaved** vs **Draft saved**
-8. **Save** (⌘S) — local draft; **⇧⌘S** opens Changes
-9. Undo / Redo (⌘Z / ⇧⌘Z)
+3. Click a plain-text leaf → type in the preview; the Inspector field updates live (Escape or click away to exit)
+4. Click an **image** → form field focuses; hover the image and click **Replace** to open the Cloudinary picker
+5. Nested lists (FAQ, CTAs, gallery, timeline, inventory, …): add / reorder / remove in the form
+6. Layers: drag the grip to reorder (or use move buttons)
+7. Between-block `+` inserts a section
+8. Status: **Unsaved** vs **Draft saved**
+9. **Save** (⌘S) — local draft; **⇧⌘S** opens Changes
+10. Undo / Redo (⌘Z / ⇧⌘Z)
 
 Structural edits update the preview in place when possible (bridge DOM ops + section HTML). **Publish** is only on the Changes desk.
 

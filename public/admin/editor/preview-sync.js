@@ -15,6 +15,10 @@ function createPreviewSync(s) {
     }
   }
   function reloadPreview(highlightIndex) {
+    if (s.inlineEditPath) {
+      s.postToFrame("endInlineEdit", {});
+      s.inlineEditPath = null;
+    }
     s.pendingScroll = capturePreviewScroll();
     s.pendingHighlight = highlightIndex == null ? s.selectedSection : highlightIndex;
     s.setStatus("Refreshing preview\u2026");
@@ -56,6 +60,10 @@ function createPreviewSync(s) {
     });
   }
   async function applyLiveStructural(op, opts = {}) {
+    if (s.inlineEditPath) {
+      s.postToFrame("endInlineEdit", {});
+      s.inlineEditPath = null;
+    }
     const target = opts.highlightIndex == null ? s.selectedSection : opts.highlightIndex;
     await persistDraftLocal();
     try {

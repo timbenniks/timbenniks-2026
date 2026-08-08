@@ -115,6 +115,10 @@ function createFieldControls(s) {
       highlightFieldInForm(path);
     });
     input.addEventListener("input", () => {
+      if (s.inlineEditPath === path) {
+        s.postToFrame("endInlineEdit", {});
+        s.inlineEditPath = null;
+      }
       if (!s.fieldEditCheckpointed) {
         s.checkpoint();
         s.fieldEditCheckpointed = true;
@@ -128,7 +132,7 @@ function createFieldControls(s) {
       s.markDirty();
       if (kind === "image" || path.endsWith(".src")) {
         s.postToFrame("setAttr", { path, attr: "src", value });
-      } else {
+      } else if (s.inlineEditPath !== path) {
         s.postToFrame("setText", { path, value });
       }
       s.selectedPath = path;

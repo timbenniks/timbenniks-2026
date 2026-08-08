@@ -150,6 +150,11 @@ export function createFieldControls(s: EditorSession): FieldControlsApi {
       highlightFieldInForm(path);
     });
     input.addEventListener('input', () => {
+      // Form becomes source of truth — exit preview contenteditable for this path.
+      if (s.inlineEditPath === path) {
+        s.postToFrame('endInlineEdit', {});
+        s.inlineEditPath = null;
+      }
       if (!s.fieldEditCheckpointed) {
         s.checkpoint();
         s.fieldEditCheckpointed = true;
@@ -164,7 +169,7 @@ export function createFieldControls(s: EditorSession): FieldControlsApi {
       s.markDirty();
       if (kind === 'image' || path.endsWith('.src')) {
         s.postToFrame('setAttr', { path, attr: 'src', value });
-      } else {
+      } else if (s.inlineEditPath !== path) {
         s.postToFrame('setText', { path, value });
       }
       s.selectedPath = path;

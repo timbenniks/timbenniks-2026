@@ -34,6 +34,10 @@ export function createPreviewSync(s: EditorSession): PreviewSyncApi {
   }
 
   function reloadPreview(highlightIndex?: number | null) {
+    if (s.inlineEditPath) {
+      s.postToFrame('endInlineEdit', {});
+      s.inlineEditPath = null;
+    }
     s.pendingScroll = capturePreviewScroll();
     s.pendingHighlight =
       highlightIndex == null ? s.selectedSection : highlightIndex;
@@ -86,6 +90,10 @@ export function createPreviewSync(s: EditorSession): PreviewSyncApi {
     op: StructuralOp,
     opts: StructuralOpts = {},
   ): Promise<boolean> {
+    if (s.inlineEditPath) {
+      s.postToFrame('endInlineEdit', {});
+      s.inlineEditPath = null;
+    }
     const target =
       opts.highlightIndex == null ? s.selectedSection : opts.highlightIndex;
     await persistDraftLocal();

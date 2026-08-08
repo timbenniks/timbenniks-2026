@@ -114,6 +114,8 @@ export interface EditorSession {
   // ── Selection and chrome state ──────────────────────────────────────────
   selectedSection: number;
   selectedPath: string | null;
+  /** Path currently being edited via preview contenteditable (suppresses setText echo). */
+  inlineEditPath: string | null;
   primary: PrimaryPanel | null;
   inspectorTab: InspectorTab;
   pageTab: PageTab;

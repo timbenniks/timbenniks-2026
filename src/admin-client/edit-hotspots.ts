@@ -4,6 +4,8 @@
  *
  * The chip is mounted inside the hovered `[data-section]` (absolute) so moving the
  * pointer onto it never leaves the hover target.
+ *
+ * Hovering `[data-edit-list]` shows an “Add …” chip that deep-links with `addList=`.
  */
 function prettyKind(kind: string): string {
   return kind
@@ -25,10 +27,27 @@ function prettyField(path: string, sectionIndex: number): string {
     .join(' · ');
 }
 
-function editorHref(pageId: string, section: number, path?: string | null): string {
+function prettyListKey(listKey: string): string {
+  const singular = listKey.replace(/s$/, '');
+  return singular
+    .replace(/[-_]/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function listKeyFromPath(listPath: string): string | null {
+  const parts = String(listPath || '').split('.').filter(Boolean);
+  return parts[parts.length - 1] || null;
+}
+
+function editorHref(
+  pageId: string,
+  section: number,
+  opts?: { path?: string | null; addList?: string | null },
+): string {
   const url = new URL(`/admin/pages/${encodeURIComponent(pageId)}`, location.origin);
   url.searchParams.set('section', String(section));
-  if (path) url.searchParams.set('path', path);
+  if (opts?.addList) url.searchParams.set('addList', opts.addList);
+  else if (opts?.path) url.searchParams.set('path', opts.path);
   return url.pathname + url.search;
 }
 
@@ -39,6 +58,10 @@ function ensureStyles() {
   style.textContent = `
     [data-section] {
       position: relative;
+    }
+    [data-edit-list] {
+      width: fit-content;
+      max-width: 100%;
     }
     .tb-edit-hotspot {
       position: absolute;
@@ -68,13 +91,30 @@ function ensureStyles() {
       transform: translateY(0);
     }
     .tb-edit-hotspot.is-field {
-      /* Pin near the hovered field instead of the section corner. */
       right: auto;
+    }
+    .tb-edit-hotspot.is-list-add {
+      position: relative;
+      top: auto;
+      right: auto;
+      left: auto;
+      flex: 0 0 auto;
+      align-self: center;
+      background: #e85d3a;
+      transform: none;
+      max-width: none;
+    }
+    .tb-edit-hotspot.is-list-add.is-on {
+      transform: none;
     }
     .tb-edit-hotspot:hover,
     .tb-edit-hotspot:focus-visible {
       background: #e85d3a;
       outline: none;
+    }
+    .tb-edit-hotspot.is-list-add:hover,
+    .tb-edit-hotspot.is-list-add:focus-visible {
+      background: #1c1917;
     }
     .tb-edit-hotspot .tb-edit-hotspot-mark {
       display: inline-block;
@@ -83,6 +123,9 @@ function ensureStyles() {
       border-radius: 999px;
       background: #e85d3a;
       flex-shrink: 0;
+    }
+    .tb-edit-hotspot.is-list-add .tb-edit-hotspot-mark {
+      background: #fff;
     }
     .tb-edit-hotspot:hover .tb-edit-hotspot-mark,
     .tb-edit-hotspot:focus-visible .tb-edit-hotspot-mark {
@@ -109,6 +152,7 @@ function bootHotspots() {
   let hideTimer: ReturnType<typeof setTimeout> | null = null;
   let activeKey = '';
   let hostSection: Element | null = null;
+  let hostList: Element | null = null;
 
   function clearHide() {
     if (hideTimer) {
@@ -119,12 +163,13 @@ function bootHotspots() {
 
   function hide() {
     clearHide();
-    tip.classList.remove('is-on', 'is-field');
+    tip.classList.remove('is-on', 'is-field', 'is-list-add');
     tip.style.top = '';
     tip.style.left = '';
     tip.style.right = '';
     activeKey = '';
     hostSection = null;
+    hostList = null;
     tip.remove();
   }
 
@@ -135,6 +180,7 @@ function bootHotspots() {
 
   function placeInSection(section: Element, field: Element | null) {
     if (tip.parentElement !== section) section.appendChild(tip);
+    hostList = null;
 
     if (!field) {
       tip.classList.remove('is-field');
@@ -155,8 +201,21 @@ function bootHotspots() {
     tip.style.right = 'auto';
   }
 
+  function placeInList(listEl: Element) {
+    if (tip.parentElement !== listEl) listEl.appendChild(tip);
+    hostList = listEl;
+    tip.classList.remove('is-field');
+    tip.classList.add('is-list-add');
+    tip.style.top = '';
+    tip.style.left = '';
+    tip.style.right = '';
+  }
+
   function showFor(target: Element) {
     const field = target.closest('[data-edit]');
+    // List-add when hovering the CTA row (including labels inside it).
+    // Field edit chip still wins only when the leaf is outside a list.
+    const listEl = target.closest('[data-edit-list]');
     const section = target.closest('[data-section]');
     if (!section) {
       scheduleHide();
@@ -178,12 +237,33 @@ function bootHotspots() {
       return;
     }
 
+    clearHide();
+    hostSection = section;
+
+    if (listEl) {
+      const listPath = listEl.getAttribute('data-edit-list') || '';
+      const listKey = listKeyFromPath(listPath);
+      if (!listKey) {
+        scheduleHide();
+        return;
+      }
+      const key = `${pageId}:${sectionIndex}:add:${listKey}`;
+      if (key !== activeKey) {
+        activeKey = key;
+        const label = `Add ${prettyListKey(listKey)}`;
+        if (labelEl) labelEl.textContent = label;
+        tip.href = editorHref(pageId, sectionIndex, { addList: listKey });
+        tip.title = `Add ${listKey} in admin editor`;
+      }
+      tip.classList.add('is-on');
+      placeInList(listEl);
+      return;
+    }
+
+    tip.classList.remove('is-list-add');
     const kind = section.getAttribute('data-section-kind') || `Section ${sectionIndex}`;
     const path = field?.getAttribute('data-edit') || null;
     const key = `${pageId}:${sectionIndex}:${path || ''}`;
-
-    clearHide();
-    hostSection = section;
 
     if (key !== activeKey) {
       activeKey = key;
@@ -191,7 +271,7 @@ function bootHotspots() {
         ? `Edit ${prettyField(path, sectionIndex)}`
         : `Edit ${prettyKind(kind)}`;
       if (labelEl) labelEl.textContent = text;
-      tip.href = editorHref(pageId, sectionIndex, path);
+      tip.href = editorHref(pageId, sectionIndex, { path });
       tip.title = path
         ? `Open ${path} in admin editor`
         : `Open ${kind} (section ${sectionIndex}) in admin editor`;
@@ -206,7 +286,6 @@ function bootHotspots() {
     (e) => {
       const t = e.target;
       if (!(t instanceof Element)) return;
-      // Still inside the chip or its host section → keep showing.
       if (t.closest('.tb-edit-hotspot')) {
         clearHide();
         return;
@@ -226,11 +305,16 @@ function bootHotspots() {
       const related = e.relatedTarget;
       if (related instanceof Element) {
         if (related.closest('.tb-edit-hotspot')) return;
+        if (hostList && hostList.contains(related)) return;
         if (hostSection && hostSection.contains(related)) return;
         if (related.closest('[data-section]')) return;
       }
       if (!(e.target instanceof Element)) return;
-      if (e.target.closest('.tb-edit-hotspot') || e.target.closest('[data-section]')) {
+      if (
+        e.target.closest('.tb-edit-hotspot') ||
+        e.target.closest('[data-edit-list]') ||
+        e.target.closest('[data-section]')
+      ) {
         scheduleHide();
       }
     },
@@ -240,7 +324,12 @@ function bootHotspots() {
   window.addEventListener(
     'scroll',
     () => {
-      if (tip.classList.contains('is-on') && hostSection) {
+      if (!tip.classList.contains('is-on')) return;
+      if (tip.classList.contains('is-list-add') && hostList) {
+        placeInList(hostList);
+        return;
+      }
+      if (hostSection) {
         const field = tip.classList.contains('is-field')
           ? hostSection.querySelector('[data-edit]:hover')
           : null;

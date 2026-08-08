@@ -45,6 +45,10 @@ export interface EditorMessages {
   insertSectionHtml: { index: number; html: string };
   replaceSectionHtml: { index: number; html: string };
   reindexSections: { kinds: string[] };
+  /** Exit preview contenteditable before structural DOM swaps. */
+  endInlineEdit: Record<string, never>;
+  /** Enter preview contenteditable for a path (shell Enter on a text input). */
+  startInlineEdit: { path: string };
 }
 
 /** Preview iframe -> editor shell. */
@@ -58,6 +62,16 @@ export interface BridgeMessages {
   };
   blockAction: { action: BlockAction; sectionIndex: number };
   addAt: { index: number };
+  /** Append an item to a section list (e.g. ctas) from a preview “+” chip. */
+  addListItem: { sectionIndex: number; listKey: string };
+  /** Open Cloudinary picker for an image path (hover chip in preview). */
+  pickImage: { sectionIndex: number; path: string };
+  /** Preview contenteditable started on a plain-text leaf. */
+  inlineStart: { sectionIndex: number; path: string; value: string };
+  /** Live value from preview contenteditable. */
+  inlineInput: { path: string; value: string };
+  /** Preview contenteditable ended (blur / Escape / shell request). */
+  inlineEnd: { path: string };
 }
 
 type Envelope<M> = {

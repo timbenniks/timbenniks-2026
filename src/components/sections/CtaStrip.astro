@@ -1,7 +1,7 @@
 ---
 import Container from '../primitives/Container.astro';
 import Button from '../primitives/Button.astro';
-import { editAttr, editPath } from '../../lib/admin/edit-path';
+import { editAttr, editListAttr, editPath } from '../../lib/admin/edit-path';
 
 interface Props {
   editBase?: string;
@@ -25,7 +25,7 @@ const externalCta = (href: string) =>
       </em>
     )}
   </p>
-  <div class="flex flex-wrap gap-3">
+  <div class="inline-flex flex-wrap items-center gap-3" {...editListAttr(editPath(editBase, 'ctas'))}>
     {ctas.map((cta, i) => (
       <Button
         href={cta.href}
