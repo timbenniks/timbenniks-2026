@@ -9,6 +9,7 @@ import Meta from '../../components/primitives/Meta.astro';
 import JsonLd from '../../components/primitives/JsonLd.astro';
 import { breadcrumbSchema, buildGraph, videoObjectSchema } from '../../lib/schema';
 import { siteUrl } from '../../data/site';
+import { articleBodyClass } from '../../lib/articleBodyClass';
 import { resolveYoutubeThumbnail } from '../../lib/youtube-thumbnail';
 
 export async function getStaticPaths() {
@@ -123,7 +124,7 @@ const videoGraph = buildGraph(
           </p>
         )}
 
-        <div class="article-body mt-10 max-w-[720px] space-y-5 text-ink leading-relaxed">
+        <div class:list={[articleBodyClass, 'mt-10 max-w-[720px] space-y-5 text-ink leading-relaxed']}>
           <Content />
         </div>
       </article>

@@ -17,6 +17,13 @@ export const seo = {
   authorId: '/about#Person',
 } as const;
 
+export const author = {
+  name: 'Tim Benniks',
+  href: '/about',
+  avatar:
+    'https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto,w_96,h_96,c_thumb/Tim/timreal.png',
+} as const;
+
 export const social = [
   'https://linkedin.com/in/timbenniks',
   'https://youtube.com/timbenniks',

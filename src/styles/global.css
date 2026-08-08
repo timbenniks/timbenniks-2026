@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "./article.css";
 
 @theme {
   --color-bg: #FFFDF8;

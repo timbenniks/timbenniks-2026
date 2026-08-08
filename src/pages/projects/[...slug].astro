@@ -8,6 +8,7 @@ import ArrowLink from '../../components/primitives/ArrowLink.astro';
 import JsonLd from '../../components/primitives/JsonLd.astro';
 import { breadcrumbSchema, buildGraph } from '../../lib/schema';
 import { siteUrl } from '../../data/site';
+import { articleBodyClass } from '../../lib/articleBodyClass';
 
 export async function getStaticPaths() {
   const entries = await getCollection('projects');
@@ -75,7 +76,7 @@ const graph = buildGraph(
 
   <Section padding="lg" contained={false}>
     <Container>
-      <div class="article-body mx-auto max-w-[720px] space-y-5 text-ink leading-relaxed">
+      <div class:list={[articleBodyClass, 'mx-auto max-w-[720px] space-y-5 text-ink leading-relaxed']}>
         <Content />
       </div>
       <div class="mx-auto mt-16 max-w-[720px] border-t border-line pt-10">

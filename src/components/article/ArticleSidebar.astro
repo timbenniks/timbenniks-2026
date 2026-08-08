@@ -1,0 +1,67 @@
+---
+import MediaFrame from '../primitives/MediaFrame.astro';
+import ArticleTOC from './ArticleTOC.astro';
+import { author } from '../../data/site';
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  title: string;
+  image?: string;
+  readingLabel?: string;
+  headings: MarkdownHeading[];
+}
+
+const { title, image, readingLabel, headings } = Astro.props;
+const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+<aside class="lg:w-80 lg:flex-shrink-0 xl:w-96">
+  <div class="flex flex-col gap-8 lg:sticky lg:top-24 lg:self-start">
+    <div>
+      <p class="font-mono text-xs uppercase tracking-wide text-ink-subtle">Written by</p>
+      <a href={author.href} class="mt-3 flex items-center gap-3 no-underline group">
+        <img
+          src={author.avatar}
+          alt=""
+          width="48"
+          height="48"
+          class="h-12 w-12 rounded-full border border-line object-cover"
+          loading="lazy"
+        />
+        <span class="font-serif text-lg text-ink group-hover:text-accent transition-colors">
+          {author.name}
+        </span>
+      </a>
+    </div>
+
+    {
+      image && (
+        <MediaFrame aspect="video" class="hidden lg:block">
+          <img
+            src={image}
+            alt={title}
+            width="768"
+            height="432"
+            class="h-full w-full object-cover"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </MediaFrame>
+      )
+    }
+
+    {
+      readingLabel && (
+        <p class="font-mono text-xs uppercase tracking-wide text-accent">{readingLabel}</p>
+      )
+    }
+
+    {
+      tocHeadings.length > 0 && (
+        <div class="hidden lg:block">
+          <ArticleTOC headings={headings} />
+        </div>
+      )
+    }
+  </div>
+</aside>

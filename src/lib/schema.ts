@@ -1,4 +1,4 @@
-import { seo, social, SITE_URL as SITE } from '../data/site';
+import { author, seo, social, SITE_URL as SITE } from '../data/site';
 
 export type BreadcrumbItem = { name: string; url: string };
 
@@ -7,13 +7,12 @@ const PERSON_ID = `${SITE}${seo.authorId}`;
 const personRef = () => ({
   '@type': 'Person',
   '@id': PERSON_ID,
-  name: 'Tim Benniks',
+  name: author.name,
   url: `${SITE}/`,
   image: {
     '@type': 'ImageObject',
-    '@id':
-      'https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto,w_96,h_96,c_thumb/Tim/timreal.png',
-    url: 'https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto,w_96,h_96,c_thumb/Tim/timreal.png',
+    '@id': author.avatar,
+    url: author.avatar,
     width: '96',
     height: '96',
   },

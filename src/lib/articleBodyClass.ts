@@ -1,0 +1,21 @@
+/** Shared Markdown body styles via Tailwind descendant variants (writing / videos / projects). */
+export const articleBodyClass = [
+  'text-[1.0625rem]',
+  '[&_h2]:scroll-mt-24 [&_h3]:scroll-mt-24',
+  '[&_h2]:mt-12 [&_h2]:font-serif [&_h2]:text-3xl [&_h2]:font-medium [&_h2]:tracking-tight [&_h2]:text-ink',
+  '[&_h3]:mt-10 [&_h3]:font-serif [&_h3]:text-2xl [&_h3]:font-medium [&_h3]:text-ink',
+  '[&_h4]:mt-8 [&_h4]:font-serif [&_h4]:text-xl [&_h4]:font-medium [&_h4]:text-ink',
+  '[&_p]:text-base [&_p]:text-ink',
+  '[&_a]:text-accent [&_a]:underline [&_a]:underline-offset-2 [&_a]:hover:text-accent-bright',
+  '[&_strong]:font-semibold [&_strong]:text-ink',
+  '[&_ul]:list-disc [&_ul]:space-y-1.5 [&_ul]:pl-6 [&_ul]:text-ink',
+  '[&_ol]:list-decimal [&_ol]:space-y-1.5 [&_ol]:pl-6 [&_ol]:text-ink',
+  '[&_code]:rounded-sm [&_code]:bg-bg-warm [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm [&_code]:text-ink',
+  '[&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:border [&_pre]:border-line [&_pre]:bg-bg-dark [&_pre]:p-4 [&_pre]:font-mono [&_pre]:text-sm [&_pre]:text-cream',
+  '[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-inherit',
+  '[&_blockquote]:border-l-2 [&_blockquote]:border-accent [&_blockquote]:pl-5 [&_blockquote]:font-serif [&_blockquote]:text-xl [&_blockquote]:italic [&_blockquote]:text-ink-muted',
+  '[&_img]:my-6 [&_img]:rounded-md [&_img]:border [&_img]:border-line',
+  '[&_hr]:my-10 [&_hr]:border-line',
+  '[&_figure]:my-8',
+  '[&_figcaption]:mt-2 [&_figcaption]:text-xs [&_figcaption]:text-ink-subtle',
+].join(' ');

@@ -53,7 +53,6 @@ src/
 ├── pages/                  Routes (see below) — includes /admin/*
 ├── styles/
 │   ├── global.css          Tokens (@theme), :focus-visible, prefers-reduced-motion
-│   └── article.css         Markdown body typography
 └── content.config.ts       Zod schemas + glob loaders
 ```
 

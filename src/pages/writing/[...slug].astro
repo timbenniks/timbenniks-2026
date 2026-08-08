@@ -7,8 +7,15 @@ import Eyebrow from '../../components/primitives/Eyebrow.astro';
 import Meta from '../../components/primitives/Meta.astro';
 import JsonLd from '../../components/primitives/JsonLd.astro';
 import FaqList from '../../components/primitives/FaqList.astro';
+import TagPill from '../../components/primitives/TagPill.astro';
+import MediaFrame from '../../components/primitives/MediaFrame.astro';
+import ArticleSidebar from '../../components/article/ArticleSidebar.astro';
+import ArticleTOC from '../../components/article/ArticleTOC.astro';
+import RelatedArticles from '../../components/article/RelatedArticles.astro';
 import { blogPostingSchema, breadcrumbSchema, buildGraph, faqPageSchema } from '../../lib/schema';
-import { formatReadingTime } from '../../lib/card';
+import { articleToCard, formatReadingTime } from '../../lib/card';
+import { articleBodyClass } from '../../lib/articleBodyClass';
+import { relatedArticles } from '../../lib/relatedArticles';
 import { tagLabel } from '../../lib/tags';
 import { siteUrl } from '../../data/site';
 
@@ -21,7 +28,7 @@ interface Props {
   entry: CollectionEntry<'writing'>;
 }
 const { entry } = Astro.props;
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
 
 const formatted = entry.data.date.toLocaleDateString('en-US', {
   year: 'numeric',
@@ -30,14 +37,19 @@ const formatted = entry.data.date.toLocaleDateString('en-US', {
 });
 
 const readingLabel = formatReadingTime(entry.data.reading_time);
-const metaItems = [formatted, readingLabel].filter(Boolean) as string[];
 const description = entry.data.description ?? entry.data.title;
+const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+
+const allWriting = await getCollection('writing', ({ data }) => !data.draft);
+const related = relatedArticles(entry, allWriting).map((e) => articleToCard(e));
 
 const articleURL = siteUrl(`/writing/${entry.id}`);
 const readingMinutes = readingLabel
   ? parseInt(readingLabel, 10) || undefined
   : undefined;
 const faqs = entry.data.faqs ?? [];
+const canonical = entry.data.canonical_url?.trim() || undefined;
+
 const articleGraph = buildGraph(
   blogPostingSchema({
     url: articleURL,
@@ -66,6 +78,7 @@ const articleGraph = buildGraph(
   publishedTime={entry.data.date}
   tags={entry.data.tags}
   keywords={entry.data.tags.join(', ')}
+  canonical={canonical}
 >
   <JsonLd slot="head" data={articleGraph} />
   <link
@@ -83,48 +96,90 @@ const articleGraph = buildGraph(
       >
         <span hidden data-pagefind-filter="type:writing">writing</span>
         <span hidden data-pagefind-filter={`year:${entry.data.date.getUTCFullYear()}`}>{entry.data.date.getUTCFullYear()}</span>
-        <header class="max-w-[820px] border-b border-line pb-10">
+        {entry.data.tags.map((tag: string) => (
+          <span hidden data-pagefind-filter={`tag:${tag}`}>{tag}</span>
+        ))}
+
+        <header class="border-b border-line pb-10">
           <Eyebrow>
             <a href="/writing" class="hover:underline">← All writing</a>
           </Eyebrow>
-          <h1 class="font-serif text-5xl md:text-6xl leading-tight text-ink mt-3">
+          <h1 class="mt-3 max-w-[820px] font-serif text-5xl leading-tight text-ink md:text-6xl">
             {entry.data.title}
           </h1>
-          {entry.data.description && (
-            <p class="mt-6 text-xl text-ink-muted">{entry.data.description}</p>
-          )}
           <div class="mt-6 flex flex-wrap items-center gap-4">
-            <Meta items={metaItems} />
-            {entry.data.tags.length > 0 && (
-              <div class="flex flex-wrap gap-2">
-                {entry.data.tags.map((tag: string) => (
-                  <a
-                    href={`/writing/tag/${tag}`}
-                    data-pagefind-filter={`tag:${tag}`}
-                    class="rounded-full border border-line-strong px-2.5 py-0.5 font-mono text-[11px] tracking-wide text-ink-muted no-underline hover:border-ink hover:text-ink"
-                  >
-                    {tagLabel(tag)}
-                  </a>
-                ))}
-              </div>
-            )}
+            <Meta items={[formatted]} />
+            {
+              entry.data.tags.length > 0 && (
+                <div class="flex flex-wrap gap-2">
+                  {entry.data.tags.map((tag: string) => (
+                    <TagPill href={`/writing/tag/${tag}`} size="sm">
+                      {tagLabel(tag)}
+                    </TagPill>
+                  ))}
+                </div>
+              )
+            }
           </div>
         </header>
 
-        <div class="article-body mx-auto mt-10 max-w-[720px] space-y-5 text-ink leading-relaxed">
-          <Content />
+        <div class="mt-10 flex flex-col gap-12 lg:flex-row lg:gap-14">
+          <div class="min-w-0 flex-1">
+            {
+              entry.data.image && (
+                <MediaFrame aspect="video" class="mb-10 lg:hidden">
+                  <img
+                    src={entry.data.image}
+                    alt={entry.data.title}
+                    width="768"
+                    height="432"
+                    class="h-full w-full object-cover"
+                    loading="eager"
+                    fetchpriority="high"
+                  />
+                </MediaFrame>
+              )
+            }
+
+            <div class:list={[articleBodyClass, 'max-w-[720px] space-y-5 text-ink leading-relaxed']}>
+              <Content />
+            </div>
+
+            {
+              tocHeadings.length > 0 && (
+                <details class="mt-12 max-w-[720px] border border-line lg:hidden">
+                  <summary class="cursor-pointer px-4 py-3 font-mono text-xs uppercase tracking-wide text-ink-muted">
+                    On this page
+                  </summary>
+                  <div class="border-t border-line px-4 py-4">
+                    <ArticleTOC headings={headings} showLabel={false} />
+                  </div>
+                </details>
+              )
+            }
+
+            {
+              faqs.length > 0 && (
+                <aside class="mt-16 max-w-[720px] border-t border-line pt-10">
+                  <h2 class="mb-6 font-serif text-3xl font-medium text-ink">
+                    Frequently asked questions
+                  </h2>
+                  <FaqList items={faqs} emitJsonLd={false} />
+                </aside>
+              )
+            }
+          </div>
+
+          <ArticleSidebar
+            title={entry.data.title}
+            image={entry.data.image}
+            readingLabel={readingLabel}
+            headings={headings}
+          />
         </div>
 
-        {faqs.length > 0 && (
-          <aside class="mx-auto mt-16 max-w-[720px] border-t border-line pt-10">
-            <h2 class="mb-6 font-serif text-3xl font-medium text-ink">
-              Frequently asked questions
-            </h2>
-            <FaqList items={faqs} emitJsonLd={false} />
-          </aside>
-        )}
+        <RelatedArticles items={related} />
       </article>
     </Container>
   </Section>
 </BaseLayout>
-
