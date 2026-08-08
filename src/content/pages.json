@@ -2,7 +2,7 @@
   "home": {
     "path": "/",
     "metadata": {
-      "title": "Tim Benniks — Developer Experience Lead at Contentstack",
+      "title": "Tim Benniks. Developer Experience Lead at Contentstack",
       "description": "Developer Experience Lead at Contentstack. Essays, talks, and videos on developer tools, AI-augmented engineering, and composable architecture.",
       "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778485778/website/tim-sketch-1.png",
       "keywords": "Tim Benniks, developer experience, AI-augmented engineering, composable architecture, Contentstack, developer relations"
@@ -157,11 +157,11 @@
   "about": {
     "path": "/about",
     "metadata": {
-      "title": "About Tim Benniks",
-      "description": "Tim Benniks designs developer platforms and builds AI-augmented products. Developer Experience Lead at Contentstack, speaker, writer, and content creator.",
+      "title": "Tim Benniks — Developer Experience Lead | Developer Platforms & AI",
+      "description": "Tim Benniks designs developer platforms and AI‑augmented products. Developer Experience Lead at Contentstack. Speaker and writer on developer experience, platform engineering, and AI‑augmented tooling.",
       "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1280,h_550,c_thumb/website/tim-hero.png",
-      "imageAlt": "Tim Benniks in his countryside office",
-      "keywords": "Tim Benniks, developer experience, developer platforms, AI-augmented engineering, Contentstack, speaker, content creator"
+      "imageAlt": "Tim Benniks portrait",
+      "keywords": "Tim Benniks, developer experience, developer platforms, AI-augmented engineering, developer tooling, Contentstack"
     },
     "sections": [
       {
@@ -171,7 +171,7 @@
           "em": "Tim Benniks",
           "tail": ""
         },
-        "subline": "I design developer platforms and build AI-augmented products that help teams move from shipping faster to shipping the right things.",
+        "subline": "I design developer platforms and AI‑augmented products that help teams turn developer experience into a strategic advantage.",
         "ctas": [
           {
             "label": "Press kit & booking",
@@ -202,7 +202,7 @@
         "kind": "image-text",
         "eyebrow": "Developer experience, speaker, content creator",
         "title": "The short version",
-        "lede": "For most of my career, I have worked at the intersection of engineering, product, and developer experience.",
+        "lede": "I design developer platforms and AI‑augmented products focused on platform adoption, developer experience, and tooling that speeds teams up without sacrificing quality.",
         "body": "I've led platform initiatives, built extensibility ecosystems, and helped global teams adopt composable architectures that developers actually use. \n\nToday, my work focuses on how AI is reshaping software development, the growing overlap between engineers and product leaders, and why developer experience has become a strategic advantage rather than a support function.\n\nI didn’t set out to become a platform thinker. I started as an engineer who cared deeply about how things were built and how teams worked together. \n\n Agency life taught me scale. Working with global brands meant building systems that could survive real-world complexity, not just demos. Later, in the startup world, I focused on developer ecosystems, SDKs, and the surfaces that determine whether a platform is adopted or ignored. \n\nAlong the way, I discovered something that shaped my career: the success of a platform has less to do with features and more to do with the experience of building on it.\n\nThat insight pulled me toward developer experience, platform strategy, and eventually product ownership.",
         "image": {
           "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1280,h_550,c_thumb/Tim/speaking.png",
