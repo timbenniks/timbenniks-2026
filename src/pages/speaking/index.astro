@@ -13,5 +13,5 @@ const graph = pageBreadcrumbGraph("speaking");
 <BaseLayout {...metadata}>
   <PagePreloadLinks slot="head" sections={sections} />
   <JsonLd slot="head" data={graph} />
-  <PageSections sections={sections} />
+  <PageSections pageId="speaking" sections={sections} />
 </BaseLayout>

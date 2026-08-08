@@ -3,8 +3,19 @@
  * Setting location during an agent tool loop is often cancelled by the next chat
  * fetch or by focusing the composer in finally — callers must stop the turn first.
  */
-export function editorPathFor(pageId: unknown): string {
-  return `/admin/pages/${encodeURIComponent(String(pageId || '').trim())}`;
+export function editorPathFor(
+  pageId: unknown,
+  opts?: { section?: number; path?: string | null },
+): string {
+  const base = `/admin/pages/${encodeURIComponent(String(pageId || '').trim())}`;
+  if (!opts) return base;
+  const params = new URLSearchParams();
+  if (opts.section != null && Number.isFinite(opts.section)) {
+    params.set('section', String(opts.section));
+  }
+  if (opts.path) params.set('path', opts.path);
+  const qs = params.toString();
+  return qs ? `${base}?${qs}` : base;
 }
 
 /** @returns the href that was navigated to */

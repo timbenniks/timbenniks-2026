@@ -122,6 +122,9 @@ export function bootEditor() {
     previewPersistInFlight: null,
   } satisfies Partial<EditorSession> as unknown as EditorSession;
 
+  /** When true, the next preview `ready` highlight should scroll into view (URL deep link). */
+  let deepLinkScroll = false;
+
   root.innerHTML = editorShellHtml({ boot, slugPath, icon });
 
   s.statusEl = document.getElementById('status');
@@ -966,8 +969,9 @@ export function bootEditor() {
         postToFrame('highlightSection', {
           index: s.selectedSection,
           path: s.selectedPath,
-          scroll: false,
+          scroll: deepLinkScroll,
         });
+        deepLinkScroll = false;
       }
       return;
     }
@@ -1101,6 +1105,26 @@ export function bootEditor() {
   s.clearPreviewPersistTimer = clearPreviewPersistTimer;
 
   window.__tbVisualEditor = createVisualEditorFacade(s);
+
+  /** Honor ?section=&path= from live-site hover CTAs. */
+  {
+    const params = new URLSearchParams(location.search);
+    const path = params.get('path');
+    let index = Number(params.get('section'));
+    if (!Number.isFinite(index) && path) {
+      const m = path.match(/^sections\.(\d+)/);
+      if (m) index = Number(m[1]);
+    }
+    if (Number.isFinite(index) && index >= 0 && index < s.draft.sections.length) {
+      deepLinkScroll = true;
+      if (path) s.selectedPath = path;
+      selectSection(index, {
+        keepPath: Boolean(path),
+        focusPath: path,
+        scroll: true,
+      });
+    }
+  }
 
   window.dispatchEvent(new CustomEvent('tb-visual-editor-ready', { detail: { pageId: boot.id } }));
   syncWebMcpChip();

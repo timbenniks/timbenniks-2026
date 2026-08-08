@@ -16,7 +16,8 @@ const main = mainBranch();
   <div class="dash-intro">
     <h2>Changes</h2>
     <p>
-      Review local drafts stored in this browser, then publish content files into
+      Review local drafts stored in this browser (expand each for a JSON diff against
+      published content), then publish into
       <code>{main}</code> (Vercel deploys from main). Discard clears drafts without touching Git.
     </p>
   </div>
@@ -41,7 +42,7 @@ const main = mainBranch();
 
   <section class="panel" id="site-panel" hidden>
     <div class="panel-head"><h2>Site chrome</h2></div>
-    <p class="hint" id="site-hint">Local draft differs from published site.json.</p>
+    <div id="site-diff"></div>
   </section>
 
   <section class="panel" id="publish-panel">

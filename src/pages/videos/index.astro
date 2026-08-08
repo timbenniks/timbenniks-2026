@@ -13,5 +13,5 @@ const graph = pageBreadcrumbGraph("videos");
 <BaseLayout {...metadata}>
   <PagePreloadLinks slot="head" sections={sections} />
   <JsonLd slot="head" data={graph} />
-  <PageSections sections={sections} />
+  <PageSections pageId="videos" sections={sections} />
 </BaseLayout>

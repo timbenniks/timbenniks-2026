@@ -15,10 +15,12 @@ export function editPath(base: string | undefined, ...parts: (string | number)[]
 export function sectionEditAttrs(
   index: number,
   kind: string,
+  pageId?: string,
 ): Record<string, string> {
   if (!isEditMarkupEnabled()) return {};
   return {
     'data-section': String(index),
     'data-section-kind': kind,
+    ...(pageId ? { 'data-page-id': pageId } : {}),
   };
 }

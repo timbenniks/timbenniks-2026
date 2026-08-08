@@ -13,5 +13,5 @@ const graph = pageBreadcrumbGraph("press-kit");
 <BaseLayout {...metadata}>
   <PagePreloadLinks slot="head" sections={sections} />
   <JsonLd slot="head" data={graph} />
-  <PageSections sections={sections} />
+  <PageSections pageId="press-kit" sections={sections} />
 </BaseLayout>

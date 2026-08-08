@@ -26,5 +26,5 @@ Astro.response.headers.set('Cache-Control', 'no-store');
 
 <BaseLayout {...metadata} noindex={true}>
   <PagePreloadLinks slot="head" sections={sections} />
-  <PageSections sections={sections} />
+  <PageSections pageId={id} sections={sections} />
 </BaseLayout>

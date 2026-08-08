@@ -40,5 +40,5 @@ const graph = pageBreadcrumbGraph(page.data.path, pageId);
 <BaseLayout {...metadata}>
   <PagePreloadLinks slot="head" sections={sections} />
   <JsonLd slot="head" data={graph} />
-  <PageSections sections={sections} />
+  <PageSections pageId={pageId} sections={sections} />
 </BaseLayout>

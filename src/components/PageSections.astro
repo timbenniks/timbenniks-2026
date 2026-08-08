@@ -25,12 +25,15 @@ import { sectionEditAttrs } from "../lib/admin/edit-path";
 
 interface Props {
   sections: Parameters<typeof resolvePageSections>[0];
+  /** CMS page id — stamped on sections when edit markup is on (hover CTAs / bridge). */
+  pageId?: string;
 }
 
 const resolvedSections: ResolvedPageSection[] = await resolvePageSections(
   Astro.props.sections,
 );
 const editEnabled = isEditMarkupEnabled();
+const pageId = Astro.props.pageId;
 
 const sectionComponents: Record<
   ResolvedPageSection["kind"],
@@ -61,7 +64,7 @@ const sectionComponents: Record<
     return (
       <div
         class:list={[editEnabled && "tb-ve-block"]}
-        {...sectionEditAttrs(i, section.kind)}
+        {...sectionEditAttrs(i, section.kind, pageId)}
       >
         <Component
           {...section}

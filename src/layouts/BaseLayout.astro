@@ -61,12 +61,15 @@ const editMarkupEnabled = isEditMarkupEnabled();
     <slot name="head" />
     {
       // Only when edit markup is enabled (admin preview SSR, or TB_EDIT_MODE).
-      // Full bridge loads client-side for ?edit=1 iframes.
+      // Bridge: ?edit=1 iframes. Hotspots: live site hover CTAs → admin editor.
       editMarkupEnabled && (
         <script is:inline type="module">
           const params = new URLSearchParams(location.search);
-          if (params.get('edit') === '1' && window.parent !== window) {
+          const inEditFrame = params.get('edit') === '1' && window.parent !== window;
+          if (inEditFrame) {
             import('/admin/bridge.js');
+          } else {
+            import('/admin/edit-hotspots.js');
           }
         </script>
       )

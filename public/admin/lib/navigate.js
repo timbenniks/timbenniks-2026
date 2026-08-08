@@ -1,6 +1,14 @@
 // Generated from src/admin-client by `npm run build:admin` — do not edit.
-function editorPathFor(pageId) {
-  return `/admin/pages/${encodeURIComponent(String(pageId || "").trim())}`;
+function editorPathFor(pageId, opts) {
+  const base = `/admin/pages/${encodeURIComponent(String(pageId || "").trim())}`;
+  if (!opts) return base;
+  const params = new URLSearchParams();
+  if (opts.section != null && Number.isFinite(opts.section)) {
+    params.set("section", String(opts.section));
+  }
+  if (opts.path) params.set("path", opts.path);
+  const qs = params.toString();
+  return qs ? `${base}?${qs}` : base;
 }
 function hardNavigate(pathOrUrl) {
   const url = new URL(pathOrUrl, window.location.href);

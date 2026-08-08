@@ -2,6 +2,7 @@
 import { apiFetch } from "./lib/api.js";
 import { escapeHtml } from "./lib/utils.js";
 import { bindStatus, bindChip } from "./lib/chrome.js";
+import { diffJson, formatPatchHtml } from "./lib/json-diff.js";
 import {
   clearAllDrafts,
   clearPageDraft,
@@ -18,18 +19,61 @@ function requireEl(id) {
 function errText(err) {
   return err instanceof Error ? err.message : "";
 }
+function renderDiffDetails(opts) {
+  const { patch, additions, deletions } = diffJson(opts.before, opts.after);
+  const stats = `+${additions} \u2212${deletions}`;
+  const patchHtml = patch ? `<pre class="diff-patch">${formatPatchHtml(patch, escapeHtml)}</pre>` : '<p class="hint">No textual diff.</p>';
+  const actions = [];
+  if (opts.href) {
+    actions.push(`<a class="diff-edit" href="${escapeHtml(opts.href)}">Edit</a>`);
+  }
+  if (opts.discardPageId) {
+    actions.push(
+      `<button type="button" class="ghost danger discard-one" data-page-id="${escapeHtml(opts.discardPageId)}">Discard</button>`
+    );
+  }
+  return `<details class="diff-file">
+    <summary>
+      <span class="diff-summary-main">
+        <strong>${escapeHtml(opts.title)}</strong>
+        <span class="meta">${escapeHtml(opts.meta)} \xB7 ${escapeHtml(stats)}</span>
+      </span>
+      ${actions.length ? `<span class="diff-summary-actions">${actions.join("")}</span>` : ""}
+    </summary>
+    ${patchHtml}
+  </details>`;
+}
 const statusEl = document.getElementById("status");
 const chip = document.getElementById("chip");
 const summary = requireEl("summary");
 const pagesPanel = requireEl("pages-panel");
 const pagesList = requireEl("pages-list");
 const sitePanel = requireEl("site-panel");
+const siteDiff = requireEl("site-diff");
 const publishBtn = requireEl("publish");
 const discardBtn = requireEl("discard");
 const commitMsg = requireEl("commit-msg");
 const setStatus = bindStatus(statusEl);
 const setChip = bindChip(chip);
 let baseline = null;
+function bindDiscardButtons(root) {
+  root.querySelectorAll(".discard-one").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const id = btn.getAttribute("data-page-id");
+      if (!id || !confirm(`Discard draft for \u201C${id}\u201D?`)) return;
+      await clearPageDraft(id);
+      await apiFetch("/api/admin/changes/discard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pageId: id }),
+        errorMessage: "Discard failed"
+      }).catch(() => void 0);
+      await loadChanges();
+    });
+  });
+}
 async function loadChanges() {
   setStatus("Loading drafts\u2026");
   setChip("Loading\u2026");
@@ -51,7 +95,7 @@ async function loadChanges() {
       const base = baseline.pages[id];
       const change = !base ? "added" : JSON.stringify(base) !== JSON.stringify(rec.page) ? "modified" : "unchanged";
       if (change === "unchanged") continue;
-      pages.push({ id, change, title: rec.page.metadata?.title });
+      pages.push({ id, change, title: rec.page.metadata?.title, draft: rec.page, base });
     }
     const siteTouched = Boolean(siteDraft?.site) && JSON.stringify(siteDraft?.site) !== JSON.stringify(baseline.site);
     const hasChanges = pages.length > 0 || siteTouched;
@@ -64,6 +108,8 @@ async function loadChanges() {
       summary.hidden = true;
       pagesPanel.hidden = true;
       sitePanel.hidden = true;
+      pagesList.innerHTML = "";
+      siteDiff.innerHTML = "";
       publishBtn.disabled = true;
       discardBtn.disabled = true;
       return;
@@ -80,40 +126,39 @@ async function loadChanges() {
         Local drafts \u2192 <strong>${escapeHtml(baseline.mainBranch)}</strong>
         ${baseline.configured ? "" : ' \xB7 <span class="hint">GitHub not configured (local working tree)</span>'}
       </p>
+      <p class="hint">Expand a draft to review the JSON diff against published content.</p>
     `;
     if (pages.length) {
       pagesPanel.hidden = false;
       pagesList.innerHTML = pages.map((p) => {
         const href = `/admin/pages/${encodeURIComponent(p.id)}`;
-        return `<li>
-            <a href="${href}">
-              <strong>${escapeHtml(p.title || p.id)}</strong>
-              <span class="meta"><span class="mono">${escapeHtml(p.id)}</span> \xB7 ${escapeHtml(p.change)}</span>
-            </a>
-            <button type="button" class="ghost danger discard-one" data-page-id="${escapeHtml(p.id)}">Discard</button>
-          </li>`;
+        return `<li>${renderDiffDetails({
+          title: p.title || p.id,
+          meta: `${p.id} \xB7 ${p.change}`,
+          before: p.change === "added" ? void 0 : p.base,
+          after: p.draft,
+          href,
+          discardPageId: p.id
+        })}</li>`;
       }).join("");
-      pagesList.querySelectorAll(".discard-one").forEach((btn) => {
-        btn.addEventListener("click", async (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const id = btn.getAttribute("data-page-id");
-          if (!id || !confirm(`Discard draft for \u201C${id}\u201D?`)) return;
-          await clearPageDraft(id);
-          await apiFetch("/api/admin/changes/discard", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ pageId: id }),
-            errorMessage: "Discard failed"
-          }).catch(() => void 0);
-          await loadChanges();
-        });
-      });
+      bindDiscardButtons(pagesList);
     } else {
       pagesPanel.hidden = true;
       pagesList.innerHTML = "";
     }
-    sitePanel.hidden = !siteTouched;
+    if (siteTouched && siteDraft?.site) {
+      sitePanel.hidden = false;
+      siteDiff.innerHTML = renderDiffDetails({
+        title: "site.json",
+        meta: "modified",
+        before: baseline.site,
+        after: siteDraft.site,
+        href: "/admin/site"
+      });
+    } else {
+      sitePanel.hidden = true;
+      siteDiff.innerHTML = "";
+    }
     publishBtn.disabled = false;
     discardBtn.disabled = false;
   } catch (err) {

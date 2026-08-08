@@ -89,6 +89,7 @@ function bootEditor() {
     previewPersistTimer: null,
     previewPersistInFlight: null
   };
+  let deepLinkScroll = false;
   root.innerHTML = editorShellHtml({ boot, slugPath, icon });
   s.statusEl = document.getElementById("status");
   s.dirtyChip = document.getElementById("dirty-chip");
@@ -845,8 +846,9 @@ function bootEditor() {
         postToFrame("highlightSection", {
           index: s.selectedSection,
           path: s.selectedPath,
-          scroll: false
+          scroll: deepLinkScroll
         });
+        deepLinkScroll = false;
       }
       return;
     }
@@ -970,6 +972,24 @@ function bootEditor() {
   s.getByPath = getByPath;
   s.clearPreviewPersistTimer = clearPreviewPersistTimer;
   window.__tbVisualEditor = createVisualEditorFacade(s);
+  {
+    const params = new URLSearchParams(location.search);
+    const path = params.get("path");
+    let index = Number(params.get("section"));
+    if (!Number.isFinite(index) && path) {
+      const m = path.match(/^sections\.(\d+)/);
+      if (m) index = Number(m[1]);
+    }
+    if (Number.isFinite(index) && index >= 0 && index < s.draft.sections.length) {
+      deepLinkScroll = true;
+      if (path) s.selectedPath = path;
+      selectSection(index, {
+        keepPath: Boolean(path),
+        focusPath: path,
+        scroll: true
+      });
+    }
+  }
   window.dispatchEvent(new CustomEvent("tb-visual-editor-ready", { detail: { pageId: boot.id } }));
   syncWebMcpChip();
   window.addEventListener("tb-webmcp-ready", syncWebMcpChip);
