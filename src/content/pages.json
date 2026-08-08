@@ -2,9 +2,10 @@
   "home": {
     "path": "/",
     "metadata": {
-      "title": "I used to build websites. Now I build what builds them",
-      "description": "Developer Experience Lead at Contentstack. Writing, talks, and videos on developer tools, AI-accelerated engineering, and composable architecture.",
-      "keywords": "developer experience, AI-augmented engineering, composable architecture, developer relations, Contentstack, MACH Alliance"
+      "title": "Tim Benniks — Developer Experience Lead at Contentstack",
+      "description": "Developer Experience Lead at Contentstack. Essays, talks, and videos on developer tools, AI-augmented engineering, and composable architecture.",
+      "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778485778/website/tim-sketch-1.png",
+      "keywords": "Tim Benniks, developer experience, AI-augmented engineering, composable architecture, Contentstack, developer relations"
     },
     "sections": [
       {
@@ -14,7 +15,7 @@
           "em": "websites.",
           "tail": "Now I build what builds them."
         },
-        "subline": "Developer Experience Lead at Contentstack. Co-chair, MACH Alliance Enterprise AI Agents Workgroup. Ambassador for Nuxt, Cloudinary, Supabase, and Algolia.",
+        "subline": "Tim Benniks — Developer Experience Lead at Contentstack. Co-chair, MACH Alliance Enterprise AI Agents Workgroup. Ambassador for Nuxt, Cloudinary, Supabase, and Algolia.",
         "ctas": [
           {
             "label": "Read the writing",
@@ -51,7 +52,7 @@
           "em": "taste",
           "tail": "is everything."
         },
-        "attribution": "This article elaborates how AI-generated, scale-built content collapses everything from blogs to other building blocks. AI-generated, scaled-built content collapses everything from blogs to other building blocks.",
+        "attribution": "This article explains how AI-generated, scale-built content collapses blogs and other building blocks.",
         "cta": {
           "label": "Read the article",
           "href": "/writing/when-output-is-cheap-taste-is-everything"
