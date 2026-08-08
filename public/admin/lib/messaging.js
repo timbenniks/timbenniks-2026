@@ -1,25 +1,48 @@
-/** postMessage helpers for the visual editor bridge channel. */
-
-export const CHANNEL = 'tb-ve';
-
-export function editorOrigin() {
+// Generated from src/admin-client by `npm run build:admin` — do not edit.
+const CHANNEL = "tb-ve";
+const BLOCK_ACTIONS = ["up", "down", "dup", "del"];
+function isBlockAction(value) {
+  return value !== null && BLOCK_ACTIONS.includes(value);
+}
+function editorOrigin() {
   return window.location.origin;
 }
-
-/** True if message is from same origin (or null origin file:// edge cases skipped). */
-export function isTrustedEditorMessage(event) {
-  if (!event || event.data?.channel !== CHANNEL) return false;
-  // Same-origin iframe / parent only.
+function isTrustedEditorMessage(event) {
+  if (!event) return false;
+  const data = event.data;
+  if (typeof data !== "object" || data === null) return false;
+  if (data.channel !== CHANNEL) return false;
   if (event.origin && event.origin !== window.location.origin) return false;
   return true;
 }
-
-export function postToFrame(win, type, payload) {
+function readEditorMessage(event) {
+  return isTrustedEditorMessage(event) ? event.data : null;
+}
+function readBridgeMessage(event) {
+  return isTrustedEditorMessage(event) ? event.data : null;
+}
+function postToFrame(win, type, payload) {
   if (!win) return;
   win.postMessage({ channel: CHANNEL, type, payload }, editorOrigin());
 }
-
-export function postToParent(type, payload) {
+function postToParent(type, payload) {
   if (!window.parent || window.parent === window) return;
   window.parent.postMessage({ channel: CHANNEL, type, payload }, editorOrigin());
 }
+function documentMetaPatch(key, value) {
+  if (key === "title") return { title: String(value ?? "") };
+  if (key === "description") return { description: String(value ?? "") };
+  return null;
+}
+export {
+  BLOCK_ACTIONS,
+  CHANNEL,
+  documentMetaPatch,
+  editorOrigin,
+  isBlockAction,
+  isTrustedEditorMessage,
+  postToFrame,
+  postToParent,
+  readBridgeMessage,
+  readEditorMessage
+};

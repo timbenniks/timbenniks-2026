@@ -20,23 +20,26 @@ Static Astro 7 site, deployed to Vercel. Zero JS frameworks in the browser, zero
 
 ```
 src/
+├── admin-client/           Admin browser UI (TypeScript → public/admin via build:admin)
 ├── assets/                 Local images for hero / about / press-kit (astro:assets pipeline)
 ├── components/
-│   ├── primitives/         Tiny, single-purpose: Button, ArrowLink, Container, Section,
-│   │                       MediaFrame, Eyebrow, Meta, JsonLd, SEO, SectionHeading
-│   ├── sections/           Composed page-level blocks (HeroSection, CardGridSection,
-│   │                       FeatureSplitSection, ImageTextSection, QuoteCallout, CtaStrip)
+│   ├── admin/              Admin layout shells
+│   ├── primitives/         Tiny, single-purpose: Button, ArrowLink, Container, Section, …
+│   ├── sections/           Composed page-level blocks (HeroSection, CardGridSection, …)
 │   ├── Card.astro          Polymorphic card (feature / standard / row × article/video/talk/project)
 │   ├── SiteNav.astro
 │   └── SiteFooter.astro
 ├── content/
+│   ├── pages.json          Marketing page metadata + sections (CMS)
+│   ├── site.json           Nav, footer, newsletter chrome (CMS)
 │   ├── writing/            Essays (markdown)
 │   ├── videos/{playlist}/  YouTube videos (markdown stubs)
 │   └── speaking/           Conference talks (frontmatter only)
 ├── data/
-│   ├── site.ts             SITE_URL, seo, nav, hero/thesis/about/booking copy, footer
+│   ├── site.ts             SITE_URL, seo defaults, copy helpers
 │   └── projects.ts         Project list shown on /projects
 ├── lib/
+│   ├── admin/              Auth, GitHub CMS, Cloudinary, preview drafts, …
 │   ├── card.ts             Collection-entry → CardItem mappers
 │   ├── cloudinary.ts       Cloudinary + YouTube thumbnail URL/srcset helpers
 │   ├── collections.ts      loadAllSorted() — used by /llms.txt, /llms-full.txt, /sitemap.md
@@ -47,21 +50,26 @@ src/
 │   ├── static-pages-prose.ts  Prose summaries of static pages, for /llms-full.txt
 │   └── tags.ts             Canonical 17-tag taxonomy + label/normalize helpers
 ├── layouts/BaseLayout.astro
-├── pages/                  Routes (see below)
+├── pages/                  Routes (see below) — includes /admin/*
 ├── styles/
 │   ├── global.css          Tokens (@theme), :focus-visible, prefers-reduced-motion
 │   └── article.css         Markdown body typography
 └── content.config.ts       Zod schemas + glob loaders
 ```
 
+Admin visual editor + WebMCP agent: [`docs/admin-editor.md`](docs/admin-editor.md), [`docs/admin-webmcp.md`](docs/admin-webmcp.md).
+
 ## Scripts
 
-| Command           | What it does                                       |
-| ----------------- | -------------------------------------------------- |
-| `npm run dev`     | Dev server at http://localhost:4321                |
-| `npm run build`   | `astro build` then `pagefind --site dist`          |
-| `npm run preview` | Serve the built site locally (real Pagefind index) |
-| `npm run check`   | `astro check` — type-check `.astro` + TypeScript   |
+| Command              | What it does                                                      |
+| -------------------- | ----------------------------------------------------------------- |
+| `npm run dev`        | `build:admin` then Astro dev server at http://localhost:4321      |
+| `npm run build`      | `build:admin`, `astro build`, then Pagefind into the Vercel output |
+| `npm run build:admin`| Compile `src/admin-client/` → `public/admin/` (esbuild, unbundled) |
+| `npm run dev:admin`  | Watch-mode admin client build (run beside `npm run dev`)          |
+| `npm run preview`    | Serve the built site locally (real Pagefind index)                |
+| `npm run check`      | `astro check` — type-check `.astro` + TypeScript                  |
+| `npm run test:e2e`   | Playwright admin suite (`pretest:e2e` rebuilds admin client)      |
 
 > Pagefind only exists after a real build. Use `npm run preview` (not `dev`) to test search.
 
@@ -98,6 +106,7 @@ Drafts (`draft: true` on writing entries) are filtered everywhere: index, tag pa
 | `/press-kit`                  | Bios, headshots, talk topics, booking                        |
 | `/uses`                       | Hardware / software / A-V kit                                |
 | `/search`                     | Pagefind UI with type/tag/year filters and URL-state         |
+| `/admin`                      | CMS desk (auth-gated) — see [`docs/admin-editor.md`](docs/admin-editor.md) |
 | `/404`                        | Static 404 page                                              |
 
 ### Machine-readable surfaces (the GEO layer)
@@ -154,10 +163,11 @@ Targeting WCAG 2.2 AA. Implemented:
 
 ## Performance
 
-- Zero hydration JS. The only client-side scripts:
+- Zero hydration JS on the **public** site. The only public client-side scripts:
   - `<ClientRouter />` for view transitions (~5.5 KB gzipped, site-wide).
   - `<lite-youtube>` on video detail pages.
   - Pagefind, dynamically imported only on `/search`.
+  - Admin (`/admin/*`) loads compiled modules from `/admin/*.js` (built from `src/admin-client/`); those never ship on public pages.
 - Tailwind v4 single CSS bundle (~7 KB gzipped).
 - Fonts: `<Font preload>` on Fraunces only; Inter and JetBrains Mono lazy-load with `font-display: swap`.
 - `vercel.json` sets `Cache-Control: public, max-age=31536000, immutable` on `/_astro/*`.
@@ -175,7 +185,7 @@ The UI in [`/search`](src/pages/search.astro) supports query, type pills, tag ch
 
 ## Configuration
 
-- [`astro.config.mjs`](astro.config.mjs) — site URL, font definitions, Cloudinary remote pattern, sitemap filter, Tailwind plugin, Pagefind externalization.
+- [`astro.config.ts`](astro.config.ts) — site URL, fonts, Cloudinary image service, sitemap filter, Tailwind plugin, Pagefind externalization; seeds `.env` into `process.env` via Vite `loadEnv`.
 - [`vercel.json`](vercel.json) — cache headers + content-negotiation rewrites for the markdown twins.
 - [`src/data/site.ts`](src/data/site.ts) — `SITE_URL`, copy, nav, footer columns.
 

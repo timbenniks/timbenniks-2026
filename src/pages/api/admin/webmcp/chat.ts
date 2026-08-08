@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { isAdminAuthed } from '../../../../lib/admin/auth';
+import { serverEnv } from '../../../../lib/admin/server-env';
 
 export const prerender = false;
 
@@ -15,9 +16,7 @@ type ChatMessage = {
 };
 
 function openaiKey(): string {
-  const fromProcess = process.env.OPENAI_API_KEY?.trim() || '';
-  const fromVite = String(import.meta.env.OPENAI_API_KEY || '').trim();
-  return fromProcess || fromVite;
+  return serverEnv('OPENAI_API_KEY');
 }
 
 /** GPT-5 / reasoning models only accept the default temperature (1). */
@@ -38,10 +37,7 @@ export const GET: APIRoute = async ({ request }) => {
   return new Response(
     JSON.stringify({
       enabled: Boolean(openaiKey()),
-      model:
-        process.env.OPENAI_WEBMCP_MODEL?.trim() ||
-        String(import.meta.env.OPENAI_WEBMCP_MODEL || '').trim() ||
-        DEFAULT_MODEL,
+      model: serverEnv('OPENAI_WEBMCP_MODEL') || DEFAULT_MODEL,
     }),
     { headers: { 'Content-Type': 'application/json' } },
   );
@@ -80,8 +76,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const model =
     (typeof body.model === 'string' && body.model.trim()) ||
-    process.env.OPENAI_WEBMCP_MODEL?.trim() ||
-    String(import.meta.env.OPENAI_WEBMCP_MODEL || '').trim() ||
+    serverEnv('OPENAI_WEBMCP_MODEL') ||
     DEFAULT_MODEL;
 
   const payload: Record<string, unknown> = {
@@ -97,11 +92,10 @@ export const POST: APIRoute = async ({ request }) => {
     payload.tool_choice = 'auto';
   }
 
-  const baseUrl = (
-    process.env.OPENAI_BASE_URL ||
-    String(import.meta.env.OPENAI_BASE_URL || '') ||
-    'https://api.openai.com/v1'
-  ).replace(/\/$/, '');
+  const baseUrl = (serverEnv('OPENAI_BASE_URL') || 'https://api.openai.com/v1').replace(
+    /\/$/,
+    '',
+  );
 
   let res: Response;
   try {

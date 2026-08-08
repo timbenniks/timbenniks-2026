@@ -1,12 +1,13 @@
-/** Shared admin logout button binder. */
-
-export function bindAdminLogout(selector = '#logout') {
-  document.querySelector(selector)?.addEventListener('click', async () => {
+// Generated from src/admin-client by `npm run build:admin` — do not edit.
+function bindAdminLogout(selector = "#logout") {
+  document.querySelector(selector)?.addEventListener("click", async () => {
     try {
-      await fetch('/api/admin/logout', { method: 'POST' });
+      await fetch("/api/admin/logout", { method: "POST" });
     } catch {
-      // still redirect
     }
-    location.href = '/admin/login';
+    location.href = "/admin/login";
   });
 }
+export {
+  bindAdminLogout
+};

@@ -1,4 +1,5 @@
 import { isAdminPreviewRequest } from './request-context';
+import { serverEnv } from './server-env';
 
 function envFlag(value: unknown): boolean {
   if (value == null) return false;
@@ -20,10 +21,5 @@ function envFlag(value: unknown): boolean {
 export function isEditMarkupEnabled(): boolean {
   if (isAdminPreviewRequest()) return true;
 
-  return (
-    envFlag(process.env.TB_EDIT_MODE) ||
-    envFlag(process.env.PUBLIC_TB_EDIT_MODE) ||
-    envFlag(import.meta.env.TB_EDIT_MODE) ||
-    envFlag(import.meta.env.PUBLIC_TB_EDIT_MODE)
-  );
+  return envFlag(serverEnv('TB_EDIT_MODE')) || envFlag(serverEnv('PUBLIC_TB_EDIT_MODE'));
 }

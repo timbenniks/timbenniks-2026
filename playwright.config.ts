@@ -38,6 +38,8 @@ export default defineConfig({
     env: {
       ...process.env,
       ADMIN_PASSWORD: E2E_ADMIN_PASSWORD,
+      // See astro.config.ts — a warm-up full-reload wipes filled form fields.
+      E2E_DISABLE_HMR: '1',
       // Avoid accidental publish/discard against a real repo during local runs
       // if the developer has these set in their shell.
       GITHUB_TOKEN: '',

@@ -1,10 +1,9 @@
 /** Cloudinary search scope for the admin Agent / Browse helpers. */
 
+import { serverEnv } from './server-env';
+
 export function env(name: string): string {
-  return (
-    process.env[name]?.trim() ||
-    String((import.meta as { env?: Record<string, unknown> }).env?.[name] || '').trim()
-  );
+  return serverEnv(name);
 }
 
 function splitList(raw: string): string[] {

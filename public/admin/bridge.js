@@ -1,34 +1,28 @@
-/**
- * Preview iframe bridge — only active with ?edit=1 inside an iframe.
- * Loaded via dynamic import from BaseLayout when editing.
- */
-import { isTrustedEditorMessage, postToParent } from './lib/messaging.js';
-
+// Generated from src/admin-client by `npm run build:admin` — do not edit.
+import { isBlockAction, postToParent, readEditorMessage } from "./lib/messaging.js";
 const params = new URLSearchParams(location.search);
 const inIframe = window.parent !== window;
-if (params.get('edit') === '1' && inIframe) {
+if (params.get("edit") === "1" && inIframe) {
   bootBridge();
 }
-
 function bootBridge() {
-document.documentElement.setAttribute('data-astro-reload', '');
-document.addEventListener(
-  'click',
-  (e) => {
-    const a = e.target instanceof Element ? e.target.closest('a[href]') : null;
-    if (!a) return;
-    if (a.closest('[data-edit]') || a.closest('#tb-ve-chrome') || a.closest('.tb-ve-insert')) return;
-    e.preventDefault();
-    e.stopPropagation();
-  },
-  true,
-);
-
-let style = document.getElementById('tb-ve-style');
-if (!style) {
-  style = document.createElement('style');
-  style.id = 'tb-ve-style';
-  style.textContent = `
+  document.documentElement.setAttribute("data-astro-reload", "");
+  document.addEventListener(
+    "click",
+    (e) => {
+      const a = e.target instanceof Element ? e.target.closest("a[href]") : null;
+      if (!a) return;
+      if (a.closest("[data-edit]") || a.closest("#tb-ve-chrome") || a.closest(".tb-ve-insert")) return;
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    true
+  );
+  let style = document.getElementById("tb-ve-style");
+  if (!style) {
+    style = document.createElement("style");
+    style.id = "tb-ve-style";
+    style.textContent = `
     [data-section] {
       position: relative;
       outline: 2px solid transparent;
@@ -161,59 +155,51 @@ if (!style) {
       transform: scale(1);
     }
   `;
-  document.head.appendChild(style);
-}
-
-let kinds = [];
-let selectedSection = 0;
-let chromeEl = null;
-let menuOpen = false;
-
-function post(type, payload) {
-  postToParent(type, payload);
-}
-
-function sections() {
-  return Array.from(document.querySelectorAll('[data-section]'));
-}
-
-function sectionIndexOf(el) {
-  if (!el) return -1;
-  const raw = el.getAttribute('data-section');
-  const n = Number(raw);
-  return Number.isFinite(n) ? n : -1;
-}
-
-function clearActive() {
-  document.querySelectorAll('[data-edit-active]').forEach((el) => {
-    el.removeAttribute('data-edit-active');
-  });
-  document.querySelectorAll('[data-section-active]').forEach((el) => {
-    el.removeAttribute('data-section-active');
-  });
-}
-
-function findEditable(path) {
-  if (!path) return null;
-  try {
-    return document.querySelector(`[data-edit="${CSS.escape(path)}"]`);
-  } catch {
-    return document.querySelector(`[data-edit="${path.replace(/"/g, '\\"')}"]`);
+    document.head.appendChild(style);
   }
-}
-
-function findSection(index) {
-  return document.querySelector(`[data-section="${index}"]`);
-}
-
-function ensureChrome() {
-  if (chromeEl) return chromeEl;
-  chromeEl = document.createElement('div');
-  chromeEl.id = 'tb-ve-chrome';
-  chromeEl.hidden = true;
-  chromeEl.innerHTML = `
+  let kinds = [];
+  let selectedSection = 0;
+  let chromeEl = null;
+  let menuOpen = false;
+  function post(type, payload) {
+    postToParent(type, payload);
+  }
+  function sections() {
+    return Array.from(document.querySelectorAll("[data-section]"));
+  }
+  function sectionIndexOf(el) {
+    if (!el) return -1;
+    const raw = el.getAttribute("data-section");
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : -1;
+  }
+  function clearActive() {
+    document.querySelectorAll("[data-edit-active]").forEach((el) => {
+      el.removeAttribute("data-edit-active");
+    });
+    document.querySelectorAll("[data-section-active]").forEach((el) => {
+      el.removeAttribute("data-section-active");
+    });
+  }
+  function findEditable(path) {
+    if (!path) return null;
+    try {
+      return document.querySelector(`[data-edit="${CSS.escape(path)}"]`);
+    } catch {
+      return document.querySelector(`[data-edit="${path.replace(/"/g, '\\"')}"]`);
+    }
+  }
+  function findSection(index) {
+    return document.querySelector(`[data-section="${index}"]`);
+  }
+  function ensureChrome() {
+    if (chromeEl) return chromeEl;
+    const el = document.createElement("div");
+    el.id = "tb-ve-chrome";
+    el.hidden = true;
+    el.innerHTML = `
     <span class="tb-ve-kind"></span>
-    <button type="button" data-chrome="menu" title="Block actions" aria-haspopup="true">⋯</button>
+    <button type="button" data-chrome="menu" title="Block actions" aria-haspopup="true">\u22EF</button>
     <div class="tb-ve-menu" role="menu">
       <button type="button" data-action="up" role="menuitem">Move up</button>
       <button type="button" data-action="down" role="menuitem">Move down</button>
@@ -221,384 +207,337 @@ function ensureChrome() {
       <button type="button" data-action="del" role="menuitem">Delete</button>
     </div>
   `;
-  document.body.appendChild(chromeEl);
-  chromeEl.querySelector('[data-chrome="menu"]').addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    menuOpen = !menuOpen;
-    chromeEl.querySelector('.tb-ve-menu').classList.toggle('open', menuOpen);
-  });
-  chromeEl.querySelectorAll('[data-action]').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
+    document.body.appendChild(el);
+    const menu = el.querySelector(".tb-ve-menu");
+    el.querySelector('[data-chrome="menu"]')?.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      menuOpen = false;
-      chromeEl.querySelector('.tb-ve-menu').classList.remove('open');
-      post('blockAction', {
-        action: btn.getAttribute('data-action'),
-        sectionIndex: selectedSection,
+      menuOpen = !menuOpen;
+      menu?.classList.toggle("open", menuOpen);
+    });
+    el.querySelectorAll("[data-action]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        menuOpen = false;
+        menu?.classList.remove("open");
+        const action = btn.getAttribute("data-action");
+        if (!isBlockAction(action)) return;
+        post("blockAction", { action, sectionIndex: selectedSection });
       });
     });
-  });
-  return chromeEl;
-}
-
-function placeChrome(sectionEl) {
-  const chrome = ensureChrome();
-  if (!sectionEl) {
-    chrome.hidden = true;
-    return;
+    chromeEl = el;
+    return el;
   }
-  const kind =
-    sectionEl.getAttribute('data-section-kind') ||
-    kinds[selectedSection] ||
-    `Section ${selectedSection}`;
-  chrome.querySelector('.tb-ve-kind').textContent = kind;
-  chrome.hidden = false;
-  menuOpen = false;
-  chrome.querySelector('.tb-ve-menu').classList.remove('open');
-
-  const rect = sectionEl.getBoundingClientRect();
-  const top = Math.max(8, window.scrollY + rect.top - 36);
-  const left = Math.min(
-    window.scrollX + rect.right - chrome.offsetWidth - 8,
-    window.scrollX + window.innerWidth - chrome.offsetWidth - 8,
-  );
-  chrome.style.top = `${top}px`;
-  chrome.style.left = `${Math.max(8, left)}px`;
-}
-
-function setActiveSection(index, path, opts = {}) {
-  const shouldScroll = opts.scroll !== false;
-  clearActive();
-  selectedSection = index;
-  const sectionEl = findSection(index);
-  if (sectionEl) {
-    sectionEl.setAttribute('data-section-active', '1');
-    if (shouldScroll && !path) {
-      sectionEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  function placeChrome(sectionEl) {
+    const chrome = ensureChrome();
+    if (!sectionEl) {
+      chrome.hidden = true;
+      return;
     }
+    const kind = sectionEl.getAttribute("data-section-kind") || kinds[selectedSection] || `Section ${selectedSection}`;
+    const label = chrome.querySelector(".tb-ve-kind");
+    if (label) label.textContent = kind;
+    chrome.hidden = false;
+    menuOpen = false;
+    chrome.querySelector(".tb-ve-menu")?.classList.remove("open");
+    const rect = sectionEl.getBoundingClientRect();
+    const top = Math.max(8, window.scrollY + rect.top - 36);
+    const left = Math.min(
+      window.scrollX + rect.right - chrome.offsetWidth - 8,
+      window.scrollX + window.innerWidth - chrome.offsetWidth - 8
+    );
+    chrome.style.top = `${top}px`;
+    chrome.style.left = `${Math.max(8, left)}px`;
   }
-  if (path) {
-    const el = findEditable(path);
-    if (el) {
-      el.setAttribute('data-edit-active', '1');
-      if (shouldScroll) {
-        el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  function setActiveSection(index, path, opts = {}) {
+    const shouldScroll = opts.scroll !== false;
+    clearActive();
+    selectedSection = index;
+    const sectionEl = findSection(index);
+    if (sectionEl) {
+      sectionEl.setAttribute("data-section-active", "1");
+      if (shouldScroll && !path) {
+        sectionEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
       }
     }
+    if (path) {
+      const el = findEditable(path);
+      if (el) {
+        el.setAttribute("data-edit-active", "1");
+        if (shouldScroll) {
+          el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
+      }
+    }
+    placeChrome(sectionEl);
   }
-  placeChrome(sectionEl);
-}
-
-function restoreScroll(x, y) {
-  const left = Number(x) || 0;
-  const top = Number(y) || 0;
-  window.scrollTo(left, top);
-  requestAnimationFrame(() => placeChrome(findSection(selectedSection)));
-}
-
-function setActivePath(path) {
-  const match = String(path || '').match(/^sections\.(\d+)/);
-  const index = match ? Number(match[1]) : selectedSection;
-  setActiveSection(index, path);
-}
-
-function rebuildInsertZones() {
-  document.querySelectorAll('.tb-ve-insert').forEach((el) => el.remove());
-  const list = sections();
-  const parent = list[0]?.parentElement;
-  if (!parent) return;
-
-  const makeZone = (atIndex) => {
-    const zone = document.createElement('div');
-    zone.className = 'tb-ve-insert';
-    zone.dataset.insertAt = String(atIndex);
-    zone.innerHTML = `
+  function restoreScroll(x, y) {
+    const left = Number(x) || 0;
+    const top = Number(y) || 0;
+    window.scrollTo(left, top);
+    requestAnimationFrame(() => placeChrome(findSection(selectedSection)));
+  }
+  function setActivePath(path) {
+    const match = String(path || "").match(/^sections\.(\d+)/);
+    const index = match ? Number(match[1]) : selectedSection;
+    setActiveSection(index, path);
+  }
+  function rebuildInsertZones() {
+    document.querySelectorAll(".tb-ve-insert").forEach((el) => el.remove());
+    const list = sections();
+    const parent = list[0]?.parentElement;
+    if (!parent) return;
+    const makeZone = (atIndex) => {
+      const zone = document.createElement("div");
+      zone.className = "tb-ve-insert";
+      zone.dataset.insertAt = String(atIndex);
+      zone.innerHTML = `
       <div class="tb-ve-insert-hit">
         <button type="button" class="tb-ve-insert-btn" title="Add section here" aria-label="Add section here">+</button>
       </div>
     `;
-    zone.querySelector('button').addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      post('addAt', { index: atIndex });
+      zone.querySelector("button")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        post("addAt", { index: atIndex });
+      });
+      return zone;
+    };
+    list.forEach((sectionEl, i) => {
+      parent.insertBefore(makeZone(i), sectionEl);
     });
-    return zone;
-  };
-
-  list.forEach((sectionEl, i) => {
-    parent.insertBefore(makeZone(i), sectionEl);
+    parent.appendChild(makeZone(list.length));
+  }
+  function onClick(e) {
+    if (!(e.target instanceof Element)) return;
+    if (e.target.closest("#tb-ve-chrome") || e.target.closest(".tb-ve-insert")) return;
+    const field = e.target.closest("[data-edit]");
+    const sectionEl = e.target.closest("[data-section]");
+    if (!sectionEl && !field) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    const index = sectionIndexOf(sectionEl) >= 0 ? sectionIndexOf(sectionEl) : Number(String(field?.getAttribute("data-edit") || "").match(/^sections\.(\d+)/)?.[1]);
+    if (!Number.isFinite(index)) return;
+    let path = null;
+    let kind = "text";
+    let value = "";
+    if (field) {
+      path = field.getAttribute("data-edit");
+      const isImage = field.tagName === "IMG" || path && (path.endsWith(".src") || path.includes(".image.") || path.includes(".gallery."));
+      kind = isImage ? "image" : "text";
+      value = isImage ? field.getAttribute("src") || field.getAttribute("href") || "" : (field.textContent || "").replace(/\s+/g, " ").trim();
+    }
+    setActiveSection(index, path);
+    post("select", {
+      sectionIndex: index,
+      path,
+      kind,
+      value
+    });
+  }
+  document.addEventListener("click", onClick, true);
+  document.addEventListener(
+    "click",
+    (e) => {
+      if (!chromeEl || chromeEl.hidden) return;
+      if (e.target instanceof Element && e.target.closest("#tb-ve-chrome")) return;
+      menuOpen = false;
+      chromeEl.querySelector(".tb-ve-menu")?.classList.remove("open");
+    },
+    true
+  );
+  window.addEventListener("scroll", () => {
+    if (chromeEl && !chromeEl.hidden) {
+      placeChrome(findSection(selectedSection));
+    }
+  }, true);
+  window.addEventListener("resize", () => {
+    if (chromeEl && !chromeEl.hidden) {
+      placeChrome(findSection(selectedSection));
+    }
   });
-  parent.appendChild(makeZone(list.length));
-}
-
-function onClick(e) {
-  if (!(e.target instanceof Element)) return;
-  if (e.target.closest('#tb-ve-chrome') || e.target.closest('.tb-ve-insert')) return;
-
-  const field = e.target.closest('[data-edit]');
-  const sectionEl = e.target.closest('[data-section]');
-  if (!sectionEl && !field) return;
-
-  e.preventDefault();
-  e.stopPropagation();
-  e.stopImmediatePropagation();
-
-  const index = sectionIndexOf(sectionEl) >= 0
-    ? sectionIndexOf(sectionEl)
-    : Number(String(field?.getAttribute('data-edit') || '').match(/^sections\.(\d+)/)?.[1]);
-
-  if (!Number.isFinite(index)) return;
-
-  let path = null;
-  let kind = 'text';
-  let value = '';
-  if (field) {
-    path = field.getAttribute('data-edit');
-    const isImage =
-      field.tagName === 'IMG' ||
-      (path &&
-        (path.endsWith('.src') || path.includes('.image.') || path.includes('.gallery.')));
-    kind = isImage ? 'image' : 'text';
-    value = isImage
-      ? field.getAttribute('src') || field.getAttribute('href') || ''
-      : (field.textContent || '').replace(/\s+/g, ' ').trim();
-  }
-
-  setActiveSection(index, path);
-  post('select', {
-    sectionIndex: index,
-    path,
-    kind,
-    value,
+  window.addEventListener("message", (e) => {
+    const msg = readEditorMessage(e);
+    if (!msg) return;
+    switch (msg.type) {
+      case "ping": {
+        announce();
+        return;
+      }
+      case "setSectionMeta": {
+        kinds = msg.payload.kinds || [];
+        if (typeof msg.payload.selectedSection === "number") {
+          selectedSection = msg.payload.selectedSection;
+        }
+        return;
+      }
+      case "setDocumentMeta": {
+        const { title, description } = msg.payload;
+        if (typeof title === "string") document.title = title;
+        if (typeof description === "string") {
+          let meta = document.querySelector('meta[name="description"]');
+          if (!meta) {
+            meta = document.createElement("meta");
+            meta.setAttribute("name", "description");
+            document.head.appendChild(meta);
+          }
+          meta.setAttribute("content", description);
+        }
+        return;
+      }
+      case "highlight": {
+        setActivePath(msg.payload.path);
+        return;
+      }
+      case "highlightSection": {
+        setActiveSection(msg.payload.index ?? 0, msg.payload.path || null, {
+          scroll: msg.payload.scroll !== false
+        });
+        return;
+      }
+      case "restoreScroll": {
+        restoreScroll(msg.payload.x, msg.payload.y);
+        return;
+      }
+      case "setText": {
+        const { path, value } = msg.payload;
+        const el = findEditable(path);
+        if (el) el.textContent = value ?? "";
+        return;
+      }
+      case "setAttr": {
+        const { path, attr, value } = msg.payload;
+        if (!attr) return;
+        let el = findEditable(path);
+        if (!el && path && attr === "src") {
+          const m = String(path).match(/^sections\.(\d+)\.(.+)$/);
+          if (m) {
+            const section = document.querySelector(`[data-section="${m[1]}"]`);
+            const rel = m[2] ?? "";
+            el = section?.querySelector(`[data-edit="${CSS.escape(path)}"]`) || section?.querySelector(`img[data-edit$="${CSS.escape(rel)}"]`) || null;
+          }
+        }
+        if (!el) return;
+        el.setAttribute(attr, value ?? "");
+        if (attr === "src") {
+          const found = el.tagName === "IMG" ? [el] : Array.from(el.querySelectorAll("img"));
+          for (const img of found.length ? found : [el]) {
+            if (img.tagName !== "IMG") continue;
+            img.setAttribute("src", value ?? "");
+            img.removeAttribute("srcset");
+            img.removeAttribute("sizes");
+          }
+        }
+        return;
+      }
+      case "setHtml": {
+        const { path, value } = msg.payload;
+        const el = findEditable(path);
+        if (el) el.innerHTML = value ?? "";
+        return;
+      }
+      case "moveSection": {
+        const { from, to } = msg.payload;
+        const list = sections();
+        if (typeof from !== "number" || typeof to !== "number" || from < 0 || to < 0 || from >= list.length || to >= list.length) {
+          return;
+        }
+        const el = list[from];
+        const parent = el?.parentElement;
+        if (!el || !parent) return;
+        const target = list[to];
+        if (!target) return;
+        if (from < to) {
+          parent.insertBefore(el, target.nextSibling);
+        } else {
+          parent.insertBefore(el, target);
+        }
+        reindexSectionDom();
+        rebuildInsertZones();
+        return;
+      }
+      case "removeSection": {
+        const el = findSection(msg.payload.index);
+        if (el) el.remove();
+        reindexSectionDom();
+        rebuildInsertZones();
+        clearActive();
+        placeChrome(null);
+        return;
+      }
+      case "insertSectionHtml": {
+        const { index, html } = msg.payload;
+        const list = sections();
+        const parent = list[0]?.parentElement || document.querySelector("main") || document.body;
+        const wrap = document.createElement("div");
+        wrap.innerHTML = html || "";
+        const node = wrap.firstElementChild;
+        if (!node) return;
+        const at = Math.max(0, Math.min(Number(index) || 0, list.length));
+        const before = list[at];
+        if (!before) {
+          parent.appendChild(node);
+        } else {
+          parent.insertBefore(node, before);
+        }
+        reindexSectionDom();
+        rebuildInsertZones();
+        return;
+      }
+      case "replaceSectionHtml": {
+        const { index, html } = msg.payload;
+        const el = findSection(index);
+        if (!el) return;
+        const wrap = document.createElement("div");
+        wrap.innerHTML = html || "";
+        const node = wrap.firstElementChild;
+        if (!node) return;
+        el.replaceWith(node);
+        reindexSectionDom();
+        rebuildInsertZones();
+        return;
+      }
+      case "reindexSections": {
+        if (Array.isArray(msg.payload.kinds)) {
+          kinds = msg.payload.kinds;
+        }
+        reindexSectionDom();
+        rebuildInsertZones();
+        return;
+      }
+      default: {
+        const unhandled = msg;
+        void unhandled;
+      }
+    }
   });
-}
-
-document.addEventListener('click', onClick, true);
-
-document.addEventListener(
-  'click',
-  (e) => {
-    if (!chromeEl || chromeEl.hidden) return;
-    if (e.target instanceof Element && e.target.closest('#tb-ve-chrome')) return;
-    menuOpen = false;
-    chromeEl.querySelector('.tb-ve-menu')?.classList.remove('open');
-  },
-  true,
-);
-
-window.addEventListener('scroll', () => {
-  if (chromeEl && !chromeEl.hidden) {
-    placeChrome(findSection(selectedSection));
+  function reindexSectionDom() {
+    const list = sections();
+    list.forEach((el, i) => {
+      el.setAttribute("data-section", String(i));
+      el.querySelectorAll("[data-edit]").forEach((field) => {
+        const path = field.getAttribute("data-edit") || "";
+        const m = path.match(/^sections\.(\d+)(.*)$/);
+        if (!m) return;
+        field.setAttribute("data-edit", `sections.${i}${m[2]}`);
+      });
+    });
   }
-}, true);
-
-window.addEventListener('resize', () => {
-  if (chromeEl && !chromeEl.hidden) {
-    placeChrome(findSection(selectedSection));
-  }
-});
-
-window.addEventListener('message', (e) => {
-  if (!isTrustedEditorMessage(e)) return;
-  const data = e.data;
-  if (data.type === 'ping') {
+  function announce() {
     rebuildInsertZones();
-    post('ready', {
-      count: document.querySelectorAll('[data-edit]').length,
+    post("ready", {
+      count: document.querySelectorAll("[data-edit]").length,
       sections: sections().length,
-      href: location.pathname + location.search,
+      href: location.pathname + location.search
     });
-    return;
   }
-  if (data.type === 'setMeta') {
-    kinds = data.payload?.kinds || [];
-    if (typeof data.payload?.selectedSection === 'number') {
-      selectedSection = data.payload.selectedSection;
-    }
-    return;
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", announce);
+  } else {
+    announce();
   }
-  if (data.type === 'highlight') {
-    setActivePath(data.payload?.path);
-    return;
-  }
-  if (data.type === 'highlightSection') {
-    setActiveSection(
-      data.payload?.index ?? 0,
-      data.payload?.path || null,
-      { scroll: data.payload?.scroll !== false },
-    );
-    return;
-  }
-  if (data.type === 'restoreScroll') {
-    restoreScroll(data.payload?.x, data.payload?.y);
-    return;
-  }
-  if (data.type === 'setText') {
-    const { path, value } = data.payload || {};
-    const el = findEditable(path);
-    if (el) el.textContent = value ?? '';
-    return;
-  }
-  if (data.type === 'setAttr') {
-    const { path, attr, value } = data.payload || {};
-    if (!attr) return;
-    let el = findEditable(path);
-    // Fallback: section images that weren't stamped with data-edit yet.
-    if (!el && path && attr === 'src') {
-      const m = String(path).match(/^sections\.(\d+)\.(.+)$/);
-      if (m) {
-        const section = document.querySelector(`[data-section="${m[1]}"]`);
-        const rel = m[2];
-        el =
-          section?.querySelector(`[data-edit="${CSS.escape(path)}"]`) ||
-          section?.querySelector(`img[data-edit$="${CSS.escape(rel)}"]`) ||
-          null;
-      }
-    }
-    if (!el) return;
-    el.setAttribute(attr, value ?? '');
-    // Astro/Cloudinary <Image> serves via srcset — clear it so src wins immediately.
-    if (attr === 'src') {
-      const imgs =
-        el.tagName === 'IMG' ? [el] : Array.from(el.querySelectorAll?.('img') || []);
-      for (const img of imgs.length ? imgs : [el]) {
-        if (img.tagName !== 'IMG') continue;
-        img.setAttribute('src', value ?? '');
-        img.removeAttribute('srcset');
-        img.removeAttribute('sizes');
-      }
-    }
-    return;
-  }
-  if (data.type === 'setHtml') {
-    const { path, value } = data.payload || {};
-    const el = findEditable(path);
-    if (el) el.innerHTML = value ?? '';
-    return;
-  }
-  if (data.type === 'setDocumentMeta') {
-    const { title, description } = data.payload || {};
-    if (typeof title === 'string') document.title = title;
-    if (typeof description === 'string') {
-      let meta = document.querySelector('meta[name="description"]');
-      if (!meta) {
-        meta = document.createElement('meta');
-        meta.setAttribute('name', 'description');
-        document.head.appendChild(meta);
-      }
-      meta.setAttribute('content', description);
-    }
-    return;
-  }
-  if (data.type === 'moveSection') {
-    const { from, to } = data.payload || {};
-    const list = sections();
-    if (
-      typeof from !== 'number' ||
-      typeof to !== 'number' ||
-      from < 0 ||
-      to < 0 ||
-      from >= list.length ||
-      to >= list.length
-    ) {
-      return;
-    }
-    const el = list[from];
-    const parent = el.parentElement;
-    if (!parent) return;
-    const target = list[to];
-    if (from < to) {
-      parent.insertBefore(el, target.nextSibling);
-    } else {
-      parent.insertBefore(el, target);
-    }
-    reindexSectionDom();
-    rebuildInsertZones();
-    return;
-  }
-  if (data.type === 'removeSection') {
-    const { index } = data.payload || {};
-    const el = findSection(index);
-    if (el) el.remove();
-    reindexSectionDom();
-    rebuildInsertZones();
-    clearActive();
-    placeChrome(null);
-    return;
-  }
-  if (data.type === 'insertSectionHtml') {
-    const { index, html } = data.payload || {};
-    const list = sections();
-    const parent = list[0]?.parentElement || document.querySelector('main') || document.body;
-    const wrap = document.createElement('div');
-    wrap.innerHTML = html || '';
-    const node = wrap.firstElementChild;
-    if (!node) return;
-    const at = Math.max(0, Math.min(Number(index) || 0, list.length));
-    if (at >= list.length) {
-      parent.appendChild(node);
-    } else {
-      parent.insertBefore(node, list[at]);
-    }
-    reindexSectionDom();
-    rebuildInsertZones();
-    return;
-  }
-  if (data.type === 'replaceSectionHtml') {
-    const { index, html } = data.payload || {};
-    const el = findSection(index);
-    if (!el) return;
-    const wrap = document.createElement('div');
-    wrap.innerHTML = html || '';
-    const node = wrap.firstElementChild;
-    if (!node) return;
-    el.replaceWith(node);
-    reindexSectionDom();
-    rebuildInsertZones();
-    return;
-  }
-  if (data.type === 'reindexSections') {
-    if (Array.isArray(data.payload?.kinds)) {
-      kinds = data.payload.kinds;
-    }
-    reindexSectionDom();
-    rebuildInsertZones();
-    return;
-  }
-});
-
-function reindexSectionDom() {
-  const list = sections();
-  list.forEach((el, i) => {
-    const prev = el.getAttribute('data-section');
-    el.setAttribute('data-section', String(i));
-    // Remap data-edit paths that start with sections.<old>.
-    el.querySelectorAll('[data-edit]').forEach((field) => {
-      const path = field.getAttribute('data-edit') || '';
-      const m = path.match(/^sections\.(\d+)(.*)$/);
-      if (!m) return;
-      field.setAttribute('data-edit', `sections.${i}${m[2]}`);
-    });
-    void prev;
-  });
-}
-
-function announce() {
-  rebuildInsertZones();
-  post('ready', {
-    count: document.querySelectorAll('[data-edit]').length,
-    sections: sections().length,
-    href: location.pathname + location.search,
-  });
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', announce);
-} else {
-  announce();
-}
-document.addEventListener('astro:page-load', announce);
-setTimeout(announce, 300);
+  document.addEventListener("astro:page-load", announce);
+  setTimeout(announce, 300);
 }

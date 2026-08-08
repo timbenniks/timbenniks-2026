@@ -1,105 +1,92 @@
-/**
- * Page Info + Git history panes.
- * @param {Record<string, any>} s mutable editor session
- */
-import { apiFetch } from '../lib/api.js';
-import { escapeHtml } from '../lib/utils.js';
-import { listDraftPageIds } from '../lib/draft-store.js';
-
-export function createPagePanels(s) {
+// Generated from src/admin-client by `npm run build:admin` — do not edit.
+import { apiFetch } from "../lib/api.js";
+import { listDraftPageIds } from "../lib/draft-store.js";
+import { escapeHtml } from "../lib/utils.js";
+function errorText(err) {
+  return err instanceof Error && err.message ? err.message : String(err);
+}
+function createPagePanels(s) {
   function formatCommitDate(iso) {
-    if (!iso) return '—';
+    if (!iso) return "\u2014";
     try {
-      return new Intl.DateTimeFormat(undefined, {
-        dateStyle: 'medium',
-        timeStyle: 'short',
+      return new Intl.DateTimeFormat(void 0, {
+        dateStyle: "medium",
+        timeStyle: "short"
       }).format(new Date(iso));
     } catch {
       return iso;
     }
   }
-
   function editStatusLabel() {
-    if (s.dirtyChip?.dataset.state === 'saving') return 'Saving…';
-    if (s.dirtyChip?.dataset.state === 'error') return 'Save error';
-    return s.dirty ? 'Unsaved' : 'Draft saved';
+    if (s.dirtyChip?.dataset.state === "saving") return "Saving\u2026";
+    if (s.dirtyChip?.dataset.state === "error") return "Save error";
+    return s.dirty ? "Unsaved" : "Draft saved";
   }
-
   async function fetchChangesStatus(force = false) {
     if (!force && s.changesCache) return s.changesCache;
     try {
-      const baseline = await apiFetch('/api/admin/changes', {
-        errorMessage: 'Could not load publish status',
-      });
+      const baseline = await apiFetch(
+        "/api/admin/changes",
+        { errorMessage: "Could not load publish status" }
+      );
       const draftIds = await listDraftPageIds();
       const hasThisDraft = draftIds.includes(s.boot.id);
       s.changesCache = {
         ...baseline,
         draftIds,
         hasThisDraft,
-        aheadBy: draftIds.length,
+        aheadBy: draftIds.length
       };
     } catch (err) {
       s.changesCache = {
         configured: false,
-        error: err.message || String(err),
+        error: errorText(err),
         aheadBy: 0,
         pages: [],
         draftIds: [],
-        hasThisDraft: false,
+        hasThisDraft: false
       };
     }
     return s.changesCache;
   }
-
   async function fetchHistory(force = false) {
     if (!force && s.historyCache) return s.historyCache;
     try {
-      s.historyCache = await apiFetch(`/api/admin/pages/${s.boot.id}/history`, {
-        errorMessage: 'Could not load history',
-      });
+      s.historyCache = await apiFetch(
+        `/api/admin/pages/${s.boot.id}/history`,
+        { errorMessage: "Could not load history" }
+      );
     } catch (err) {
       s.historyCache = {
         configured: false,
-        error: err.message || String(err),
+        error: errorText(err),
         commits: [],
-        lastPublish: null,
+        lastPublish: null
       };
     }
     return s.historyCache;
   }
-
   async function refreshInfoPane() {
     if (!s.infoFieldsEl) return;
-    s.infoFieldsEl.innerHTML = '<p class="hint">Loading…</p>';
+    s.infoFieldsEl.innerHTML = '<p class="hint">Loading\u2026</p>';
     const [changes, history] = await Promise.all([
       fetchChangesStatus(true),
-      fetchHistory(false),
+      fetchHistory(false)
     ]);
-    if (s.primary !== 'page' || s.pageTab !== 'info') return;
-
+    if (s.primary !== "page" || s.pageTab !== "info") return;
     const title = s.draft?.metadata?.title || s.boot.id;
     const path = s.slugPath;
-    let publishLabel = 'Unknown';
+    let publishLabel = "Unknown";
     if (changes.hasThisDraft || s.dirty) {
-      publishLabel = 'Local draft pending publish';
+      publishLabel = "Local draft pending publish";
     } else if ((changes.draftIds || []).length) {
-      publishLabel = `${changes.draftIds.length} other draft${changes.draftIds.length === 1 ? '' : 's'} pending`;
+      publishLabel = `${changes.draftIds.length} other draft${changes.draftIds.length === 1 ? "" : "s"} pending`;
     } else {
-      publishLabel = 'In sync with main';
+      publishLabel = "In sync with main";
     }
-
     const last = history.lastPublish;
-    const lastHtml = last
-      ? last.htmlUrl
-        ? `<a href="${escapeHtml(last.htmlUrl)}" target="_blank" rel="noopener">${escapeHtml(last.shortSha)}</a> · ${escapeHtml(formatCommitDate(last.date))}`
-        : `${escapeHtml(last.shortSha)} · ${escapeHtml(formatCommitDate(last.date))}`
-      : history.configured === false
-        ? '—'
-        : 'No commits on main yet';
-
-    const mainB = changes.mainBranch || history.mainBranch || 'main';
-
+    const lastHtml = last ? last.htmlUrl ? `<a href="${escapeHtml(last.htmlUrl)}" target="_blank" rel="noopener">${escapeHtml(last.shortSha)}</a> \xB7 ${escapeHtml(formatCommitDate(last.date))}` : `${escapeHtml(last.shortSha)} \xB7 ${escapeHtml(formatCommitDate(last.date))}` : history.configured === false ? "\u2014" : "No commits on main yet";
+    const mainB = changes.mainBranch || history.mainBranch || "main";
     s.infoFieldsEl.innerHTML = `
       <dl class="info-dl">
         <div><dt>Page id</dt><dd><code>${escapeHtml(s.boot.id)}</code></dd></div>
@@ -116,56 +103,47 @@ export function createPagePanels(s) {
       </p>
     `;
   }
-
   function syncInfoEditStatus() {
-    const el = document.getElementById('info-edit-status');
+    const el = document.getElementById("info-edit-status");
     if (el) el.textContent = editStatusLabel();
   }
-
   async function refreshHistoryPanel(force = false) {
     if (!s.historyFieldsEl) return;
-    s.historyFieldsEl.innerHTML = '<p class="hint">Loading…</p>';
+    s.historyFieldsEl.innerHTML = '<p class="hint">Loading\u2026</p>';
     const data = await fetchHistory(force);
-    if (s.primary !== 'page' || s.pageTab !== 'history') return;
-
+    if (s.primary !== "page" || s.pageTab !== "history") return;
     if (!data.configured) {
-      s.historyFieldsEl.innerHTML = `<p class="hint">${escapeHtml(data.error || 'GitHub is not configured. Set GITHUB_TOKEN and GITHUB_REPO to see commit history.')}</p>`;
+      s.historyFieldsEl.innerHTML = `<p class="hint">${escapeHtml(data.error || "GitHub is not configured. Set GITHUB_TOKEN and GITHUB_REPO to see commit history.")}</p>`;
       return;
     }
-
     const commits = data.commits || [];
     if (!commits.length) {
       s.historyFieldsEl.innerHTML = '<p class="hint">No commits touch pages.json on main yet.</p>';
       return;
     }
-
     s.historyFieldsEl.innerHTML = `
-      <p class="hint history-path">Commits touching <code>${escapeHtml(data.path || 'src/content/pages.json')}</code> on <code>${escapeHtml(data.mainBranch || data.cmsBranch || 'main')}</code></p>
+      <p class="hint history-path">Commits touching <code>${escapeHtml(data.path || "src/content/pages.json")}</code> on <code>${escapeHtml(data.mainBranch || data.cmsBranch || "main")}</code></p>
       <ul class="commit-list">
-        ${commits
-          .map((c) => {
-            const msg = escapeHtml(c.message || '(no message)');
-            const meta = [
-              escapeHtml(c.shortSha || ''),
-              escapeHtml(formatCommitDate(c.date)),
-              c.author ? escapeHtml(c.author) : null,
-            ]
-              .filter(Boolean)
-              .join(' · ');
-            const body = c.htmlUrl
-              ? `<a href="${escapeHtml(c.htmlUrl)}" target="_blank" rel="noopener">${msg}</a>`
-              : msg;
-            return `<li><div class="commit-msg">${body}</div><div class="meta">${meta}</div></li>`;
-          })
-          .join('')}
+        ${commits.map((c) => {
+      const msg = escapeHtml(c.message || "(no message)");
+      const meta = [
+        escapeHtml(c.shortSha || ""),
+        escapeHtml(formatCommitDate(c.date)),
+        c.author ? escapeHtml(c.author) : null
+      ].filter(Boolean).join(" \xB7 ");
+      const body = c.htmlUrl ? `<a href="${escapeHtml(c.htmlUrl)}" target="_blank" rel="noopener">${msg}</a>` : msg;
+      return `<li><div class="commit-msg">${body}</div><div class="meta">${meta}</div></li>`;
+    }).join("")}
       </ul>
     `;
   }
-
   return {
     refreshInfoPane,
     syncInfoEditStatus,
     refreshHistoryPanel,
-    fetchChangesStatus,
+    fetchChangesStatus
   };
 }
+export {
+  createPagePanels
+};

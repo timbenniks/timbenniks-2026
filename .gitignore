@@ -1,5 +1,10 @@
 # build output
 dist/
+# admin client build output — sources live in src/admin-client/.
+# vendor/ is hand-vendored third-party code and stays committed.
+/public/admin/**/*.js
+/public/admin/**/*.js.map
+!/public/admin/vendor/**
 # generated types
 .astro/
 # admin visual-editor preview drafts (local)

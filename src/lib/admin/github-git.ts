@@ -1,25 +1,27 @@
 /** GitHub Contents / Git Data helpers for publishing content to main. */
 
+import { serverEnv } from './server-env';
+
 export const PAGES_REL = 'src/content/pages.json';
 export const SITE_REL = 'src/content/site.json';
 /** Ephemeral admin preview drafts on cms — not intentional page saves. */
 export const PREVIEW_DRAFTS_REL = 'src/content/.admin-preview-drafts.json';
 
 export function mainBranch(): string {
-  return process.env.GITHUB_BRANCH ?? 'main';
+  return serverEnv('GITHUB_BRANCH') || 'main';
 }
 
 export function cmsBranch(): string {
-  return process.env.GITHUB_CMS_BRANCH ?? 'cms';
+  return serverEnv('GITHUB_CMS_BRANCH') || 'cms';
 }
 
 export function hasGitHubConfig(): boolean {
-  return Boolean(process.env.GITHUB_TOKEN && process.env.GITHUB_REPO);
+  return Boolean(serverEnv('GITHUB_TOKEN') && serverEnv('GITHUB_REPO'));
 }
 
 export function requireGitHubConfig(): { token: string; repo: string } {
-  const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.GITHUB_REPO;
+  const token = serverEnv('GITHUB_TOKEN');
+  const repo = serverEnv('GITHUB_REPO');
   if (!token || !repo) {
     throw new Error(
       'GITHUB_TOKEN and GITHUB_REPO are required for the git CMS (Save / Changes / Publish)',

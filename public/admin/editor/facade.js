@@ -1,64 +1,57 @@
-/**
- * Agent / WebMCP facade — tools call into the live editor session.
- * Preserves window.__tbVisualEditor / WebMCP tool contract.
- */
-import { apiFetch } from '../lib/api.js';
-import { editorPathFor, hardNavigate } from '../lib/navigate.js';
-import { deepClone, getByPath } from '../lib/utils.js';
-import { SECTION_FORM, LIST_SPECS } from './catalog.js';
-
+// Generated from src/admin-client by `npm run build:admin` — do not edit.
+import { apiFetch } from "../lib/api.js";
+import { PANEL_NAMES, isPanelName } from "../lib/facade.js";
+import { documentMetaPatch } from "../lib/messaging.js";
+import { editorPathFor, hardNavigate } from "../lib/navigate.js";
+import { deepClone, getByPath } from "../lib/utils.js";
+import { LIST_SPECS, SECTION_FORM } from "./catalog.js";
 const FIELD_DESC_KEYS = [
-  'key',
-  'type',
-  'label',
-  'options',
-  'hint',
-  'min',
-  'max',
-  'allowEmpty',
-  'emptyLabel',
-  'optionsFrom',
-  'showWhen',
-  'coerce',
+  "key",
+  "type",
+  "label",
+  "options",
+  "hint",
+  "min",
+  "max",
+  "allowEmpty",
+  "emptyLabel",
+  "optionsFrom",
+  "showWhen",
+  "coerce"
 ];
-
-/** @param {Record<string, any>} s mutable editor session + helpers */
-export function createVisualEditorFacade(s) {
+function createVisualEditorFacade(s) {
   function summarizeSection(section, index) {
-    const title =
-      section.title ||
-      section.eyebrow ||
-      section.headline?.lead ||
-      section.text ||
-      section.lede ||
-      '';
+    const loose = section;
+    const title = loose.title || loose.eyebrow || loose.headline?.lead || loose.text || loose.lede || "";
     return {
       index,
       kind: section.kind,
-      title: String(title).slice(0, 80),
+      title: String(title).slice(0, 80)
     };
   }
-
   function serializeFieldDesc(field) {
+    const source = field;
     const out = {};
     for (const key of FIELD_DESC_KEYS) {
-      if (field[key] !== undefined) out[key] = field[key];
+      if (source[key] !== void 0) out[key] = source[key];
     }
     return out;
   }
-
   function serializeListDesc(spec) {
     const out = {
       key: spec.key,
       label: spec.label,
       min: spec.min,
-      fields: (spec.fields || []).map(serializeFieldDesc),
+      fields: (spec.fields || []).map(serializeFieldDesc)
     };
-    if (spec.optional !== undefined) out.optional = spec.optional;
+    if (spec.optional !== void 0) out.optional = spec.optional;
     if (spec.nested) out.nested = serializeListDesc(spec.nested);
     return out;
   }
-
+  function firstFieldKey(fields) {
+    const found = (fields || []).find((f) => f.key);
+    return typeof found?.key === "string" ? found.key : void 0;
+  }
   function resolveSectionIndex(sectionIndex) {
     const i = sectionIndex == null ? s.selectedSection : Number(sectionIndex);
     if (!Number.isFinite(i) || i < 0 || i >= s.draft.sections.length) {
@@ -66,22 +59,25 @@ export function createVisualEditorFacade(s) {
     }
     return i;
   }
-
-  function resolveListTarget({ sectionIndex, listKey, nestedKey, parentItemIndex } = {}) {
-    if (!listKey) throw new Error('listKey is required');
+  function resolveListTarget({
+    sectionIndex,
+    listKey,
+    nestedKey,
+    parentItemIndex
+  } = {}) {
+    if (!listKey) throw new Error("listKey is required");
     const i = resolveSectionIndex(sectionIndex);
     const section = s.draft.sections[i];
     const specs = LIST_SPECS[section.kind] || [];
     const spec = specs.find((sp) => sp.key === listKey);
-    if (!spec) throw new Error(`Unknown list “${listKey}” for kind ${section.kind}`);
-
-    const useNested = nestedKey != null && nestedKey !== '' && parentItemIndex != null;
-    if (nestedKey != null && nestedKey !== '' && parentItemIndex == null) {
-      throw new Error('parentItemIndex required for nested lists');
+    if (!spec) throw new Error(`Unknown list \u201C${listKey}\u201D for kind ${section.kind}`);
+    const useNested = nestedKey != null && nestedKey !== "" && parentItemIndex != null;
+    if (nestedKey != null && nestedKey !== "" && parentItemIndex == null) {
+      throw new Error("parentItemIndex required for nested lists");
     }
     if (useNested) {
       if (!spec.nested || spec.nested.key !== nestedKey) {
-        throw new Error(`Unknown nested list “${nestedKey}” on ${listKey}`);
+        throw new Error(`Unknown nested list \u201C${nestedKey}\u201D on ${listKey}`);
       }
       const parentIdx = Number(parentItemIndex);
       if (!Number.isFinite(parentIdx) || parentIdx < 0) {
@@ -91,18 +87,16 @@ export function createVisualEditorFacade(s) {
         i,
         section,
         spec: spec.nested,
-        listPath: `sections.${i}.${listKey}.${parentIdx}.${nestedKey}`,
+        listPath: `sections.${i}.${listKey}.${parentIdx}.${nestedKey}`
       };
     }
-
     return {
       i,
       section,
       spec,
-      listPath: `sections.${i}.${listKey}`,
+      listPath: `sections.${i}.${listKey}`
     };
   }
-
   function ensureListArray(listPath) {
     let arr = getByPath(s.draft, listPath);
     if (!Array.isArray(arr)) {
@@ -111,19 +105,16 @@ export function createVisualEditorFacade(s) {
     }
     return arr;
   }
-
   function resolveFieldPath(path, sectionIndex) {
-    const raw = String(path || '').trim();
-    if (!raw) throw new Error('path is required');
-    if (raw.startsWith('sections.') || raw.startsWith('metadata.') || raw === 'path') {
+    const raw = String(path || "").trim();
+    if (!raw) throw new Error("path is required");
+    if (raw.startsWith("sections.") || raw.startsWith("metadata.") || raw === "path") {
       return raw;
     }
     const idx = sectionIndex == null ? s.selectedSection : sectionIndex;
-    if (!Number.isFinite(idx)) throw new Error('sectionIndex required for relative paths');
-    return `sections.${idx}.${raw.replace(/^\./, '')}`;
+    if (!Number.isFinite(idx)) throw new Error("sectionIndex required for relative paths");
+    return `sections.${idx}.${raw.replace(/^\./, "")}`;
   }
-
-  /** Match catalog field defs so agent edits can mirror UI preview-reload rules. */
   function lookupFieldDef(fullPath) {
     const m = String(fullPath).match(/^sections\.(\d+)\.(.+)$/);
     if (!m) return null;
@@ -135,99 +126,85 @@ export function createVisualEditorFacade(s) {
     const queryDef = (form?.query || []).find((f) => f.key === rel);
     if (queryDef) return { idx, rel, section, def: queryDef, isQuery: true };
     const fieldDef = (form?.fields || []).find(
-      (f) => f.key === rel || (f.key && rel.startsWith(`${f.key}.`)),
+      (f) => f.key === rel || f.key && rel.startsWith(`${f.key}.`)
     );
     return { idx, rel, section, def: fieldDef || null, isQuery: false };
   }
-
   function needsPreviewReload(info, structuralFlag) {
     if (structuralFlag) return true;
     if (!info) return false;
     if (info.isQuery) return true;
-    if (info.def && ['select', 'number', 'boolean', 'multi-select'].includes(info.def.type)) {
+    if (info.def && ["select", "number", "boolean", "multi-select"].includes(info.def.type)) {
       return true;
     }
-    const leaf = String(info.rel || '').split('.')[0];
+    const leaf = String(info.rel || "").split(".")[0];
     return /^(source|limit|columns|tags|playlist|window|hideWhenEmpty)$/.test(leaf);
   }
-
   function coerceAgentValue(def, value) {
     if (!def) return value;
-    if (def.type === 'multi-select') {
+    if (def.type === "multi-select") {
       if (Array.isArray(value)) return value.map(String);
-      if (value == null || value === '') return [];
-      if (typeof value === 'string') {
+      if (value == null || value === "") return [];
+      if (typeof value === "string") {
         try {
           const parsed = JSON.parse(value);
           if (Array.isArray(parsed)) return parsed.map(String);
         } catch {
-          /* treat as comma/space list */
         }
-        return value
-          .split(/[,\s]+/)
-          .map((t) => t.trim())
-          .filter(Boolean);
+        return value.split(/[,\s]+/).map((t) => t.trim()).filter(Boolean);
       }
       return [String(value)];
     }
-    if (typeof s.coerceFieldValue === 'function') {
+    if (typeof s.coerceFieldValue === "function") {
       return s.coerceFieldValue(def, value);
     }
     return value;
   }
-
   function collectImageSrcPaths(value, prefix, out) {
-    if (!value || typeof value !== 'object') return;
+    if (!value || typeof value !== "object") return;
     if (Array.isArray(value)) {
       value.forEach((item, i) => collectImageSrcPaths(item, `${prefix}.${i}`, out));
       return;
     }
-    const leaf = prefix.split('.').pop() || '';
-    if (
-      typeof value.src === 'string' &&
-      (Object.prototype.hasOwnProperty.call(value, 'alt') ||
-        Object.prototype.hasOwnProperty.call(value, 'width') ||
-        /image/i.test(leaf))
-    ) {
+    const leaf = prefix.split(".").pop() || "";
+    const record = value;
+    if (typeof record.src === "string" && (Object.prototype.hasOwnProperty.call(value, "alt") || Object.prototype.hasOwnProperty.call(value, "width") || /image/i.test(leaf))) {
       out.push({
         path: `${prefix}.src`,
-        label: prefix.replace(/^sections\.\d+\./, '') || leaf,
+        label: prefix.replace(/^sections\.\d+\./, "") || leaf
       });
     }
-    for (const [k, v] of Object.entries(value)) {
-      if (v && typeof v === 'object') collectImageSrcPaths(v, `${prefix}.${k}`, out);
+    for (const [k, v] of Object.entries(record)) {
+      if (v && typeof v === "object") collectImageSrcPaths(v, `${prefix}.${k}`, out);
     }
   }
-
   function resolveImageTarget() {
     const alternatives = [];
-    const seen = new Set();
+    const seen = /* @__PURE__ */ new Set();
     const push = (path, label) => {
-      let p = String(path || '').trim();
+      let p = String(path || "").trim();
       if (!p || seen.has(p)) return;
-      if (/image/i.test(p) && !p.endsWith('.src') && !p.endsWith('.alt') && p !== 'metadata.image') {
+      if (/image/i.test(p) && !p.endsWith(".src") && !p.endsWith(".alt") && p !== "metadata.image") {
         p = `${p}.src`;
       }
       if (seen.has(p)) return;
       seen.add(p);
-      alternatives.push({ path: p, label: label || p.replace(/^sections\.\d+\./, '') });
+      alternatives.push({ path: p, label: label || p.replace(/^sections\.\d+\./, "") });
     };
-
     if (s.selectedPath) {
       const p = String(s.selectedPath);
-      if (p === 'metadata.image') push(p, 'Selected SEO image');
-      else if (/\.src$/i.test(p) && /image/i.test(p)) push(p, 'Selected field');
+      if (p === "metadata.image") push(p, "Selected SEO image");
+      else if (/\.src$/i.test(p) && /image/i.test(p)) push(p, "Selected field");
       else if (/image/i.test(p) && !/\.alt$/i.test(p)) {
-        push(p.replace(/\.(width|height|alt)$/i, ''), 'Selected field');
+        push(p.replace(/\.(width|height|alt)$/i, ""), "Selected field");
       }
     }
-
     if (Number.isFinite(s.selectedSection) && s.draft.sections[s.selectedSection]) {
       const section = s.draft.sections[s.selectedSection];
       const form = SECTION_FORM[section.kind];
-      for (const f of [...(form?.fields || []), ...(form?.query || [])]) {
-        if (typeof f.key === 'string' && /image/i.test(f.key)) {
-          const key = f.key.endsWith('.src') || f.key === 'metadata.image' ? f.key : f.key.endsWith('.alt') ? null : f.key;
+      for (const f of [...form?.fields || [], ...form?.query || []]) {
+        if (typeof f.key === "string" && /image/i.test(f.key)) {
+          const key = f.key.endsWith(".src") || f.key === "metadata.image" ? f.key : f.key.endsWith(".alt") ? null : f.key;
           if (key) push(`sections.${s.selectedSection}.${key}`, f.label || key);
         }
       }
@@ -235,21 +212,18 @@ export function createVisualEditorFacade(s) {
       collectImageSrcPaths(section, `sections.${s.selectedSection}`, walked);
       for (const item of walked) push(item.path, item.label);
     }
-
-    if (s.draft.metadata && 'image' in (s.draft.metadata || {})) {
-      push('metadata.image', 'SEO / social image');
+    if (s.draft.metadata && "image" in (s.draft.metadata || {})) {
+      push("metadata.image", "SEO / social image");
     }
-
     const target = alternatives[0] || null;
     return {
       path: target?.path || null,
       label: target?.label || null,
       sectionIndex: s.selectedSection,
       selectedPath: s.selectedPath,
-      alternatives: alternatives.slice(0, 8),
+      alternatives: alternatives.slice(0, 8)
     };
   }
-
   const facade = {
     getState() {
       return {
@@ -264,7 +238,7 @@ export function createVisualEditorFacade(s) {
         sectionCount: s.draft.sections.length,
         sectionKinds: s.boot.sectionKinds,
         sections: s.draft.sections.map(summarizeSection),
-        metadata: deepClone(s.draft.metadata || {}),
+        metadata: deepClone(s.draft.metadata || {})
       };
     },
     resolveImageTarget,
@@ -280,31 +254,34 @@ export function createVisualEditorFacade(s) {
     },
     selectSection(index, opts = {}) {
       s.selectSection(Number(index), opts);
-      s.setStatus(`Agent selected section ${Number(index)}`, 'ok');
+      s.setStatus(`Agent selected section ${Number(index)}`, "ok");
       return facade.getState();
     },
     addSection({ kind, index } = {}) {
       if (!kind || !s.boot.sectionKinds.includes(kind)) {
-        throw new Error(`Unknown kind “${kind}”. Use one of: ${s.boot.sectionKinds.join(', ')}`);
+        throw new Error(`Unknown kind \u201C${kind}\u201D. Use one of: ${s.boot.sectionKinds.join(", ")}`);
       }
       const at = index == null ? s.draft.sections.length : Number(index);
       s.insertSectionAt(at, kind);
-      s.setStatus(`Agent added ${kind} at ${at}`, 'ok');
-      return { ...facade.getState(), insertedAt: Math.max(0, Math.min(at, s.draft.sections.length - 1)) };
+      s.setStatus(`Agent added ${kind} at ${at}`, "ok");
+      return {
+        ...facade.getState(),
+        insertedAt: Math.max(0, Math.min(at, s.draft.sections.length - 1))
+      };
     },
     moveSection({ from, to }) {
       s.moveSection(Number(from), Number(to));
-      s.setStatus(`Agent moved section ${from} → ${to}`, 'ok');
+      s.setStatus(`Agent moved section ${from} \u2192 ${to}`, "ok");
       return facade.getState();
     },
     duplicateSection(index) {
       s.duplicateSection(Number(index));
-      s.setStatus(`Agent duplicated section ${index}`, 'ok');
+      s.setStatus(`Agent duplicated section ${index}`, "ok");
       return facade.getState();
     },
     deleteSection(index) {
       s.deleteSection(Number(index));
-      s.setStatus(`Agent deleted section ${index}`, 'ok');
+      s.setStatus(`Agent deleted section ${index}`, "ok");
       return facade.getState();
     },
     async replaceSection({ index, section }) {
@@ -312,18 +289,18 @@ export function createVisualEditorFacade(s) {
       if (!Number.isFinite(i) || i < 0 || i >= s.draft.sections.length) {
         throw new Error(`Invalid section index ${index}`);
       }
-      if (!section || typeof section !== 'object' || !section.kind) {
-        throw new Error('section must be an object with a kind');
+      if (!section || typeof section !== "object" || !section.kind) {
+        throw new Error("section must be an object with a kind");
       }
       if (!s.boot.sectionKinds.includes(section.kind)) {
-        throw new Error(`Unknown kind “${section.kind}”`);
+        throw new Error(`Unknown kind \u201C${section.kind}\u201D`);
       }
       s.checkpoint();
       s.draft.sections[i] = deepClone(section);
       s.selectedSection = i;
       await s.refreshAfterStructural(i);
       s.selectSection(i);
-      s.setStatus(`Agent replaced section ${i} (${section.kind})`, 'ok');
+      s.setStatus(`Agent replaced section ${i} (${section.kind})`, "ok");
       return facade.getSection(i);
     },
     async patchSection({ index, patch }) {
@@ -331,17 +308,21 @@ export function createVisualEditorFacade(s) {
       if (!Number.isFinite(i) || i < 0 || i >= s.draft.sections.length) {
         throw new Error(`Invalid section index ${index}`);
       }
-      if (!patch || typeof patch !== 'object') throw new Error('patch object required');
+      if (!patch || typeof patch !== "object") throw new Error("patch object required");
       s.checkpoint();
-      const next = { ...deepClone(s.draft.sections[i]), ...deepClone(patch), kind: s.draft.sections[i].kind };
+      const next = {
+        ...deepClone(s.draft.sections[i]),
+        ...deepClone(patch),
+        kind: s.draft.sections[i].kind
+      };
       if (patch.kind && patch.kind !== s.draft.sections[i].kind) {
-        throw new Error('Cannot change kind via patch_section — use replace_section');
+        throw new Error("Cannot change kind via patch_section \u2014 use replace_section");
       }
       s.draft.sections[i] = next;
       s.selectedSection = i;
       await s.refreshAfterStructural(i);
       s.selectSection(i);
-      s.setStatus(`Agent patched section ${i}`, 'ok');
+      s.setStatus(`Agent patched section ${i}`, "ok");
       return facade.getSection(i);
     },
     setField({ path, value, sectionIndex, structural = false }) {
@@ -357,14 +338,15 @@ export function createVisualEditorFacade(s) {
           const sectionMatch = String(fullPath).match(/^sections\.(\d+)/);
           idx = sectionMatch ? Number(sectionMatch[1]) : s.selectedSection;
         }
-        if ((info?.rel === 'source' || info?.def?.key === 'source') && s.draft.sections[idx]) {
+        if ((info?.rel === "source" || info?.def?.key === "source") && s.draft.sections[idx]) {
           s.clearSourceDependentFilters?.(s.draft.sections[idx]);
         }
         s.selectedSection = idx;
         s.selectedPath = fullPath;
-        return s.refreshAfterStructural(idx).then(() => {
-          s.selectSection(idx, { keepPath: true, focusPath: fullPath });
-          s.setStatus(`Agent set ${fullPath}`, 'ok');
+        const at = idx;
+        return s.refreshAfterStructural(at).then(() => {
+          s.selectSection(at, { keepPath: true, focusPath: fullPath });
+          s.setStatus(`Agent set ${fullPath}`, "ok");
           return { path: fullPath, value: s.getByPath(s.draft, fullPath), previewReloaded: true };
         });
       }
@@ -374,36 +356,38 @@ export function createVisualEditorFacade(s) {
         s.selectedSection = Number(m[1]);
         s.selectedPath = fullPath;
         s.renderSectionFields(s.selectedSection, fullPath);
-      } else if (fullPath.startsWith('metadata.')) {
+      } else if (fullPath.startsWith("metadata.")) {
         s.renderMeta();
       }
-      s.setStatus(`Agent set ${fullPath}`, 'ok');
+      s.setStatus(`Agent set ${fullPath}`, "ok");
       return { path: fullPath, value: s.getByPath(s.draft, fullPath), previewReloaded: false };
     },
     updateMetadata(fields) {
-      if (!fields || typeof fields !== 'object') throw new Error('fields object required');
+      if (!fields || typeof fields !== "object") throw new Error("fields object required");
       s.checkpoint();
       if (!s.draft.metadata) s.draft.metadata = {};
+      const metadata = s.draft.metadata;
       for (const [key, value] of Object.entries(fields)) {
-        if (key === 'pageId' || key === 'id') continue;
-        if (key === 'noindex') {
-          s.draft.metadata[key] = Boolean(value);
+        if (key === "pageId" || key === "id") continue;
+        if (key === "noindex") {
+          metadata[key] = Boolean(value);
         } else {
-          s.draft.metadata[key] = value == null ? '' : String(value);
+          metadata[key] = value == null ? "" : String(value);
         }
-        s.postToFrame('setMeta', { key, value: s.draft.metadata[key] });
+        const patch = documentMetaPatch(key, metadata[key]);
+        if (patch) s.postToFrame("setDocumentMeta", patch);
       }
       s.renderMeta();
       s.markDirty();
-      s.setStatus('Agent updated metadata', 'ok');
+      s.setStatus("Agent updated metadata", "ok");
       return deepClone(s.draft.metadata);
     },
     setDevice(mode) {
-      if (!['desktop', 'mobile', 'full'].includes(mode)) {
-        throw new Error('mode must be desktop, mobile, or full');
+      if (!["desktop", "mobile", "full"].includes(mode)) {
+        throw new Error("mode must be desktop, mobile, or full");
       }
       s.setDevice(mode);
-      s.setStatus(`Agent preview: ${mode}`, 'ok');
+      s.setStatus(`Agent preview: ${mode}`, "ok");
       return { deviceMode: mode };
     },
     undo() {
@@ -419,11 +403,11 @@ export function createVisualEditorFacade(s) {
       return { ...facade.getState(), dirty: s.dirty };
     },
     async refreshPreview() {
-      await s.persistPreview(s.selectedSection, 'Agent refreshing preview…');
+      await s.persistPreview(s.selectedSection, "Agent refreshing preview\u2026");
       return facade.getState();
     },
     async searchImages({
-      query = '',
+      query = "",
       describe,
       vision,
       folder,
@@ -434,123 +418,97 @@ export function createVisualEditorFacade(s) {
       minHeight,
       maxHeight,
       format,
-      tags,
+      tags
     } = {}) {
-      const data = await apiFetch('/api/admin/cloudinary/search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const data = await apiFetch("/api/admin/cloudinary/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query,
-          ...(describe ? { describe } : {}),
-          ...(vision ? { vision: true } : {}),
-          ...(folder ? { folder } : {}),
-          ...(maxResults ? { maxResults } : {}),
-          ...(orientation ? { orientation } : {}),
-          ...(minWidth != null ? { minWidth } : {}),
-          ...(maxWidth != null ? { maxWidth } : {}),
-          ...(minHeight != null ? { minHeight } : {}),
-          ...(maxHeight != null ? { maxHeight } : {}),
-          ...(format ? { format } : {}),
-          ...(Array.isArray(tags) && tags.length ? { tags } : {}),
+          ...describe ? { describe } : {},
+          ...vision ? { vision: true } : {},
+          ...folder ? { folder } : {},
+          ...maxResults ? { maxResults } : {},
+          ...orientation ? { orientation } : {},
+          ...minWidth != null ? { minWidth } : {},
+          ...maxWidth != null ? { maxWidth } : {},
+          ...minHeight != null ? { minHeight } : {},
+          ...maxHeight != null ? { maxHeight } : {},
+          ...format ? { format } : {},
+          ...Array.isArray(tags) && tags.length ? { tags } : {}
         }),
-        errorMessage: 'Cloudinary search failed',
+        errorMessage: "Cloudinary search failed"
       });
       const n = data.assets?.length ?? 0;
-      const metaNote =
-        data.metadata?.used && data.metadata?.terms?.length
-          ? ` (metadata: ${data.metadata.terms.slice(0, 5).join(', ')})`
-          : '';
-      const visionNote = data.vision?.used
-        ? ` (vision-ranked from ${data.vision.candidates} thumbs)`
-        : data.vision?.error
-          ? ` (${data.vision.error})`
-          : '';
-      s.setStatus(`Found ${n} Cloudinary images${metaNote}${visionNote}`, 'ok');
+      const metaNote = data.metadata?.used && data.metadata?.terms?.length ? ` (metadata: ${data.metadata.terms.slice(0, 5).join(", ")})` : "";
+      const visionNote = data.vision?.used ? ` (vision-ranked from ${data.vision.candidates} thumbs)` : data.vision?.error ? ` (${data.vision.error})` : "";
+      s.setStatus(`Found ${n} Cloudinary images${metaNote}${visionNote}`, "ok");
       return data;
     },
     async getImageLibraryConfig() {
-      return apiFetch('/api/admin/cloudinary/search', {
-        errorMessage: 'Cloudinary config unavailable',
+      return apiFetch("/api/admin/cloudinary/search", {
+        errorMessage: "Cloudinary config unavailable"
       });
     },
     async setImage({ path, sectionIndex, secureUrl, publicId, width, height, alt } = {}) {
-      let fieldPath = resolveFieldPath(path || 'image.src', sectionIndex);
-      if (
-        !fieldPath.startsWith('metadata.') &&
-        !fieldPath.endsWith('.src') &&
-        !fieldPath.endsWith('.href')
-      ) {
+      let fieldPath = resolveFieldPath(path || "image.src", sectionIndex);
+      if (!fieldPath.startsWith("metadata.") && !fieldPath.endsWith(".src") && !fieldPath.endsWith(".href")) {
         fieldPath = `${fieldPath}.src`;
       }
-
-      const url =
-        secureUrl ||
-        (publicId && s.boot.cloudinary?.cloudName
-          ? `https://res.cloudinary.com/${s.boot.cloudinary.cloudName}/image/upload/${publicId}`
-          : '');
-      if (!url) throw new Error('secureUrl or publicId required');
-
+      const url = secureUrl || (publicId && s.boot.cloudinary?.cloudName ? `https://res.cloudinary.com/${s.boot.cloudinary.cloudName}/image/upload/${publicId}` : "");
+      if (!url) throw new Error("secureUrl or publicId required");
       s.applyCloudinaryAsset(fieldPath, {
         secure_url: url,
         width,
         height,
-        display_name: alt || '',
-        public_id: publicId || '',
+        display_name: alt || "",
+        public_id: publicId || ""
       });
-      if (alt && fieldPath.endsWith('.src')) {
-        s.applyLiveLeaf(fieldPath.replace(/\.src$/, '.alt'), alt);
+      if (alt && fieldPath.endsWith(".src")) {
+        s.applyLiveLeaf(fieldPath.replace(/\.src$/, ".alt"), alt);
       }
-
       const m = String(fieldPath).match(/^sections\.(\d+)/);
       const sectionIdx = m ? Number(m[1]) : s.selectedSection;
       if (m) {
         s.selectedSection = sectionIdx;
         s.selectedPath = fieldPath;
         s.renderSectionFields(s.selectedSection, fieldPath);
-      } else if (fieldPath.startsWith('metadata.')) {
+      } else if (fieldPath.startsWith("metadata.")) {
         s.renderMeta();
       }
-
       s.clearPreviewPersistTimer();
-      await s.persistPreview(sectionIdx, 'Updating image preview…');
-      s.setStatus(`Agent set image ${fieldPath}`, 'ok');
+      await s.persistPreview(sectionIdx, "Updating image preview\u2026");
+      s.setStatus(`Agent set image ${fieldPath}`, "ok");
       return {
         path: fieldPath,
         src: s.getByPath(s.draft, fieldPath),
-        width: fieldPath.endsWith('.src')
-          ? s.getByPath(s.draft, fieldPath.replace(/\.src$/, '.width'))
-          : undefined,
-        height: fieldPath.endsWith('.src')
-          ? s.getByPath(s.draft, fieldPath.replace(/\.src$/, '.height'))
-          : undefined,
-        alt: fieldPath.endsWith('.src')
-          ? s.getByPath(s.draft, fieldPath.replace(/\.src$/, '.alt'))
-          : undefined,
-        previewUpdated: true,
+        width: fieldPath.endsWith(".src") ? s.getByPath(s.draft, fieldPath.replace(/\.src$/, ".width")) : void 0,
+        height: fieldPath.endsWith(".src") ? s.getByPath(s.draft, fieldPath.replace(/\.src$/, ".height")) : void 0,
+        alt: fieldPath.endsWith(".src") ? s.getByPath(s.draft, fieldPath.replace(/\.src$/, ".alt")) : void 0,
+        previewUpdated: true
       };
     },
-
     async listPages() {
-      return apiFetch('/api/admin/pages', {
-        errorMessage: 'Failed to list pages',
+      return apiFetch("/api/admin/pages", {
+        errorMessage: "Failed to list pages"
       });
     },
     async createPage({ id, path, title, description } = {}) {
-      if (!id || !path || !title) throw new Error('id, path, and title are required');
-      return apiFetch('/api/admin/pages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      if (!id || !path || !title) throw new Error("id, path, and title are required");
+      return apiFetch("/api/admin/pages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id,
           path,
           title,
-          ...(description != null ? { description } : {}),
+          ...description != null ? { description } : {}
         }),
-        errorMessage: 'Failed to create page',
+        errorMessage: "Failed to create page"
       });
     },
     openPage({ id, force } = {}) {
-      if (!id) throw new Error('id is required');
+      if (!id) throw new Error("id is required");
       const editorPath = editorPathFor(id);
       if (s.dirty && !force) {
         return {
@@ -558,29 +516,28 @@ export function createVisualEditorFacade(s) {
           dirty: true,
           pageId: id,
           editorPath,
-          message: 'Unsaved changes — pass force:true to navigate anyway',
+          message: "Unsaved changes \u2014 pass force:true to navigate anyway"
         };
       }
       hardNavigate(editorPath);
       return { navigated: true, pageId: id, editorPath };
     },
-
     describeSection({ index } = {}) {
       const i = resolveSectionIndex(index);
       const section = s.draft.sections[i];
       const kind = section.kind;
       const form = SECTION_FORM[kind] || { fields: [] };
-      const fields = [...(form.query || []), ...(form.fields || [])].map(serializeFieldDesc);
+      const fields = [...form.query || [], ...form.fields || []].map(serializeFieldDesc);
       const lists = (LIST_SPECS[kind] || []).map(serializeListDesc);
       const pathHints = [`set_field path <relative> with sectionIndex`];
       for (const list of lists) {
-        const leaf = list.fields?.find((f) => f.key)?.key;
+        const leaf = firstFieldKey(list.fields);
         if (leaf) pathHints.push(`set_field path ${list.key}.0.${leaf} with sectionIndex`);
         if (list.nested?.key) {
-          const nestedLeaf = list.nested.fields?.find((f) => f.key)?.key;
+          const nestedLeaf = firstFieldKey(list.nested.fields);
           if (nestedLeaf) {
             pathHints.push(
-              `set_field path ${list.key}.0.${list.nested.key}.0.${nestedLeaf} with sectionIndex`,
+              `set_field path ${list.key}.0.${list.nested.key}.0.${nestedLeaf} with sectionIndex`
             );
           }
         }
@@ -592,22 +549,22 @@ export function createVisualEditorFacade(s) {
         sectionIndex,
         listKey,
         nestedKey,
-        parentItemIndex,
+        parentItemIndex
       });
-      if (typeof spec.create !== 'function' && item == null) {
-        throw new Error(`List “${listKey}” has no create() and no item was provided`);
+      if (typeof spec.create !== "function" && item == null) {
+        throw new Error(`List \u201C${listKey}\u201D has no create() and no item was provided`);
       }
       s.checkpoint();
       const arr = ensureListArray(listPath);
       arr.push(item != null ? deepClone(item) : spec.create());
       await s.refreshAfterStructural(i);
       const last = arr.length - 1;
-      s.setStatus(`Agent added item at ${listPath}.${last}`, 'ok');
+      s.setStatus(`Agent added item at ${listPath}.${last}`, "ok");
       return {
         listPath,
         index: last,
         item: deepClone(arr[last]),
-        state: facade.getState(),
+        state: facade.getState()
       };
     },
     async removeListItem({
@@ -615,13 +572,13 @@ export function createVisualEditorFacade(s) {
       listKey,
       nestedKey,
       parentItemIndex,
-      itemIndex,
+      itemIndex
     } = {}) {
       const { i, spec, listPath } = resolveListTarget({
         sectionIndex,
         listKey,
         nestedKey,
-        parentItemIndex,
+        parentItemIndex
       });
       const arr = getByPath(s.draft, listPath);
       if (!Array.isArray(arr)) throw new Error(`No list at ${listPath}`);
@@ -636,22 +593,15 @@ export function createVisualEditorFacade(s) {
       s.checkpoint();
       arr.splice(idx, 1);
       await s.refreshAfterStructural(i);
-      s.setStatus(`Agent removed item at ${listPath}.${idx}`, 'ok');
+      s.setStatus(`Agent removed item at ${listPath}.${idx}`, "ok");
       return facade.getState();
     },
-    async moveListItem({
-      sectionIndex,
-      listKey,
-      nestedKey,
-      parentItemIndex,
-      from,
-      to,
-    } = {}) {
+    async moveListItem({ sectionIndex, listKey, nestedKey, parentItemIndex, from, to } = {}) {
       const { i, listPath } = resolveListTarget({
         sectionIndex,
         listKey,
         nestedKey,
-        parentItemIndex,
+        parentItemIndex
       });
       const arr = getByPath(s.draft, listPath);
       if (!Array.isArray(arr)) throw new Error(`No list at ${listPath}`);
@@ -668,14 +618,13 @@ export function createVisualEditorFacade(s) {
       const [moved] = arr.splice(fromIdx, 1);
       arr.splice(toIdx, 0, moved);
       await s.refreshAfterStructural(i);
-      s.setStatus(`Agent moved item ${fromIdx} → ${toIdx} in ${listPath}`, 'ok');
+      s.setStatus(`Agent moved item ${fromIdx} \u2192 ${toIdx} in ${listPath}`, "ok");
       return facade.getState();
     },
-
     async getChanges() {
-      const { listDraftPageIds, getSiteDraft } = await import('../lib/draft-store.js');
-      const baseline = await apiFetch('/api/admin/changes', {
-        errorMessage: 'Failed to load changes',
+      const { listDraftPageIds, getSiteDraft } = await import("../lib/draft-store.js");
+      const baseline = await apiFetch("/api/admin/changes", {
+        errorMessage: "Failed to load changes"
       });
       const draftIds = await listDraftPageIds();
       const site = await getSiteDraft();
@@ -683,115 +632,117 @@ export function createVisualEditorFacade(s) {
         ...baseline,
         draftIds,
         siteTouched: Boolean(site?.site),
-        aheadBy: draftIds.length + (site?.site ? 1 : 0),
+        aheadBy: draftIds.length + (site?.site ? 1 : 0)
       };
     },
     async publishChanges({ message } = {}) {
-      const {
-        clearAllDrafts,
-        getPageDraft,
-        getSiteDraft,
-        listDraftPageIds,
-      } = await import('../lib/draft-store.js');
+      const { clearAllDrafts, getPageDraft, getSiteDraft, listDraftPageIds } = await import("../lib/draft-store.js");
       const draftIds = await listDraftPageIds();
       const pages = {};
       for (const id of draftIds) {
         const rec = await getPageDraft(id);
         if (rec?.page) pages[id] = rec.page;
       }
-      // Always include the open editor draft
       if (s.draft) pages[s.boot.id] = s.draft;
       const siteRec = await getSiteDraft();
       const payload = {
-        message: message || 'content: publish drafts',
-        ...(Object.keys(pages).length ? { pages } : {}),
-        ...(siteRec?.site ? { site: siteRec.site } : {}),
+        message: message || "content: publish drafts",
+        ...Object.keys(pages).length ? { pages } : {},
+        ...siteRec?.site ? { site: siteRec.site } : {}
       };
-      const result = await apiFetch('/api/admin/changes/publish', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const result = await apiFetch("/api/admin/changes/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-        errorMessage: 'Publish failed',
+        errorMessage: "Publish failed"
       });
       await clearAllDrafts();
       s.publishedSnapshot = deepClone(s.draft);
       s.savedSnapshot = deepClone(s.draft);
       s.dirty = false;
-      s.refreshChromeState?.('saved');
+      s.refreshChromeState?.("saved");
       return result;
     },
     async discardChanges() {
-      const { clearAllDrafts, clearPageDraft } = await import('../lib/draft-store.js');
+      const { clearAllDrafts, clearPageDraft } = await import("../lib/draft-store.js");
       await clearPageDraft(s.boot.id);
       await clearAllDrafts();
-      await apiFetch('/api/admin/changes/discard', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      await apiFetch("/api/admin/changes/discard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ all: true }),
-        errorMessage: 'Discard failed',
-      }).catch(() => undefined);
+        errorMessage: "Discard failed"
+      }).catch(() => void 0);
       s.draft = deepClone(s.publishedSnapshot || s.boot.page);
       s.savedSnapshot = deepClone(s.draft);
       s.dirty = false;
-      s.refreshChromeState?.('saved');
-      await s.persistPreview?.(s.selectedSection, 'Discarded drafts…');
-      return { ok: true, cleared: 'local-drafts' };
+      s.refreshChromeState?.("saved");
+      await s.persistPreview?.(s.selectedSection, "Discarded drafts\u2026");
+      return { ok: true, cleared: "local-drafts" };
     },
-
     async updateAssetMetadata({ publicId, tags, title, description } = {}) {
-      if (!publicId) throw new Error('publicId is required');
-      return apiFetch('/api/admin/cloudinary/update', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      if (!publicId) throw new Error("publicId is required");
+      return apiFetch("/api/admin/cloudinary/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           publicId,
-          ...(title != null ? { title } : {}),
-          ...(description != null ? { description } : {}),
-          ...(tags != null ? { tags } : {}),
+          ...title != null ? { title } : {},
+          ...description != null ? { description } : {},
+          ...tags != null ? { tags } : {}
         }),
-        errorMessage: 'Metadata update failed',
+        errorMessage: "Metadata update failed"
       });
     },
-
     async getSite() {
-      return apiFetch('/api/admin/site', {
-        errorMessage: 'Failed to load site',
+      return apiFetch("/api/admin/site", {
+        errorMessage: "Failed to load site"
       });
     },
     async applySitePatch({ site, mode } = {}) {
-      if (!site || typeof site !== 'object') throw new Error('site object required');
-      return apiFetch('/api/admin/site', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+      if (!site || typeof site !== "object") throw new Error("site object required");
+      return apiFetch("/api/admin/site", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           site,
-          ...(mode === 'preview' ? { mode: 'preview' } : {}),
+          ...mode === "preview" ? { mode: "preview" } : {}
         }),
-        errorMessage: 'Site update failed',
+        errorMessage: "Site update failed"
       });
     },
-
     async getPageHistory() {
       return apiFetch(`/api/admin/pages/${encodeURIComponent(s.boot.id)}/history`, {
-        errorMessage: 'Failed to load page history',
+        errorMessage: "Failed to load page history"
       });
     },
     openPanel({ panel } = {}) {
-      const name = String(panel || 'section').toLowerCase();
-      if (!['inspector', 'section', 'media', 'info', 'page', 'history'].includes(name)) {
-        throw new Error("panel must be 'inspector'|'section'|'media'|'info'|'page'|'history'");
+      const name = String(panel || "section").toLowerCase();
+      if (!isPanelName(name)) {
+        throw new Error(`panel must be ${PANEL_NAMES.map((p) => `'${p}'`).join("|")}`);
       }
       const chrome = window.__tbEditorChrome;
-      if (typeof chrome?.openPanel === 'function') {
-        return chrome.openPanel(name === 'inspector' ? 'section' : name);
+      if (typeof chrome?.openPanel === "function") {
+        return chrome.openPanel(name === "inspector" ? "section" : name);
       }
-      if (name === 'media') chrome?.openMedia?.() || s.openMedia?.();
-      else if (name === 'info' || name === 'page') chrome?.openPage?.('info') || s.openPage?.('info');
-      else if (name === 'history') chrome?.openPage?.('history') || s.openPage?.('history');
-      else chrome?.openInspector?.('section') || s.openInspector?.('section');
+      if (name === "media") {
+        chrome?.openMedia?.();
+        s.openMedia?.();
+      } else if (name === "info" || name === "page") {
+        chrome?.openPage?.("info");
+        s.openPage?.("info");
+      } else if (name === "history") {
+        chrome?.openPage?.("history");
+        s.openPage?.("history");
+      } else {
+        chrome?.openInspector?.("section");
+        s.openInspector?.("section");
+      }
       return { panel: name };
-    },
+    }
   };
-
   return facade;
 }
+export {
+  createVisualEditorFacade
+};

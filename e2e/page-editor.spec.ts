@@ -42,6 +42,22 @@ test.describe('admin visual page editor', () => {
     await expect(page.locator('html')).toBeVisible();
   });
 
+  test('metadata edits reach the preview document', async ({ page }) => {
+    await page.goto('/admin/pages/home');
+    await expect(page.locator('#status')).toContainText('Preview ready', { timeout: 15_000 });
+
+    const preview = page.frames().find((f) => f.url().includes('/admin/preview/home'));
+    expect(preview).toBeTruthy();
+
+    const title = `e2e-meta-${Date.now()}`;
+    await page.evaluate(
+      (value) => window.__tbVisualEditor?.updateMetadata({ title: value }),
+      title,
+    );
+
+    await expect.poll(() => preview!.title(), { timeout: 10_000 }).toBe(title);
+  });
+
   test('editor marks dirty when a section field is edited', async ({ page }) => {
     await page.goto('/admin/pages/home');
     await expect(page.locator('#sections li').first()).toBeVisible({ timeout: 15_000 });

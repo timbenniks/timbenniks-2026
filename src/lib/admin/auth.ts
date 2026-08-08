@@ -1,18 +1,23 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { serverEnv } from './server-env';
 
 const COOKIE = 'tb_admin';
 const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
+function adminPassword(): string {
+  return serverEnv('ADMIN_PASSWORD');
+}
+
 function secret(): string {
-  return process.env.ADMIN_PASSWORD ?? process.env.ADMIN_SECRET ?? '';
+  return adminPassword() || serverEnv('ADMIN_SECRET');
 }
 
 export function adminPasswordConfigured(): boolean {
-  return Boolean(process.env.ADMIN_PASSWORD);
+  return Boolean(adminPassword());
 }
 
 export function isDevAuthBypass(): boolean {
-  return import.meta.env.DEV && !process.env.ADMIN_PASSWORD;
+  return import.meta.env.DEV && !adminPassword();
 }
 
 function tokenFor(password: string): string {
@@ -25,7 +30,7 @@ export function createSessionToken(password: string): string {
 
 export function verifyPassword(password: string): boolean {
   if (isDevAuthBypass()) return true;
-  const expected = process.env.ADMIN_PASSWORD;
+  const expected = adminPassword();
   if (!expected) return false;
   try {
     const a = Buffer.from(password);
@@ -39,8 +44,9 @@ export function verifyPassword(password: string): boolean {
 
 export function verifySessionToken(token: string | undefined): boolean {
   if (isDevAuthBypass()) return true;
-  if (!token || !process.env.ADMIN_PASSWORD) return false;
-  const expected = tokenFor(process.env.ADMIN_PASSWORD);
+  const password = adminPassword();
+  if (!token || !password) return false;
+  const expected = tokenFor(password);
   try {
     const a = Buffer.from(token);
     const b = Buffer.from(expected);

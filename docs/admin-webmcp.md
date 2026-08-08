@@ -187,12 +187,14 @@ After `search_images`, the Agent rail shows a thumbnail gallery. **Click Use** t
 
 ## Architecture
 
+Sources live in TypeScript under `src/admin-client/` and compile to `/admin/*.js` via `npm run build:admin` (see [admin-editor.md](./admin-editor.md#admin-client-build)). Runtime URLs below are the compiled paths the browser loads.
+
 ```text
 Browser agent (Inspector / webmcp-agent / MCP-B extension)
         │  WebMCP tool calls
         ▼
-public/admin/webmcp-tools.js  →  navigator + document.modelContext
-        │
+/admin/webmcp-tools.js  ← src/admin-client/webmcp-tools.ts
+        │  navigator + document.modelContext
         ▼
 window.__tbVisualEditor  (editor facade)
         │
@@ -206,21 +208,22 @@ Vendored polyfill: `public/admin/vendor/mcp-b-global.iife.js` (`@mcp-b/global@4.
 
 ## Files
 
-| Path | Role |
+| Source | Role |
 |---|---|
-| `public/admin/desk-facade.js` | Desk `__tbVisualEditor` (lifecycle / ship / site) |
-| `public/admin/desk-webmcp.js` | WebMCP tools on `/admin` |
-| `public/admin/desk-agent.js` | Desk Agent chat boot |
-| `public/admin/webmcp-tools.js` | Editor WebMCP tool registration |
-| `public/admin/webmcp-agent.js` | Editor Agent rail boot |
-| `public/admin/webmcp-agent-loop.js` | SSE client + tool loop (`editor` / `desk` surfaces) |
-| `public/admin/webmcp-agent-ui.js` | Bubbles, gallery, action cards |
-| `public/admin/editor/facade.js` | `__tbVisualEditor` |
-| `public/admin/lib/render-agent-markdown.js` | Comark → HTML (+ DOMPurify) |
-| `src/pages/api/admin/webmcp/chat.ts` | OpenAI SSE proxy |
-| `public/admin/vendor/comark-html.esm.js` | Browser Comark bundle |
-| `public/admin/vendor/mcp-b-global.iife.js` | WebMCP polyfill |
-| `src/pages/admin/pages/[id].astro` | Editor page + script wiring |
+| [`src/admin-client/desk-facade.ts`](../src/admin-client/desk-facade.ts) | Desk `__tbVisualEditor` (lifecycle / ship / site) |
+| [`src/admin-client/desk-webmcp.ts`](../src/admin-client/desk-webmcp.ts) | WebMCP tools on `/admin` |
+| [`src/admin-client/desk-agent.ts`](../src/admin-client/desk-agent.ts) | Desk Agent chat boot |
+| [`src/admin-client/webmcp-tools.ts`](../src/admin-client/webmcp-tools.ts) | Editor WebMCP tool registration |
+| [`src/admin-client/webmcp-agent.ts`](../src/admin-client/webmcp-agent.ts) | Editor Agent rail boot |
+| [`src/admin-client/webmcp-agent-loop.ts`](../src/admin-client/webmcp-agent-loop.ts) | SSE client + tool loop (`editor` / `desk` surfaces) |
+| [`src/admin-client/webmcp-agent-ui.ts`](../src/admin-client/webmcp-agent-ui.ts) | Bubbles, gallery, action cards |
+| [`src/admin-client/editor/facade.ts`](../src/admin-client/editor/facade.ts) | Page-editor `__tbVisualEditor` |
+| [`src/admin-client/lib/tools.ts`](../src/admin-client/lib/tools.ts) | Shared tool registry (desk + editor) |
+| [`src/admin-client/lib/render-agent-markdown.ts`](../src/admin-client/lib/render-agent-markdown.ts) | Comark → HTML (+ DOMPurify) |
+| [`src/pages/api/admin/webmcp/chat.ts`](../src/pages/api/admin/webmcp/chat.ts) | OpenAI SSE proxy |
+| `public/admin/vendor/comark-html.esm.js` | Browser Comark bundle (committed) |
+| `public/admin/vendor/mcp-b-global.iife.js` | WebMCP polyfill (committed) |
+| [`src/pages/admin/pages/[id].astro`](../src/pages/admin/pages/[id].astro) | Editor page + script wiring |
 
 ## Safety notes
 

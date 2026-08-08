@@ -6,11 +6,12 @@ Draft staging model: **Save** stores pending work in the browser (IndexedDB); **
 
 ## Local
 
-1. Set `ADMIN_PASSWORD` (optional in `astro dev` — auth bypassed if unset).
-2. Set `GITHUB_TOKEN` + `GITHUB_REPO` to publish drafts to GitHub `main` (required for production Publish).
-3. `npm run dev`
-4. Open [http://localhost:4321/admin](http://localhost:4321/admin)
-5. Edit a page → **Save** (local draft) → open **Changes** → **Publish to main**
+1. Put secrets in `.env` at the repo root (gitignored). `astro.config.ts` seeds them into `process.env`; admin server modules also read via [`serverEnv()`](../src/lib/admin/server-env.ts) so `import.meta.env` works in `astro dev`.
+2. Set `ADMIN_PASSWORD` (optional in `astro dev` — auth bypassed if unset).
+3. Set `GITHUB_TOKEN` + `GITHUB_REPO` to publish drafts to GitHub `main` (required for production Publish).
+4. `npm run dev` (runs `build:admin` first via `predev`)
+5. Open [http://localhost:4321/admin](http://localhost:4321/admin)
+6. Edit a page → **Save** (local draft) → open **Changes** → **Publish to main**
 
 Without `GITHUB_TOKEN`, drafts still work locally; Publish writes the local working tree.
 
@@ -80,7 +81,7 @@ The public site always serves the deployed filesystem from **`main`**. Publish n
 
 - Keep `TB_EDIT_MODE` / `PUBLIC_TB_EDIT_MODE` **unset** on Vercel production so public HTML has no `data-edit` / `data-section`.
 - Bridge loads only on `/admin/preview/*?edit=1` iframes.
-- IndexedDB draft store lives under `public/admin/` and is imported only by admin scripts.
+- IndexedDB draft store lives under `public/admin/` and is imported only by admin scripts. Same for the compiled output of `src/admin-client/` — admin client code is never pulled into public page bundles.
 - `/admin` and `/api/admin` stay password-gated.
 
 ## Site chrome editor
@@ -178,17 +179,39 @@ The visual editor iframe loads `/admin/preview/:id?edit=1` (SSR). That path alwa
 
 Intentional drafts live in the browser (IndexedDB). Server preview drafts (memory / `.cache/admin-preview/`) exist only as a fallback for SSR reload and section-html rendering. Publish writes **only** `src/content/pages.json` and/or `src/content/site.json` to `main`.
 
+## Admin client build
+
+Every admin client module is TypeScript in [`src/admin-client/`](../src/admin-client/). esbuild compiles it to `public/admin/` for the browser. Commit the **sources**; do **not** commit generated `.js` (gitignored). Only `vendor/` and CSS under `public/admin/` stay in git.
+
+| | Sources (commit) | Served from (gitignore except vendor/CSS) |
+|---|---|---|
+| Admin client | `src/admin-client/**/*.ts` | `public/admin/**/*.js` |
+| Vendored libraries | — | `public/admin/vendor/**` (committed) |
+| Styles | — | `public/admin/*.css` (committed) |
+
+- `npm run build:admin` — esbuild, **not** bundled; each module keeps its imports. Output paths mirror sources 1:1, so `/admin/*.js` URLs never change.
+- Hooked into `predev`, `prebuild`, and `pretest:e2e`. CI runs `build:admin` before `astro check`. For an edit-refresh loop, run `npm run dev:admin` (watch) beside `npm run dev`.
+- Import specifiers use a `.js` extension in `.ts` sources (`./lib/messaging.js`) — that is what the browser resolves after compilation.
+- Output is cleaned before every build: files carrying the generated banner are deleted first, so a renamed/deleted source cannot leave a stale module. `vendor/` and CSS are never touched.
+- Type-only modules (`lib/content.ts`, `editor/session.ts`) erase to near-empty `.js` files; everything imports them with `import type`, so Zod/schema types never reach the browser.
+- `tsconfig.json` excludes `public/admin` — types are checked at the source, not twice.
+
+Section kinds are typed end to end: `SECTION_FORM` in [`editor/catalog.ts`](../src/admin-client/editor/catalog.ts) is a `Record<SectionKind, SectionFormSpec>` and `SECTION_KINDS` in [`page-schema.ts`](../src/lib/page-schema.ts) is checked against the Zod union. The old `section-catalog-align.ts` runtime assertion is gone.
+
 ## Technical notes
 
 - Edit DOM hooks (`data-edit`, `data-section`) are gated by [`isEditMarkupEnabled()`](../src/lib/admin/edit-mode.ts): always on for `/admin/preview/*`, otherwise only when `TB_EDIT_MODE` is set
 - `BaseLayout` includes the bridge stub only when edit markup is enabled; it dynamically imports `/admin/bridge.js` for `?edit=1` iframes
 - Middleware marks `/admin/preview/*` so `loadPage` / `loadSiteChrome` prefer preview drafts + main baseline
-- postMessage channel: `tb-ve` with same-origin `targetOrigin` + `event.origin` checks; structural ops include `moveSection` / `removeSection` / `insertSectionHtml` / `replaceSectionHtml` / `reindexSections`
-- Draft store: [`public/admin/lib/draft-store.js`](../public/admin/lib/draft-store.js) (IndexedDB, admin-only)
+- postMessage channel: `tb-ve` with same-origin `targetOrigin` + `event.origin` checks. Both directions are typed in [`src/admin-client/lib/messaging.ts`](../src/admin-client/lib/messaging.ts) as `EditorMessages` (shell → iframe, includes `moveSection` / `removeSection` / `insertSectionHtml` / `replaceSectionHtml` / `reindexSections`) and `BridgeMessages` (iframe → shell). Add a message by adding a key there; `bridge.ts` switches exhaustively, so a missing handler is a type error
+- Section metadata and document metadata are **separate** messages: `setSectionMeta` carries section kinds plus selection, `setDocumentMeta` carries the previewed page's `<title>` / `<meta name="description">`. They used to share one `setMeta` type with two incompatible payloads, which meant agent edits to title/description never reached the preview
+- Draft store: [`src/admin-client/lib/draft-store.ts`](../src/admin-client/lib/draft-store.ts) (IndexedDB, admin-only)
 - Section HTML: `POST /api/admin/preview/section-html` + `/admin/preview/:id/section/:index`
-- Shared admin client kit: [`public/admin/lib/api.js`](../public/admin/lib/api.js) (`apiFetch`), utils, messaging, logout
-- Page editor modules: [`public/admin/editor.js`](../public/admin/editor.js) boots [`public/admin/editor/`](../public/admin/editor/) (catalog, runtime, facade, …)
+- Shared admin client kit: [`src/admin-client/lib/`](../src/admin-client/lib/) — `api.ts` (`apiFetch`), `utils.ts`, `logout.ts`, `messaging.ts`, `facade.ts` (the `__tbVisualEditor` contract)
+- Page editor modules: [`src/admin-client/editor.ts`](../src/admin-client/editor.ts) boots [`src/admin-client/editor/`](../src/admin-client/editor/) (catalog, runtime, facade, …)
 - Shared GitHub helpers: [`src/lib/admin/github-git.ts`](../src/lib/admin/github-git.ts) (`putFile` retries once on 409; `listCommits` for History sidebar)
+- Server env helper: [`src/lib/admin/server-env.ts`](../src/lib/admin/server-env.ts) — reads `.env` via `process.env` and `import.meta.env` (needed in `astro dev`)
 - Page editor history API: `GET /api/admin/pages/:id/history` (commits for `pages.json` on **main**)
 - Page ids = keys of `pages.json` (kebab-case)
 - Dashboard shells use [`AdminLayout.astro`](../src/components/admin/AdminLayout.astro)
+- Agent / WebMCP details: [`docs/admin-webmcp.md`](./admin-webmcp.md)

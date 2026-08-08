@@ -1,7 +1,3 @@
-/**
- * Page visual editor entry — boots modular runtime.
- * Preserves WebMCP contract: window.__tbVisualEditor, tb-visual-editor-ready.
- */
-import { bootEditor } from './editor/runtime.js';
-
+// Generated from src/admin-client by `npm run build:admin` — do not edit.
+import { bootEditor } from "./editor/runtime.js";
 bootEditor();

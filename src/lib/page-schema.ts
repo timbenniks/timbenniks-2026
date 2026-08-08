@@ -300,6 +300,11 @@ export function defaultPathForId(id: string): string {
   return `/${id}`;
 }
 
+/**
+ * The insertable kinds, in editor order. `satisfies` rejects a kind that is not
+ * in the union; `SectionKindsCoverUnion` below rejects one the union has and
+ * this list is missing, so the array cannot drift from `pageSectionSchema`.
+ */
 export const SECTION_KINDS = [
   'hero',
   'quote-callout',
@@ -317,4 +322,9 @@ export const SECTION_KINDS = [
   'faq',
   'timeline',
   'cta-strip',
-] as const;
+] as const satisfies readonly PageSection['kind'][];
+
+type SectionKindsCoverUnion<T extends never> = T;
+export type _SectionKindsAreComplete = SectionKindsCoverUnion<
+  Exclude<PageSection['kind'], (typeof SECTION_KINDS)[number]>
+>;

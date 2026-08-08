@@ -1,32 +1,29 @@
-/**
- * Visual editor chrome markup — topbar, panels, rails, insert modal.
- * @param {{ boot: { id: string, previewUrl: string, liveUrl?: string }, slugPath: string, icon: (name: string, cls?: string) => string }} opts
- */
-export function editorShellHtml({ boot, slugPath, icon }) {
-  const liveUrl = boot.liveUrl || boot.previewUrl.replace(/[?&]edit=1/, '').replace(/\?$/, '') || '/';
+// Generated from src/admin-client by `npm run build:admin` — do not edit.
+function editorShellHtml({ boot, slugPath, icon }) {
+  const liveUrl = boot.liveUrl || boot.previewUrl.replace(/[?&]edit=1/, "").replace(/\?$/, "") || "/";
   return `
     <header class="topbar">
       <div class="brand">
-        <a class="back" href="/admin">${icon('chevronLeft', 'icon icon-sm')} Pages</a>
+        <a class="back" href="/admin">${icon("chevronLeft", "icon icon-sm")} Pages</a>
         <div class="page-meta">
           <h1>${boot.id}</h1>
           <span class="slug">${slugPath}</span>
         </div>
       </div>
       <div class="devices" role="group" aria-label="Preview width">
-        <button type="button" data-device="desktop" title="Desktop">${icon('desktop', 'icon icon-sm')} Desktop</button>
-        <button type="button" data-device="mobile" title="Mobile">${icon('mobile', 'icon icon-sm')} Mobile</button>
-        <button type="button" data-device="full" class="active" title="Full width">${icon('full', 'icon icon-sm')} Full</button>
+        <button type="button" data-device="desktop" title="Desktop">${icon("desktop", "icon icon-sm")} Desktop</button>
+        <button type="button" data-device="mobile" title="Mobile">${icon("mobile", "icon icon-sm")} Mobile</button>
+        <button type="button" data-device="full" class="active" title="Full width">${icon("full", "icon icon-sm")} Full</button>
       </div>
       <div class="actions">
         <div class="history-btns" role="group" aria-label="History">
-          <button type="button" id="undo-btn" title="Undo (⌘Z)" aria-label="Undo" disabled>${icon('undo', 'icon icon-sm')}</button>
-          <button type="button" id="redo-btn" title="Redo (⇧⌘Z)" aria-label="Redo" disabled>${icon('redo', 'icon icon-sm')}</button>
+          <button type="button" id="undo-btn" title="Undo (\u2318Z)" aria-label="Undo" disabled>${icon("undo", "icon icon-sm")}</button>
+          <button type="button" id="redo-btn" title="Redo (\u21E7\u2318Z)" aria-label="Redo" disabled>${icon("redo", "icon icon-sm")}</button>
         </div>
         <span class="chip" id="dirty-chip">Saved</span>
-        <a class="open-live" href="${liveUrl}" target="_blank" rel="noopener">${icon('external', 'icon icon-sm')} Open live</a>
+        <a class="open-live" href="${liveUrl}" target="_blank" rel="noopener">${icon("external", "icon icon-sm")} Open live</a>
         <a class="open-live" href="/admin/changes" title="Review &amp; publish">Changes</a>
-        <button type="button" class="primary" id="save" disabled title="Save to cms (⌘S)">Save</button>
+        <button type="button" class="primary" id="save" disabled title="Save to cms (\u2318S)">Save</button>
       </div>
     </header>
 
@@ -34,7 +31,7 @@ export function editorShellHtml({ boot, slugPath, icon }) {
       <div class="preview-frame is-full" id="preview-frame">
         <iframe id="frame" src="${boot.previewUrl}" title="Preview"></iframe>
       </div>
-      <div class="status-line" id="status">Loading preview…</div>
+      <div class="status-line" id="status">Loading preview\u2026</div>
     </div>
 
     <aside class="form-rail" id="form-panel">
@@ -48,7 +45,7 @@ export function editorShellHtml({ boot, slugPath, icon }) {
           </div>
           <div class="add-row">
             <select id="add-kind" aria-label="Section kind"></select>
-            <button type="button" id="add-section">${icon('plus', 'icon icon-sm')} Add</button>
+            <button type="button" id="add-section">${icon("plus", "icon icon-sm")} Add</button>
           </div>
         </div>
         <div class="form-body" id="section-pane" hidden>
@@ -68,12 +65,12 @@ export function editorShellHtml({ boot, slugPath, icon }) {
         </div>
         <div class="form-body" id="info-pane">
           <div class="info-stack" id="info-fields">
-            <p class="hint">Loading…</p>
+            <p class="hint">Loading\u2026</p>
           </div>
         </div>
         <div class="form-body" id="history-pane" hidden>
           <div class="history-stack" id="history-fields">
-            <p class="hint">Loading…</p>
+            <p class="hint">Loading\u2026</p>
           </div>
         </div>
       </div>
@@ -95,28 +92,28 @@ export function editorShellHtml({ boot, slugPath, icon }) {
 
     <nav class="icon-rail" aria-label="Editor tools">
       <div class="rail-group" role="group" aria-label="Inspector">
-        <button type="button" class="rail-toggle" data-primary="inspector" data-tab="layers" aria-pressed="true" title="Layers" aria-label="Layers">${icon('layers')}</button>
-        <button type="button" class="rail-toggle" data-primary="inspector" data-tab="section" aria-pressed="false" title="Section" aria-label="Section">${icon('section')}</button>
-        <button type="button" class="rail-toggle" data-primary="inspector" data-tab="meta" aria-pressed="false" title="Meta" aria-label="Meta">${icon('meta')}</button>
+        <button type="button" class="rail-toggle" data-primary="inspector" data-tab="layers" aria-pressed="true" title="Layers" aria-label="Layers">${icon("layers")}</button>
+        <button type="button" class="rail-toggle" data-primary="inspector" data-tab="section" aria-pressed="false" title="Section" aria-label="Section">${icon("section")}</button>
+        <button type="button" class="rail-toggle" data-primary="inspector" data-tab="meta" aria-pressed="false" title="Meta" aria-label="Meta">${icon("meta")}</button>
       </div>
       <div class="rail-group rail-divider" role="group" aria-label="Page">
-        <button type="button" class="rail-toggle" data-primary="page" data-tab="info" aria-pressed="false" title="Info" aria-label="Info">${icon('info')}</button>
-        <button type="button" class="rail-toggle" data-primary="page" data-tab="history" aria-pressed="false" title="Git history" aria-label="Git history">${icon('history')}</button>
+        <button type="button" class="rail-toggle" data-primary="page" data-tab="info" aria-pressed="false" title="Info" aria-label="Info">${icon("info")}</button>
+        <button type="button" class="rail-toggle" data-primary="page" data-tab="history" aria-pressed="false" title="Git history" aria-label="Git history">${icon("history")}</button>
       </div>
       <div class="rail-group rail-divider" role="group" aria-label="Media">
-        <button type="button" class="rail-toggle" data-primary="media" data-tab="library" aria-pressed="false" title="Media library" aria-label="Media library">${icon('media')}</button>
+        <button type="button" class="rail-toggle" data-primary="media" data-tab="library" aria-pressed="false" title="Media library" aria-label="Media library">${icon("media")}</button>
       </div>
       <div class="rail-group rail-divider" role="group" aria-label="Agent" id="agent-rail-group" hidden>
         <button type="button" id="toggle-agent" class="rail-toggle" aria-pressed="false" title="Agent" aria-label="Toggle agent">
-          ${icon('agent')}
+          ${icon("agent")}
         </button>
       </div>
       <div class="rail-spacer" aria-hidden="true"></div>
       <div class="rail-group rail-exit" role="group" aria-label="Leave editor">
-        <a class="rail-link" href="/admin" title="All pages" aria-label="All pages">${icon('pages')}</a>
-        <a class="rail-link" href="/admin/site" title="Site chrome" aria-label="Site chrome">${icon('chrome')}</a>
-        <a class="rail-link" href="/admin/media" title="Media desk" aria-label="Media desk">${icon('media')}</a>
-        <a class="rail-link" href="/admin/changes" title="Changes" aria-label="Changes">${icon('external')}</a>
+        <a class="rail-link" href="/admin" title="All pages" aria-label="All pages">${icon("pages")}</a>
+        <a class="rail-link" href="/admin/site" title="Site chrome" aria-label="Site chrome">${icon("chrome")}</a>
+        <a class="rail-link" href="/admin/media" title="Media desk" aria-label="Media desk">${icon("media")}</a>
+        <a class="rail-link" href="/admin/changes" title="Changes" aria-label="Changes">${icon("external")}</a>
       </div>
     </nav>
 
@@ -135,3 +132,6 @@ export function editorShellHtml({ boot, slugPath, icon }) {
     </div>
   `;
 }
+export {
+  editorShellHtml
+};
