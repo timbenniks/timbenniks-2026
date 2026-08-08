@@ -11,7 +11,7 @@ import TagPill from '../../components/primitives/TagPill.astro';
 import MediaFrame from '../../components/primitives/MediaFrame.astro';
 import ArticleSidebar from '../../components/article/ArticleSidebar.astro';
 import ArticleTOC from '../../components/article/ArticleTOC.astro';
-import RelatedArticles from '../../components/article/RelatedArticles.astro';
+import RelatedCards from '../../components/RelatedCards.astro';
 import { blogPostingSchema, breadcrumbSchema, buildGraph, faqPageSchema } from '../../lib/schema';
 import { articleToCard, formatReadingTime } from '../../lib/card';
 import { articleBodyClass } from '../../lib/articleBodyClass';
@@ -178,7 +178,7 @@ const articleGraph = buildGraph(
           />
         </div>
 
-        <RelatedArticles items={related} />
+        <RelatedCards title="Related articles" items={related} id="related-articles-heading" />
       </article>
     </Container>
   </Section>
