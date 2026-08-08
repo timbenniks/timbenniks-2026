@@ -15,7 +15,7 @@
           "em": "websites.",
           "tail": "Now I build what builds them."
         },
-        "subline": "Tim Benniks — Developer Experience Lead at Contentstack. Co-chair, MACH Alliance Enterprise AI Agents Workgroup. Ambassador for Nuxt, Cloudinary, Supabase, and Algolia.",
+        "subline": "Tim Benniks. Developer Experience Lead at Contentstack. Co-chair, MACH Alliance Enterprise AI Agents Workgroup. Ambassador for Nuxt, Cloudinary, Supabase, and Algolia.",
         "ctas": [
           {
             "label": "Read the writing",
@@ -119,6 +119,7 @@
         "lede": "Workshops, demos, and conversations from the YouTube channel and Contentstack streams.",
         "source": "videos",
         "limit": 3,
+        "playlist": "tim",
         "columns": 3,
         "tone": "light",
         "cta": {
