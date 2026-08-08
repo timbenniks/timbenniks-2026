@@ -37,10 +37,7 @@ export const GET: APIRoute = async ({ params, request }) => {
   }
 
   try {
-    const [commits, mainCommits] = await Promise.all([
-      listCommits({ path: PAGES_REL, sha: cmsBranch(), perPage: 25 }),
-      listCommits({ path: PAGES_REL, sha: mainBranch(), perPage: 1 }),
-    ]);
+    const commits = await listCommits({ path: PAGES_REL, sha: mainBranch(), perPage: 25 });
 
     return new Response(
       JSON.stringify({
@@ -49,9 +46,9 @@ export const GET: APIRoute = async ({ params, request }) => {
         pageId: id,
         path: PAGES_REL,
         mainBranch: mainBranch(),
-        cmsBranch: cmsBranch(),
+        cmsBranch: mainBranch(),
         commits,
-        lastPublish: mainCommits[0] ?? null,
+        lastPublish: commits[0] ?? null,
       }),
       { headers: { 'Content-Type': 'application/json' } },
     );

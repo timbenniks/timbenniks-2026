@@ -20,19 +20,19 @@ test.describe('admin changes', () => {
     await expect(page.locator('#config-banner')).toContainText('GITHUB_TOKEN');
   });
 
-  test('status settles after compare load', async ({ page }) => {
+  test('status settles after draft load', async ({ page }) => {
     await page.goto('/admin/changes');
-    await expect(page.locator('#status')).not.toHaveText('Loading compare…', {
+    await expect(page.locator('#status')).not.toHaveText('Loading drafts…', {
       timeout: 15_000,
     });
   });
 
-  test('does not enable publish without GitHub config', async ({ page }) => {
+  test('does not enable publish without local drafts', async ({ page }) => {
     await page.goto('/admin/changes');
-    await expect(page.locator('#status')).not.toHaveText('Loading compare…', {
+    await expect(page.locator('#status')).not.toHaveText('Loading drafts…', {
       timeout: 15_000,
     });
-    // Without GitHub, publish/discard must stay disabled — never click them in e2e.
+    // Without local IndexedDB drafts, publish/discard stay disabled.
     await expect(page.locator('#publish')).toBeDisabled();
     await expect(page.locator('#discard')).toBeDisabled();
   });

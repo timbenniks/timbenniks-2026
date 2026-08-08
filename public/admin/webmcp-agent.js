@@ -118,14 +118,16 @@ async function boot() {
     messages.push({ role: 'user', content });
     busy = true;
     ui.send.disabled = true;
+    let navigatedAway = false;
     try {
-      await runAgentTurn(ui, messages);
+      const outcome = await runAgentTurn(ui, messages);
+      navigatedAway = Boolean(outcome?.navigatedAway);
     } catch (err) {
       appendBubble(ui.log, 'assistant', err.message || String(err), 'error');
     } finally {
       busy = false;
       ui.send.disabled = false;
-      ui.input.focus();
+      if (!navigatedAway && document.body.contains(ui.input)) ui.input.focus();
     }
   });
 

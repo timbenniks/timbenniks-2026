@@ -87,6 +87,7 @@ export const POST: APIRoute = async ({ request }) => {
   const payload: Record<string, unknown> = {
     model,
     messages,
+    stream: true,
   };
   if (supportsCustomTemperature(model)) {
     payload.temperature = 0.4;
@@ -109,6 +110,7 @@ export const POST: APIRoute = async ({ request }) => {
       headers: {
         Authorization: `Bearer ${key}`,
         'Content-Type': 'application/json',
+        Accept: 'text/event-stream',
       },
       body: JSON.stringify(payload),
     });
@@ -134,15 +136,14 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  const text = await res.text();
-  let data: unknown = null;
-  try {
-    data = text ? JSON.parse(text) : null;
-  } catch {
-    data = { error: { message: text.slice(0, 500) } };
-  }
-
   if (!res.ok) {
+    const text = await res.text();
+    let data: unknown = null;
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch {
+      data = { error: { message: text.slice(0, 500) } };
+    }
     const errMsg =
       (data as { error?: { message?: string } })?.error?.message ||
       `OpenAI error ${res.status}`;
@@ -152,7 +153,20 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  return new Response(JSON.stringify(data), {
-    headers: { 'Content-Type': 'application/json' },
+  if (!res.body) {
+    return new Response(JSON.stringify({ error: 'OpenAI returned an empty stream' }), {
+      status: 502,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  return new Response(res.body, {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/event-stream; charset=utf-8',
+      'Cache-Control': 'no-cache, no-transform',
+      Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
+    },
   });
 };

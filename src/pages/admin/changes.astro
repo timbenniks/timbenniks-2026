@@ -2,14 +2,13 @@
 export const prerender = false;
 
 import AdminLayout from '../../components/admin/AdminLayout.astro';
-import { cmsBranch, hasGitHubConfig, mainBranch } from '../../lib/admin/github-git';
+import { hasGitHubConfig, mainBranch } from '../../lib/admin/github-git';
 
 const configured = hasGitHubConfig();
 const main = mainBranch();
-const cms = cmsBranch();
 ---
 
-<AdminLayout title="Admin · Changes" active="changes" changesDesc={`${cms} → ${main}`}>
+<AdminLayout title="Admin · Changes" active="changes" changesDesc={`drafts → ${main}`}>
   <Fragment slot="actions">
     <span class="chip" id="chip">Loading…</span>
   </Fragment>
@@ -17,21 +16,21 @@ const cms = cmsBranch();
   <div class="dash-intro">
     <h2>Changes</h2>
     <p>
-      Review pending saves on <code>{cms}</code>, then publish a merge into
-      <code>{main}</code> (Vercel deploys from main).
+      Review local drafts stored in this browser, then publish content files into
+      <code>{main}</code> (Vercel deploys from main). Discard clears drafts without touching Git.
     </p>
   </div>
 
   {
     !configured && (
       <div class="changes-banner is-warn" id="config-banner">
-        Set <code>GITHUB_TOKEN</code> and <code>GITHUB_REPO</code> to use the git CMS workflow. Saves
-        without a token only update the local working tree.
+        Set <code>GITHUB_TOKEN</code> and <code>GITHUB_REPO</code> to publish drafts to GitHub
+        <code>{main}</code>. Without them, Publish writes the local working tree only.
       </div>
     )
   }
 
-  <p class="status" id="status">Loading compare…</p>
+  <p class="status" id="status">Loading drafts…</p>
 
   <div class="changes-summary" id="summary" hidden></div>
 
@@ -40,18 +39,18 @@ const cms = cmsBranch();
     <ul class="changes-list" id="pages-list"></ul>
   </section>
 
-  <section class="panel" id="files-panel" hidden>
-    <div class="panel-head"><h2>Files</h2></div>
-    <div id="files-list"></div>
+  <section class="panel" id="site-panel" hidden>
+    <div class="panel-head"><h2>Site chrome</h2></div>
+    <p class="hint" id="site-hint">Local draft differs from published site.json.</p>
   </section>
 
   <section class="panel" id="publish-panel">
     <div class="panel-head"><h2>Publish</h2></div>
     <div class="field">
-      <label for="commit-msg">Merge commit message</label>
+      <label for="commit-msg">Commit message</label>
       <input
         id="commit-msg"
-        value="content: publish cms changes"
+        value="content: publish drafts"
         autocomplete="off"
       />
     </div>
@@ -60,7 +59,7 @@ const cms = cmsBranch();
         Publish to {main}
       </button>
       <button type="button" class="ghost danger" id="discard" disabled>
-        Discard all on {cms}
+        Discard all drafts
       </button>
     </div>
   </section>

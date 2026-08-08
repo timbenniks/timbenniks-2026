@@ -138,6 +138,81 @@ body.dash:has(.media-dam-page) .dash-body {
 .dash-main:has(.pages-overview) .dash-main-inner {
   max-width: 720px;
 }
+.dash-main:has(.pages-desk) {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.dash-main:has(.pages-desk) .dash-main-inner {
+  max-width: none;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+.pages-desk {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  align-items: stretch;
+}
+.pages-desk .pages-overview {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 1.35rem 1.35rem 2.5rem;
+}
+.desk-agent-panel {
+  min-width: 0;
+  min-height: 0;
+  border-left: 1px solid var(--line);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+.desk-agent-panel.is-disabled {
+  opacity: 0.92;
+}
+.desk-agent-mount {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.desk-agent-mount > .tb-agent-header {
+  flex-shrink: 0;
+}
+.desk-agent-mount > .tb-agent-log {
+  flex: 1;
+  min-height: 0;
+}
+.desk-agent-mount > .tb-agent-composer {
+  flex-shrink: 0;
+}
+.desk-agent-disabled {
+  margin: 1rem;
+  padding: 0.75rem 0.85rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+@media (max-width: 960px) {
+  .pages-desk {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) minmax(280px, 42vh);
+  }
+  .desk-agent-panel {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+}
 
 .dash-main:has(.media-dam-page) {
   padding: 0;

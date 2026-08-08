@@ -1,0 +1,61 @@
+---
+export const prerender = false;
+
+/**
+ * Single-section HTML fragment for live preview inserts/replaces.
+ */
+import PageSections from '../../../../../components/PageSections.astro';
+import { loadPage } from '../../../../../lib/page';
+import {
+  isAdminPageId,
+  savePageDraft,
+  validatePageData,
+} from '../../../../../lib/admin/pages-store';
+import { isAdminAuthed } from '../../../../../lib/admin/auth';
+import { isPageIdFormat, type PageId } from '../../../../../lib/page-schema';
+
+if (!isAdminAuthed(Astro.request)) {
+  return new Response('Unauthorized', { status: 401 });
+}
+
+const id = Astro.params.id ?? '';
+const indexRaw = Astro.params.index ?? '';
+const sectionIndex = Number(indexRaw);
+if (!isPageIdFormat(id) || !Number.isFinite(sectionIndex) || sectionIndex < 0) {
+  return new Response('Bad request', { status: 400 });
+}
+
+if (Astro.request.method === 'POST') {
+  try {
+    const body = await Astro.request.json();
+    if (body?.page) {
+      await savePageDraft(id as PageId, validatePageData(body.page));
+    }
+  } catch {
+    /* use existing draft / main */
+  }
+}
+
+if (!(await isAdminPageId(id))) {
+  return new Response('Unknown page', { status: 404 });
+}
+
+const page = await loadPage(id as PageId);
+const sections = page.data.sections || [];
+if (sectionIndex >= sections.length) {
+  return new Response('Section out of range', { status: 404 });
+}
+
+const one = [sections[sectionIndex]];
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <PageSections sections={one} />
+  </body>
+</html>

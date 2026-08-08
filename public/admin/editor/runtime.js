@@ -32,6 +32,11 @@ import { createListEditor } from './list-editor.js';
 import { createPreviewSync } from './preview-sync.js';
 import { createPagePanels } from './page-panels.js';
 import { bindStatus, bindStateChip } from '../lib/chrome.js';
+import {
+  contentHash,
+  getPageDraft,
+  setPageDraft,
+} from '../lib/draft-store.js';
 
 export function bootEditor() {
   const root = document.getElementById('app');
@@ -145,6 +150,8 @@ export function bootEditor() {
     reloadPreview,
     restorePreviewAfterReady,
     clearPreviewPersistTimer,
+    persistDraftLocal,
+    applyLiveStructural,
     appendFieldControl,
     applyCloudinaryAsset,
     mountImageUrlField,
@@ -155,6 +162,28 @@ export function bootEditor() {
     syncInfoEditStatus,
     refreshHistoryPanel,
   } = s;
+
+  s.baseHash = contentHash(boot.page);
+  s.publishedSnapshot = deepClone(boot.page);
+
+  // Hydrate IndexedDB draft over the SSR baseline when present.
+  void (async () => {
+    try {
+      const rec = await getPageDraft(boot.id);
+      if (!rec?.page) return;
+      if (pagesEqual(rec.page, s.draft)) return;
+      s.draft = deepClone(rec.page);
+      s.savedSnapshot = deepClone(rec.page);
+      s.dirty = !pagesEqual(s.draft, s.publishedSnapshot);
+      refreshChromeState(s.dirty ? 'dirty' : 'saved');
+      setStatus('Restored local draft · Publish from Changes when ready', 'ok');
+      renderSections();
+      renderMeta();
+      persistPreview(s.selectedSection, 'Applying local draft to preview…');
+    } catch (err) {
+      console.warn('[draft-hydrate]', err);
+    }
+  })();
 
   const setStatus = bindStatus(s.statusEl, { baseClass: 'status-line' });
   s.setStatus = setStatus;
@@ -183,7 +212,11 @@ export function bootEditor() {
 
   function markDirty() {
     refreshChromeState('dirty');
-    setStatus('Unsaved changes · Save to cms, then publish from Changes');
+    setStatus('Unsaved changes · Save draft, then publish from Changes');
+    clearTimeout(s.draftAutosaveTimer);
+    s.draftAutosaveTimer = setTimeout(() => {
+      void persistDraftLocal();
+    }, 400);
   }
   s.markDirty = markDirty;
 
@@ -235,7 +268,9 @@ export function bootEditor() {
     s.selectedSection = to;
     markDirty();
     renderSections();
-    persistPreview(to, 'Updating preview…');
+    void applyLiveStructural('move', { from, to, highlightIndex: to }).then((ok) => {
+      if (!ok) persistPreview(to, 'Updating preview…');
+    });
   }
   s.moveSection = moveSection;
 
@@ -247,7 +282,13 @@ export function bootEditor() {
     s.selectedSection = index + 1;
     markDirty();
     renderSections();
-    persistPreview(s.selectedSection, 'Updating preview…');
+    void applyLiveStructural('insert', {
+      sectionIndex: index + 1,
+      highlightIndex: index + 1,
+      statusMsg: 'Duplicated section',
+    }).then((ok) => {
+      if (!ok) persistPreview(s.selectedSection, 'Updating preview…');
+    });
   }
   s.duplicateSection = duplicateSection;
 
@@ -260,7 +301,12 @@ export function bootEditor() {
     s.selectedSection = Math.max(0, Math.min(index, s.draft.sections.length - 1));
     markDirty();
     renderSections();
-    persistPreview(s.selectedSection, 'Updating preview…');
+    void applyLiveStructural('remove', {
+      index,
+      highlightIndex: s.selectedSection,
+    }).then((ok) => {
+      if (!ok) persistPreview(s.selectedSection, 'Updating preview…');
+    });
   }
   s.deleteSection = deleteSection;
 
@@ -270,7 +316,13 @@ export function bootEditor() {
     s.draft.sections.splice(clamped, 0, defaultSection(kind));
     markDirty();
     selectSection(clamped, { openSectionTab: false });
-    persistPreview(clamped, `Adding “${kind}” to preview…`);
+    void applyLiveStructural('insert', {
+      sectionIndex: clamped,
+      highlightIndex: clamped,
+      statusMsg: `Added “${kind}”`,
+    }).then((ok) => {
+      if (!ok) persistPreview(clamped, `Adding “${kind}” to preview…`);
+    });
   }
   s.insertSectionAt = insertSectionAt;
 
@@ -780,18 +832,22 @@ export function bootEditor() {
     if (e.target === s.insertModal) closeInsertModal();
   });
 
-  async function saveToCms() {
+  async function saveDraft() {
     if (s.saveBtn.disabled) return;
     s.saveBtn.disabled = true;
     setDirtyChip('saving');
-    setStatus('Saving to cms…');
+    setStatus('Saving draft…');
     try {
-      const data = await apiFetch(`/api/admin/pages/${s.boot.id}`, {
+      await setPageDraft(s.boot.id, s.draft, {
+        baseHash: s.baseHash || contentHash(s.publishedSnapshot),
+      });
+      // Keep server preview draft warm for SSR fallback / section-html.
+      await apiFetch(`/api/admin/pages/${s.boot.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ page: s.draft }),
-        errorMessage: 'Save failed',
-      });
+        body: JSON.stringify({ page: s.draft, mode: 'preview' }),
+        errorMessage: 'Draft stage failed',
+      }).catch(() => undefined);
       s.savedSnapshot = deepClone(s.draft);
       s.dirty = false;
       s.undoStack.length = 0;
@@ -799,20 +855,18 @@ export function bootEditor() {
       s.historyCache = null;
       s.changesCache = null;
       refreshChromeState('saved');
-      const branch = data.branch || 'cms';
-      setStatus(`Saved to ${branch} · ${data.mode} · ${data.commit} · Publish from Changes`, 'ok');
-      reloadPreview(s.selectedSection);
+      setStatus('Draft saved locally · Publish from Changes', 'ok');
       if (s.primary === 'page' && s.pageTab === 'info') refreshInfoPane();
-      if (s.primary === 'page' && s.pageTab === 'history') refreshHistoryPanel(true);
     } catch (err) {
       refreshChromeState('error');
       setStatus(err.message || String(err), 'error');
     }
   }
-  s.saveToCms = saveToCms;
+  s.saveDraft = saveDraft;
+  s.saveToCms = saveDraft;
 
   s.saveBtn.addEventListener('click', () => {
-    saveToCms();
+    saveDraft();
   });
   s.undoBtn.addEventListener('click', () => undo());
   s.redoBtn.addEventListener('click', () => redo());
@@ -826,7 +880,7 @@ export function bootEditor() {
       if (e.shiftKey) {
         window.location.href = '/admin/changes';
       } else {
-        saveToCms();
+        saveDraft();
       }
       return;
     }
@@ -948,6 +1002,18 @@ export function bootEditor() {
     setAgentOpen,
     isAgentOpen() {
       return root.classList.contains('agent-open');
+    },
+    openInspector,
+    openPage,
+    openMedia,
+    closePrimary,
+    openPanel(panel) {
+      const name = String(panel || '').toLowerCase();
+      if (name === 'media') openMedia();
+      else if (name === 'info' || name === 'page') openPage('info');
+      else if (name === 'history') openPage('history');
+      else openInspector(name === 'inspector' ? 'section' : name || 'section');
+      return { panel: name || 'section' };
     },
   };
 

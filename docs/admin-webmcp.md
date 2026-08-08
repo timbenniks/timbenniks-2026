@@ -1,17 +1,33 @@
 # WebMCP visual editor demo
 
-The page editor at `/admin/pages/:id` exposes **WebMCP tools** so a browser agent can build and edit marketing pages while you watch the live preview.
+The page editor at `/admin/pages/:id` exposes **WebMCP tools** so a browser agent can build and ship marketing pages while you watch the live preview.
 
-This is the demo path. Cursor skills, server MCP, and custom admin chat come later — they can reuse the same editor facade (`window.__tbVisualEditor`).
+This is the demo path. Cursor skills, server MCP, and custom admin chat can reuse the same editor facade (`window.__tbVisualEditor`).
 
 ## What you get
 
 | Surface | Role |
 |---|---|
-| Native / polyfill WebMCP tools | Agent calls `add_section`, `set_field`, `save_to_cms`, … |
-| Live preview iframe | Updates as tools run |
-| Undo / layers / inspector | Same human UI; agent mutations go through it |
-| Optional OpenAI Agent sidebar | In-page chat when `OPENAI_API_KEY` is set |
+| **Pages desk Agent** (`/admin`) | Two-column: page list + chat for create / open / publish |
+| Native / polyfill WebMCP tools | Desk (~8) + page editor (~36) |
+| Page editor Agent rail | In-page co-edit when a page is open |
+| Live preview iframe | Updates as editor tools run |
+
+## Killer demo script
+
+**Start on `/admin`** (not an unrelated page):
+
+```text
+Create a page at /ai-workshop titled AI Workshop, then open it.
+```
+
+After the editor opens, continue in the **page Agent**:
+
+```text
+Build hero, image-text, FAQ (three questions about DX consulting), and a CTA strip. Find a landscape photo of Tim on stage, set it on the hero, write SEO, save, show what’s pending, then offer Publish.
+```
+
+Or from the desk after edits: “Show pending changes, then offer Publish.”
 
 ## Demo A — Chrome Model Context Tool Inspector (recommended)
 
@@ -21,27 +37,48 @@ Best “agent in the browser doing things for me” story.
    Or join the [WebMCP origin trial](https://developer.chrome.com/docs/ai/webmcp) for your production domain (Chrome 149+).
 2. Install **[Model Context Tool Inspector](https://chromewebstore.google.com/detail/model-context-tool-inspector)** (Chrome Labs).
 3. Run the site (`npm run dev` or your Vercel preview) and open a page editor, e.g. `/admin/pages/about`.
-4. Confirm the toolbar chip shows **WebMCP · 18** (or similar). Console: `[webmcp] registered … tools`.
-5. Open the Inspector side panel. You should see tools like `get_editor_state`, `add_section`, `set_field`.
+4. Confirm the toolbar chip shows **WebMCP · 36** (or similar). Console: `[webmcp] registered … tools`.
+5. Open the Inspector side panel. You should see tools like `get_editor_state`, `create_page`, `add_list_item`, `publish_changes`.
 6. Prompt examples:
 
 ```text
-Call get_editor_state, then add a faq section at the end and rewrite its title and two questions about developer experience consulting.
+Call get_editor_state, then add a faq section at the end. Call describe_section on it, then add_list_item three times with DX consulting Q&As.
 ```
 
 ```text
-Select section 0, rewrite the hero subline to something sharper about AI-native DX, then switch the preview to mobile.
+list_pages, then create_page id ai-workshop path /ai-workshop title "AI Workshop". open_page with that id (force if needed).
 ```
 
 ```text
 Build a short consulting landing structure: keep the hero, add image-text, faq, and cta-strip. Fill real Tim-voice copy. Do not save to cms yet.
 ```
 
-Watch layers + preview update as tools execute. When happy, ask it to `save_to_cms`, then publish from `/admin/changes`.
+Watch layers + preview update as tools execute. When happy, `save_to_cms` (local draft), then `get_changes`, then `publish_changes` to main (Inspector calls these directly; the Agent rail shows Apply cards instead).
 
-## Demo B — OpenAI Agent sidebar (icing)
+## Demo B — OpenAI Agents (desk + editor)
 
-The editor mounts an **Agent** rail (icon in the left toolbar) when `OPENAI_API_KEY` is set on the server. Chat goes through `/api/admin/webmcp/chat` (key never shipped to the browser). Tool calls run in-page against the WebMCP / `__tbVisualEditor` facade so the preview updates live.
+Requires `OPENAI_API_KEY`.
+
+### Pages desk (`/admin`)
+
+Two-column layout: page list on the left, **Agent** on the right. Desk tools: `list_pages`, `get_page`, `create_page` (auto-opens the editor after the reply unless `open:false`), `open_page`, `update_metadata` (via Apply cards), `get_changes`, `publish_changes`, `discard_changes`, `get_site`, `apply_site_patch`, plus `propose_changes`.
+
+Cold-start demos start here — you are not stuck on About to create a workshop page. SEO audits from the desk: `get_page` → `propose_changes` with `update_metadata` items (`pageId` + fields) → Apply cards.
+
+### Page editor (`/admin/pages/:id`)
+
+Docked Agent rail for live co-editing (sections, lists, images, SEO). Same Propose-card rules for Save / Publish.
+
+**Auto-apply vs choice points** (both surfaces):
+
+| Choice | How it works |
+|---|---|
+| Images (editor) | `search_images` → gallery **Use** |
+| Save (editor) | `propose_changes` → **Save** |
+| SEO metadata (desk) | `propose_changes` → `update_metadata` → **Apply** |
+| Publish / discard | `propose_changes` → **Publish** / **Discard** |
+| Site chrome | `propose_changes` → `apply_site_patch` |
+| Optional A/B copy (editor) | `propose_changes` with field/section items |
 
 1. Set in `.env`:
 
@@ -51,12 +88,8 @@ OPENAI_API_KEY=sk-...
 OPENAI_WEBMCP_MODEL=gpt-4.1
 ```
 
-2. Restart `npm run dev`, open a page editor.
-3. Click the **sparkle / Agent** icon in the right rail → try: “Add an FAQ about consulting and tighten the hero subline.”
-
-Without the env var, the Agent rail stays disabled. Chrome’s Model Context Tool Inspector still works for the pure WebMCP demo.
-
-> Note: MCP-B’s hosted `<webmcp-agent>` widget only accepts Anthropic for chat (OpenAI there is voice-only), so this site uses a small custom OpenAI sidebar instead.
+2. Restart `npm run dev`, open `/admin`.
+3. Ask the desk Agent to create and open a page, then finish the build in the editor Agent.
 
 ## Demo C — MCP-B browser extension → Cursor
 
@@ -64,6 +97,15 @@ With `@mcp-b/global` loaded, the [MCP-B extension](https://chromewebstore.google
 
 ## Tool catalog
 
+### Page lifecycle
+| Tool | Purpose |
+|---|---|
+| `list_pages` | All CMS pages (id, path, title) |
+| `create_page` | Create page as a local draft (`id`, `path`, `title`). Desk defaults to opening the editor after the agent reply (`open:false` to stay) |
+| `open_page` | Navigate editor to a page (`force` if dirty) |
+| `get_page` | Read page JSON (desk: pass `id`; editor: open draft) |
+
+### In-page editing
 | Tool | Purpose |
 |---|---|
 | `get_editor_state` | Page id, dirty, selection, section summaries |
@@ -72,14 +114,42 @@ With `@mcp-b/global` loaded, the [MCP-B extension](https://chromewebstore.google
 | `select_section` | Highlight in preview |
 | `add_section` / `move_section` / `duplicate_section` / `delete_section` | Structure |
 | `replace_section` / `patch_section` | Whole or shallow section writes |
-| `set_field` | Leaf copy (live) or `structural: true` for query fields |
-| `update_metadata` | SEO |
+| `describe_section` | Field + list schema for a section (call before nested edits) |
+| `add_list_item` / `remove_list_item` / `move_list_item` | FAQ / timeline / gallery / CTA lists |
+| `set_field` | Leaf copy (live) or query fields |
+| `update_metadata` | SEO: title, description, keywords, image, canonical, imageAlt, noindex. Desk requires `pageId` and shows Apply cards |
 | `set_device_preview` | `desktop` \| `mobile` \| `full` |
 | `undo` / `redo` | History |
 | `refresh_preview` | Force iframe sync |
-| `search_images` | Search Cloudinary (needs `CLOUDINARY_API_SECRET`) |
-| `set_image` | Apply a Cloudinary asset to an image field |
-| `save_to_cms` | Commit to `cms` branch (ask human first) |
+| `open_panel` | Open inspector / media / info / history chrome |
+
+### Media
+| Tool | Purpose |
+|---|---|
+| `get_image_library_config` | Cloudinary allowlist |
+| `search_images` | Search (needs `CLOUDINARY_API_SECRET`) |
+| `set_image` | Apply asset to an image field |
+| `update_asset_metadata` | Enrich Cloudinary title / description / tags |
+
+### Ship
+| Tool | Purpose |
+|---|---|
+| `save_to_cms` | Save open page as a local draft (Agent → Save card) |
+| `get_changes` | Pending cms → main diff |
+| `publish_changes` | Merge cms → main (Agent → Publish card) |
+| `discard_changes` | Reset cms (Agent → Discard card) |
+| `get_page_history` | Recent commits touching this page |
+
+### Site chrome
+| Tool | Purpose |
+|---|---|
+| `get_site` | Read `site.json` (nav, footer, newsletter) |
+| `apply_site_patch` | Write site chrome (Agent → Apply card; `mode: preview` optional) |
+
+### Agent-only
+| Tool | Purpose |
+|---|---|
+| `propose_changes` | Defer whitelisted tools into Apply cards after streamed text |
 
 ## Cloudinary for the Agent
 
@@ -103,44 +173,17 @@ PUBLIC_CLOUDINARY_CLOUD_NAME=...
 PUBLIC_CLOUDINARY_API_KEY=...
 CLOUDINARY_SEARCH_FOLDERS=website,Tim,Presskit
 CLOUDINARY_SEARCH_FOLDER=*
-# optional single default instead:
-# CLOUDINARY_SEARCH_FOLDER=website
-# optional:
-# CLOUDINARY_SEARCH_TAGS=site
-# CLOUDINARY_SEARCH_PREFIX=website/
 ```
 
-The agent cannot escape the allowlist (`folder=everything` → 400). Tools: `get_image_library_config`, `search_images`, `set_image`.
+The agent cannot escape the allowlist (`folder=everything` → 400). Tools: `get_image_library_config`, `search_images`, `set_image`, `update_asset_metadata`.
 
-Humans use the same allowlist via the editor **Media** rail, field **Browse** modal, and the standalone **`/admin/media`** desk (upload + metadata enrich). DAM browse is a thin listing path (no agent widen/vision heuristics). Agent `search_images` still prefers `CLOUDINARY_SEARCH_FOLDER` when set and folder is omitted; the Media UI defaults to **All folders**.
+Humans use the same allowlist via the editor **Media** rail, field **Browse** modal, and `/admin/media`.
 
-After `search_images`, the Agent rail shows a thumbnail gallery. **Click Use** (or the card) to apply that asset to the selected section’s image field. **Open** previews the full Cloudinary URL. The agent is instructed to ask you to click rather than auto-applying.
+After `search_images`, the Agent rail shows a thumbnail gallery. **Click Use** to apply. **Open** previews the full URL.
 
-`search_images` also accepts metadata filters:
+**Proposal CTAs:** Save / Publish / Discard / site / A/B copy use `propose_changes` → action cards after the streamed reply. Direct shipping tools from the Agent rail are intercepted the same way.
 
-- `orientation`: `portrait` | `landscape` | `square`
-- `minWidth` / `maxWidth` / `minHeight` / `maxHeight`
-- `format`: `png`, `jpg`, …
-- `tags`: extra tags to AND
-
-**Metadata-first search (default):** pass `describe` or `query` (e.g. `"Tim on stage at a conference"`). The API tokenizes the phrase and matches **tags**, Media Library **Title** (`context.caption`), **Description** (`context.alt`), filename, and public_id — then ranks by how many terms hit. Results include `title`, `description`, `tags`, `metadataScore`, and `metadataReason`. No vision call.
-
-**Vision (optional fallback):** pass `vision: true` only when metadata returns nothing useful. That ranks a shortlist of tiny Cloudinary thumbs (`w_256,q_30`) with OpenAI vision. Needs `OPENAI_API_KEY`.
-
-| Variable | Purpose | Default |
-|---|---|---|
-| `OPENAI_WEBMCP_VISION_MODEL` | Model for vision rank | `OPENAI_WEBMCP_MODEL` or `gpt-4o` |
-| `CLOUDINARY_VISION_CANDIDATES` | Max thumbs sent to vision | `20` (cap 24) |
-
-Results include `width`, `height`, `aspectRatio`, `orientation`, `format`, `tags`, `title`, `description`, `bytes`.
-
-Demo prompt:
-
-```text
-Find a photo of me speaking on stage at a conference (landscape) and set it on the hero image. Do not save yet.
-```
-
-The agent should call `search_images` with `describe` + `orientation: landscape` (no `vision`), then ask you to click **Use**.
+`search_images` also accepts metadata filters (`orientation`, size bounds, `format`, `tags`) and optional `vision: true` fallback.
 
 ## Architecture
 
@@ -151,11 +194,12 @@ Browser agent (Inspector / webmcp-agent / MCP-B extension)
 public/admin/webmcp-tools.js  →  navigator + document.modelContext
         │
         ▼
-window.__tbVisualEditor  (editor.js facade)
+window.__tbVisualEditor  (editor facade)
         │
-        ├─ draft + layers + forms
+        ├─ draft + layers + forms + list editors
         ├─ preview postMessage / persistPreview
-        └─ saveToCms → GitHub cms branch
+        ├─ pages / changes / site / cloudinary APIs
+        └─ saveToCms → IndexedDB draft → publish → main
 ```
 
 Vendored polyfill: `public/admin/vendor/mcp-b-global.iife.js` (`@mcp-b/global@4.0.0`). Native Chrome `navigator.modelContext` is preserved (`nativeModelContextBehavior: 'preserve'`).
@@ -164,15 +208,23 @@ Vendored polyfill: `public/admin/vendor/mcp-b-global.iife.js` (`@mcp-b/global@4.
 
 | Path | Role |
 |---|---|
-| `public/admin/webmcp-tools.js` | Tool definitions + registration |
-| `public/admin/webmcp-agent.js` | OpenAI Agent sidebar (tool loop in-page) |
-| `src/pages/api/admin/webmcp/chat.ts` | OpenAI proxy (`OPENAI_API_KEY`) |
-| `public/admin/vendor/mcp-b-global.iife.js` | WebMCP polyfill / bridge |
-| `public/admin/editor.js` | `__tbVisualEditor` facade |
-| `src/pages/admin/pages/[id].astro` | Script boot + env wiring |
+| `public/admin/desk-facade.js` | Desk `__tbVisualEditor` (lifecycle / ship / site) |
+| `public/admin/desk-webmcp.js` | WebMCP tools on `/admin` |
+| `public/admin/desk-agent.js` | Desk Agent chat boot |
+| `public/admin/webmcp-tools.js` | Editor WebMCP tool registration |
+| `public/admin/webmcp-agent.js` | Editor Agent rail boot |
+| `public/admin/webmcp-agent-loop.js` | SSE client + tool loop (`editor` / `desk` surfaces) |
+| `public/admin/webmcp-agent-ui.js` | Bubbles, gallery, action cards |
+| `public/admin/editor/facade.js` | `__tbVisualEditor` |
+| `public/admin/lib/render-agent-markdown.js` | Comark → HTML (+ DOMPurify) |
+| `src/pages/api/admin/webmcp/chat.ts` | OpenAI SSE proxy |
+| `public/admin/vendor/comark-html.esm.js` | Browser Comark bundle |
+| `public/admin/vendor/mcp-b-global.iife.js` | WebMCP polyfill |
+| `src/pages/admin/pages/[id].astro` | Editor page + script wiring |
 
 ## Safety notes
 
 - Tools only load on authenticated `/admin/pages/*` (same cookie gate as the editor).
-- `save_to_cms` still goes to the **cms** branch; live site needs **Publish**.
+- `save_to_cms` stores a **local draft**; live site needs **Publish** to main.
+- Agent rail never auto-publishes / auto-discards / auto-patches site chrome — Apply cards only.
 - Prefer not putting `OPENAI_API_KEY` in client-exposed env; it stays server-side via `/api/admin/webmcp/chat`.

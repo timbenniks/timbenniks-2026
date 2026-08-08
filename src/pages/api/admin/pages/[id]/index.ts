@@ -6,6 +6,7 @@ import {
   getPagePath,
   validatePageData,
   formatZodError,
+  getPreviewDraft,
 } from '../../../../../lib/admin/pages-store';
 import { isPageIdFormat } from '../../../../../lib/page-schema';
 import { isAdminAuthed } from '../../../../../lib/admin/auth';
@@ -21,7 +22,7 @@ export const GET: APIRoute = async ({ params, request }) => {
     return new Response(JSON.stringify({ error: 'Unknown page' }), { status: 404 });
   }
   const all = await readPagesForAdmin();
-  const page = all[id];
+  const page = all[id] ?? getPreviewDraft(id);
   if (!page) {
     return new Response(JSON.stringify({ error: 'Unknown page' }), { status: 404 });
   }
@@ -40,7 +41,8 @@ export const PUT: APIRoute = async ({ params, request }) => {
   }
 
   const all = await readPagesForAdmin();
-  if (!(id in all)) {
+  const exists = id in all || Boolean(getPreviewDraft(id));
+  if (!exists) {
     return new Response(JSON.stringify({ error: 'Unknown page' }), { status: 404 });
   }
 

@@ -1,4 +1,4 @@
-/** GitHub Contents / Git Data helpers for the cms → main workflow. */
+/** GitHub Contents / Git Data helpers for publishing content to main. */
 
 export const PAGES_REL = 'src/content/pages.json';
 export const SITE_REL = 'src/content/site.json';

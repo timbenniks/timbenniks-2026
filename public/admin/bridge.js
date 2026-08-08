@@ -472,7 +472,118 @@ window.addEventListener('message', (e) => {
     }
     return;
   }
+  if (data.type === 'setHtml') {
+    const { path, value } = data.payload || {};
+    const el = findEditable(path);
+    if (el) el.innerHTML = value ?? '';
+    return;
+  }
+  if (data.type === 'setDocumentMeta') {
+    const { title, description } = data.payload || {};
+    if (typeof title === 'string') document.title = title;
+    if (typeof description === 'string') {
+      let meta = document.querySelector('meta[name="description"]');
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', 'description');
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', description);
+    }
+    return;
+  }
+  if (data.type === 'moveSection') {
+    const { from, to } = data.payload || {};
+    const list = sections();
+    if (
+      typeof from !== 'number' ||
+      typeof to !== 'number' ||
+      from < 0 ||
+      to < 0 ||
+      from >= list.length ||
+      to >= list.length
+    ) {
+      return;
+    }
+    const el = list[from];
+    const parent = el.parentElement;
+    if (!parent) return;
+    const target = list[to];
+    if (from < to) {
+      parent.insertBefore(el, target.nextSibling);
+    } else {
+      parent.insertBefore(el, target);
+    }
+    reindexSectionDom();
+    rebuildInsertZones();
+    return;
+  }
+  if (data.type === 'removeSection') {
+    const { index } = data.payload || {};
+    const el = findSection(index);
+    if (el) el.remove();
+    reindexSectionDom();
+    rebuildInsertZones();
+    clearActive();
+    placeChrome(null);
+    return;
+  }
+  if (data.type === 'insertSectionHtml') {
+    const { index, html } = data.payload || {};
+    const list = sections();
+    const parent = list[0]?.parentElement || document.querySelector('main') || document.body;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = html || '';
+    const node = wrap.firstElementChild;
+    if (!node) return;
+    const at = Math.max(0, Math.min(Number(index) || 0, list.length));
+    if (at >= list.length) {
+      parent.appendChild(node);
+    } else {
+      parent.insertBefore(node, list[at]);
+    }
+    reindexSectionDom();
+    rebuildInsertZones();
+    return;
+  }
+  if (data.type === 'replaceSectionHtml') {
+    const { index, html } = data.payload || {};
+    const el = findSection(index);
+    if (!el) return;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = html || '';
+    const node = wrap.firstElementChild;
+    if (!node) return;
+    el.replaceWith(node);
+    reindexSectionDom();
+    rebuildInsertZones();
+    return;
+  }
+  if (data.type === 'reindexSections') {
+    if (Array.isArray(data.payload?.kinds)) {
+      kinds = data.payload.kinds;
+    }
+    reindexSectionDom();
+    rebuildInsertZones();
+    return;
+  }
 });
+
+function reindexSectionDom() {
+  const list = sections();
+  list.forEach((el, i) => {
+    const prev = el.getAttribute('data-section');
+    el.setAttribute('data-section', String(i));
+    // Remap data-edit paths that start with sections.<old>.
+    el.querySelectorAll('[data-edit]').forEach((field) => {
+      const path = field.getAttribute('data-edit') || '';
+      const m = path.match(/^sections\.(\d+)(.*)$/);
+      if (!m) return;
+      field.setAttribute('data-edit', `sections.${i}${m[2]}`);
+    });
+    void prev;
+  });
+}
 
 function announce() {
   rebuildInsertZones();

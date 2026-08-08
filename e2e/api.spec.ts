@@ -28,12 +28,15 @@ test.describe('admin APIs (authenticated)', () => {
     expect(body.site).toBeTruthy();
   });
 
-  test('GET /api/admin/changes reports missing GitHub config', async ({ request }) => {
+  test('GET /api/admin/changes returns published baseline', async ({ request }) => {
     const res = await request.get('/api/admin/changes');
     expect(res.ok()).toBeTruthy();
     const body = await res.json();
+    expect(body.ok).toBe(true);
+    expect(body.pages).toBeTruthy();
+    expect(body.site).toBeTruthy();
+    // e2e clears GitHub token — still returns baseline from filesystem
     expect(body.configured).toBe(false);
-    expect(body.error).toMatch(/GITHUB_TOKEN/);
   });
 
   test('GET /api/admin/content/writing returns hub items', async ({ request }) => {

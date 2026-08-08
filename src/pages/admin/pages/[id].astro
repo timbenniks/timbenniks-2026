@@ -9,13 +9,14 @@ import {
 } from '../../../lib/page-schema';
 import {
   getPagePath,
+  getPreviewDraft,
   readPagesForAdmin,
 } from '../../../lib/admin/pages-store';
 import { CANONICAL_TAGS, TAG_LABELS } from '../../../lib/tags';
 
 const id = Astro.params.id ?? '';
 const all = await readPagesForAdmin();
-const page = isPageIdFormat(id) ? all[id] : undefined;
+const page = isPageIdFormat(id) ? all[id] ?? getPreviewDraft(id) : undefined;
 if (!page) {
   return Astro.redirect('/admin');
 }

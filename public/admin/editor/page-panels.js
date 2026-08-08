@@ -4,6 +4,7 @@
  */
 import { apiFetch } from '../lib/api.js';
 import { escapeHtml } from '../lib/utils.js';
+import { listDraftPageIds } from '../lib/draft-store.js';
 
 export function createPagePanels(s) {
   function formatCommitDate(iso) {
@@ -21,21 +22,31 @@ export function createPagePanels(s) {
   function editStatusLabel() {
     if (s.dirtyChip?.dataset.state === 'saving') return 'Saving…';
     if (s.dirtyChip?.dataset.state === 'error') return 'Save error';
-    return s.dirty ? 'Unsaved' : 'Saved on cms';
+    return s.dirty ? 'Unsaved' : 'Draft saved';
   }
 
   async function fetchChangesStatus(force = false) {
     if (!force && s.changesCache) return s.changesCache;
     try {
-      s.changesCache = await apiFetch('/api/admin/changes', {
+      const baseline = await apiFetch('/api/admin/changes', {
         errorMessage: 'Could not load publish status',
       });
+      const draftIds = await listDraftPageIds();
+      const hasThisDraft = draftIds.includes(s.boot.id);
+      s.changesCache = {
+        ...baseline,
+        draftIds,
+        hasThisDraft,
+        aheadBy: draftIds.length,
+      };
     } catch (err) {
       s.changesCache = {
         configured: false,
         error: err.message || String(err),
         aheadBy: 0,
         pages: [],
+        draftIds: [],
+        hasThisDraft: false,
       };
     }
     return s.changesCache;
@@ -69,16 +80,13 @@ export function createPagePanels(s) {
 
     const title = s.draft?.metadata?.title || s.boot.id;
     const path = s.slugPath;
-    const pageChange = (changes.pages || []).find((p) => p.id === s.boot.id);
     let publishLabel = 'Unknown';
-    if (!changes.configured) {
-      publishLabel = 'GitHub not configured';
-    } else if ((changes.aheadBy || 0) === 0) {
-      publishLabel = 'In sync with main';
-    } else if (pageChange) {
-      publishLabel = `Pending publish · ${pageChange.change}`;
+    if (changes.hasThisDraft || s.dirty) {
+      publishLabel = 'Local draft pending publish';
+    } else if ((changes.draftIds || []).length) {
+      publishLabel = `${changes.draftIds.length} other draft${changes.draftIds.length === 1 ? '' : 's'} pending`;
     } else {
-      publishLabel = `${changes.aheadBy} commit${changes.aheadBy === 1 ? '' : 's'} ahead (other changes)`;
+      publishLabel = 'In sync with main';
     }
 
     const last = history.lastPublish;
@@ -91,7 +99,6 @@ export function createPagePanels(s) {
         : 'No commits on main yet';
 
     const mainB = changes.mainBranch || history.mainBranch || 'main';
-    const cmsB = changes.cmsBranch || history.cmsBranch || 'cms';
 
     s.infoFieldsEl.innerHTML = `
       <dl class="info-dl">
@@ -102,7 +109,7 @@ export function createPagePanels(s) {
         <div><dt>Edit status</dt><dd id="info-edit-status">${escapeHtml(editStatusLabel())}</dd></div>
         <div><dt>Publish status</dt><dd>${escapeHtml(publishLabel)}</dd></div>
         <div><dt>Last on main</dt><dd>${lastHtml}</dd></div>
-        <div><dt>Branches</dt><dd><code>${escapeHtml(cmsB)}</code> → <code>${escapeHtml(mainB)}</code></dd></div>
+        <div><dt>Publish target</dt><dd><code>${escapeHtml(mainB)}</code></dd></div>
       </dl>
       <p class="info-actions">
         <a class="open-live" href="/admin/changes">Review &amp; publish</a>
@@ -128,17 +135,15 @@ export function createPagePanels(s) {
 
     const commits = data.commits || [];
     if (!commits.length) {
-      s.historyFieldsEl.innerHTML = '<p class="hint">No commits touch pages.json on the cms branch yet.</p>';
+      s.historyFieldsEl.innerHTML = '<p class="hint">No commits touch pages.json on main yet.</p>';
       return;
     }
 
-    const needle = `cms: update ${s.boot.id}`;
     s.historyFieldsEl.innerHTML = `
-      <p class="hint history-path">Commits touching <code>${escapeHtml(data.path || 'src/content/pages.json')}</code> on <code>${escapeHtml(data.cmsBranch || 'cms')}</code></p>
+      <p class="hint history-path">Commits touching <code>${escapeHtml(data.path || 'src/content/pages.json')}</code> on <code>${escapeHtml(data.mainBranch || data.cmsBranch || 'main')}</code></p>
       <ul class="commit-list">
         ${commits
           .map((c) => {
-            const forPage = (c.message || '').includes(needle);
             const msg = escapeHtml(c.message || '(no message)');
             const meta = [
               escapeHtml(c.shortSha || ''),
@@ -148,9 +153,9 @@ export function createPagePanels(s) {
               .filter(Boolean)
               .join(' · ');
             const body = c.htmlUrl
-              ? `<a href="${escapeHtml(c.htmlUrl)}" target="_blank" rel="noopener" class="commit-msg">${msg}</a>`
-              : `<span class="commit-msg">${msg}</span>`;
-            return `<li class="commit-row${forPage ? ' is-page' : ''}">${body}<div class="commit-meta">${meta}${forPage ? ' <span class="commit-badge">this page</span>' : ''}</div></li>`;
+              ? `<a href="${escapeHtml(c.htmlUrl)}" target="_blank" rel="noopener">${msg}</a>`
+              : msg;
+            return `<li><div class="commit-msg">${body}</div><div class="meta">${meta}</div></li>`;
           })
           .join('')}
       </ul>
@@ -158,12 +163,9 @@ export function createPagePanels(s) {
   }
 
   return {
-    formatCommitDate,
-    editStatusLabel,
-    fetchChangesStatus,
-    fetchHistory,
     refreshInfoPane,
     syncInfoEditStatus,
     refreshHistoryPanel,
+    fetchChangesStatus,
   };
 }

@@ -2,10 +2,9 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { siteChromeSchema, type SiteChrome } from '../site-schema';
 import {
-  cmsBranch,
-  ensureCmsBranch,
-  getFileFromCms,
+  getFile,
   hasGitHubConfig,
+  mainBranch,
   putFile,
   SITE_REL,
 } from './github-git';
@@ -29,8 +28,8 @@ export function validateSiteChrome(data: unknown): SiteChrome {
 }
 
 let siteDraft: SiteChrome | null = null;
-let cmsSiteCache: { at: number; data: SiteChrome } | null = null;
-const CMS_CACHE_MS = 5_000;
+let mainSiteCache: { at: number; data: SiteChrome } | null = null;
+const CACHE_MS = 5_000;
 
 export function getSiteDraft(): SiteChrome | null {
   return siteDraft;
@@ -38,7 +37,7 @@ export function getSiteDraft(): SiteChrome | null {
 
 export function clearSiteDraft(): void {
   siteDraft = null;
-  cmsSiteCache = null;
+  mainSiteCache = null;
 }
 
 export async function saveSiteDraft(data: SiteChrome): Promise<{ mode: 'draft' }> {
@@ -46,50 +45,59 @@ export async function saveSiteDraft(data: SiteChrome): Promise<{ mode: 'draft' }
   return { mode: 'draft' };
 }
 
-/** Prefer cms branch when GitHub is configured. */
+/** Prefer main branch when GitHub is configured. Drafts live in the browser. */
 export async function readSiteForAdmin(): Promise<SiteChrome> {
   if (hasGitHubConfig()) {
-    await ensureCmsBranch();
-    const file = await getFileFromCms(SITE_REL);
+    const cached = await getMainSiteCached();
+    if (cached) return cached;
+    const file = await getFile(SITE_REL, mainBranch());
+    if (!file) return readSiteFile();
     return siteChromeSchema.parse(JSON.parse(file.content));
   }
   return readSiteFile();
 }
 
-export async function getCmsSiteCached(): Promise<SiteChrome | null> {
+export async function getMainSiteCached(): Promise<SiteChrome | null> {
   if (!hasGitHubConfig()) return null;
-  if (cmsSiteCache && Date.now() - cmsSiteCache.at < CMS_CACHE_MS) {
-    return cmsSiteCache.data;
+  if (mainSiteCache && Date.now() - mainSiteCache.at < CACHE_MS) {
+    return mainSiteCache.data;
   }
   try {
-    const file = await getFileFromCms(SITE_REL);
+    const file = await getFile(SITE_REL, mainBranch());
+    if (!file) return null;
     const data = siteChromeSchema.parse(JSON.parse(file.content));
-    cmsSiteCache = { at: Date.now(), data };
+    mainSiteCache = { at: Date.now(), data };
     return data;
   } catch {
     return null;
   }
 }
 
-export async function saveSiteToCms(
+/** @deprecated Use getMainSiteCached */
+export async function getCmsSiteCached(): Promise<SiteChrome | null> {
+  return getMainSiteCached();
+}
+
+/** Publish site chrome to main (or local working tree). */
+export async function publishSiteToMain(
   data: SiteChrome,
-): Promise<{ commit: string; mode: 'cms' | 'local-working'; branch: string }> {
+  message = 'content: publish site chrome',
+): Promise<{ commit: string; mode: 'github' | 'local-working'; branch: string }> {
   const validated = validateSiteChrome(data);
   const fullJson = `${JSON.stringify(validated, null, 2)}\n`;
 
   if (hasGitHubConfig()) {
-    await ensureCmsBranch();
-    const file = await getFileFromCms(SITE_REL);
+    const file = await getFile(SITE_REL, mainBranch());
     const commit = await putFile(
       SITE_REL,
       fullJson,
-      cmsBranch(),
-      'cms: update site chrome',
-      file.existsOnCms ? file.sha : undefined,
+      mainBranch(),
+      message,
+      file?.sha,
     );
     siteDraft = validated;
-    cmsSiteCache = { at: Date.now(), data: validated };
-    return { commit, mode: 'cms', branch: cmsBranch() };
+    mainSiteCache = { at: Date.now(), data: validated };
+    return { commit, mode: 'github', branch: mainBranch() };
   }
 
   await writeSiteFile(validated);
@@ -97,9 +105,20 @@ export async function saveSiteToCms(
   return { commit: 'working-tree', mode: 'local-working', branch: 'local' };
 }
 
-/** @deprecated Use saveSiteToCms */
+/**
+ * Stage a preview draft only (no Git). Client IndexedDB owns intentional drafts.
+ * @deprecated Prefer client draft store; kept for preview sync fallback.
+ */
+export async function saveSiteToCms(
+  data: SiteChrome,
+): Promise<{ commit: string; mode: 'draft'; branch: string }> {
+  await saveSiteDraft(data);
+  return { commit: 'local-draft', mode: 'draft', branch: 'draft' };
+}
+
+/** @deprecated Use saveSiteToCms / publishSiteToMain */
 export async function saveSiteEntry(
   data: SiteChrome,
-): Promise<{ commit: string; mode: 'cms' | 'local-working'; branch: string }> {
+): Promise<{ commit: string; mode: 'draft'; branch: string }> {
   return saveSiteToCms(data);
 }

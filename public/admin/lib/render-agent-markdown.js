@@ -1,8 +1,8 @@
 /**
  * Render agent assistant markdown → sanitized rich HTML.
- * Images use Cloudinary thumbs; only https links survive sanitization.
+ * Uses Comark (autoClose for streaming) + DOMPurify. Images use Cloudinary thumbs.
  */
-import { marked } from '../vendor/marked.esm.js';
+import { createHtmlRenderer, breaks, security } from '../vendor/comark-html.esm.js';
 import DOMPurify from '../vendor/purify.es.mjs';
 import { deliveryThumbUrl } from './cloudinary-url.js';
 
@@ -51,36 +51,47 @@ function promoteBareImageUrls(text) {
   return String(text || '').replace(
     /(^|[^!("])(https:\/\/res\.cloudinary\.com\/[^\s)<]+)/g,
     (full, prefix, url) => {
-      // Skip if this was already the target of ![alt](
       if (prefix.endsWith('](')) return full;
       return `${prefix}![](${url})`;
     },
   );
 }
 
-const renderer = {
-  image({ href, text }) {
-    if (!href || !isSafeImageUrl(href)) {
-      return escapeAttr(text || href || '');
-    }
-    return figureHtml(href, text || '');
+const renderHtml = createHtmlRenderer({
+  registerDefaultPlugins: false,
+  autoClose: true,
+  linkify: false,
+  plugins: [
+    breaks(),
+    security({
+      blockedTags: ['script', 'iframe', 'object', 'embed', 'link', 'style', 'base', 'meta'],
+      allowedProtocols: ['https'],
+      allowDataImages: false,
+    }),
+  ],
+  components: {
+    img: async ([, attrs]) => {
+      const href = attrs?.src || '';
+      const alt = attrs?.alt || '';
+      if (!href || !isSafeImageUrl(href)) {
+        return escapeAttr(alt || href || '');
+      }
+      return figureHtml(href, alt);
+    },
+    a: async ([, attrs, ...children], { render }) => {
+      const href = attrs?.href || '';
+      const title = attrs?.title;
+      const text = await render(children);
+      if (!href || !isSafeHttpsUrl(href)) {
+        return text || '';
+      }
+      if (isSafeImageUrl(href) && (!text || text === href)) {
+        return figureHtml(href, '');
+      }
+      const titleAttr = title ? ` title="${escapeAttr(title)}"` : '';
+      return `<a href="${escapeAttr(href)}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
+    },
   },
-  link({ href, title, text }) {
-    if (!href || !isSafeHttpsUrl(href)) {
-      return text || '';
-    }
-    if (isSafeImageUrl(href) && (!text || text === href)) {
-      return figureHtml(href, '');
-    }
-    const titleAttr = title ? ` title="${escapeAttr(title)}"` : '';
-    return `<a href="${escapeAttr(href)}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
-  },
-};
-
-marked.use({
-  gfm: true,
-  breaks: true,
-  renderer,
 });
 
 const PURIFY = {
@@ -90,9 +101,9 @@ const PURIFY = {
   ALLOWED_URI_REGEXP: /^(?:(?:https?):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
 };
 
-function renderAgentMarkdown(markdown) {
+async function renderAgentMarkdown(markdown) {
   const source = promoteBareImageUrls(markdown);
-  let raw = marked.parse(source, { async: false });
+  let raw = await renderHtml(source);
   // Images render as <figure>; unwrap accidental <p><figure>…</figure></p> wrappers.
   raw = raw.replace(/<p>\s*(<figure[\s\S]*?<\/figure>)\s*<\/p>/gi, '$1');
   return DOMPurify.sanitize(raw, PURIFY);
@@ -107,8 +118,21 @@ function bindAgentMarkdownMedia(root) {
   });
 }
 
+/**
+ * Update an assistant bubble's markdown HTML.
+ * Concurrent calls are sequenced so only the latest text wins.
+ */
+async function setBubbleMarkdown(bubble, text) {
+  const seq = (bubble.__mdSeq = (bubble.__mdSeq || 0) + 1);
+  const html = await renderAgentMarkdown(text);
+  if (bubble.__mdSeq !== seq) return;
+  bubble.innerHTML = html;
+  bindAgentMarkdownMedia(bubble);
+}
+
 export {
   renderAgentMarkdown,
+  setBubbleMarkdown,
   bindAgentMarkdownMedia,
   isSafeImageUrl,
   isSafeHttpsUrl,

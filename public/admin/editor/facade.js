@@ -3,8 +3,24 @@
  * Preserves window.__tbVisualEditor / WebMCP tool contract.
  */
 import { apiFetch } from '../lib/api.js';
+import { editorPathFor, hardNavigate } from '../lib/navigate.js';
 import { deepClone, getByPath } from '../lib/utils.js';
-import { SECTION_FORM } from './catalog.js';
+import { SECTION_FORM, LIST_SPECS } from './catalog.js';
+
+const FIELD_DESC_KEYS = [
+  'key',
+  'type',
+  'label',
+  'options',
+  'hint',
+  'min',
+  'max',
+  'allowEmpty',
+  'emptyLabel',
+  'optionsFrom',
+  'showWhen',
+  'coerce',
+];
 
 /** @param {Record<string, any>} s mutable editor session + helpers */
 export function createVisualEditorFacade(s) {
@@ -21,6 +37,79 @@ export function createVisualEditorFacade(s) {
       kind: section.kind,
       title: String(title).slice(0, 80),
     };
+  }
+
+  function serializeFieldDesc(field) {
+    const out = {};
+    for (const key of FIELD_DESC_KEYS) {
+      if (field[key] !== undefined) out[key] = field[key];
+    }
+    return out;
+  }
+
+  function serializeListDesc(spec) {
+    const out = {
+      key: spec.key,
+      label: spec.label,
+      min: spec.min,
+      fields: (spec.fields || []).map(serializeFieldDesc),
+    };
+    if (spec.optional !== undefined) out.optional = spec.optional;
+    if (spec.nested) out.nested = serializeListDesc(spec.nested);
+    return out;
+  }
+
+  function resolveSectionIndex(sectionIndex) {
+    const i = sectionIndex == null ? s.selectedSection : Number(sectionIndex);
+    if (!Number.isFinite(i) || i < 0 || i >= s.draft.sections.length) {
+      throw new Error(`Invalid section index ${sectionIndex}`);
+    }
+    return i;
+  }
+
+  function resolveListTarget({ sectionIndex, listKey, nestedKey, parentItemIndex } = {}) {
+    if (!listKey) throw new Error('listKey is required');
+    const i = resolveSectionIndex(sectionIndex);
+    const section = s.draft.sections[i];
+    const specs = LIST_SPECS[section.kind] || [];
+    const spec = specs.find((sp) => sp.key === listKey);
+    if (!spec) throw new Error(`Unknown list “${listKey}” for kind ${section.kind}`);
+
+    const useNested = nestedKey != null && nestedKey !== '' && parentItemIndex != null;
+    if (nestedKey != null && nestedKey !== '' && parentItemIndex == null) {
+      throw new Error('parentItemIndex required for nested lists');
+    }
+    if (useNested) {
+      if (!spec.nested || spec.nested.key !== nestedKey) {
+        throw new Error(`Unknown nested list “${nestedKey}” on ${listKey}`);
+      }
+      const parentIdx = Number(parentItemIndex);
+      if (!Number.isFinite(parentIdx) || parentIdx < 0) {
+        throw new Error(`Invalid parentItemIndex ${parentItemIndex}`);
+      }
+      return {
+        i,
+        section,
+        spec: spec.nested,
+        listPath: `sections.${i}.${listKey}.${parentIdx}.${nestedKey}`,
+      };
+    }
+
+    return {
+      i,
+      section,
+      spec,
+      listPath: `sections.${i}.${listKey}`,
+    };
+  }
+
+  function ensureListArray(listPath) {
+    let arr = getByPath(s.draft, listPath);
+    if (!Array.isArray(arr)) {
+      s.setByPath(s.draft, listPath, []);
+      arr = getByPath(s.draft, listPath);
+    }
+    return arr;
   }
 
   function resolveFieldPath(path, sectionIndex) {
@@ -296,7 +385,12 @@ export function createVisualEditorFacade(s) {
       s.checkpoint();
       if (!s.draft.metadata) s.draft.metadata = {};
       for (const [key, value] of Object.entries(fields)) {
-        s.draft.metadata[key] = value == null ? '' : String(value);
+        if (key === 'pageId' || key === 'id') continue;
+        if (key === 'noindex') {
+          s.draft.metadata[key] = Boolean(value);
+        } else {
+          s.draft.metadata[key] = value == null ? '' : String(value);
+        }
         s.postToFrame('setMeta', { key, value: s.draft.metadata[key] });
       }
       s.renderMeta();
@@ -434,6 +528,268 @@ export function createVisualEditorFacade(s) {
           : undefined,
         previewUpdated: true,
       };
+    },
+
+    async listPages() {
+      return apiFetch('/api/admin/pages', {
+        errorMessage: 'Failed to list pages',
+      });
+    },
+    async createPage({ id, path, title, description } = {}) {
+      if (!id || !path || !title) throw new Error('id, path, and title are required');
+      return apiFetch('/api/admin/pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id,
+          path,
+          title,
+          ...(description != null ? { description } : {}),
+        }),
+        errorMessage: 'Failed to create page',
+      });
+    },
+    openPage({ id, force } = {}) {
+      if (!id) throw new Error('id is required');
+      const editorPath = editorPathFor(id);
+      if (s.dirty && !force) {
+        return {
+          navigated: false,
+          dirty: true,
+          pageId: id,
+          editorPath,
+          message: 'Unsaved changes — pass force:true to navigate anyway',
+        };
+      }
+      hardNavigate(editorPath);
+      return { navigated: true, pageId: id, editorPath };
+    },
+
+    describeSection({ index } = {}) {
+      const i = resolveSectionIndex(index);
+      const section = s.draft.sections[i];
+      const kind = section.kind;
+      const form = SECTION_FORM[kind] || { fields: [] };
+      const fields = [...(form.query || []), ...(form.fields || [])].map(serializeFieldDesc);
+      const lists = (LIST_SPECS[kind] || []).map(serializeListDesc);
+      const pathHints = [`set_field path <relative> with sectionIndex`];
+      for (const list of lists) {
+        const leaf = list.fields?.find((f) => f.key)?.key;
+        if (leaf) pathHints.push(`set_field path ${list.key}.0.${leaf} with sectionIndex`);
+        if (list.nested?.key) {
+          const nestedLeaf = list.nested.fields?.find((f) => f.key)?.key;
+          if (nestedLeaf) {
+            pathHints.push(
+              `set_field path ${list.key}.0.${list.nested.key}.0.${nestedLeaf} with sectionIndex`,
+            );
+          }
+        }
+      }
+      return { kind, index: i, fields, lists, pathHints };
+    },
+    async addListItem({ sectionIndex, listKey, nestedKey, parentItemIndex, item } = {}) {
+      const { i, spec, listPath } = resolveListTarget({
+        sectionIndex,
+        listKey,
+        nestedKey,
+        parentItemIndex,
+      });
+      if (typeof spec.create !== 'function' && item == null) {
+        throw new Error(`List “${listKey}” has no create() and no item was provided`);
+      }
+      s.checkpoint();
+      const arr = ensureListArray(listPath);
+      arr.push(item != null ? deepClone(item) : spec.create());
+      await s.refreshAfterStructural(i);
+      const last = arr.length - 1;
+      s.setStatus(`Agent added item at ${listPath}.${last}`, 'ok');
+      return {
+        listPath,
+        index: last,
+        item: deepClone(arr[last]),
+        state: facade.getState(),
+      };
+    },
+    async removeListItem({
+      sectionIndex,
+      listKey,
+      nestedKey,
+      parentItemIndex,
+      itemIndex,
+    } = {}) {
+      const { i, spec, listPath } = resolveListTarget({
+        sectionIndex,
+        listKey,
+        nestedKey,
+        parentItemIndex,
+      });
+      const arr = getByPath(s.draft, listPath);
+      if (!Array.isArray(arr)) throw new Error(`No list at ${listPath}`);
+      const idx = Number(itemIndex);
+      if (!Number.isFinite(idx) || idx < 0 || idx >= arr.length) {
+        throw new Error(`Invalid itemIndex ${itemIndex}`);
+      }
+      const min = spec.min ?? 0;
+      if (arr.length <= min) {
+        throw new Error(`Keep at least ${min} ${String(spec.label || listKey).toLowerCase()}`);
+      }
+      s.checkpoint();
+      arr.splice(idx, 1);
+      await s.refreshAfterStructural(i);
+      s.setStatus(`Agent removed item at ${listPath}.${idx}`, 'ok');
+      return facade.getState();
+    },
+    async moveListItem({
+      sectionIndex,
+      listKey,
+      nestedKey,
+      parentItemIndex,
+      from,
+      to,
+    } = {}) {
+      const { i, listPath } = resolveListTarget({
+        sectionIndex,
+        listKey,
+        nestedKey,
+        parentItemIndex,
+      });
+      const arr = getByPath(s.draft, listPath);
+      if (!Array.isArray(arr)) throw new Error(`No list at ${listPath}`);
+      const fromIdx = Number(from);
+      const toIdx = Number(to);
+      if (!Number.isFinite(fromIdx) || fromIdx < 0 || fromIdx >= arr.length) {
+        throw new Error(`Invalid from index ${from}`);
+      }
+      if (!Number.isFinite(toIdx) || toIdx < 0 || toIdx >= arr.length) {
+        throw new Error(`Invalid to index ${to}`);
+      }
+      if (fromIdx === toIdx) return facade.getState();
+      s.checkpoint();
+      const [moved] = arr.splice(fromIdx, 1);
+      arr.splice(toIdx, 0, moved);
+      await s.refreshAfterStructural(i);
+      s.setStatus(`Agent moved item ${fromIdx} → ${toIdx} in ${listPath}`, 'ok');
+      return facade.getState();
+    },
+
+    async getChanges() {
+      const { listDraftPageIds, getSiteDraft } = await import('../lib/draft-store.js');
+      const baseline = await apiFetch('/api/admin/changes', {
+        errorMessage: 'Failed to load changes',
+      });
+      const draftIds = await listDraftPageIds();
+      const site = await getSiteDraft();
+      return {
+        ...baseline,
+        draftIds,
+        siteTouched: Boolean(site?.site),
+        aheadBy: draftIds.length + (site?.site ? 1 : 0),
+      };
+    },
+    async publishChanges({ message } = {}) {
+      const {
+        clearAllDrafts,
+        getPageDraft,
+        getSiteDraft,
+        listDraftPageIds,
+      } = await import('../lib/draft-store.js');
+      const draftIds = await listDraftPageIds();
+      const pages = {};
+      for (const id of draftIds) {
+        const rec = await getPageDraft(id);
+        if (rec?.page) pages[id] = rec.page;
+      }
+      // Always include the open editor draft
+      if (s.draft) pages[s.boot.id] = s.draft;
+      const siteRec = await getSiteDraft();
+      const payload = {
+        message: message || 'content: publish drafts',
+        ...(Object.keys(pages).length ? { pages } : {}),
+        ...(siteRec?.site ? { site: siteRec.site } : {}),
+      };
+      const result = await apiFetch('/api/admin/changes/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        errorMessage: 'Publish failed',
+      });
+      await clearAllDrafts();
+      s.publishedSnapshot = deepClone(s.draft);
+      s.savedSnapshot = deepClone(s.draft);
+      s.dirty = false;
+      s.refreshChromeState?.('saved');
+      return result;
+    },
+    async discardChanges() {
+      const { clearAllDrafts, clearPageDraft } = await import('../lib/draft-store.js');
+      await clearPageDraft(s.boot.id);
+      await clearAllDrafts();
+      await apiFetch('/api/admin/changes/discard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ all: true }),
+        errorMessage: 'Discard failed',
+      }).catch(() => undefined);
+      s.draft = deepClone(s.publishedSnapshot || s.boot.page);
+      s.savedSnapshot = deepClone(s.draft);
+      s.dirty = false;
+      s.refreshChromeState?.('saved');
+      await s.persistPreview?.(s.selectedSection, 'Discarded drafts…');
+      return { ok: true, cleared: 'local-drafts' };
+    },
+
+    async updateAssetMetadata({ publicId, tags, title, description } = {}) {
+      if (!publicId) throw new Error('publicId is required');
+      return apiFetch('/api/admin/cloudinary/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          publicId,
+          ...(title != null ? { title } : {}),
+          ...(description != null ? { description } : {}),
+          ...(tags != null ? { tags } : {}),
+        }),
+        errorMessage: 'Metadata update failed',
+      });
+    },
+
+    async getSite() {
+      return apiFetch('/api/admin/site', {
+        errorMessage: 'Failed to load site',
+      });
+    },
+    async applySitePatch({ site, mode } = {}) {
+      if (!site || typeof site !== 'object') throw new Error('site object required');
+      return apiFetch('/api/admin/site', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          site,
+          ...(mode === 'preview' ? { mode: 'preview' } : {}),
+        }),
+        errorMessage: 'Site update failed',
+      });
+    },
+
+    async getPageHistory() {
+      return apiFetch(`/api/admin/pages/${encodeURIComponent(s.boot.id)}/history`, {
+        errorMessage: 'Failed to load page history',
+      });
+    },
+    openPanel({ panel } = {}) {
+      const name = String(panel || 'section').toLowerCase();
+      if (!['inspector', 'section', 'media', 'info', 'page', 'history'].includes(name)) {
+        throw new Error("panel must be 'inspector'|'section'|'media'|'info'|'page'|'history'");
+      }
+      const chrome = window.__tbEditorChrome;
+      if (typeof chrome?.openPanel === 'function') {
+        return chrome.openPanel(name === 'inspector' ? 'section' : name);
+      }
+      if (name === 'media') chrome?.openMedia?.() || s.openMedia?.();
+      else if (name === 'info' || name === 'page') chrome?.openPage?.('info') || s.openPage?.('info');
+      else if (name === 'history') chrome?.openPage?.('history') || s.openPage?.('history');
+      else chrome?.openInspector?.('section') || s.openInspector?.('section');
+      return { panel: name };
     },
   };
 

@@ -11,6 +11,7 @@
     "preview": "astro preview",
     "check": "astro check",
     "astro": "astro",
+    "vendor:comark": "node scripts/vendor-comark.mjs",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:install": "playwright install chromium"
@@ -20,12 +21,12 @@
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
     "@astrojs/vercel": "^11.0.5",
+    "@comark/html": "^0.6.2",
     "@mcp-b/global": "^4.0.0",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.2.0",
     "dompurify": "^3.4.13",
     "lite-youtube-embed": "^0.3.4",
-    "marked": "^18.0.9",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {

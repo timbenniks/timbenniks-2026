@@ -1,14 +1,23 @@
 import { apiFetch } from './lib/api.js';
 import { escapeHtml } from './lib/utils.js';
 import { bindStatus, bindChip } from './lib/chrome.js';
+import {
+  clearAllDrafts,
+  clearPageDraft,
+  clearSiteDraft,
+  diffPagesLocal,
+  getPageDraft,
+  getSiteDraft,
+  listDraftPageIds,
+  loadDraftOverlay,
+} from './lib/draft-store.js';
 
 const statusEl = document.getElementById('status');
 const chip = document.getElementById('chip');
 const summary = document.getElementById('summary');
 const pagesPanel = document.getElementById('pages-panel');
 const pagesList = document.getElementById('pages-list');
-const filesPanel = document.getElementById('files-panel');
-const filesList = document.getElementById('files-list');
+const sitePanel = document.getElementById('site-panel');
 const publishBtn = document.getElementById('publish');
 const discardBtn = document.getElementById('discard');
 const commitMsg = document.getElementById('commit-msg');
@@ -16,54 +25,73 @@ const commitMsg = document.getElementById('commit-msg');
 const setStatus = bindStatus(statusEl);
 const setChip = bindChip(chip);
 
+/** @type {{ pages: Record<string, object>, site: object, mainBranch: string, configured: boolean } | null} */
+let baseline = null;
+
 async function loadChanges() {
-  setStatus('Loading compare…');
+  setStatus('Loading drafts…');
   setChip('Loading…');
   try {
     const data = await apiFetch('/api/admin/changes', {
-      errorMessage: 'Failed to load changes',
+      errorMessage: 'Failed to load baseline',
     });
+    baseline = {
+      pages: data.pages || {},
+      site: data.site,
+      mainBranch: data.mainBranch || 'main',
+      configured: Boolean(data.configured),
+    };
 
-    if (!data.configured) {
-      setChip('Not configured', 'error');
-      setStatus(data.error || 'GitHub not configured', 'error');
-      publishBtn.disabled = true;
-      discardBtn.disabled = true;
-      return;
+    const { merged, draftIds, siteDraft } = await loadDraftOverlay(baseline.pages);
+    const pageDiffs = diffPagesLocal(baseline.pages, merged).filter((p) =>
+      draftIds.includes(p.id),
+    );
+    // Only show pages that have IDB drafts (not full baseline noise)
+    const pages = [];
+    for (const id of draftIds) {
+      const rec = await getPageDraft(id);
+      if (!rec?.page) continue;
+      const base = baseline.pages[id];
+      const change = !base ? 'added' : JSON.stringify(base) !== JSON.stringify(rec.page) ? 'modified' : 'unchanged';
+      if (change === 'unchanged') continue;
+      pages.push({ id, change, title: rec.page.metadata?.title });
     }
 
-    const ahead = data.aheadBy || 0;
-    const files = data.files || [];
-    const pages = data.pages || [];
-    const hasChanges = ahead > 0 || files.length > 0;
+    const siteTouched =
+      Boolean(siteDraft?.site) &&
+      JSON.stringify(siteDraft.site) !== JSON.stringify(baseline.site);
+
+    const hasChanges = pages.length > 0 || siteTouched;
 
     if (!hasChanges) {
-      setChip('In sync', 'ok');
-      setStatus(`No pending changes — ${data.cmsBranch} matches ${data.mainBranch}`, 'ok');
+      setChip('No drafts', 'ok');
+      setStatus(
+        baseline.configured
+          ? `No local drafts — publish target is ${baseline.mainBranch}`
+          : 'No local drafts. Configure GitHub to publish to main.',
+        'ok',
+      );
       summary.hidden = true;
       pagesPanel.hidden = true;
-      filesPanel.hidden = true;
+      sitePanel.hidden = true;
       publishBtn.disabled = true;
       discardBtn.disabled = true;
       return;
     }
 
-    setChip(`${ahead} commit${ahead === 1 ? '' : 's'} ahead`, 'dirty');
+    const n = pages.length + (siteTouched ? 1 : 0);
+    setChip(`${n} draft${n === 1 ? '' : 's'}`, 'dirty');
     setStatus(
-      `${files.length} file${files.length === 1 ? '' : 's'} · ${ahead} commit${ahead === 1 ? '' : 's'} on ${data.cmsBranch}`,
+      `${pages.length} page${pages.length === 1 ? '' : 's'}${siteTouched ? ' · site chrome' : ''} ready to publish`,
       'ok',
     );
 
     summary.hidden = false;
     summary.innerHTML = `
       <p>
-        <strong>${escapeHtml(data.cmsBranch)}</strong> →
-        <strong>${escapeHtml(data.mainBranch)}</strong>
-        · ${ahead} ahead
-        ${data.behindBy ? ` · ${data.behindBy} behind` : ''}
-        ${data.htmlUrl ? ` · <a href="${escapeHtml(data.htmlUrl)}" target="_blank" rel="noopener">View on GitHub</a>` : ''}
+        Local drafts → <strong>${escapeHtml(baseline.mainBranch)}</strong>
+        ${baseline.configured ? '' : ' · <span class="hint">GitHub not configured (local working tree)</span>'}
       </p>
-      ${data.siteTouched ? '<p class="hint">Site chrome (<code>site.json</code>) is included.</p>' : ''}
     `;
 
     if (pages.length) {
@@ -76,34 +104,32 @@ async function loadChanges() {
               <strong>${escapeHtml(p.title || p.id)}</strong>
               <span class="meta"><span class="mono">${escapeHtml(p.id)}</span> · ${escapeHtml(p.change)}</span>
             </a>
+            <button type="button" class="ghost danger discard-one" data-page-id="${escapeHtml(p.id)}">Discard</button>
           </li>`;
         })
         .join('');
+      pagesList.querySelectorAll('.discard-one').forEach((btn) => {
+        btn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const id = btn.getAttribute('data-page-id');
+          if (!id || !confirm(`Discard draft for “${id}”?`)) return;
+          await clearPageDraft(id);
+          await apiFetch('/api/admin/changes/discard', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pageId: id }),
+            errorMessage: 'Discard failed',
+          }).catch(() => undefined);
+          await loadChanges();
+        });
+      });
     } else {
       pagesPanel.hidden = true;
       pagesList.innerHTML = '';
     }
 
-    if (files.length) {
-      filesPanel.hidden = false;
-      filesList.innerHTML = files
-        .map((f) => {
-          const patch = f.patch
-            ? `<pre class="diff-patch">${escapeHtml(f.patch)}</pre>`
-            : '<p class="hint">No patch (binary or too large).</p>';
-          return `<details class="diff-file">
-            <summary>
-              <span class="mono">${escapeHtml(f.filename)}</span>
-              <span class="meta">${escapeHtml(f.status)} · +${f.additions} −${f.deletions}</span>
-            </summary>
-            ${patch}
-          </details>`;
-        })
-        .join('');
-    } else {
-      filesPanel.hidden = true;
-      filesList.innerHTML = '';
-    }
+    sitePanel.hidden = !siteTouched;
 
     publishBtn.disabled = false;
     discardBtn.disabled = false;
@@ -116,18 +142,34 @@ async function loadChanges() {
 }
 
 publishBtn.addEventListener('click', async () => {
-  if (!confirm('Merge cms into main and deploy? This publishes all pending saves.')) return;
+  if (!confirm('Publish local drafts to main? This updates content files and triggers deploy.')) {
+    return;
+  }
   publishBtn.disabled = true;
   discardBtn.disabled = true;
   setChip('Publishing…');
-  setStatus('Merging cms → main…');
+  setStatus('Writing drafts to main…');
   try {
+    const draftIds = await listDraftPageIds();
+    /** @type {Record<string, object>} */
+    const pages = {};
+    for (const id of draftIds) {
+      const rec = await getPageDraft(id);
+      if (rec?.page) pages[id] = rec.page;
+    }
+    const siteRec = await getSiteDraft();
+    const payload = {
+      message: commitMsg.value.trim() || 'content: publish drafts',
+      ...(Object.keys(pages).length ? { pages } : {}),
+      ...(siteRec?.site ? { site: siteRec.site } : {}),
+    };
     const data = await apiFetch('/api/admin/changes/publish', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: commitMsg.value.trim() }),
+      body: JSON.stringify(payload),
       errorMessage: 'Publish failed',
     });
+    await clearAllDrafts();
     setStatus(`Published · ${data.mode} · ${data.commit}`, 'ok');
     setChip('Published', 'ok');
     await loadChanges();
@@ -140,19 +182,20 @@ publishBtn.addEventListener('click', async () => {
 });
 
 discardBtn.addEventListener('click', async () => {
-  if (!confirm('Reset cms to main? All unpublished saves on cms will be discarded.')) return;
+  if (!confirm('Discard all local drafts? Published content on main is unchanged.')) return;
   publishBtn.disabled = true;
   discardBtn.disabled = true;
   setChip('Discarding…');
-  setStatus('Resetting cms to main…');
+  setStatus('Clearing local drafts…');
   try {
-    const data = await apiFetch('/api/admin/changes/discard', {
+    await clearAllDrafts();
+    await apiFetch('/api/admin/changes/discard', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({}),
+      body: JSON.stringify({ all: true }),
       errorMessage: 'Discard failed',
-    });
-    setStatus(`Discarded · ${data.commit}`, 'ok');
+    }).catch(() => undefined);
+    setStatus('Discarded all local drafts', 'ok');
     await loadChanges();
   } catch (err) {
     setStatus(err.message || String(err), 'error');

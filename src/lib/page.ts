@@ -11,8 +11,8 @@ import { siteUrl } from '../data/site';
 import { breadcrumbSchema, buildGraph } from './schema';
 
 /**
- * Prefer in-memory/disk draft, then durable GitHub preview draft (Vercel),
- * then cms branch pages.json (admin preview), else deployed pages.json.
+ * Prefer in-memory/disk preview draft, then main/admin pages.json, else deployed FS.
+ * Intentional drafts live in the browser IndexedDB — preview draft is only for SSR reload fallback.
  */
 export async function loadPage(id: string) {
   if (isAdminPreviewRequest()) {
@@ -34,14 +34,12 @@ export async function loadPage(id: string) {
       };
     }
 
-    // Use the short cms cache (savePageToCms refreshes it). Busting on every
-    // preview load forced a GitHub round-trip for each iframe reload.
-    const cms = await getCmsPagesCached();
-    if (cms?.[id]) {
+    const main = await getCmsPagesCached();
+    if (main?.[id]) {
       return {
         id,
         collection: 'pages' as const,
-        data: cms[id],
+        data: main[id],
       };
     }
     const all = await readPagesForAdmin();

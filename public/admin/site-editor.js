@@ -2,6 +2,7 @@ import { apiFetch } from './lib/api.js';
 import { deepClone, escapeAttr } from './lib/utils.js';
 import { icon } from './lib/icons.js';
 import { bindStatus, bindStateChip } from './lib/chrome.js';
+import { contentHash, getSiteDraft, setSiteDraft } from './lib/draft-store.js';
 
 const root = document.getElementById('app');
 if (!root) {
@@ -21,12 +22,31 @@ if (!boot?.site) {
   throw new Error('Incomplete boot payload');
 }
 let draft = deepClone(boot.site);
+let publishedSnapshot = deepClone(boot.site);
+let baseHash = contentHash(boot.site);
 let dirty = false;
+
+// Restore local draft if present
+void getSiteDraft().then((rec) => {
+  if (!rec?.site) return;
+  draft = deepClone(rec.site);
+  dirty = JSON.stringify(draft) !== JSON.stringify(publishedSnapshot);
+  if (dirty) {
+    setChip('dirty');
+    setStatus('Restored local draft · Publish from Changes when ready', 'ok');
+    renderNav();
+    renderFooter();
+    nlHeading.value = draft.newsletter?.heading || '';
+    nlBody.value = draft.newsletter?.body || '';
+    footerHuman.value = draft.footerHuman || '';
+    if (saveBtn) saveBtn.disabled = false;
+  }
+});
 
 root.innerHTML = `
   <div class="dash-intro">
     <h2>Site chrome</h2>
-    <p>Navigation, footer columns, and newsletter copy. <strong>Save</strong> writes to the <code>cms</code> branch; publish from <a href="/admin/changes">Changes</a>.</p>
+    <p>Navigation, footer columns, and newsletter copy. <strong>Save</strong> keeps a local draft; publish from <a href="/admin/changes">Changes</a>.</p>
   </div>
 
   <nav class="section-pills" aria-label="Sections">
@@ -36,7 +56,7 @@ root.innerHTML = `
     <a href="#note" data-toc="note">Footer note</a>
   </nav>
 
-  <p class="status" id="status">Edits sync as a preview draft. Save commits to cms.</p>
+  <p class="status" id="status">Edits stay in a local draft until you publish.</p>
 
   <section class="panel" id="nav">
     <div class="panel-head"><h2>Navigation</h2></div>
@@ -91,11 +111,16 @@ function markDirty() {
   dirty = true;
   if (saveBtn) saveBtn.disabled = false;
   setChip('dirty');
-  setStatus('Unsaved changes — draft will sync for Preview home');
+  setStatus('Unsaved changes — save draft, then publish from Changes');
   schedulePreview();
+  clearTimeout(draftAutosaveTimer);
+  draftAutosaveTimer = setTimeout(() => {
+    void setSiteDraft(draft, { baseHash }).catch(() => undefined);
+  }, 400);
 }
 
 let previewTimer = null;
+let draftAutosaveTimer = null;
 function schedulePreview() {
   clearTimeout(previewTimer);
   previewTimer = setTimeout(persistPreview, 400);
@@ -103,6 +128,7 @@ function schedulePreview() {
 
 async function persistPreview() {
   try {
+    await setSiteDraft(draft, { baseHash });
     await apiFetch('/api/admin/site', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -297,17 +323,18 @@ document.getElementById('add-col').addEventListener('click', () => {
 saveBtn?.addEventListener('click', async () => {
   saveBtn.disabled = true;
   setChip('saving');
-  setStatus('Saving…');
+  setStatus('Saving draft…');
   try {
-    const data = await apiFetch('/api/admin/site', {
+    await setSiteDraft(draft, { baseHash });
+    await apiFetch('/api/admin/site', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ site: draft }),
-      errorMessage: 'Save failed',
-    });
+      body: JSON.stringify({ site: draft, mode: 'preview' }),
+      errorMessage: 'Draft stage failed',
+    }).catch(() => undefined);
     dirty = false;
     setChip('ok');
-    setStatus(`Saved to ${data.branch || 'cms'} · ${data.mode} · ${data.commit} · Publish from Changes`, 'ok');
+    setStatus('Draft saved locally · Publish from Changes', 'ok');
   } catch (err) {
     saveBtn.disabled = false;
     setChip('error');

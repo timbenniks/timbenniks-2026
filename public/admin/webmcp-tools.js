@@ -257,7 +257,8 @@ function buildTools() {
     },
     {
       name: 'update_metadata',
-      description: 'Update SEO metadata fields (title, description, keywords, image, …).',
+      description:
+        'Update SEO metadata fields (title, description, keywords, image, canonical, imageAlt, noindex).',
       inputSchema: {
         type: 'object',
         properties: {
@@ -265,6 +266,9 @@ function buildTools() {
           description: { type: 'string' },
           keywords: { type: 'string' },
           image: { type: 'string', description: 'Social image URL' },
+          canonical: { type: 'string', description: 'Canonical URL override' },
+          imageAlt: { type: 'string', description: 'Alt text for the social/OG image' },
+          noindex: { type: 'boolean', description: 'If true, mark page noindex' },
         },
       },
       async execute(args) {
@@ -414,9 +418,290 @@ function buildTools() {
       },
     },
     {
+      name: 'list_pages',
+      description: 'List all CMS pages (id, path, title). Use before create_page or open_page.',
+      inputSchema: { type: 'object', properties: {} },
+      async execute() {
+        return run((api) => api.listPages());
+      },
+    },
+    {
+      name: 'create_page',
+      description: 'Create a new CMS page with id, path, and title. Optional description.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: 'Page id (slug), e.g. about' },
+          path: { type: 'string', description: 'URL path, e.g. /about' },
+          title: { type: 'string' },
+          description: { type: 'string' },
+        },
+        required: ['id', 'path', 'title'],
+      },
+      async execute(args) {
+        return run((api) =>
+          api.createPage({
+            id: args.id,
+            path: args.path,
+            title: args.title,
+            description: args.description,
+          }),
+        );
+      },
+    },
+    {
+      name: 'open_page',
+      description:
+        'Navigate the editor to another page by id. Leaves this document — if the current page is dirty, pass force:true or save first.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: 'Page id to open' },
+          force: {
+            type: 'boolean',
+            description: 'Navigate even when the current page has unsaved changes',
+          },
+        },
+        required: ['id'],
+      },
+      async execute(args) {
+        return run((api) => api.openPage({ id: args.id, force: args.force }));
+      },
+    },
+    {
+      name: 'describe_section',
+      description:
+        'Describe a section’s editable fields and list keys (items, ctas, gallery, nested inventory, …). Call before add_list_item / remove_list_item / move_list_item.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          index: { type: 'integer', description: 'Zero-based section index', minimum: 0 },
+        },
+        required: ['index'],
+      },
+      async execute(args) {
+        return run((api) => api.describeSection({ index: args.index }));
+      },
+    },
+    {
+      name: 'add_list_item',
+      description:
+        'Append an item to a section list. listKey is typically items, ctas, or gallery. For nested inventory lists, pass parentItemIndex + nestedKey. Optional item overrides the default create() placeholder.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          sectionIndex: { type: 'integer', minimum: 0 },
+          listKey: {
+            type: 'string',
+            description: 'Top-level list key, e.g. items, ctas, gallery',
+          },
+          nestedKey: {
+            type: 'string',
+            description: 'Nested list key under a parent item (inventory)',
+          },
+          parentItemIndex: {
+            type: 'integer',
+            minimum: 0,
+            description: 'Required with nestedKey — index of the parent list item',
+          },
+          item: {
+            type: 'object',
+            description: 'Optional full item object; omit to use the list’s create() default',
+          },
+        },
+        required: ['sectionIndex', 'listKey'],
+      },
+      async execute(args) {
+        return run((api) =>
+          api.addListItem({
+            sectionIndex: args.sectionIndex,
+            listKey: args.listKey,
+            nestedKey: args.nestedKey,
+            parentItemIndex: args.parentItemIndex,
+            item: args.item,
+          }),
+        );
+      },
+    },
+    {
+      name: 'remove_list_item',
+      description:
+        'Remove an item from a section list by index. Respects list min counts. Use describe_section first for listKey / nested paths.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          sectionIndex: { type: 'integer', minimum: 0 },
+          listKey: { type: 'string' },
+          nestedKey: { type: 'string' },
+          parentItemIndex: { type: 'integer', minimum: 0 },
+          itemIndex: { type: 'integer', minimum: 0, description: 'Index of the item to remove' },
+        },
+        required: ['sectionIndex', 'listKey', 'itemIndex'],
+      },
+      async execute(args) {
+        return run((api) =>
+          api.removeListItem({
+            sectionIndex: args.sectionIndex,
+            listKey: args.listKey,
+            nestedKey: args.nestedKey,
+            parentItemIndex: args.parentItemIndex,
+            itemIndex: args.itemIndex,
+          }),
+        );
+      },
+    },
+    {
+      name: 'move_list_item',
+      description: 'Reorder an item within a section list (from → to). Use describe_section for listKey / nested paths.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          sectionIndex: { type: 'integer', minimum: 0 },
+          listKey: { type: 'string' },
+          nestedKey: { type: 'string' },
+          parentItemIndex: { type: 'integer', minimum: 0 },
+          from: { type: 'integer', minimum: 0 },
+          to: { type: 'integer', minimum: 0 },
+        },
+        required: ['sectionIndex', 'listKey', 'from', 'to'],
+      },
+      async execute(args) {
+        return run((api) =>
+          api.moveListItem({
+            sectionIndex: args.sectionIndex,
+            listKey: args.listKey,
+            nestedKey: args.nestedKey,
+            parentItemIndex: args.parentItemIndex,
+            from: args.from,
+            to: args.to,
+          }),
+        );
+      },
+    },
+    {
+      name: 'get_changes',
+      description: 'List local draft status vs published main baseline. Prefer before publish_changes or discard_changes.',
+      inputSchema: { type: 'object', properties: {} },
+      async execute() {
+        return run((api) => api.getChanges());
+      },
+    },
+    {
+      name: 'publish_changes',
+      description:
+        'Publish local drafts to main (goes live). Prefer human confirmation before calling.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          message: { type: 'string', description: 'Optional publish commit message' },
+        },
+      },
+      async execute(args) {
+        return run((api) => api.publishChanges({ message: args.message }));
+      },
+    },
+    {
+      name: 'discard_changes',
+      description:
+        'Discard all local drafts. Prefer human confirmation — destructive for unpublished work.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          path: {
+            type: 'string',
+            description: 'Ignored — local drafts are cleared as a set',
+          },
+        },
+      },
+      async execute(args) {
+        return run((api) => api.discardChanges({ path: args.path }));
+      },
+    },
+    {
+      name: 'update_asset_metadata',
+      description:
+        'Update Cloudinary asset metadata (tags, title, description) by publicId. Improves future search_images matching.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          publicId: { type: 'string' },
+          tags: { type: 'array', items: { type: 'string' } },
+          title: { type: 'string' },
+          description: { type: 'string' },
+        },
+        required: ['publicId'],
+      },
+      async execute(args) {
+        return run((api) =>
+          api.updateAssetMetadata({
+            publicId: args.publicId,
+            tags: args.tags,
+            title: args.title,
+            description: args.description,
+          }),
+        );
+      },
+    },
+    {
+      name: 'get_site',
+      description: 'Return the current site.json (nav, footer, newsletter, …).',
+      inputSchema: { type: 'object', properties: {} },
+      async execute() {
+        return run((api) => api.getSite());
+      },
+    },
+    {
+      name: 'apply_site_patch',
+      description:
+        'Update site.json (nav, footer, newsletter). Be careful — this affects the whole site. Always stages a local draft; publish from Changes.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          site: {
+            type: 'object',
+            description: 'Full or partial site object to apply',
+          },
+          mode: {
+            type: 'string',
+            enum: ['preview', 'cms'],
+            description: 'Ignored — always local draft; kept for compatibility',
+          },
+        },
+        required: ['site'],
+      },
+      async execute(args) {
+        return run((api) => api.applySitePatch({ site: args.site, mode: args.mode }));
+      },
+    },
+    {
+      name: 'get_page_history',
+      description: 'Return git history for the currently open page.',
+      inputSchema: { type: 'object', properties: {} },
+      async execute() {
+        return run((api) => api.getPageHistory());
+      },
+    },
+    {
+      name: 'open_panel',
+      description: 'Open an editor chrome panel: inspector/section, media library, page info, or history.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          panel: {
+            type: 'string',
+            enum: ['inspector', 'section', 'media', 'info', 'page', 'history'],
+          },
+        },
+        required: ['panel'],
+      },
+      async execute(args) {
+        return run((api) => api.openPanel({ panel: args.panel }));
+      },
+    },
+    {
       name: 'save_to_cms',
       description:
-        'Commit the current page to the cms working branch (not live until Publish on /admin/changes). Ask the human before calling unless they explicitly asked to save.',
+        'Save the current page as a local draft (IndexedDB). Not live until publish_changes. Ask the human before calling unless they explicitly asked to save. For site-wide nav/footer use apply_site_patch instead.',
       inputSchema: { type: 'object', properties: {} },
       async execute() {
         return run((api) => api.saveToCms());

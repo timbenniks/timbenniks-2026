@@ -54,6 +54,7 @@ export const POST: APIRoute = async ({ request }) => {
         ok: true,
         id: result.id,
         path: result.page.path,
+        page: result.page,
         commit: result.commit,
         mode: result.mode,
         branch: result.branch,

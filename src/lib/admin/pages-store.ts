@@ -12,12 +12,10 @@ import {
   type PageId,
 } from '../page-schema';
 import {
-  cmsBranch,
   deleteFile,
-  ensureCmsBranch,
   getFile,
-  getFileFromCms,
   hasGitHubConfig,
+  mainBranch,
   PAGES_REL,
   PREVIEW_DRAFTS_REL,
   putFile,
@@ -74,13 +72,13 @@ export async function writePagesFile(data: Record<string, PageData>): Promise<vo
   await writeFile(pagesFilePath(), body, 'utf8');
 }
 
-/** Prefer cms branch when GitHub is configured; else filesystem. Uses short cms cache. */
+/** Prefer main branch when GitHub is configured; else filesystem. Drafts live in the browser. */
 export async function readPagesForAdmin(): Promise<Record<string, PageData>> {
   if (hasGitHubConfig()) {
-    const cms = await getCmsPagesCached();
-    if (cms) return cms;
-    await ensureCmsBranch();
-    const file = await getFileFromCms(PAGES_REL);
+    const main = await getMainPagesCached();
+    if (main) return main;
+    const file = await getFile(PAGES_REL, mainBranch());
+    if (!file) return readPagesFile();
     const data = parsePagesJson(file.content);
     previewStore().cmsPagesCache = { at: Date.now(), data };
     return data;
@@ -112,9 +110,10 @@ export async function isPageId(id: string): Promise<boolean> {
   return id in all;
 }
 
-/** True if id exists on cms (or local file when no GitHub). */
+/** True if id exists on main/FS or as an in-memory/disk preview draft (new local pages). */
 export async function isAdminPageId(id: string): Promise<boolean> {
   if (!isPageIdFormat(id)) return false;
+  if (getPreviewDraft(id)) return true;
   const all = await readPagesForAdmin();
   return id in all;
 }
@@ -348,131 +347,47 @@ export function invalidateDurableDraftsCache(): void {
 
 /** True on Vercel (or when forced) — process memory / .cache are not shared across isolates. */
 export function needsDurablePreviewDraft(): boolean {
-  return (
-    Boolean(process.env.VERCEL) ||
-    process.env.TB_PREVIEW_DURABLE === '1' ||
-    process.env.TB_PREVIEW_DURABLE === 'true'
-  );
-}
-
-const DURABLE_DRAFTS_CACHE_MS = 3_000;
-
-function parsePreviewDraftsJson(raw: string): Record<string, PageData> {
-  const parsed = JSON.parse(raw) as Record<string, unknown>;
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    return {};
-  }
-  const out: Record<string, PageData> = {};
-  for (const [id, value] of Object.entries(parsed)) {
-    try {
-      out[id] = pageDataSchema.parse(value);
-    } catch {
-      // Skip corrupt entries rather than failing the whole map.
-    }
-  }
-  return out;
+  return false;
 }
 
 async function readDurablePreviewDraftsMap(): Promise<{
   data: Record<string, PageData>;
   sha: string | undefined;
 }> {
-  const store = previewStore();
-  if (
-    store.durableDraftsCache &&
-    Date.now() - store.durableDraftsCache.at < DURABLE_DRAFTS_CACHE_MS
-  ) {
-    return {
-      data: store.durableDraftsCache.data,
-      sha: store.durableDraftsCache.sha,
-    };
-  }
-  await ensureCmsBranch();
-  const file = await getFile(PREVIEW_DRAFTS_REL, cmsBranch());
-  const data = file ? parsePreviewDraftsJson(file.content) : {};
-  const sha = file?.sha;
-  store.durableDraftsCache = { at: Date.now(), data, sha };
-  return { data, sha };
+  // Durable cms-branch preview drafts are retired — client drafts + memory/disk only.
+  return { data: {}, sha: undefined };
 }
 
-/** Preview draft for a page from the dedicated cms artifact (short-cached). */
+/** Preview draft for a page from the dedicated cms artifact (retired). */
 export async function getDurablePreviewDraft(
-  pageId: string,
+  _pageId: string,
 ): Promise<PageData | undefined> {
-  if (!hasGitHubConfig()) return undefined;
-  try {
-    const { data } = await readDurablePreviewDraftsMap();
-    return data[pageId];
-  } catch {
-    return undefined;
-  }
+  return undefined;
 }
 
 async function writeDurablePreviewDraftsMap(
-  data: Record<string, PageData>,
-  sha: string | undefined,
-  message: string,
+  _data: Record<string, PageData>,
+  _sha: string | undefined,
+  _message: string,
 ): Promise<string> {
-  const body = `${JSON.stringify(data, null, 2)}\n`;
-  const commit = await putFile(
-    PREVIEW_DRAFTS_REL,
-    body,
-    cmsBranch(),
-    message,
-    sha,
-  );
-  previewStore().durableDraftsCache = {
-    at: Date.now(),
-    data,
-    sha: undefined, // next read refreshes blob sha
-  };
-  return commit;
+  return 'noop';
 }
 
-async function removeDurablePreviewDraft(pageId: PageId): Promise<void> {
-  if (!hasGitHubConfig()) return;
-  try {
-    invalidateDurableDraftsCache();
-    const { data, sha } = await readDurablePreviewDraftsMap();
-    if (!(pageId in data)) return;
-    const next = { ...data };
-    delete next[pageId];
-    if (Object.keys(next).length === 0) {
-      await deleteFile(
-        PREVIEW_DRAFTS_REL,
-        cmsBranch(),
-        `cms: clear preview-draft ${pageId}`,
-      );
-      previewStore().durableDraftsCache = {
-        at: Date.now(),
-        data: {},
-        sha: undefined,
-      };
-      return;
-    }
-    await writeDurablePreviewDraftsMap(
-      next,
-      sha,
-      `cms: clear preview-draft ${pageId}`,
-    );
-  } catch {
-    // Best-effort: intentional save already landed in pages.json.
-    invalidateDurableDraftsCache();
-  }
+async function removeDurablePreviewDraft(_pageId: PageId): Promise<void> {
+  invalidateDurableDraftsCache();
 }
 
 /** Delete the whole durable preview-drafts file on cms (e.g. before publish). */
 export async function clearDurablePreviewDraftsArtifact(): Promise<void> {
   if (!hasGitHubConfig()) return;
   try {
-    await ensureCmsBranch();
     await deleteFile(
       PREVIEW_DRAFTS_REL,
-      cmsBranch(),
-      'cms: clear preview-drafts',
+      mainBranch(),
+      'content: clear leftover preview-drafts',
     );
   } catch {
-    // ignore
+    // ignore — file may live only on a legacy cms branch
   }
   invalidateDurableDraftsCache();
 }
@@ -491,52 +406,20 @@ export async function savePageDraft(
   const validated = validatePageData(page);
   previewStore().memory.set(pageId, validated);
   writePreviewDraftFile(pageId, validated);
-
-  // Vercel serverless: another isolate serves the iframe reload. Memory/disk
-  // won't be there — persist a dedicated draft artifact on cms (not pages.json).
-  if (needsDurablePreviewDraft() && hasGitHubConfig()) {
-    const persistDurable = async () => {
-      await ensureCmsBranch();
-      invalidateDurableDraftsCache();
-      const { data, sha } = await readDurablePreviewDraftsMap();
-      const next = { ...data, [pageId]: validated };
-      return writeDurablePreviewDraftsMap(
-        next,
-        sha,
-        `cms: preview-draft ${pageId}`,
-      );
-    };
-
-    // On Vercel the next request may hit a different isolate — must await.
-    // Locally (even with TB_PREVIEW_DURABLE), this process already has memory,
-    // so don't block the preview reload on a GitHub round-trip.
-    if (process.env.VERCEL) {
-      try {
-        const commit = await persistDurable();
-        return { mode: 'draft-durable', commit, branch: cmsBranch() };
-      } catch (err) {
-        invalidateDurableDraftsCache();
-        throw err;
-      }
-    }
-
-    void persistDurable().catch((err) => {
-      console.warn('[preview-draft] durable write failed:', err);
-      invalidateDurableDraftsCache();
-    });
-  }
-
+  // Instant preview + IndexedDB drafts replace durable GitHub preview artifacts.
   return { mode: 'draft' };
 }
 
-export async function getCmsPagesCached(): Promise<Record<string, PageData> | null> {
+/** Short-lived cache of pages.json from main (field name kept for store shape). */
+export async function getMainPagesCached(): Promise<Record<string, PageData> | null> {
   if (!hasGitHubConfig()) return null;
   const store = previewStore();
   if (store.cmsPagesCache && Date.now() - store.cmsPagesCache.at < CMS_CACHE_MS) {
     return store.cmsPagesCache.data;
   }
   try {
-    const file = await getFileFromCms(PAGES_REL);
+    const file = await getFile(PAGES_REL, mainBranch());
+    if (!file) return null;
     const data = parsePagesJson(file.content);
     store.cmsPagesCache = { at: Date.now(), data };
     return data;
@@ -545,53 +428,69 @@ export async function getCmsPagesCached(): Promise<Record<string, PageData> | nu
   }
 }
 
+/** @deprecated Use getMainPagesCached */
+export async function getCmsPagesCached(): Promise<Record<string, PageData> | null> {
+  return getMainPagesCached();
+}
+
 /**
- * Save page onto the cms working branch (GitHub).
- * Without GitHub config: write local file only (no commit) — Changes/Publish unavailable.
+ * Persist intentional page content to main (or local working tree).
+ * Used by Publish from Changes — not by the editor Save button.
+ */
+export async function publishPagesToMain(
+  pages: Record<string, PageData>,
+  message = 'content: publish page drafts',
+): Promise<{ mode: 'github' | 'local-working'; commit: string; branch: string }> {
+  for (const [id, page] of Object.entries(pages)) {
+    if (!isPageIdFormat(id)) throw new Error(`Invalid page id: ${id}`);
+    validatePageData(page);
+  }
+
+  const fullJson = `${JSON.stringify(pages, null, 2)}\n`;
+  const store = previewStore();
+
+  if (hasGitHubConfig()) {
+    const file = await getFile(PAGES_REL, mainBranch());
+    const commit = await putFile(
+      PAGES_REL,
+      fullJson,
+      mainBranch(),
+      message,
+      file?.sha,
+    );
+    store.cmsPagesCache = { at: Date.now(), data: pages };
+    for (const id of Object.keys(pages)) {
+      clearPreviewDraft(id as PageId);
+    }
+    await clearDurablePreviewDraftsArtifact().catch(() => undefined);
+    return { commit, mode: 'github', branch: mainBranch() };
+  }
+
+  await writePagesFile(pages);
+  store.cmsPagesCache = { at: Date.now(), data: pages };
+  for (const id of Object.keys(pages)) {
+    clearPreviewDraft(id as PageId);
+  }
+  return { commit: 'working-tree', mode: 'local-working', branch: 'local' };
+}
+
+/**
+ * Validate + stage a server preview draft (for SSR iframe). Does not write Git.
+ * @deprecated Prefer client Instant preview; kept as reload fallback.
  */
 export async function savePageToCms(
   pageId: PageId,
   page: PageData,
-): Promise<{ mode: 'cms' | 'local-working'; commit: string; branch: string }> {
-  if (!isPageIdFormat(pageId)) {
-    throw new Error('Invalid page id');
-  }
-  const validated = validatePageData(page);
-  const store = previewStore();
-
-  if (hasGitHubConfig()) {
-    await ensureCmsBranch();
-    const file = await getFileFromCms(PAGES_REL);
-    const all = parsePagesJson(file.content);
-    all[pageId] = validated;
-    const fullJson = `${JSON.stringify(all, null, 2)}\n`;
-    const commit = await putFile(
-      PAGES_REL,
-      fullJson,
-      cmsBranch(),
-      `cms: update ${pageId}`,
-      file.existsOnCms ? file.sha : undefined,
-    );
-    store.memory.set(pageId, validated);
-    writePreviewDraftFile(pageId, validated);
-    store.cmsPagesCache = { at: Date.now(), data: all };
-    await removeDurablePreviewDraft(pageId);
-    return { commit, mode: 'cms', branch: cmsBranch() };
-  }
-
-  const all = await readPagesFile();
-  all[pageId] = validated;
-  await writePagesFile(all);
-  store.memory.set(pageId, validated);
-  writePreviewDraftFile(pageId, validated);
-  return { commit: 'working-tree', mode: 'local-working', branch: 'local' };
+): Promise<{ mode: 'draft'; commit: string; branch: string }> {
+  const result = await savePageDraft(pageId, page);
+  return { mode: 'draft', commit: 'local-draft', branch: 'draft' };
 }
 
-/** @deprecated Use savePageToCms — kept for any leftover callers. */
+/** @deprecated */
 export async function savePageEntry(
   pageId: PageId,
   page: PageData,
-): Promise<{ commit: string; mode: 'cms' | 'local-working'; branch: string }> {
+): Promise<{ commit: string; mode: 'draft'; branch: string }> {
   return savePageToCms(pageId, page);
 }
 
@@ -604,7 +503,7 @@ export async function createPageEntry(input: {
   id: PageId;
   page: PageData;
   commit: string;
-  mode: 'cms' | 'local-working';
+  mode: 'draft';
   branch: string;
 }> {
   const id = input.id.trim();
@@ -627,6 +526,7 @@ export async function createPageEntry(input: {
 
   const all = await readPagesForAdmin();
   if (id in all) throw new Error(`Page id “${id}” already exists`);
+  if (getPreviewDraft(id)) throw new Error(`Page id “${id}” already has a local draft`);
   for (const [otherId, page] of Object.entries(all)) {
     if (getPagePath(page, otherId) === path) {
       throw new Error(`Path “${path}” is already used by “${otherId}”`);
@@ -642,7 +542,8 @@ export async function createPageEntry(input: {
     sections: [defaultHeroSection()],
   });
 
-  return { id, ...(await savePageToCms(id, page)), page };
+  await savePageDraft(id, page);
+  return { id, page, commit: 'local-draft', mode: 'draft', branch: 'draft' };
 }
 
 /** Summarize which page ids differ between two pages.json blobs. */

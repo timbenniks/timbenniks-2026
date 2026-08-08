@@ -29,8 +29,8 @@ export function bindChip(el) {
 export function bindStateChip(el, labels = {}) {
   const L = {
     dirty: 'Unsaved',
-    ok: 'Saved on cms',
-    saved: 'Saved on cms',
+    ok: 'Draft saved',
+    saved: 'Draft saved',
     error: 'Error',
     saving: 'Saving…',
     ...labels,
