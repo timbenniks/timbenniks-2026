@@ -168,7 +168,7 @@
         "kind": "hero",
         "headline": {
           "lead": "Hi, my name is",
-          "em": "Tim Benniks",
+          "em": " Tim Benniks ",
           "tail": ""
         },
         "subline": "I design developer platforms and AI‑augmented products that help teams turn developer experience into a strategic advantage.",
@@ -469,10 +469,10 @@
           }
         ],
         "image": {
-          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/website/time-video-sketch.png",
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1786388859/website/video.png",
           "alt": "Illustrated Tim Benniks recording video",
-          "width": 1536,
-          "height": 1024,
+          "width": 1341,
+          "height": 964,
           "widths": [
             640,
             960
@@ -490,12 +490,12 @@
           "tail": ""
         },
         "attribution": "Most of these videos exist because someone asked a question I couldn't answer in a tweet.",
-        "tone": "dark",
-        "align": "left",
         "cta": {
           "label": "Subscribe on YouTube",
           "href": "https://www.youtube.com/c/timbenniks"
-        }
+        },
+        "tone": "dark",
+        "align": "left"
       },
       {
         "kind": "topic-grid",
@@ -666,12 +666,12 @@
           "tail": ""
         },
         "attribution": "Signature talks weave live music into the technical story — because a memorable stage lands harder than a perfect slide deck.",
-        "tone": "dark",
-        "align": "left",
         "cta": {
           "label": "See topics & bios",
           "href": "/press-kit"
         },
+        "tone": "dark",
+        "align": "left",
         "backgroundImage": {
           "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1743504260/website/tim_on_stage-1.png",
           "width": 2355,
