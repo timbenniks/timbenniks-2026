@@ -441,28 +441,36 @@
     "path": "/videos",
     "metadata": {
       "title": "Videos",
-      "description": "Workshops, demos, livestreams, and recorded conversations from the YouTube channel and Contentstack streams.",
-      "keywords": "livestream, workshop, tutorial, YouTube, Contentstack, developer experience, videos"
+      "description": "Tutorials, livestreams, conference vlogs, and product deep-dives from Tim Benniks — YouTube, Contentstack, and a decade of composable tech.",
+      "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/website/time-video-sketch.png",
+      "imageAlt": "Illustrated Tim Benniks recording video",
+      "keywords": "YouTube, livestream, workshop, tutorial, Contentstack, DevRel, developer experience, videos"
     },
     "sections": [
       {
         "kind": "hero",
+        "eyebrow": "On camera",
         "headline": {
-          "lead": "Workshops, demos, and",
-          "em": "live conversations.",
+          "lead": "Demos, livestreams, and",
+          "em": "late-night experiments.",
           "tail": ""
         },
-        "subline": "Long-form content from the YouTube channel, Contentstack livestreams, and the occasional late-night experiment.",
+        "subline": "YouTube, Contentstack streams, and same-day conference vlogs — long when it earns it.",
         "ctas": [
           {
             "label": "Watch on YouTube",
             "href": "https://www.youtube.com/c/timbenniks",
             "variant": "primary"
+          },
+          {
+            "label": "Search the archive",
+            "href": "/search",
+            "variant": "secondary"
           }
         ],
         "image": {
           "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/website/time-video-sketch.png",
-          "alt": "Tim Benniks drawn",
+          "alt": "Illustrated Tim Benniks recording video",
           "width": 1536,
           "height": 1024,
           "widths": [
@@ -475,6 +483,58 @@
         "imageSide": "left"
       },
       {
+        "kind": "quote-callout",
+        "headline": {
+          "lead": "Show the work.",
+          "em": "Then make it useful.",
+          "tail": ""
+        },
+        "attribution": "Most of these videos exist because someone asked a question I couldn't answer in a tweet.",
+        "tone": "dark",
+        "align": "left",
+        "cta": {
+          "label": "Subscribe on YouTube",
+          "href": "https://www.youtube.com/c/timbenniks"
+        }
+      },
+      {
+        "kind": "topic-grid",
+        "eyebrow": "The shelves",
+        "title": "What lives in each playlist",
+        "lede": "The archive spans personal experiments, product education, conference day-of vlogs, and a few previous-life CMS channels. Start with the shelf that matches the question you brought.",
+        "items": [
+          {
+            "title": "Tim Benniks",
+            "body": "The personal channel. AI workflows, Nuxt, Contentstack, Cloudinary, and whatever I'm actually building that week — Tim Tries, Turbo Tutorials, interviews, and demos that refuse to stay neat."
+          },
+          {
+            "title": "Contentstack",
+            "body": "Thought leadership on composable DXP, product walkthroughs, Kickstarts, and academy sessions. How the platform works when you stop reading the brochure and start shipping."
+          },
+          {
+            "title": "Middleware Productions",
+            "body": "Same-day conference vlogs with Marc. Shot backstage and in the audience in the morning, cut and shown before the closing keynote. The vibe of the room, not the slides."
+          },
+          {
+            "title": "Hygraph · Uniform · Headless Creator",
+            "body": "Earlier chapters: CMS Maverick showdowns, Uniform DXC tutorials, and the Headless Creator series on moving from DXP to DXC. Still useful when the question is architectural."
+          }
+        ],
+        "pills": [
+          "AI & agent workflows",
+          "Composable DXP / DXC",
+          "Nuxt & frontend",
+          "Livestreams",
+          "Conference vlogs",
+          "Product deep-dives"
+        ],
+        "pillsLabel": "Recurring themes",
+        "noteBefore": "Prefer text? The ",
+        "noteHref": "/writing",
+        "noteLinkLabel": "writing archive",
+        "noteAfter": " covers the same topics with footnotes and room to argue."
+      },
+      {
         "kind": "stats",
         "source": "videos"
       },
@@ -485,6 +545,23 @@
         "searchHref": "/search",
         "columns": 3,
         "pagefindIgnore": true
+      },
+      {
+        "kind": "cta-strip",
+        "text": "Got a topic you want walked through on camera?",
+        "em": " Pitch it.",
+        "ctas": [
+          {
+            "label": "hi@timbenniks.dev",
+            "href": "mailto:hi@timbenniks.dev",
+            "variant": "accent"
+          },
+          {
+            "label": "YouTube",
+            "href": "https://www.youtube.com/c/timbenniks",
+            "variant": "secondary"
+          }
+        ]
       }
     ]
   },
@@ -540,9 +617,10 @@
     "path": "/speaking",
     "metadata": {
       "title": "Speaking",
-      "description": "Conference talks, workshops, and podcast appearances on developer experience, AI agents, and composable architecture.",
-      "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto,w_1280/Tim/Tim%20On%20Stage.jpg",
-      "keywords": "speaker, keynote, conference, workshop, podcast, developer experience, AI agents"
+      "description": "Conference talks, workshops, and podcasts on developer experience, AI-augmented engineering, and composable architecture — with a musical twist when the room allows it.",
+      "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778503867/website/tim-speaking.png",
+      "imageAlt": "Illustrated Tim Benniks speaking into a microphone",
+      "keywords": "speaker, keynote, conference, workshop, podcast, developer experience, AI agents, Vue, Alive and Kicking"
     },
     "sections": [
       {
@@ -553,19 +631,24 @@
           "em": "Still showing up.",
           "tail": ""
         },
-        "subline": "Keynotes, technical deep-dives, panels, and podcasts on developer experience, AI-augmented engineering, and composable architecture. Available for events worldwide.",
+        "subline": "Keynotes, deep-dives, and podcasts on DX, AI agents, and composable architecture. Available worldwide.",
         "ctas": [
           {
             "label": "Press kit & booking",
             "href": "/press-kit",
             "variant": "primary"
+          },
+          {
+            "label": "Email Tim",
+            "href": "mailto:hi@timbenniks.dev",
+            "variant": "secondary"
           }
         ],
         "image": {
-          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1677741363/Tim/vuejs.amsterdam_conference_talk.jpg",
-          "alt": "Tim Benniks speaking on stage at Vue.js Amsterdam",
-          "width": 2355,
-          "height": 1011,
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778503867/website/tim-speaking.png",
+          "alt": "Illustrated Tim Benniks speaking into a microphone",
+          "width": 1536,
+          "height": 1024,
           "widths": [
             640,
             960
@@ -573,28 +656,139 @@
           "eager": true,
           "preload": true
         },
-        "imageSide": "left"
+        "imageSide": "right"
+      },
+      {
+        "kind": "quote-callout",
+        "headline": {
+          "lead": "A Vue into",
+          "em": "rock & roll.",
+          "tail": ""
+        },
+        "attribution": "Signature talks weave live music into the technical story — because a memorable stage lands harder than a perfect slide deck.",
+        "tone": "dark",
+        "align": "left",
+        "cta": {
+          "label": "See topics & bios",
+          "href": "/press-kit"
+        },
+        "backgroundImage": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1743504260/website/tim_on_stage-1.png",
+          "width": 2355,
+          "height": 1011,
+          "opacity": 0.28
+        }
+      },
+      {
+        "kind": "topic-grid",
+        "eyebrow": "How I work a stage",
+        "title": "What you get when I'm on the bill",
+        "lede": "I love both in-person and virtual events. The goal is the same either way: leave the room smarter, and actually glad they stayed.",
+        "items": [
+          {
+            "title": "Interactive, not ornamental",
+            "body": "Live coding, audience prompts, and — when the brief allows it — live music. Engagement is part of the craft, not a warm-up act bolted on at the end."
+          },
+          {
+            "title": "Virtual that doesn't feel second-class",
+            "body": "High-production pre-records and livestreams with the pacing of a live set: crisp edits, clear visuals, and energy that survives a laptop speaker."
+          },
+          {
+            "title": "Substance first, theatre second",
+            "body": "Every talk starts with a real technical argument — DX as strategy, agents in the enterprise, composable architecture that ships. The flair serves the point."
+          },
+          {
+            "title": "Built for the audience in the room",
+            "body": "Decks get rebuilt for the crowd. A Vue conference, a content ops summit, and an AI meetup do not get the same talk with the title swapped."
+          }
+        ],
+        "pills": [
+          "Developer experience as strategy",
+          "AI-augmented engineering",
+          "Composable / MACH architecture",
+          "Agents at the content layer",
+          "Team leadership under pressure"
+        ],
+        "pillsLabel": "Usual topics",
+        "noteBefore": "Full bios, headshots, and topic blurbs live in the ",
+        "noteHref": "/press-kit",
+        "noteLinkLabel": "press kit",
+        "noteAfter": " — copy-paste ready for your CFP or show notes."
       },
       {
         "kind": "stats",
         "source": "speaking"
       },
       {
+        "kind": "photo-grid",
+        "eyebrow": "Receipts",
+        "title": "A few rooms I've stood in",
+        "lede": "From Vue.js Amsterdam to ContentCon and everything in between. More photos in the press kit.",
+        "tone": "dark",
+        "columns": 3,
+        "aspect": "video",
+        "items": [
+          {
+            "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/Presskit/FDLC2019_462.jpg",
+            "alt": "Tim Benniks speaking at FDLC",
+            "label": "FDLC keynote",
+            "width": 1600,
+            "height": 900
+          },
+          {
+            "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/website/tim-vueams.jpg",
+            "alt": "Tim Benniks on stage at Vue.js Amsterdam",
+            "label": "Vue.js Amsterdam",
+            "width": 1600,
+            "height": 900
+          },
+          {
+            "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/website/tim_on_stage.png",
+            "alt": "Tim Benniks on stage in front of a live audience",
+            "label": "Live audience",
+            "width": 1600,
+            "height": 900
+          }
+        ]
+      },
+      {
         "kind": "card-rows",
         "eyebrow": "Upcoming",
         "title": "Where I'll be next",
+        "lede": "Confirming a date? The press kit has everything your ops team needs.",
         "source": "speaking",
         "window": "upcoming",
-        "hideWhenEmpty": true
+        "hideWhenEmpty": true,
+        "cta": {
+          "label": "Book Tim",
+          "href": "/press-kit"
+        }
       },
       {
         "kind": "card-rows",
         "eyebrow": "The archive",
-        "title": "All past talks",
-        "lede": "The newest at the top.",
+        "title": "Past talks & appearances",
+        "lede": "Newest first — conferences, workshops, podcasts, and livestreams.",
         "source": "speaking",
         "window": "past",
         "hideWhenEmpty": false
+      },
+      {
+        "kind": "cta-strip",
+        "text": "Got a stage, a podcast, or a team that needs sharpening?",
+        "em": " Let's talk.",
+        "ctas": [
+          {
+            "label": "Press kit",
+            "href": "/press-kit",
+            "variant": "accent"
+          },
+          {
+            "label": "hi@timbenniks.dev",
+            "href": "mailto:hi@timbenniks.dev",
+            "variant": "secondary"
+          }
+        ]
       }
     ]
   },
@@ -602,24 +796,100 @@
     "path": "/projects",
     "metadata": {
       "title": "Projects",
-      "description": "Platform work, MCP servers, SDKs, and the occasional weekend experiment.",
-      "keywords": "MCP, SDK, platform engineering, AI agents, open source"
+      "description": "Platform SDKs, MCP servers, Nuxt modules, and weekend experiments from Tim Benniks — real code with real trade-offs, some of it shipping for thousands of developers.",
+      "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778496050/website/tim-sketch-2.png",
+      "imageAlt": "Illustrated Tim Benniks at work",
+      "keywords": "MCP, SDK, platform engineering, AI agents, open source, Contentstack, Nuxt, Open Loops, Turbo Relay"
     },
     "sections": [
       {
         "kind": "hero",
         "eyebrow": "The workbench",
         "headline": {
-          "lead": "Platform work, MCP servers,",
-          "em": "and weekend experiments.",
+          "lead": "Platform work and",
+          "em": "weekend experiments.",
           "tail": ""
         },
-        "subline": "Real code with real trade-offs. Some of this is shipping in production for thousands of developers. Some of it is a Saturday afternoon. Both are on the list — that's the point.",
-        "ctas": [],
+        "subline": "Some of this ships for thousands of developers. Some of it was a Saturday. Both belong here.",
+        "ctas": [
+          {
+            "label": "GitHub",
+            "href": "https://github.com/timbenniks",
+            "variant": "primary"
+          },
+          {
+            "label": "Get in touch",
+            "href": "mailto:hi@timbenniks.dev",
+            "variant": "secondary"
+          }
+        ],
+        "image": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778496050/website/tim-sketch-2.png",
+          "alt": "Illustrated Tim Benniks building at a desk",
+          "width": 1536,
+          "height": 1024,
+          "widths": [
+            640,
+            960
+          ],
+          "eager": true,
+          "preload": true
+        },
         "imageSide": "right"
       },
       {
+        "kind": "quote-callout",
+        "headline": {
+          "lead": "Build the DX you",
+          "em": "wish existed.",
+          "tail": "Then prove it."
+        },
+        "attribution": "Official roadmaps move slowly. Repos move at the speed of an argument you can clone.",
+        "tone": "dark",
+        "align": "left"
+      },
+      {
+        "kind": "topic-grid",
+        "eyebrow": "Three lanes",
+        "title": "How the workbench is organized",
+        "lede": "Everything here sits somewhere between platform product, agent infrastructure, and experiments that teach me where the line is.",
+        "items": [
+          {
+            "title": "Platform DX",
+            "body": "SDKs, Nuxt modules, and models-as-code tooling that close the gap between \"I want to build on Contentstack\" and \"I shipped it\" — without stitching four libraries together first."
+          },
+          {
+            "title": "Agents & MCP",
+            "body": "Skills hubs with RBAC, local-first memory with human review, and task trackers agents can actually read. The boring guardrails that turn demos into things enterprises can run."
+          },
+          {
+            "title": "Experiments",
+            "body": "DoorBell DevRel and similar bets: what happens when production cost approaches zero? Keep them live, watch real people use the output, update the thesis."
+          },
+          {
+            "title": "Standards work",
+            "body": "Co-chairing the MACH Alliance Enterprise AI Agents workgroup — shaping how composable architecture and agents get adopted when the buyer has real governance."
+          }
+        ],
+        "pills": [
+          "TypeScript",
+          "MCP",
+          "Nuxt",
+          "Contentstack",
+          "macOS · local-first",
+          "Open source"
+        ],
+        "pillsLabel": "Usual stack",
+        "noteBefore": "Want the longer story behind the person shipping this? Start with ",
+        "noteHref": "/about",
+        "noteLinkLabel": "about",
+        "noteAfter": "."
+      },
+      {
         "kind": "card-grid",
+        "eyebrow": "In progress & shipping",
+        "title": "Everything on the bench",
+        "lede": "Ordered by how actively I'm touching it. Open a card for the honest write-up — including the caveats.",
         "source": "projects",
         "columns": 3,
         "tone": "light",
@@ -627,13 +897,18 @@
       },
       {
         "kind": "cta-strip",
-        "text": "Want to collaborate, contribute, or pull a weekend experiment into production?",
-        "em": " Get in touch.",
+        "text": "Want to collaborate, contribute, or drag a weekend experiment into production?",
+        "em": " Write me.",
         "ctas": [
           {
             "label": "hi@timbenniks.dev",
             "href": "mailto:hi@timbenniks.dev",
             "variant": "accent"
+          },
+          {
+            "label": "GitHub",
+            "href": "https://github.com/timbenniks",
+            "variant": "secondary"
           }
         ]
       }
@@ -643,8 +918,10 @@
     "path": "/uses",
     "metadata": {
       "title": "Uses",
-      "description": "The hardware, software, and audio/video kit Tim Benniks uses to build, write, livestream, and ship every day.",
-      "keywords": "uses, gear, hardware, software, livestream setup, podcast setup, recording, dev setup"
+      "description": "The hardware, software, studio, and guitar kit Tim Benniks uses to build, write, livestream, and ship — updated when something actually changes.",
+      "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1779343148/website/boring-setups.png",
+      "imageAlt": "Illustrated desk and recording setup",
+      "keywords": "uses, gear, hardware, software, livestream setup, podcast setup, MacBook, Shure SM7b, DaVinci Resolve, Cursor"
     },
     "sections": [
       {
@@ -652,18 +929,61 @@
         "eyebrow": "/uses",
         "headline": {
           "lead": "The kit that",
-          "em": "does the job",
-          "tail": "— and gets out of the way."
+          "em": "gets out of the way.",
+          "tail": ""
         },
-        "subline": "A running inventory of the hardware, editor, terminal, and recording gear that gets me through a working day. Updated when something actually changes — not when something new ships.",
+        "subline": "Hardware, software, and studio gear — updated when something earns its spot, not when something new ships.",
         "ctas": [],
+        "image": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1779343148/website/boring-setups.png",
+          "alt": "Illustrated desk with laptop, mic, and lights",
+          "width": 1672,
+          "height": 941,
+          "widths": [
+            640,
+            960
+          ],
+          "eager": true,
+          "preload": true
+        },
         "imageSide": "right"
+      },
+      {
+        "kind": "quote-callout",
+        "headline": {
+          "lead": "Pro jank.",
+          "em": "Mattresses absorb audio",
+          "tail": "very well."
+        },
+        "attribution": "A workspace that doubles as a studio. Always one Stream Deck press from being ready to roll — even when the kitchen hits the spot.",
+        "tone": "dark",
+        "align": "left"
+      },
+      {
+        "kind": "image-text",
+        "eyebrow": "A note on gear",
+        "title": "Boring setups win",
+        "lede": "Fancy tools are a tax on attention. I upgrade when something breaks the workflow — not because a launch video was good.",
+        "body": "The list below the fold is the honest one: what I actually reach for. If you're assembling a desk or a studio, steal freely. Skip anything that makes you think about the tool instead of the work.",
+        "image": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778570884/website/the-case-for-boring-setups.png",
+          "alt": "Illustrated case for keeping a boring creative setup",
+          "width": 1536,
+          "height": 1024
+        },
+        "imageSize": 360,
+        "equalWidth": true,
+        "imageSide": "left",
+        "cta": {
+          "label": "Read: The case for boring setups",
+          "href": "/writing/the-case-for-boring-setups"
+        }
       },
       {
         "kind": "inventory",
         "eyebrow": "Office",
         "title": "Computer & desk",
-        "lede": "A workspace that doubles as a recording studio. Always one button-click from being ready to roll.",
+        "lede": "Boring on purpose. Reliable compute, a sit/stand desk, and enough Stream Deck buttons that recording never requires a scavenger hunt.",
         "tone": "light",
         "groups": [
           {
@@ -671,7 +991,7 @@
             "items": [
               {
                 "name": "14\" MacBook Pro",
-                "note": "M3, 36GB"
+                "note": "M3 · 36GB"
               },
               {
                 "name": "LG UltraFine 32UN500-W",
@@ -685,7 +1005,7 @@
               },
               {
                 "name": "Custom mechanical keyboards",
-                "note": "Tactile, lubed, swapped often"
+                "note": "Tactile · lubed · swapped often"
               }
             ]
           },
@@ -710,7 +1030,7 @@
         "kind": "inventory",
         "eyebrow": "Studio",
         "title": "Audio & video",
-        "lede": "Built to record talks, livestreams, and YouTube without thinking about gear. Mattresses on the wall — they absorb audio surprisingly well.",
+        "lede": "Built to record talks, livestreams, and YouTube without thinking about gear mid-sentence. Redundant interfaces on purpose — failure during a live session is not an aesthetic.",
         "tone": "dark",
         "groups": [
           {
@@ -724,7 +1044,8 @@
                 "name": "Rode Streamer X"
               },
               {
-                "name": "Focusrite Scarlett Solo · 3rd gen"
+                "name": "Focusrite Scarlett Solo",
+                "note": "3rd gen"
               },
               {
                 "name": "Shure SM7b + TritonAudio FetHead"
@@ -746,7 +1067,7 @@
               },
               {
                 "name": "Sony ZV-1",
-                "note": "B-cam, vlogs"
+                "note": "B-cam · vlogs"
               }
             ]
           },
@@ -783,6 +1104,10 @@
             "heading": "Editor & terminal",
             "items": [
               {
+                "name": "Cursor",
+                "note": "Daily driver"
+              },
+              {
                 "name": "Visual Studio Code",
                 "note": "Night Owl · Material Icon Theme"
               },
@@ -792,7 +1117,7 @@
               },
               {
                 "name": "Claude Code",
-                "note": "For the heavy lifting"
+                "note": "Heavy lifting in the terminal"
               }
             ]
           },
@@ -873,13 +1198,39 @@
             "heading": "Guitars",
             "items": [
               {
-                "name": "Vintage Fenders, PRS, Gibson"
+                "name": "Fender Stratocaster 50s Black Japan",
+                "note": "1991"
               },
               {
-                "name": "Ibanez, Sire, Epiphone"
+                "name": "Fender Prodigy Stratocaster",
+                "note": "1992"
               },
               {
-                "name": "Taylor acoustic"
+                "name": "Fender Telecaster Deluxe",
+                "note": "1998"
+              },
+              {
+                "name": "Parts Telecaster"
+              },
+              {
+                "name": "Sire S7 Larry Carlton Strat"
+              },
+              {
+                "name": "PRS SE Custom 24"
+              },
+              {
+                "name": "Gibson Les Paul Gem",
+                "note": "1994"
+              },
+              {
+                "name": "Epiphone Greeny Les Paul"
+              },
+              {
+                "name": "Ibanez Artstar AS113"
+              },
+              {
+                "name": "Taylor Big Baby",
+                "note": "Acoustic"
               }
             ]
           }
@@ -894,6 +1245,11 @@
             "label": "hi@timbenniks.dev",
             "href": "mailto:hi@timbenniks.dev",
             "variant": "accent"
+          },
+          {
+            "label": "More about Tim",
+            "href": "/about",
+            "variant": "secondary"
           }
         ]
       }
