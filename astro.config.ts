@@ -2,7 +2,8 @@ import { defineConfig, fontProviders } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 import sitemap from "@astrojs/sitemap";
 import vercel from "@astrojs/vercel";
-import { loadEnv } from "vite";
+import { loadEnv, type Plugin } from "vite";
+import { resolve } from "node:path";
 
 // Astro config runs before Vite's env pipeline. Seed process.env from `.env*`
 // so config reads and any server code that still uses process.env see the same
@@ -14,6 +15,31 @@ for (const [key, value] of Object.entries(loadEnv(viteMode, process.cwd(), "")))
 
 const CLOUDINARY_CLOUD_NAME =
   process.env.PUBLIC_CLOUDINARY_CLOUD_NAME ?? "dwfcofnrd";
+
+/**
+ * `loadPage` / site chrome read JSON via `fs.readFile`, so those files are not
+ * in Vite's module graph. Without this, editing or Publish-to-disk in `astro
+ * dev` does not refresh the browser — HMR never fires.
+ */
+function reloadOnContentJson(): Plugin {
+  const watched = new Set([
+    resolve("src/content/pages.json"),
+    resolve("src/content/site.json"),
+  ]);
+  return {
+    name: "reload-on-content-json",
+    apply: "serve",
+    configureServer(server) {
+      if (process.env.E2E_DISABLE_HMR) return;
+      const ping = (file: string) => {
+        if (!watched.has(resolve(file))) return;
+        server.ws.send({ type: "full-reload", path: file });
+      };
+      server.watcher.on("change", ping);
+      server.watcher.on("add", ping);
+    },
+  };
+}
 
 export default defineConfig({
   site: "https://timbenniks.dev",
@@ -69,7 +95,7 @@ export default defineConfig({
   ],
 
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), reloadOnContentJson()],
     server: {
       // Playwright drives a freshly started `astro dev`. A Vite full-reload
       // fired while the server finishes warming up (font provider, content

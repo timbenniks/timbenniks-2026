@@ -19,6 +19,19 @@ export function hasGitHubConfig(): boolean {
   return Boolean(serverEnv('GITHUB_TOKEN') && serverEnv('GITHUB_REPO'));
 }
 
+/**
+ * Local `astro dev` — write content JSON to the working tree instead of GitHub.
+ * Production / preview builds still use the GitHub Contents API when configured.
+ */
+export function preferLocalWorkingTree(): boolean {
+  return Boolean(import.meta.env.DEV);
+}
+
+/** Publish/read via GitHub Contents API (not local disk). */
+export function usesGitHubCms(): boolean {
+  return hasGitHubConfig() && !preferLocalWorkingTree();
+}
+
 export function requireGitHubConfig(): { token: string; repo: string } {
   const token = serverEnv('GITHUB_TOKEN');
   const repo = serverEnv('GITHUB_REPO');

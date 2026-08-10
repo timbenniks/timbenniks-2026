@@ -2,18 +2,20 @@
 
 Storyblok-inspired visual editor for marketing pages in `src/content/pages.json`, plus site chrome in `src/content/site.json`.
 
-Draft staging model: **Save** stores pending work in the browser (IndexedDB); **Changes** reviews local drafts vs published content; **Publish** writes `pages.json` / `site.json` straight to **`main`** (Vercel deploys from `main`). Production public pages never load admin edit code.
+Draft staging model: **Save** stores pending work in the browser (IndexedDB); **Changes** reviews local drafts vs published content; **Publish** writes `pages.json` / `site.json` — to the local working tree in `astro dev`, or straight to GitHub **`main`** in production (Vercel deploys from `main`). Production public pages never load admin edit code.
 
 ## Local
 
 1. Put secrets in `.env` at the repo root (gitignored). `astro.config.ts` seeds them into `process.env`; admin server modules also read via [`serverEnv()`](../src/lib/admin/server-env.ts) so `import.meta.env` works in `astro dev`.
 2. Set `ADMIN_PASSWORD` (optional in `astro dev` — auth bypassed if unset).
-3. Set `GITHUB_TOKEN` + `GITHUB_REPO` to publish drafts to GitHub `main` (required for production Publish).
+3. Set `GITHUB_TOKEN` + `GITHUB_REPO` for **production** Publish (GitHub Contents API → `main`). In local `astro dev`, Publish always writes `src/content/*.json` on disk — even when those vars are set — so you can edit and commit yourself.
 4. `npm run dev` (runs `build:admin` first via `predev`)
 5. Open [http://localhost:4321/admin](http://localhost:4321/admin)
-6. Edit a page → **Save** (local draft) → open **Changes** → **Publish to main**
+6. Edit a page → **Save** (local draft) → open **Changes** → **Publish to working tree**
 
-Without `GITHUB_TOKEN`, drafts still work locally; Publish writes the local working tree.
+Detection: [`preferLocalWorkingTree()`](../src/lib/admin/github-git.ts) is `import.meta.env.DEV`. [`usesGitHubCms()`](../src/lib/admin/github-git.ts) is true only when GitHub is configured **and** you are not in DEV.
+
+Public pages load content with `fs.readFile` (not a Vite import). A small Vite plugin in `astro.config.ts` watches `pages.json` / `site.json` and triggers a full browser reload when those files change — so Publish-to-disk or hand-edits refresh localhost without restarting `astro dev`.
 
 ### E2E tests
 
@@ -179,7 +181,7 @@ Public pages are prerendered **without** `data-edit` / `data-section` attributes
 
 The visual editor iframe loads `/admin/preview/:id?edit=1` (SSR). That path always stamps edit hooks and includes the bridge loader — independent of `TB_EDIT_MODE` — so production can stay a clean site while admin editing still works.
 
-Intentional drafts live in the browser (IndexedDB). Server preview drafts (memory / `.cache/admin-preview/`) exist only as a fallback for SSR reload and section-html rendering. Publish writes **only** `src/content/pages.json` and/or `src/content/site.json` to `main`.
+Intentional drafts live in the browser (IndexedDB). Server preview drafts (memory / `.cache/admin-preview/`) exist only as a fallback for SSR reload and section-html rendering. Publish writes `src/content/pages.json` and/or `src/content/site.json` — to disk in local `astro dev`, or to GitHub `main` in production.
 
 ## Admin client build
 

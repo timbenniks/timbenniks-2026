@@ -451,11 +451,11 @@
         "kind": "hero",
         "eyebrow": "On camera",
         "headline": {
-          "lead": "Demos, livestreams, and",
-          "em": "late-night experiments.",
+          "lead": "Watch me build.",
+          "em": "in public.",
           "tail": ""
         },
-        "subline": "YouTube, Contentstack streams, and same-day conference vlogs — long when it earns it.",
+        "subline": "Livestreams, demos, and the odd late-night rabbit hole.",
         "ctas": [
           {
             "label": "Watch on YouTube",
@@ -495,7 +495,12 @@
           "href": "https://www.youtube.com/c/timbenniks"
         },
         "tone": "dark",
-        "align": "left"
+        "align": "left",
+        "backgroundImage": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1786390070/website/tim-desk-studio.png",
+          "width": 1672,
+          "height": 941
+        }
       },
       {
         "kind": "topic-grid",

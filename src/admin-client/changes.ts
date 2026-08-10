@@ -16,6 +16,8 @@ import type { PageData, SiteChrome } from './lib/content.js';
 interface ChangesResponse {
   ok: boolean;
   configured: boolean;
+  preferLocal?: boolean;
+  mode?: 'github' | 'local-working';
   mainBranch: string;
   pages: Record<string, PageData>;
   site: SiteChrome;
@@ -43,6 +45,7 @@ interface Baseline {
   site: SiteChrome;
   mainBranch: string;
   configured: boolean;
+  preferLocal: boolean;
 }
 
 interface PageChangeRow {
@@ -145,6 +148,7 @@ async function loadChanges() {
       site: data.site,
       mainBranch: data.mainBranch || 'main',
       configured: Boolean(data.configured),
+      preferLocal: Boolean(data.preferLocal) || data.mode === 'local-working',
     };
 
     const { draftIds, siteDraft } = await loadDraftOverlay(baseline.pages);
@@ -163,13 +167,18 @@ async function loadChanges() {
       JSON.stringify(siteDraft?.site) !== JSON.stringify(baseline.site);
 
     const hasChanges = pages.length > 0 || siteTouched;
+    const targetHint = baseline.preferLocal
+      ? 'local working tree (src/content/*.json)'
+      : baseline.mainBranch;
 
     if (!hasChanges) {
       setChip('No drafts', 'ok');
       setStatus(
-        baseline.configured
-          ? `No local drafts — publish target is ${baseline.mainBranch}`
-          : 'No local drafts. Configure GitHub to publish to main.',
+        baseline.preferLocal
+          ? 'No local drafts — Publish writes JSON files on disk.'
+          : baseline.configured
+            ? `No local drafts — publish target is ${baseline.mainBranch}`
+            : 'No local drafts. Configure GitHub to publish to main.',
         'ok',
       );
       summary.hidden = true;
@@ -192,8 +201,14 @@ async function loadChanges() {
     summary.hidden = false;
     summary.innerHTML = `
       <p>
-        Local drafts → <strong>${escapeHtml(baseline.mainBranch)}</strong>
-        ${baseline.configured ? '' : ' · <span class="hint">GitHub not configured (local working tree)</span>'}
+        Local drafts → <strong>${escapeHtml(targetHint)}</strong>
+        ${
+          baseline.preferLocal
+            ? ' · <span class="hint">astro dev · write to disk</span>'
+            : baseline.configured
+              ? ''
+              : ' · <span class="hint">GitHub not configured (local working tree)</span>'
+        }
       </p>
       <p class="hint">Expand a draft to review the JSON diff against published content.</p>
     `;
@@ -244,13 +259,20 @@ async function loadChanges() {
 }
 
 publishBtn.addEventListener('click', async () => {
-  if (!confirm('Publish local drafts to main? This updates content files and triggers deploy.')) {
+  const local = baseline?.preferLocal;
+  if (
+    !confirm(
+      local
+        ? 'Publish local drafts to src/content/*.json on disk?'
+        : 'Publish local drafts to main? This updates content files and triggers deploy.',
+    )
+  ) {
     return;
   }
   publishBtn.disabled = true;
   discardBtn.disabled = true;
   setChip('Publishing…');
-  setStatus('Writing drafts to main…');
+  setStatus(local ? 'Writing drafts to disk…' : 'Writing drafts to main…');
   try {
     const draftIds = await listDraftPageIds();
     const pages: Record<string, PageData> = {};

@@ -14,7 +14,7 @@ import {
 import {
   deleteFile,
   getFile,
-  hasGitHubConfig,
+  usesGitHubCms,
   mainBranch,
   PAGES_REL,
   PREVIEW_DRAFTS_REL,
@@ -72,9 +72,9 @@ export async function writePagesFile(data: Record<string, PageData>): Promise<vo
   await writeFile(pagesFilePath(), body, 'utf8');
 }
 
-/** Prefer main branch when GitHub is configured; else filesystem. Drafts live in the browser. */
+/** Prefer main branch when GitHub CMS is active; else filesystem. Drafts live in the browser. */
 export async function readPagesForAdmin(): Promise<Record<string, PageData>> {
-  if (hasGitHubConfig()) {
+  if (usesGitHubCms()) {
     const main = await getMainPagesCached();
     if (main) return main;
     const file = await getFile(PAGES_REL, mainBranch());
@@ -379,7 +379,7 @@ async function removeDurablePreviewDraft(_pageId: PageId): Promise<void> {
 
 /** Delete the whole durable preview-drafts file on cms (e.g. before publish). */
 export async function clearDurablePreviewDraftsArtifact(): Promise<void> {
-  if (!hasGitHubConfig()) return;
+  if (!usesGitHubCms()) return;
   try {
     await deleteFile(
       PREVIEW_DRAFTS_REL,
@@ -412,7 +412,7 @@ export async function savePageDraft(
 
 /** Short-lived cache of pages.json from main (field name kept for store shape). */
 export async function getMainPagesCached(): Promise<Record<string, PageData> | null> {
-  if (!hasGitHubConfig()) return null;
+  if (!usesGitHubCms()) return null;
   const store = previewStore();
   if (store.cmsPagesCache && Date.now() - store.cmsPagesCache.at < CMS_CACHE_MS) {
     return store.cmsPagesCache.data;
@@ -449,7 +449,7 @@ export async function publishPagesToMain(
   const fullJson = `${JSON.stringify(pages, null, 2)}\n`;
   const store = previewStore();
 
-  if (hasGitHubConfig()) {
+  if (usesGitHubCms()) {
     const file = await getFile(PAGES_REL, mainBranch());
     const commit = await putFile(
       PAGES_REL,

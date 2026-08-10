@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { siteChromeSchema, type SiteChrome } from '../site-schema';
 import {
   getFile,
-  hasGitHubConfig,
+  usesGitHubCms,
   mainBranch,
   putFile,
   SITE_REL,
@@ -45,9 +45,9 @@ export async function saveSiteDraft(data: SiteChrome): Promise<{ mode: 'draft' }
   return { mode: 'draft' };
 }
 
-/** Prefer main branch when GitHub is configured. Drafts live in the browser. */
+/** Prefer main branch when GitHub CMS is active. Drafts live in the browser. */
 export async function readSiteForAdmin(): Promise<SiteChrome> {
-  if (hasGitHubConfig()) {
+  if (usesGitHubCms()) {
     const cached = await getMainSiteCached();
     if (cached) return cached;
     const file = await getFile(SITE_REL, mainBranch());
@@ -58,7 +58,7 @@ export async function readSiteForAdmin(): Promise<SiteChrome> {
 }
 
 export async function getMainSiteCached(): Promise<SiteChrome | null> {
-  if (!hasGitHubConfig()) return null;
+  if (!usesGitHubCms()) return null;
   if (mainSiteCache && Date.now() - mainSiteCache.at < CACHE_MS) {
     return mainSiteCache.data;
   }
@@ -86,7 +86,7 @@ export async function publishSiteToMain(
   const validated = validateSiteChrome(data);
   const fullJson = `${JSON.stringify(validated, null, 2)}\n`;
 
-  if (hasGitHubConfig()) {
+  if (usesGitHubCms()) {
     const file = await getFile(SITE_REL, mainBranch());
     const commit = await putFile(
       SITE_REL,

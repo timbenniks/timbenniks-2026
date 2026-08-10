@@ -13,13 +13,13 @@ import {
   publishSiteToMain,
   validateSiteChrome,
 } from '../../../../lib/admin/site-store';
-import { hasGitHubConfig, mainBranch, PAGES_REL, SITE_REL } from '../../../../lib/admin/github-git';
+import { PAGES_REL, SITE_REL } from '../../../../lib/admin/github-git';
 import type { PageData } from '../../../../lib/page-schema';
 
 export const prerender = false;
 
 /**
- * Publish client drafts to main.
+ * Publish client drafts to main (GitHub) or the local working tree (`astro dev`).
  * Body: { message?, pages?: Record<id, PageData>, site?: SiteChrome, pageIds?: string[] }
  * If pageIds is set without full pages map, overlays those ids from the provided pages object.
  */
@@ -51,13 +51,12 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  // Without GitHub, allow local working-tree publish. With GitHub, require token (hasGitHubConfig).
-  // Local e2e clears token — Publish still works via local-working when pages/site provided.
-
   try {
     await clearDurablePreviewDraftsArtifact();
     const commits: string[] = [];
     const written: string[] = [];
+    let mode: 'github' | 'local-working' = 'local-working';
+    let branch = 'local';
 
     if (hasPagesPayload) {
       const overlays = body.pages as Record<string, unknown>;
@@ -76,6 +75,8 @@ export const POST: APIRoute = async ({ request }) => {
       const result = await publishPagesToMain(merged, message);
       commits.push(result.commit);
       written.push(PAGES_REL);
+      mode = result.mode;
+      branch = result.branch;
     }
 
     if (hasSitePayload) {
@@ -86,6 +87,8 @@ export const POST: APIRoute = async ({ request }) => {
       );
       commits.push(result.commit);
       written.push(SITE_REL);
+      mode = result.mode;
+      branch = result.branch;
     }
 
     clearAllPreviewDrafts();
@@ -94,8 +97,8 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response(
       JSON.stringify({
         ok: true,
-        mode: hasGitHubConfig() ? 'github' : 'local-working',
-        branch: hasGitHubConfig() ? mainBranch() : 'local',
+        mode,
+        branch,
         commit: commits.filter(Boolean).join(', ') || 'ok',
         written,
       }),

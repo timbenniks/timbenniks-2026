@@ -85,7 +85,8 @@ async function loadChanges() {
       pages: data.pages || {},
       site: data.site,
       mainBranch: data.mainBranch || "main",
-      configured: Boolean(data.configured)
+      configured: Boolean(data.configured),
+      preferLocal: Boolean(data.preferLocal) || data.mode === "local-working"
     };
     const { draftIds, siteDraft } = await loadDraftOverlay(baseline.pages);
     const pages = [];
@@ -99,10 +100,11 @@ async function loadChanges() {
     }
     const siteTouched = Boolean(siteDraft?.site) && JSON.stringify(siteDraft?.site) !== JSON.stringify(baseline.site);
     const hasChanges = pages.length > 0 || siteTouched;
+    const targetHint = baseline.preferLocal ? "local working tree (src/content/*.json)" : baseline.mainBranch;
     if (!hasChanges) {
       setChip("No drafts", "ok");
       setStatus(
-        baseline.configured ? `No local drafts \u2014 publish target is ${baseline.mainBranch}` : "No local drafts. Configure GitHub to publish to main.",
+        baseline.preferLocal ? "No local drafts \u2014 Publish writes JSON files on disk." : baseline.configured ? `No local drafts \u2014 publish target is ${baseline.mainBranch}` : "No local drafts. Configure GitHub to publish to main.",
         "ok"
       );
       summary.hidden = true;
@@ -123,8 +125,8 @@ async function loadChanges() {
     summary.hidden = false;
     summary.innerHTML = `
       <p>
-        Local drafts \u2192 <strong>${escapeHtml(baseline.mainBranch)}</strong>
-        ${baseline.configured ? "" : ' \xB7 <span class="hint">GitHub not configured (local working tree)</span>'}
+        Local drafts \u2192 <strong>${escapeHtml(targetHint)}</strong>
+        ${baseline.preferLocal ? ' \xB7 <span class="hint">astro dev \xB7 write to disk</span>' : baseline.configured ? "" : ' \xB7 <span class="hint">GitHub not configured (local working tree)</span>'}
       </p>
       <p class="hint">Expand a draft to review the JSON diff against published content.</p>
     `;
@@ -169,13 +171,16 @@ async function loadChanges() {
   }
 }
 publishBtn.addEventListener("click", async () => {
-  if (!confirm("Publish local drafts to main? This updates content files and triggers deploy.")) {
+  const local = baseline?.preferLocal;
+  if (!confirm(
+    local ? "Publish local drafts to src/content/*.json on disk?" : "Publish local drafts to main? This updates content files and triggers deploy."
+  )) {
     return;
   }
   publishBtn.disabled = true;
   discardBtn.disabled = true;
   setChip("Publishing\u2026");
-  setStatus("Writing drafts to main\u2026");
+  setStatus(local ? "Writing drafts to disk\u2026" : "Writing drafts to main\u2026");
   try {
     const draftIds = await listDraftPageIds();
     const pages = {};

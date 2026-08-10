@@ -2,13 +2,23 @@
 export const prerender = false;
 
 import AdminLayout from '../../components/admin/AdminLayout.astro';
-import { hasGitHubConfig, mainBranch } from '../../lib/admin/github-git';
+import {
+  mainBranch,
+  preferLocalWorkingTree,
+  usesGitHubCms,
+} from '../../lib/admin/github-git';
 
-const configured = hasGitHubConfig();
-const main = mainBranch();
+const viaGitHub = usesGitHubCms();
+const localDev = preferLocalWorkingTree();
+const main = viaGitHub ? mainBranch() : 'local';
+const publishLabel = viaGitHub ? `Publish to ${main}` : 'Publish to working tree';
 ---
 
-<AdminLayout title="Admin · Changes" active="changes" changesDesc={`drafts → ${main}`}>
+<AdminLayout
+  title="Admin · Changes"
+  active="changes"
+  changesDesc={viaGitHub ? `drafts → ${main}` : 'drafts → disk'}
+>
   <Fragment slot="actions">
     <span class="chip" id="chip">Loading…</span>
   </Fragment>
@@ -16,19 +26,38 @@ const main = mainBranch();
   <div class="dash-intro">
     <h2>Changes</h2>
     <p>
-      Review local drafts stored in this browser (expand each for a JSON diff against
-      published content), then publish into
-      <code>{main}</code> (Vercel deploys from main). Discard clears drafts without touching Git.
+      {
+        localDev ? (
+          <>
+            Review local drafts stored in this browser (expand each for a JSON diff against
+            on-disk content), then publish straight into
+            <code>src/content/*.json</code>. Commit and push when you want those changes on
+            GitHub / production.
+          </>
+        ) : (
+          <>
+            Review local drafts stored in this browser (expand each for a JSON diff against
+            published content), then publish into
+            <code>{main}</code> (Vercel deploys from main). Discard clears drafts without
+            touching Git.
+          </>
+        )
+      }
     </p>
   </div>
 
   {
-    !configured && (
+    localDev ? (
+      <div class="changes-banner" id="config-banner">
+        Local <code>astro dev</code>: Publish writes JSON files on disk (even if
+        <code>GITHUB_TOKEN</code> is set). Production admin uses the GitHub publish flow.
+      </div>
+    ) : !viaGitHub ? (
       <div class="changes-banner is-warn" id="config-banner">
         Set <code>GITHUB_TOKEN</code> and <code>GITHUB_REPO</code> to publish drafts to GitHub
-        <code>{main}</code>. Without them, Publish writes the local working tree only.
+        <code>{mainBranch()}</code>.
       </div>
-    )
+    ) : null
   }
 
   <p class="status" id="status">Loading drafts…</p>
@@ -48,7 +77,7 @@ const main = mainBranch();
   <section class="panel" id="publish-panel">
     <div class="panel-head"><h2>Publish</h2></div>
     <div class="field">
-      <label for="commit-msg">Commit message</label>
+      <label for="commit-msg">{localDev ? 'Note (optional)' : 'Commit message'}</label>
       <input
         id="commit-msg"
         value="content: publish drafts"
@@ -57,7 +86,7 @@ const main = mainBranch();
     </div>
     <div class="changes-actions">
       <button type="button" class="primary" id="publish" disabled>
-        Publish to {main}
+        {publishLabel}
       </button>
       <button type="button" class="ghost danger" id="discard" disabled>
         Discard all drafts
