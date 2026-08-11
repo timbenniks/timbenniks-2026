@@ -258,7 +258,7 @@
         "kind": "timeline",
         "eyebrow": "The long version",
         "title": "Career timeline",
-        "lede": "Twenty years across agencies, global brands, and developer-tooling startups — building, leading, and advocating for the teams behind the platforms.",
+        "lede": "Twenty years across agencies, global brands, and developer-tooling startups: building, leading, and advocating for the teams behind the platforms.",
         "tone": "light",
         "items": [
           {
@@ -451,7 +451,7 @@
         "kind": "hero",
         "eyebrow": "On camera",
         "headline": {
-          "lead": "Watch me build.",
+          "lead": "Watch me build ",
           "em": "in public.",
           "tail": ""
         },
