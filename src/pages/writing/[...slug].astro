@@ -18,6 +18,7 @@ import { articleBodyClass } from '../../lib/articleBodyClass';
 import { relatedArticles } from '../../lib/relatedArticles';
 import { tagLabel } from '../../lib/tags';
 import { siteUrl } from '../../data/site';
+import { writingCanonical, writingPermalink } from '../../lib/canonical';
 
 export async function getStaticPaths() {
   const entries = await getCollection('writing', ({ data }) => !data.draft);
@@ -43,12 +44,12 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
 const allWriting = await getCollection('writing', ({ data }) => !data.draft);
 const related = relatedArticles(entry, allWriting).map((e) => articleToCard(e));
 
-const articleURL = siteUrl(`/writing/${entry.id}`);
+const articleURL = writingPermalink(entry.id);
 const readingMinutes = readingLabel
   ? parseInt(readingLabel, 10) || undefined
   : undefined;
 const faqs = entry.data.faqs ?? [];
-const canonical = entry.data.canonical_url?.trim() || undefined;
+const canonical = writingCanonical(entry.id, entry.data.canonical_url);
 
 const articleGraph = buildGraph(
   blogPostingSchema({
@@ -81,13 +82,6 @@ const articleGraph = buildGraph(
   canonical={canonical}
 >
   <JsonLd slot="head" data={articleGraph} />
-  <link
-    slot="head"
-    rel="alternate"
-    type="text/markdown"
-    href={`/writing/${entry.id}.md`}
-    title="Markdown source"
-  />
   <Section padding="lg" contained={false}>
     <Container>
       <article

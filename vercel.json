@@ -28,18 +28,81 @@
   ],
   "rewrites": [
     {
-      "source": "/writing/:slug((?!tag(?:/.*)?$|index$).+)",
+      "source": "/writing/:slug((?!tag(?:/.*)?$|index$|llms\\.txt$).+)",
       "has": [
         { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
       ],
       "destination": "/writing/:slug.md"
     },
     {
-      "source": "/videos/:slug((?!playlist(?:/.*)?$|index$).+)",
+      "source": "/videos/:slug((?!playlist(?:/.*)?$|index$|llms\\.txt$).+)",
       "has": [
         { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
       ],
       "destination": "/videos/:slug.md"
+    },
+    {
+      "source": "/projects/:slug((?!index$).+)",
+      "has": [
+        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+      ],
+      "destination": "/projects/:slug.md"
+    },
+    {
+      "source": "/",
+      "has": [
+        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+      ],
+      "destination": "/index.md"
+    },
+    {
+      "source": "/about",
+      "has": [
+        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+      ],
+      "destination": "/about.md"
+    },
+    {
+      "source": "/press-kit",
+      "has": [
+        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+      ],
+      "destination": "/press-kit.md"
+    },
+    {
+      "source": "/uses",
+      "has": [
+        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+      ],
+      "destination": "/uses.md"
+    },
+    {
+      "source": "/projects",
+      "has": [
+        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+      ],
+      "destination": "/projects.md"
+    },
+    {
+      "source": "/speaking",
+      "has": [
+        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+      ],
+      "destination": "/speaking.md"
+    },
+    {
+      "source": "/writing",
+      "has": [
+        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+      ],
+      "destination": "/writing.md"
+    },
+    {
+      "source": "/videos",
+      "has": [
+        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+      ],
+      "destination": "/videos.md"
     }
   ]
 }

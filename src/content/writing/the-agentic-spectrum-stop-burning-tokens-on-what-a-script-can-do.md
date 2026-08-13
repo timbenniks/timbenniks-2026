@@ -3,7 +3,7 @@ title: "The agentic spectrum: stop burning tokens on what a script can do"
 slug: the-agentic-spectrum-stop-burning-tokens-on-what-a-script-can-do
 description: AI workflows sit on a spectrum, from a single LLM-assisted task to a fully autonomous agent. Most real content work belongs near the low end, yet people keep reaching for the autonomous end and paying for it in tokens.
 date: "2026-06-04T10:00:00Z"
-canonical_url: https://timbenniks.dev/writing/stop-burning-tokens-on-what-a-script-can-do
+canonical_url: https://timbenniks.dev/writing/the-agentic-spectrum-stop-burning-tokens-on-what-a-script-can-do
 reading_time: 5 min read
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/v1780573551/website/ldbm4jak4514xydu4sdg.jpg
 tags:

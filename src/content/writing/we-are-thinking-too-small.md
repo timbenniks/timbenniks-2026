@@ -3,7 +3,7 @@ title: We are thinking too small
 slug: we-are-thinking-too-small
 description: AI coding agents are not a threat to developer jobs, they are a fundamental shift in the economics of software creation. Just as the cloud removed the risk and capital cost of infrastructure, AI is removing the cost of writing and refactoring code. This kills the old moats that protected horizontal enterprise platforms and makes rebuilding wide, deeply integrated stacks viable. Instead of spending years stitching together narrow SaaS tools and APIs, teams can let agents generate bespoke services quickly and cheaply. The real risk is using AI only to speed up legacy glue work. Developers who win will treat the cost of reinventing the wheel as effectively zero and pursue much larger, previously impossible product ideas.
 date: "2026-06-20T10:00:00Z"
-canonical_url: https://timbenniks.dev/writing/ai-coding-agents-and-the-end-of-glue-software
+canonical_url: https://timbenniks.dev/writing/we-are-thinking-too-small
 reading_time: 6 min read
 tags:
   - composable-architecture

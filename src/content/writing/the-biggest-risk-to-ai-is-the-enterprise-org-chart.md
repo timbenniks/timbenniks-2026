@@ -3,7 +3,7 @@ title: The biggest risk to AI is the enterprise org chart
 slug: the-biggest-risk-to-ai-is-the-enterprise-org-chart
 description: This article argues that the real risk of corporate AI is not rogue superintelligence but how large organizations deploy it, usually in service of cost-cutting rather than creating new value. Big enterprises buy AI like office furniture, wrapped in committees, procurement, and risk matrices, so it ends up optimizing ticket deflection and headcount instead of enabling innovation. The real bottleneck is bureaucracy, not intelligence. In contrast, a roughly 500-person company has enough depth to build serious systems but short enough communication paths that the person with the problem can help build the solution. AI lets domain experts prototype directly, shortening the loop between friction and fix. The key is governance that enables safe experimentation instead of vetoing it, using AI to expand reach rather than just reduce costs.
 date: "2026-07-24T10:00:00Z"
-canonical_url: https://timbenniks.dev/writing/the-ai-advantage-of-a-middle-sized-company
+canonical_url: https://timbenniks.dev/writing/the-biggest-risk-to-ai-is-the-enterprise-org-chart
 reading_time: 8 min read
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto/v1784882785/website/poster-aiuse2.png
 tags:

@@ -1,13 +1,33 @@
 ---
+import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PagePreloadLinks from "../../components/PagePreloadLinks.astro";
 import PageSections from "../../components/PageSections.astro";
 import JsonLd from "../../components/primitives/JsonLd.astro";
-import { loadPage, pageBreadcrumbGraph } from "../../lib/page";
+import { loadPage } from "../../lib/page";
+import { breadcrumbSchema, buildGraph, eventSchema } from "../../lib/schema";
+import { siteUrl } from "../../data/site";
 
 const page = await loadPage("speaking");
 const { metadata, sections } = page.data;
-const graph = pageBreadcrumbGraph("speaking");
+
+const talks = (await getCollection("speaking")).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+
+const graph = buildGraph(
+  breadcrumbSchema([{ name: "speaking", url: siteUrl("/speaking") }]),
+  ...talks.map((entry) =>
+    eventSchema({
+      id: entry.id,
+      name: entry.data.talk,
+      startDate: entry.data.date.toISOString().slice(0, 10),
+      location: entry.data.location,
+      url: entry.data.link,
+      conference: entry.data.conference,
+    }),
+  ),
+);
 ---
 
 <BaseLayout {...metadata}>

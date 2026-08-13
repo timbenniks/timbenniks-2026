@@ -4,6 +4,8 @@ The page editor at `/admin/pages/:id` exposes **WebMCP tools** so a browser agen
 
 This is the demo path. Cursor skills, server MCP, and custom admin chat can reuse the same editor facade (`window.__tbVisualEditor`).
 
+The public site registers a separate, read-only catalog (`/tools.json`, `src/scripts/public-webmcp.ts`). Admin tools never appear there.
+
 ## What you get
 
 | Surface | Role |

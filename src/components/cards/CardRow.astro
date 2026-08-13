@@ -31,21 +31,28 @@ const linkAttrs = item.href
       isLast && "border-b border-line",
     ]}
   >
-    <span class="text-xs uppercase text-ink-subtle md:hidden">{item.date}</span>
-    {item.dateParts && (
-      <time
-        class="hidden w-24 rounded-sm border border-line bg-bg-soft px-3 py-2.5 text-center md:flex md:flex-col md:items-center md:gap-1"
-        datetime={item.dateISO}
-      >
-        <span class="font-serif text-4xl leading-none font-medium text-ink tabular-nums">
-          {item.dateParts.day}
-        </span>
-        <span class="flex gap-1 text-[0.68rem] leading-tight font-medium tracking-wide text-ink-subtle uppercase">
-          <span>{item.dateParts.month}</span>
-          <span>{item.dateParts.year}</span>
-        </span>
-      </time>
-    )}
+    <time
+      class:list={[
+        "text-xs uppercase text-ink-subtle",
+        item.dateParts &&
+          "md:flex md:w-24 md:flex-col md:items-center md:gap-1 md:rounded-sm md:border md:border-line md:bg-bg-soft md:px-3 md:py-2.5 md:text-center md:text-[0px]",
+      ]}
+      datetime={item.dateISO}
+    >
+      {item.dateParts ? (
+        <>
+          <span class="md:font-serif md:text-4xl md:leading-none md:font-medium md:text-ink md:tabular-nums md:normal-case">
+            {item.dateParts.day}
+          </span>
+          {' '}
+          <span class="md:text-[0.68rem] md:leading-tight md:font-medium md:tracking-wide md:text-ink-subtle">
+            {item.dateParts.month} {item.dateParts.year}
+          </span>
+        </>
+      ) : (
+        item.date
+      )}
+    </time>
     <div>
       <h3 class="mb-1 font-serif text-xl font-medium text-ink">
         {linkAttrs ? (

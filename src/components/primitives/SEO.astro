@@ -1,5 +1,6 @@
 ---
 import { seo } from '../../data/site';
+import { pageCanonical } from '../../lib/canonical';
 
 interface Props {
   title: string;
@@ -13,6 +14,7 @@ interface Props {
   keywords?: string;
   canonical?: string;
   noindex?: boolean;
+  markdownHref?: string;
 }
 
 const {
@@ -27,9 +29,10 @@ const {
   keywords,
   canonical,
   noindex = false,
+  markdownHref,
 } = Astro.props;
 
-const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
+const canonicalURL = canonical ?? pageCanonical(Astro.url.pathname);
 const fullTitle = `${title}${seo.titleSuffix}`;
 const isoDate = (d?: Date | string) =>
   d ? (typeof d === 'string' ? new Date(d) : d).toISOString() : undefined;
@@ -48,7 +51,11 @@ const modified = isoDate(modifiedTime) ?? published;
 <link rel="alternate" type="application/feed+json" title="JSON Feed for Tim Benniks" href="/feed.json" />
 <link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt" />
 <link rel="alternate" type="text/plain" title="Full markdown corpus" href="/llms-full.txt" />
+<link rel="alternate" type="application/json" title="Public WebMCP tool catalog" href="/tools.json" />
 <link rel="help" type="text/markdown" title="Guide for AI agents" href="/agents.md" />
+{markdownHref && (
+  <link rel="alternate" type="text/markdown" title="Markdown source" href={markdownHref} />
+)}
 
 <meta name="generator" content={Astro.generator} />
 

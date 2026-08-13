@@ -49,7 +49,3 @@ export function relatedVideos(
 
   return picked;
 }
-
-export function playlistHref(playlist: string): string {
-  return `/videos/playlist/${playlist.replace(/\s+/g, '-')}`;
-}

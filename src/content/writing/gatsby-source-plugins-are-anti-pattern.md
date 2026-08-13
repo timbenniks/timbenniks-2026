@@ -1,11 +1,11 @@
 ---
 id: 94832
-slug: gatsby-source-plugins-are-an-anti-pattern
+slug: gatsby-source-plugins-are-anti-pattern
 title: Gatsby Source Plugins are an anti-pattern
 description: Gatsby's local GraphQL layer turns REST APIs into something they were never meant to be. It's clever, but at scale, it's an anti-pattern that breaks real-world systems.
 date: 2025-10-22T10:00:00Z
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto/website/gatsby.png
-canonical_url: https://timbenniks.dev/writing/gatsby-source-plugins-are-an-anti-pattern
+canonical_url: https://timbenniks.dev/writing/gatsby-source-plugins-are-anti-pattern
 tags: [composable-architecture, cms, api-design, performance, frontend]
 collection_id: 22300
 reading_time: 6 min read

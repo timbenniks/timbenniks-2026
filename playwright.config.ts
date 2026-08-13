@@ -21,13 +21,18 @@ export default defineConfig({
   projects: [
     { name: 'setup', testMatch: /auth\.setup\.ts/ },
     {
+      name: 'public',
+      testMatch: /geo\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
         storageState: 'e2e/.auth/admin.json',
       },
       dependencies: ['setup'],
-      testIgnore: /auth\.setup\.ts/,
+      testIgnore: [/auth\.setup\.ts/, /geo\.spec\.ts/],
     },
   ],
   webServer: {

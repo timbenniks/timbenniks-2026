@@ -6,6 +6,7 @@ import Eyebrow from '../../../components/primitives/Eyebrow.astro';
 import JsonLd from '../../../components/primitives/JsonLd.astro';
 import Card from '../../../components/Card.astro';
 import { videoToCard } from '../../../lib/card';
+import { playlistHref, playlistLabel } from '../../../lib/playlists';
 import { breadcrumbSchema, buildGraph } from '../../../lib/schema';
 import { siteUrl } from '../../../data/site';
 
@@ -33,6 +34,8 @@ interface Props {
   videos: CollectionEntry<'videos'>[];
 }
 const { playlist, videos } = Astro.props;
+const playlistName = playlistLabel(playlist);
+const playlistPath = playlistHref(playlist);
 
 const items = await Promise.all(videos.map(videoToCard));
 
@@ -40,21 +43,21 @@ const graph = buildGraph(
   breadcrumbSchema([
     { name: 'home', url: siteUrl('/') },
     { name: 'videos', url: siteUrl('/videos') },
-    { name: playlist, url: siteUrl(`/videos/playlist/${playlist.replace(/\s+/g, '-')}`) },
+    { name: playlistName, url: siteUrl(playlistPath) },
   ]),
 );
 ---
 
 <BaseLayout
-  title={`${playlist} — Videos`}
-  description={`${videos.length} videos in the "${playlist}" playlist.`}
-  keywords={playlist}
+  title={`${playlistName} — Videos`}
+  description={`${videos.length} videos in the "${playlistName}" playlist.`}
+  keywords={playlistName}
 >
   <JsonLd slot="head" data={graph} />
 
   <Section padding="lg">
     <Eyebrow>{`Playlist · ${videos.length} ${videos.length === 1 ? 'video' : 'videos'}`}</Eyebrow>
-    <h1 class="font-serif font-medium text-5xl text-ink mb-4">{playlist}</h1>
+    <h1 class="font-serif font-medium text-5xl text-ink mb-4">{playlistName}</h1>
 
     <div class="mt-6">
       <a href="/videos" class="text-xs uppercase tracking-wide text-ink-subtle hover:text-ink">

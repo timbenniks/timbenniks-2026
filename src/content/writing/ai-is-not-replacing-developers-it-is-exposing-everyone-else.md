@@ -1,6 +1,6 @@
 ---
 title: Plot twist! AI made developers more valuable.
-slug: plot-twist-ai-is-making-devs-more-valuable
+slug: ai-is-not-replacing-developers-it-is-exposing-everyone-else
 description: For the last year, the dominant narrative has been that AI will replace developers. I think that narrative has it backwards. AI doesn't replace developers - it raises the bar for everyone else to justify their seat next to someone who can now ship at absurd velocity.
 date: "2026-02-04T10:00:00Z"
 canonical_url: https://timbenniks.dev/writing/ai-is-not-replacing-developers-it-is-exposing-everyone-else

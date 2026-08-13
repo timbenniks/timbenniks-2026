@@ -10,11 +10,20 @@ export const GET: APIRoute = async () => {
   const { writing, videos, speaking } = await loadAllSorted();
 
   const pages = [
-    ...STATIC_PAGES.map((p) => `- [${p.title}](${siteUrl(p.path)})`),
-    `- [Writing](${siteUrl('/writing')})`,
-    `- [Videos](${siteUrl('/videos')})`,
-    `- [Speaking](${siteUrl('/speaking')})`,
+    ...STATIC_PAGES.map((p) => {
+      const md =
+        p.path === '/'
+          ? `[.md](${siteUrl('/index.md')})`
+          : `[.md](${siteUrl(`${p.path}.md`)})`;
+      return `- [${p.title}](${siteUrl(p.path)}) · ${md}`;
+    }),
+    `- [Writing](${siteUrl('/writing')}) · [.md](${siteUrl('/writing.md')})`,
+    `- [Videos](${siteUrl('/videos')}) · [.md](${siteUrl('/videos.md')})`,
+    `- [Speaking](${siteUrl('/speaking')}) · [.md](${siteUrl('/speaking.md')})`,
     `- [Search](${siteUrl('/search')})`,
+    `- [Tool catalog](${siteUrl('/tools.json')})`,
+    `- [Content index](${siteUrl('/content-index.json')})`,
+    `- [Agent guide](${siteUrl('/agents.md')})`,
   ];
 
   const writingItems = writing.map(
@@ -38,7 +47,7 @@ export const GET: APIRoute = async () => {
   const body = [
     '# Sitemap',
     '',
-    `Markdown mirror of [the XML sitemap](${siteUrl('/sitemap-index.xml')}). Every writing and video entry has a \`.md\` companion link.`,
+    `Markdown mirror of [the XML sitemap](${siteUrl('/sitemap-index.xml')}). Writing, videos, projects, and static pages have \`.md\` companions. In-tab agents: [${siteUrl('/tools.json')}](${siteUrl('/tools.json')}).`,
     '',
     '## Pages',
     '',

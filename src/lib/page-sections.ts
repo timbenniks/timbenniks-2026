@@ -8,6 +8,7 @@ import {
 } from './card';
 import { yearsActive } from './stats';
 import { tagLabel } from './tags';
+import { playlistHref, playlistLabel, playlistSlug } from './playlists';
 
 type PageSection = CollectionEntry<'pages'>['data']['sections'][number];
 type SourceName = 'writing' | 'videos' | 'speaking' | 'projects';
@@ -35,8 +36,6 @@ const hasSource = (section: PageSection): section is SourceSection =>
 
 const pickItems = (items: CardItem[], limit?: number) =>
   limit ? items.slice(0, limit) : items;
-
-const playlistSlug = (name: string) => name.replace(/\s+/g, '-');
 
 const matchesTags = (entryTags: string[], selected: string[]) =>
   selected.some((tag) => entryTags.includes(tag));
@@ -170,8 +169,8 @@ async function resolveBrowse(source: 'writing' | 'videos'): Promise<{
   const pills = [...playlistCounts.entries()]
     .sort((a, b) => b[1] - a[1])
     .map(([playlist, count]) => ({
-      label: playlist,
-      href: `/videos/playlist/${playlist.replace(/\s+/g, '-')}`,
+      label: playlistLabel(playlist),
+      href: playlistHref(playlist),
       count,
     }));
   return {

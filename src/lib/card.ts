@@ -1,6 +1,7 @@
 import type { CollectionEntry } from 'astro:content';
 import { tagLabel } from './tags';
 import { resolveYoutubeThumbnail } from './youtube-thumbnail';
+import { playlistHref, playlistLabel } from './playlists';
 
 export type CardKind = 'article' | 'video' | 'talk' | 'project';
 
@@ -16,6 +17,7 @@ export type CardItem = {
   description?: string;
   meta?: string[];
   badge?: string;
+  badgeHref?: string;
   location?: string;
   duration?: string;
   tags?: string[];
@@ -35,6 +37,20 @@ const talkFormatter = new Intl.DateTimeFormat('en-GB', {
 
 const formatDateUS = (d: Date) => usFormatter.format(d);
 const isoDay = (d: Date) => d.toISOString().slice(0, 10);
+
+/** First paragraph of a YouTube-style description, clipped for cards. */
+export function cardExcerpt(raw?: string, max = 220): string | undefined {
+  if (!raw) return undefined;
+  const first = raw
+    .split(/\n\s*\n/)[0]
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!first) return undefined;
+  if (first.length <= max) return first;
+  const cut = first.slice(0, max);
+  const sp = cut.lastIndexOf(' ');
+  return `${(sp > 80 ? cut.slice(0, sp) : cut).trim()}…`;
+}
 
 function talkDateInfo(d: Date) {
   const parts = talkFormatter.formatToParts(d);
@@ -84,9 +100,10 @@ export async function videoToCard(entry: CollectionEntry<'videos'>): Promise<Car
     date: formatDateUS(entry.data.date),
     dateISO: isoDay(entry.data.date),
     image: url,
-    description: entry.data.description,
-    meta: [entry.data.playlist, entry.data.duration].filter(Boolean) as string[],
-    badge: entry.data.playlist,
+    description: cardExcerpt(entry.data.description),
+    meta: [entry.data.duration].filter(Boolean) as string[],
+    badge: playlistLabel(entry.data.playlist),
+    badgeHref: playlistHref(entry.data.playlist),
     duration: entry.data.duration,
   };
 }

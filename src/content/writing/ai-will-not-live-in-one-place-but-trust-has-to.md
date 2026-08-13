@@ -3,7 +3,7 @@ title: AI will not live in one place, but trust has to
 slug: ai-will-not-live-in-one-place-but-trust-has-to
 description: Enterprise AI is spreading into every tool where work happens, from IDE agents to browser assistants, but governance, spend control, and brand safety are lagging behind. This article explains a two-layer architecture for solving that tension. Off-platform AI, powered by APIs, MCP, and agent skills, acts as the reach layer that lets developers and teams experiment, prototype, and orchestrate across systems from within their preferred tools. On-platform AI, delivered through Agent OS, Polaris, and AI Credits, is the trust layer that handles permissions, spend visibility, brand context, review workflows, and auditability. Rather than choosing between open access and tight governance, enterprises should use both layers together so external AI gathers context while governed on-platform capabilities execute business-critical work safely.
 date: "2026-05-18T10:00:00Z"
-canonical_url: https://timbenniks.dev/writing/off-platform-ai-and-on-platform-ai-as-reach-and-trust-layers
+canonical_url: https://timbenniks.dev/writing/ai-will-not-live-in-one-place-but-trust-has-to
 reading_time: 8 min read
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/v1779099112/website/ai-security.png
 tags:

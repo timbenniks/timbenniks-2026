@@ -3,7 +3,7 @@ title: Cursor's moat
 slug: cursors-moat
 description: The interesting story about Cursor is not which base model it uses, but how deeply it sits inside real software development workflows. Unlike model labs trained only on finished code artifacts, Cursor’s IDE sees every attempt, failure, context switch, and accepted edit as developers ship real software. That environment, with multiple models competing on the same tasks, produces rich feedback signals that are closer to “which path got the work done” than traditional preference data. The piece generalizes this idea beyond coding tools, suggesting that any serious AI product should focus on generating observable traces of work, outcomes, and corrections, and treat the product workflow itself as part of the training system and long-term moat.
 date: "2026-06-17T10:00:00Z"
-canonical_url: https://timbenniks.dev/writing/cursor-and-the-power-of-learning-from-real-development-loops
+canonical_url: https://timbenniks.dev/writing/cursors-moat
 reading_time: 6 min read
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/v1765920589/website/Generated_Image_December_16_2025_-_10_28PM.jpg
 tags:

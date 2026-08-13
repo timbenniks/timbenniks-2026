@@ -2,13 +2,20 @@ import { author, seo, social, SITE_URL as SITE } from '../data/site';
 
 export type BreadcrumbItem = { name: string; url: string };
 
-const PERSON_ID = `${SITE}${seo.authorId}`;
+export const PERSON_ID = `${SITE}${seo.authorId}`;
 
-const personRef = () => ({
-  '@type': 'Person',
+/** Reference-only. Full Person lives in `personSchema()` / the layout graph. */
+export const personRef = () => ({
+  '@type': 'Person' as const,
   '@id': PERSON_ID,
+});
+
+export const personSchema = () => ({
+  ...personRef(),
   name: author.name,
-  url: `${SITE}/`,
+  givenName: 'Tim',
+  familyName: 'Benniks',
+  url: `${SITE}/about`,
   image: {
     '@type': 'ImageObject',
     '@id': author.avatar,
@@ -16,13 +23,7 @@ const personRef = () => ({
     width: '96',
     height: '96',
   },
-});
-
-export const personSchema = () => ({
-  ...personRef(),
-  givenName: 'Tim',
-  familyName: 'Benniks',
-  jobTitle: 'Head of Developer Experience',
+  jobTitle: 'Developer Experience Lead',
   description:
     'Developer experience leader, writer, and speaker focused on AI-augmented engineering and composable platforms.',
   mainEntityOfPage: `${SITE}/about`,
@@ -47,8 +48,8 @@ export const websiteSchema = () => ({
       'query-input': 'required name=search_term_string',
     },
   ],
-  author: { '@id': PERSON_ID },
-  publisher: { '@id': PERSON_ID },
+  author: personRef(),
+  publisher: personRef(),
 });
 
 export const webPageSchema = (opts: {
@@ -132,6 +133,63 @@ export const videoObjectSchema = (opts: {
   ...(opts.transcript?.trim() ? { transcript: opts.transcript.trim() } : {}),
   author: personRef(),
 });
+
+export const eventSchema = (opts: {
+  id: string;
+  name: string;
+  startDate: string;
+  location?: string;
+  url?: string;
+  conference?: string;
+}) => {
+  const online = opts.location
+    ? /online|virtual|remote/i.test(opts.location)
+    : false;
+  const location = opts.location
+    ? online
+      ? { '@type': 'VirtualLocation', name: opts.location }
+      : { '@type': 'Place', name: opts.location }
+    : undefined;
+  return {
+    '@type': 'Event',
+    '@id': `${SITE}/speaking#${opts.id}`,
+    name: opts.name,
+    startDate: opts.startDate,
+    ...(location ? { location } : {}),
+    url: opts.url || `${SITE}/speaking`,
+    eventAttendanceMode: online
+      ? 'https://schema.org/OnlineEventAttendanceMode'
+      : 'https://schema.org/OfflineEventAttendanceMode',
+    performer: personRef(),
+    ...(opts.conference
+      ? { organizer: { '@type': 'Organization', name: opts.conference } }
+      : {}),
+  };
+};
+
+export const softwareSchema = (opts: {
+  url: string;
+  name: string;
+  description: string;
+  github?: string;
+  live?: string;
+  npm?: string;
+}) => {
+  const sameAs = [opts.live, opts.github].filter(Boolean) as string[];
+  return {
+    '@type': opts.github ? 'SoftwareSourceCode' : 'SoftwareApplication',
+    '@id': `${opts.url}#software`,
+    name: opts.name,
+    description: opts.description,
+    url: opts.url,
+    author: personRef(),
+    ...(opts.github ? { codeRepository: opts.github } : {}),
+    ...(sameAs.length ? { sameAs } : {}),
+    ...(opts.npm
+      ? { installUrl: `https://www.npmjs.com/package/${opts.npm}` }
+      : {}),
+  };
+};
 
 const MONTHS: Record<string, string> = {
   january: '01', february: '02', march: '03', april: '04',

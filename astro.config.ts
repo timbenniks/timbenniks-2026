@@ -4,6 +4,8 @@ import sitemap from "@astrojs/sitemap";
 import vercel from "@astrojs/vercel";
 import { loadEnv, type Plugin } from "vite";
 import { resolve } from "node:path";
+import { writingRedirectMap } from "./src/data/writing-redirects";
+import { assertWritingCanonicals } from "./scripts/check-writing-canonicals.mjs";
 
 // Astro config runs before Vite's env pipeline. Seed process.env from `.env*`
 // so config reads and any server code that still uses process.env see the same
@@ -43,6 +45,7 @@ function reloadOnContentJson(): Plugin {
 
 export default defineConfig({
   site: "https://timbenniks.dev",
+  redirects: writingRedirectMap(),
   adapter: vercel({
     // Dynamic fs reads of these paths are invisible to NFT; without this the
     // serverless function looks for /var/task/src/content/*.json and ENOENTs.
@@ -113,12 +116,21 @@ export default defineConfig({
   },
 
   integrations: [
+    {
+      name: "assert-writing-canonicals",
+      hooks: {
+        "astro:build:start": () => {
+          assertWritingCanonicals();
+        },
+      },
+    },
     sitemap({
       filter: (page) =>
-        !/\.(md|txt|xml)$/.test(page) &&
+        !/\.(md|txt|xml|json)$/.test(page) &&
         !page.endsWith("/search") &&
         !page.endsWith("/search/") &&
-        !page.includes("/admin"),
+        !page.includes("/admin") &&
+        !page.includes("/.well-known/"),
     }),
   ],
 });

@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 import { seo, siteUrl, social, SITE_URL } from '../data/site';
+import { writingCanonical, writingPermalink } from '../lib/canonical';
 
 export const GET: APIRoute = async () => {
   const posts = (await getCollection('writing', ({ data }) => !data.draft)).sort(
@@ -28,11 +29,12 @@ export const GET: APIRoute = async () => {
     user_comment:
       'A markdown twin of every entry is available at /writing/<slug>.md, or by requesting the canonical URL with Accept: text/markdown.',
     items: posts.map((post) => {
-      const url = siteUrl(`/writing/${post.id}`);
+      const url = writingPermalink(post.id);
+      const canonical = writingCanonical(post.id, post.data.canonical_url);
       return {
         id: url,
         url,
-        external_url: post.data.canonical_url,
+        ...(canonical !== url ? { external_url: canonical } : {}),
         title: post.data.title,
         content_text: post.data.description ?? post.data.title,
         summary: post.data.description,

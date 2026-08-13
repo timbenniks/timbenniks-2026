@@ -9,7 +9,7 @@ import Button from '../../components/primitives/Button.astro';
 import JsonLd from '../../components/primitives/JsonLd.astro';
 import AuthorByline from '../../components/primitives/AuthorByline.astro';
 import RelatedCards from '../../components/RelatedCards.astro';
-import { breadcrumbSchema, buildGraph } from '../../lib/schema';
+import { breadcrumbSchema, buildGraph, softwareSchema } from '../../lib/schema';
 import { projectToCard } from '../../lib/card';
 import { articleBodyClass } from '../../lib/articleBodyClass';
 import { relatedProjects } from '../../lib/relatedProjects';
@@ -43,6 +43,14 @@ const related = relatedProjects(entry, allProjects).map(projectToCard);
 
 const url = siteUrl(`/projects/${entry.id}`);
 const graph = buildGraph(
+  softwareSchema({
+    url,
+    name: title,
+    description,
+    github,
+    live,
+    npm,
+  }),
   breadcrumbSchema([
     { name: 'home', url: siteUrl('/') },
     { name: 'projects', url: siteUrl('/projects') },

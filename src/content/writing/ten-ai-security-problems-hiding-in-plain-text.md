@@ -3,7 +3,7 @@ title: Ten AI security problems hiding in plain text
 slug: ten-ai-security-problems-hiding-in-plain-text
 description: This article argues that AI security risks extend far beyond model jailbreaks and prompt engineering, into every piece of text an AI can read. Natural language now behaves like soft code, where logs, documentation, commit messages, wikis, support tickets, web pages, PDFs, and search results can all carry hidden instructions for agents. The author walks through ten concrete scenarios where ordinary text fields become attack surfaces, often with delayed or indirect activation through internal tools and multi agent pipelines. The core message is that information and instruction have blurred, and any text accessible to AI must be treated as part of the security model. Teams need to rethink access, editing rights, retrieval, and agent capabilities accordingly.
 date: "2026-08-05T10:00:00Z"
-canonical_url: https://timbenniks.dev/writing/every-string-is-now-part-of-your-ai-security-model
+canonical_url: https://timbenniks.dev/writing/ten-ai-security-problems-hiding-in-plain-text
 reading_time: 8 min read
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto/v1785914487/website/ai_police_1.png
 tags:

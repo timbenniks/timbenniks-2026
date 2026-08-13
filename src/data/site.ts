@@ -26,9 +26,10 @@ export const author = {
 
 export const social = [
   'https://linkedin.com/in/timbenniks',
-  'https://youtube.com/timbenniks',
   'https://github.com/timbenniks',
+  'https://youtube.com/timbenniks',
   'https://bsky.app/profile/timbenniks.dev',
+  'https://www.npmjs.com/~timbenniks',
   'https://twitter.com/timbenniks',
 ] as const;
 

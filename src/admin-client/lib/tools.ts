@@ -1213,10 +1213,10 @@ function modelContexts(): { ctx: ModelContext; label: string }[] {
     contexts.push({ ctx, label });
   };
 
-  // Native Chrome WebMCP (Inspector / browser agents)
-  add(navigator.modelContext, 'navigator.modelContext');
-  // MCP-B polyfill / bridge
+  // Native Chrome WebMCP (document is canonical as of Chrome 150;
+  // navigator.modelContext is a deprecated alias).
   add(document.modelContext, 'document.modelContext');
+  add(navigator.modelContext, 'navigator.modelContext');
   // Some previews expose testing helpers only
   if (typeof navigator.modelContextTesting?.registerTool === 'function') {
     add(navigator.modelContextTesting, 'navigator.modelContextTesting');

@@ -3,7 +3,7 @@ title: When Output Is Cheap, Taste Is Everything
 slug: when-output-is-cheap-taste-is-everything
 description: This article explores how AI has radically reduced the cost of producing things, creating an intoxicating sense of limitless output for ambitious people. But when building becomes almost frictionless, the real bottleneck shifts from implementation to judgment. The author argues that taste—the ability to choose what is worth building—and genuine rest become the true sources of leverage. AI is an exceptional how engine, but deciding what and why remains a deeply human responsibility. Without rest, our judgment degrades, and we risk building more but meaning less. The piece encourages pairing curiosity and experimentation with discipline, restraint, and strategic downtime.
 date: "2026-02-08T10:00:00Z"
-canonical_url: https://timbenniks.dev/writing/when-output-is-cheap-taste-and-rest-matter-most
+canonical_url: https://timbenniks.dev/writing/when-output-is-cheap-taste-is-everything
 reading_time: 5 min read
 tags:
   - composable-architecture

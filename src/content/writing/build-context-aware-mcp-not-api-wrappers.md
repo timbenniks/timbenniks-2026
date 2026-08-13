@@ -5,7 +5,7 @@ title: Build context-aware MCPs, not API wrappers
 description: MCP servers shouldn't just expose endpoints, they should adapt to their environment, using project context to guide AI reasoning and execution.
 date: "2025-10-04T20:37:36Z"
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto/website/mcp-3.png
-canonical_url: https://timbenniks.dev/writing/mcp-servers-need-context
+canonical_url: https://timbenniks.dev/writing/build-context-aware-mcp-not-api-wrappers
 tags: [composable-architecture, ai-engineering, api-design, performance, developer-experience]
 collection_id: 22300
 reading_time: 5 min read

@@ -8,6 +8,8 @@ import SEO from "../components/primitives/SEO.astro";
 import JsonLd from "../components/primitives/JsonLd.astro";
 import { buildGraph, personSchema, websiteSchema, webPageSchema } from "../lib/schema";
 import { isEditMarkupEnabled } from "../lib/admin/edit-mode";
+import { pageCanonical } from "../lib/canonical";
+import { inferredMarkdownHref } from "../lib/markdown";
 
 interface Props {
   title: string;
@@ -21,10 +23,13 @@ interface Props {
   keywords?: string;
   canonical?: string;
   noindex?: boolean;
+  markdownHref?: string;
 }
 
 const seoProps = Astro.props;
-const canonicalURL = seoProps.canonical ?? new URL(Astro.url.pathname, Astro.site).href;
+const originTrial = import.meta.env.PUBLIC_WEBMCP_ORIGIN_TRIAL_TOKEN as string | undefined;
+const canonicalURL = seoProps.canonical ?? pageCanonical(Astro.url.pathname);
+const markdownHref = seoProps.markdownHref ?? inferredMarkdownHref(Astro.url.pathname);
 const baseGraph = buildGraph(
   webPageSchema({
     url: canonicalURL,
@@ -43,7 +48,12 @@ const editMarkupEnabled = isEditMarkupEnabled();
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <SEO {...seoProps} />
+    <SEO {...seoProps} markdownHref={markdownHref} />
+    {
+      originTrial && (
+        <meta http-equiv="origin-trial" content={originTrial} />
+      )
+    }
     <Font cssVariable="--font-fraunces" preload />
     <Font cssVariable="--font-inter" preload />
     <ClientRouter />
@@ -87,5 +97,6 @@ const editMarkupEnabled = isEditMarkupEnabled();
       <slot />
     </main>
     <SiteFooter />
+    <script src="../scripts/public-webmcp.ts"></script>
   </body>
 </html>

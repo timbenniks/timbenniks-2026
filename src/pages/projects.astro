@@ -1,13 +1,33 @@
 ---
+import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PagePreloadLinks from "../components/PagePreloadLinks.astro";
 import PageSections from "../components/PageSections.astro";
 import JsonLd from "../components/primitives/JsonLd.astro";
-import { loadPage, pageBreadcrumbGraph } from "../lib/page";
+import { loadPage } from "../lib/page";
+import { breadcrumbSchema, buildGraph, softwareSchema } from "../lib/schema";
+import { siteUrl } from "../data/site";
 
 const page = await loadPage("projects");
 const { metadata, sections } = page.data;
-const graph = pageBreadcrumbGraph("projects");
+
+const projects = (await getCollection("projects")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+const graph = buildGraph(
+  breadcrumbSchema([{ name: "projects", url: siteUrl("/projects") }]),
+  ...projects.map((entry) =>
+    softwareSchema({
+      url: siteUrl(`/projects/${entry.id}`),
+      name: entry.data.title,
+      description: entry.data.description,
+      github: entry.data.github,
+      live: entry.data.live,
+      npm: entry.data.npm,
+    }),
+  ),
+);
 ---
 
 <BaseLayout {...metadata}>

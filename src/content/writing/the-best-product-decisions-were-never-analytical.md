@@ -3,7 +3,7 @@ title: Intuition and the real cost of research
 slug: the-best-product-decisions-were-never-analytical
 description: This article explores how AI changes the balance between research-heavy processes and intuition-driven building, especially in product and technical work. The author reflects on a career of moving faster than surrounding teams, where strong intuition—really compressed experience from shipping many similar things—often clashed with expectations for lengthy research and documentation. As AI makes implementation and iteration dramatically cheaper and faster, the true bottleneck shifts from building to deciding what is worth building. Research still matters for those without established mental models, and for environments where stakeholders need evidence and paper trails. But when iteration costs hours instead of weeks, over-indexing on analysis can become the real drag. The piece argues that, in an AI-enabled world, experienced intuition is not anti-process; for the right people and problems, it is the process.
 date: "2026-03-10T10:00:00Z"
-canonical_url: https://timbenniks.dev/writing/ai-intuition-and-the-real-cost-of-research
+canonical_url: https://timbenniks.dev/writing/the-best-product-decisions-were-never-analytical
 reading_time: 6 min read
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto/v1773051547/website/1A8CEC95-AF06-4E7C-935A-1B31BC021583.png
 tags:

@@ -15,7 +15,8 @@ import RelatedCards from '../../components/RelatedCards.astro';
 import { breadcrumbSchema, buildGraph, videoObjectSchema } from '../../lib/schema';
 import { videoToCard } from '../../lib/card';
 import { articleBodyClass } from '../../lib/articleBodyClass';
-import { playlistHref, relatedVideos } from '../../lib/relatedVideos';
+import { relatedVideos } from '../../lib/relatedVideos';
+import { playlistHref, playlistLabel } from '../../lib/playlists';
 import { tagLabel } from '../../lib/tags';
 import { siteUrl } from '../../data/site';
 import { resolveYoutubeThumbnail } from '../../lib/youtube-thumbnail';
@@ -41,6 +42,7 @@ const tags = entry.data.tags ?? [];
 const description = entry.data.description ?? entry.data.title;
 const youtubeUrl = `https://www.youtube.com/watch?v=${entry.data.videoId}`;
 const playlistUrl = playlistHref(entry.data.playlist);
+const playlistName = playlistLabel(entry.data.playlist);
 
 const { url: ytPosterSrc } = await resolveYoutubeThumbnail(entry.data.videoId);
 const [ytThumbImg, litePosterImg] = await Promise.all([
@@ -84,13 +86,6 @@ const videoGraph = buildGraph(
   keywords={tags.join(', ')}
 >
   <JsonLd slot="head" data={videoGraph} />
-  <link
-    slot="head"
-    rel="alternate"
-    type="text/markdown"
-    href={`/videos/${entry.id}.md`}
-    title="Markdown source"
-  />
   <Section padding="lg" contained={false}>
     <Container>
       <article
@@ -115,7 +110,7 @@ const videoGraph = buildGraph(
             <Meta items={[formatted, entry.data.duration].filter(Boolean) as string[]} />
             <div class="flex flex-wrap gap-2">
               <TagPill href={playlistUrl} size="sm" tone="accent">
-                {entry.data.playlist}
+                {playlistName}
               </TagPill>
               {tags.map((tag: string) => (
                 <TagPill size="sm">{tagLabel(tag)}</TagPill>
@@ -183,7 +178,7 @@ const videoGraph = buildGraph(
                   Watch on YouTube ↗
                 </Button>
                 <Button href={playlistUrl} variant="secondary" size="sm">
-                  More in {entry.data.playlist}
+                  More in {playlistName}
                 </Button>
               </div>
             </div>

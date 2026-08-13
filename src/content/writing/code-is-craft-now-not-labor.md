@@ -3,7 +3,7 @@ title: Code is craft now, not labor
 slug: code-is-craft-now-not-labor
 description: Coding is largely solved. Agents with a great product vision can produce what used to take teams weeks. But the act of writing code by hand isn't dying - it's transforming from a necessity into a craft. Like knitting, you won't need to do it. You'll choose to.
 date: "2026-02-25T10:00:00Z"
-canonical_url: https://timbenniks.dev/writing/programming-is-becoming-knitting
+canonical_url: https://timbenniks.dev/writing/code-is-craft-now-not-labor
 reading_time: 5 min read
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/v1771963163/website/j0lhbsga47pjnww7mwl0.jpg
 tags:

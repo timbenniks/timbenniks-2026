@@ -1,11 +1,11 @@
 ---
 id: 10101
-slug: why-experience-is-the-real-flagship
+slug: the-experience-factory-01-why-experience-is-the-real-flagship
 title: "The Experience Factory why experience is the real flagship"
 description: Many brands think they're digitally mature, yet their experience operations are fragmented. Here's how to spot it and start orchestrating.
 date: 2025-12-01T10:00:00Z
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto/website/valtech-cs-experience.jpeg
-canonical_url: https://timbenniks.dev/writing/why-experience-is-the-real-flagship
+canonical_url: https://timbenniks.dev/writing/the-experience-factory-01-why-experience-is-the-real-flagship
 tags: [composable-architecture, cms, api-design, content-ops, frontend]
 collection_id: 22300
 reading_time: 6 min read

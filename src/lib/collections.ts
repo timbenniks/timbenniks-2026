@@ -10,7 +10,7 @@ export type LoadedCollections = {
 };
 
 // Loads all three collections, sorted newest-first, with drafts excluded from `writing`.
-// Used by the GEO endpoints (llms.txt, llms-full.txt, sitemap.md) which all need the same.
+// Used by the GEO endpoints (llms.txt, section indexes, llms-full.txt, sitemap.md).
 export async function loadAllSorted(): Promise<LoadedCollections> {
   const [writing, videos, speaking] = await Promise.all([
     getCollection('writing', ({ data }) => !data.draft),
@@ -23,3 +23,4 @@ export async function loadAllSorted(): Promise<LoadedCollections> {
     speaking: speaking.sort(byDateDesc),
   };
 }
+

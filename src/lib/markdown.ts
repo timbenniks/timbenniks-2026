@@ -1,6 +1,8 @@
 import { getCollection, type CollectionEntry, type CollectionKey } from 'astro:content';
 import type { APIRoute, GetStaticPaths } from 'astro';
 import { siteUrl } from '../data/site';
+import { writingCanonical, writingPermalink } from './canonical';
+import { cleanVideoDescription } from './video-description';
 
 export { siteUrl };
 
@@ -46,13 +48,13 @@ function yamlBlock(fields: Array<[string, unknown]>): string {
 
 export function writingEntryToMarkdown(entry: CollectionEntry<'writing'>): string {
   const data = entry.data;
-  const url = siteUrl(`/writing/${entry.id}`);
+  const url = writingPermalink(entry.id);
   const frontmatter = yamlBlock([
     ['title', data.title],
     ['description', data.description],
     ['date', data.date],
     ['url', url],
-    ['canonical_url', data.canonical_url ?? url],
+    ['canonical_url', writingCanonical(entry.id, data.canonical_url)],
     ['image', data.image],
     ['tags', data.tags],
     ['reading_time', data.reading_time],
@@ -69,9 +71,10 @@ export function videoEntryToMarkdown(
   const data = entry.data;
   const url = siteUrl(`/videos/${entry.id}`);
   const youtubeUrl = `https://www.youtube.com/watch?v=${data.videoId}`;
+  const description = cleanVideoDescription(data.description);
   const frontmatter = yamlBlock([
     ['title', data.title],
-    ['description', data.description],
+    ['description', description],
     ['date', data.date],
     ['url', url],
     ['youtube_url', youtubeUrl],
@@ -81,7 +84,7 @@ export function videoEntryToMarkdown(
     ['tags', data.tags ?? []],
   ]);
   const sections: string[] = [`# ${data.title}`];
-  if (data.description) sections.push(data.description);
+  if (description) sections.push(description);
   sections.push(`Watch on YouTube: ${youtubeUrl}`);
   const body = (entry.body ?? '').trim();
   if (body) sections.push(body);
@@ -97,6 +100,75 @@ export function speakingLine(entry: CollectionEntry<'speaking'>): string {
   const where = d.location ? ` (${d.location})` : '';
   const link = d.link ? ` — ${d.link}` : '';
   return `- ${date} — "${d.talk}" at ${d.conference}${where}${link}`;
+}
+
+export function projectEntryToMarkdown(entry: CollectionEntry<'projects'>): string {
+  const data = entry.data;
+  const url = siteUrl(`/projects/${entry.id}`);
+  const frontmatter = yamlBlock([
+    ['title', data.title],
+    ['description', data.description],
+    ['url', url],
+    ['tag', data.tag],
+    ['meta', data.meta],
+    ['github', data.github],
+    ['live', data.live],
+    ['docs', data.docs],
+    ['npm', data.npm],
+  ]);
+  const links: string[] = [];
+  if (data.github) links.push(`GitHub: ${data.github}`);
+  if (data.live) links.push(`Live: ${data.live}`);
+  if (data.docs) links.push(`Docs: ${data.docs}`);
+  if (data.npm) links.push(`npm: https://www.npmjs.com/package/${data.npm}`);
+  const body = (entry.body ?? '').trim();
+  const sections = [`# ${data.title}`, data.description, ...links, body].filter(Boolean);
+  return `${frontmatter}\n\n${sections.join('\n\n')}\n`;
+}
+
+/** Public URL of the markdown twin for a page path (`/` → `/index.md`). */
+export function pageMarkdownPath(path: string): string {
+  if (path === '/') return '/index.md';
+  return `${path.replace(/\/$/, '')}.md`;
+}
+
+/** Infer the markdown twin for a request pathname, or undefined if none exists. */
+export function inferredMarkdownHref(pathname: string): string | undefined {
+  const path = pathname.replace(/\/$/, '') || '/';
+  if (path === '/search' || path.startsWith('/admin') || path.startsWith('/api')) return undefined;
+  if (path.includes('/tag/') || path.includes('/playlist/')) return undefined;
+  if (path === '/') return '/index.md';
+  if (
+    path.startsWith('/writing/') ||
+    path.startsWith('/videos/') ||
+    path.startsWith('/projects/')
+  ) {
+    return `${path}.md`;
+  }
+  if (
+    path === '/about' ||
+    path === '/press-kit' ||
+    path === '/uses' ||
+    path === '/projects' ||
+    path === '/speaking' ||
+    path === '/writing' ||
+    path === '/videos'
+  ) {
+    return `${path}.md`;
+  }
+  if (/^\/[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/.test(path)) {
+    return `${path}.md`;
+  }
+  return undefined;
+}
+
+export function jsonResponse(data: unknown, pretty = false): Response {
+  return new Response(pretty ? `${JSON.stringify(data, null, 2)}\n` : JSON.stringify(data), {
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'public, max-age=0, must-revalidate',
+    },
+  });
 }
 
 export function markdownResponse(body: string): Response {

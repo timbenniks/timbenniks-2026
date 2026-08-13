@@ -3,7 +3,7 @@ title: TDD finally makes sense
 slug: tdd-finally-makes-sense
 description: AI coding tools have removed the old excuse that test driven development is too slow or too costly. When AI can generate both implementation and test scaffolding in minutes, the time cost of writing tests first collapses, turning TDD into an obvious quality and productivity win. The real risk now is vibe coding, where developers ship AI generated code that looks fine but crumbles under real edge cases. By using AI for planning, then encoding that thinking as tests and letting the AI implement against them, teams get faster feedback, more reliable code, and fewer hotfixes. In an AI assisted world, the competitive advantage shifts to defining behavior and edge cases up front, and TDD becomes the discipline that makes that thinking explicit.
 date: "2026-02-11T10:00:00Z"
-canonical_url: https://timbenniks.dev/writing/ai-coding-tools-and-the-new-economics-of-test-driven-development
+canonical_url: https://timbenniks.dev/writing/tdd-finally-makes-sense
 reading_time: 7 min read
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/v1770798654/website/lgr0jz2fafvafvem9ckr.jpg
 tags:

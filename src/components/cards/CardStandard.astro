@@ -71,18 +71,17 @@ const playIcon = `<svg viewBox="0 0 12 12" class="ml-0.5 h-3.5 w-3.5 fill-bg-dar
               </div>
             </div>
             {item.duration && (
-              <span class="absolute bottom-2 right-2 rounded-sm bg-bg-dark/85 px-1.5 py-0.5 font-mono text-[11px] text-cream">
+              <span
+                aria-hidden="true"
+                class="absolute bottom-2 right-2 rounded-sm bg-bg-dark/85 px-1.5 py-0.5 font-mono text-[11px] text-cream"
+              >
                 {item.duration}
               </span>
             )}
           </>
         )}
       </MediaFrame>
-      {item.kind === "video"
-        ? item.badge && (
-            <p class="text-xs tracking-wide text-ink-subtle">{item.badge}</p>
-          )
-        : bylineParts.length > 0 && <Meta items={bylineParts} />}
+      {bylineParts.length > 0 && <Meta items={bylineParts} />}
       <h3
         class:list={[
           "font-serif font-medium text-ink leading-tight",
@@ -91,7 +90,7 @@ const playIcon = `<svg viewBox="0 0 12 12" class="ml-0.5 h-3.5 w-3.5 fill-bg-dar
       >
         {item.title}
       </h3>
-      {item.kind !== "video" && item.description && (
+      {item.description && (
         <p class="text-sm text-ink-muted line-clamp-3">{item.description}</p>
       )}
       {item.kind === "article" && item.tags && item.tags.length > 0 && (

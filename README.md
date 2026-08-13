@@ -110,23 +110,32 @@ Drafts (`draft: true` on writing entries) are filtered everywhere: index, tag pa
 
 ### Machine-readable surfaces (the GEO layer)
 
-Designed for LLM/agent consumption. See [`src/pages/agents.md.ts`](src/pages/agents.md.ts) for the contract.
+Designed for LLM/agent consumption. See [`src/pages/agents.md.ts`](src/pages/agents.md.ts) for the contract. Public WebMCP tools (in-tab agents) are documented in [`docs/admin-webmcp.md`](docs/admin-webmcp.md) for the CMS and registered from [`src/scripts/public-webmcp.ts`](src/scripts/public-webmcp.ts) on every public page.
 
-| Path                 | What it is                                                                   |
-| -------------------- | ---------------------------------------------------------------------------- |
-| `/feed.xml`          | RSS 2.0 of writing                                                           |
-| `/sitemap-index.xml` | XML sitemap (filtered: no `.md`/`.txt`/`.xml`/`/search`)                     |
-| `/sitemap.md`        | Markdown mirror of the sitemap, every entry includes a `.md` companion       |
-| `/robots.txt`        | Allow-all + sitemap pointer                                                  |
-| `/llms.txt`          | [llmstxt.org](https://llmstxt.org) format — curated link index               |
-| `/llms-full.txt`     | Full corpus inlined as markdown (every writing entry, video metadata, talks) |
-| `/agents.md`         | Guide for agents about the surfaces above                                    |
-| `/writing/<slug>.md` | Markdown twin of any writing page                                            |
-| `/videos/<slug>.md`  | Markdown twin of any video page (frontmatter + transcript when available)    |
+| Path                      | What it is                                                                   |
+| ------------------------- | ---------------------------------------------------------------------------- |
+| `/feed.xml`               | RSS 2.0 of writing                                                           |
+| `/sitemap-index.xml`      | XML sitemap (filtered: no `.md`/`.txt`/`.xml`/`.json`/`/search`)             |
+| `/sitemap.md`             | Markdown mirror of the sitemap, every entry includes a `.md` companion       |
+| `/robots.txt`             | Allow-all + sitemap pointer + agent surface comments                         |
+| `/llms.txt`               | [llmstxt.org](https://llmstxt.org) format — curated link index               |
+| `/llms-full.txt`          | Full corpus inlined as markdown (every writing entry, video metadata, talks) |
+| `/writing/llms.txt`       | One-line index of every writing entry                                        |
+| `/videos/llms.txt`        | One-line index of every video                                                |
+| `/content-index.json`     | Compact JSON index (title, date, tags, url, markdown url)                    |
+| `/tools.json`             | Public WebMCP tool catalog (same payload at `/.well-known/webmcp.json`)      |
+| `/press-kit.json`         | Structured bios, topics, photos, booking email                               |
+| `/agents.md`              | Guide for agents about the surfaces above                                    |
+| `/writing/<slug>.md`      | Markdown twin of any writing page                                            |
+| `/videos/<slug>.md`       | Markdown twin of any video page (frontmatter + transcript when available)    |
+| `/projects/<slug>.md`     | Markdown twin of any project page                                            |
+| `/about.md` etc.          | Markdown twins of static pages (`/index.md`, `/press-kit.md`, `/speaking.md`, `/uses.md`, `/projects.md`, `/writing.md`, `/videos.md`) |
 
-Article and video HTML pages emit `<link rel="alternate" type="text/markdown">` for autodiscovery.
+HTML pages emit `<link rel="alternate" type="text/markdown">` for autodiscovery. Public pages also register six read-only WebMCP tools (`get_page_context`, `search_site`, `list_content`, `get_content`, `get_press_kit`, `request_booking`) when `document.modelContext` exists.
 
-[`vercel.json`](vercel.json) also content-negotiates: requests with `Accept: text/markdown` to a canonical URL get rewritten to the `.md` twin (with route-specific `:slug` patterns that exclude `tag/`/`playlist/`/`index`).
+[`vercel.json`](vercel.json) content-negotiates: requests with `Accept: text/markdown` to a canonical URL get rewritten to the `.md` twin.
+
+To enable WebMCP for real Chrome visitors (not just `chrome://flags/#enable-webmcp-testing`), set `PUBLIC_WEBMCP_ORIGIN_TRIAL_TOKEN` from the [Chrome origin trial](https://developer.chrome.com/docs/ai/webmcp) (token expires 17 Nov 2026). Optional: `PUBLIC_NEWSLETTER_ACTION` to point the footer form at a real list provider — until then the subscribe form is not advertised as a tool.
 
 ## Image handling
 
@@ -166,6 +175,7 @@ Targeting WCAG 2.2 AA. Implemented:
   - `<ClientRouter />` for view transitions (~5.5 KB gzipped, site-wide).
   - `<lite-youtube>` on video detail pages.
   - Pagefind, dynamically imported only on `/search`.
+  - Public WebMCP (`src/scripts/public-webmcp.ts`) — feature-detects `document.modelContext` and no-ops everywhere else. `search_site` uses `/content-index.json`.
   - Admin (`/admin/*`) loads compiled modules from `/admin/*.js` (built from `src/admin-client/`); those never ship on public pages.
 - Tailwind v4 single CSS bundle (~7 KB gzipped).
 - Fonts: `<Font preload>` on Fraunces only; Inter and JetBrains Mono lazy-load with `font-display: swap`.
@@ -180,7 +190,7 @@ Pagefind indexes any element with `data-pagefind-body`. Filters are emitted as h
 - `year:<YYYY>`
 - `playlist:<name>` (videos only)
 
-The UI in [`/search`](src/pages/search.astro) supports query, type pills, tag chips with counts, year dropdown, debouncing, stale-result guarding, and full URL-state restoration (`?q=&type=&tags=&year=`).
+The UI in [`/search`](src/pages/search.astro) supports query, type pills, tag chips with counts, year dropdown, debouncing, stale-result guarding, and full URL-state restoration (`?q=&type=&tags=&year=`). The form is annotated for WebMCP (`toolname="search_site"`).
 
 ## Configuration
 
