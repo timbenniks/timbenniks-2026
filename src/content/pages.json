@@ -632,11 +632,11 @@
         "kind": "hero",
         "eyebrow": "Stages",
         "headline": {
-          "lead": "Six years on stage.",
-          "em": "Still showing up.",
+          "lead": "I've been on stage for six years.",
+          "em": "I still show up.",
           "tail": ""
         },
-        "subline": "Keynotes, deep-dives, and podcasts on DX, AI agents, and composable architecture. Available worldwide.",
+        "subline": "Practical talks — keynotes, hands-on workshops, and podcasts — about developer experience, AI agents, and composable architecture. I focus on useful ideas, not buzzwords. I travel when it’s a good fit.",
         "ctas": [
           {
             "label": "Press kit & booking",
@@ -670,7 +670,7 @@
           "em": "rock & roll.",
           "tail": ""
         },
-        "attribution": "Signature talks weave live music into the technical story — because a memorable stage lands harder than a perfect slide deck.",
+        "attribution": "I like weaving live music into the technical story. A riff or a joke that helps the point land is worth more than a perfect slide deck.",
         "cta": {
           "label": "See topics & bios",
           "href": "/press-kit"
@@ -678,9 +678,9 @@
         "tone": "dark",
         "align": "left",
         "backgroundImage": {
-          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1743504260/website/tim_on_stage-1.png",
-          "width": 2355,
-          "height": 1011,
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1718459447/Tim/contentcon-tim.png",
+          "width": 1440,
+          "height": 618,
           "opacity": 0.28
         }
       },
@@ -688,23 +688,23 @@
         "kind": "topic-grid",
         "eyebrow": "How I work a stage",
         "title": "What you get when I'm on the bill",
-        "lede": "I love both in-person and virtual events. The goal is the same either way: leave the room smarter, and actually glad they stayed.",
+        "lede": "I do in-person and virtual. The aim is the same: people leave smarter and glad they stayed.",
         "items": [
           {
             "title": "Interactive, not ornamental",
-            "body": "Live coding, audience prompts, and — when the brief allows it — live music. Engagement is part of the craft, not a warm-up act bolted on at the end."
+            "body": "I favour interaction over performance. Live coding, audience prompts, and — when it fits — live music. They're part of the talk, not an add-on."
           },
           {
             "title": "Virtual that doesn't feel second-class",
-            "body": "High-production pre-records and livestreams with the pacing of a live set: crisp edits, clear visuals, and energy that survives a laptop speaker."
+            "body": "I treat virtual like a first-class format: clear visuals, tight edits, and pacing that works through a laptop speaker."
           },
           {
             "title": "Substance first, theatre second",
-            "body": "Every talk starts with a real technical argument — DX as strategy, agents in the enterprise, composable architecture that ships. The flair serves the point."
+            "body": "I start with a technical idea that matters. Any theatrics exist to make that idea stick."
           },
           {
             "title": "Built for the audience in the room",
-            "body": "Decks get rebuilt for the crowd. A Vue conference, a content ops summit, and an AI meetup do not get the same talk with the title swapped."
+            "body": "I rebuild slides for the crowd. A Vue audience gets a different talk than an AI meetup."
           }
         ],
         "pills": [
@@ -728,7 +728,7 @@
         "kind": "photo-grid",
         "eyebrow": "Receipts",
         "title": "A few rooms I've stood in",
-        "lede": "From Vue.js Amsterdam to ContentCon and everything in between. More photos in the press kit.",
+        "lede": "From small meetups to big keynotes — photos (and more) are in the press kit.",
         "tone": "dark",
         "columns": 3,
         "aspect": "video",
@@ -780,8 +780,8 @@
       },
       {
         "kind": "cta-strip",
-        "text": "Got a stage, a podcast, or a team that needs sharpening?",
-        "em": " Let's talk.",
+        "text": "Got a stage, a podcast, or a team that could use a practical nudge?",
+        "em": "Let's talk.",
         "ctas": [
           {
             "label": "Press kit",
