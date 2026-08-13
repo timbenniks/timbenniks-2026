@@ -12,6 +12,8 @@ export const GET: APIRoute = async () => {
 
 This site is friendly to AI agents and crawlers. The content here is meant to be read, summarized, and quoted — with attribution.
 
+Human-readable explainer of the same surfaces: ${siteUrl('/ai')}.
+
 There are two ways in, depending on how you arrived:
 
 1. **Remote / headless** (you \`GET\` URLs): use the markdown twins, \`/llms.txt\`, and \`/content-index.json\`.

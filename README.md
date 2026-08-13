@@ -104,6 +104,7 @@ Drafts (`draft: true` on writing entries) are filtered everywhere: index, tag pa
 | `/projects`                   | Project cards + contact                                      |
 | `/press-kit`                  | Bios, headshots, talk topics, booking                        |
 | `/uses`                       | Hardware / software / A-V kit                                |
+| `/ai`                         | AI readiness explainer (CMS page in `pages.json`)            |
 | `/search`                     | Pagefind UI with type/tag/year filters and URL-state         |
 | `/admin`                      | CMS desk (auth-gated) — see [`docs/admin-editor.md`](docs/admin-editor.md) |
 | `/404`                        | Static 404 page                                              |

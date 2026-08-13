@@ -152,7 +152,8 @@ export function inferredMarkdownHref(pathname: string): string | undefined {
     path === '/projects' ||
     path === '/speaking' ||
     path === '/writing' ||
-    path === '/videos'
+    path === '/videos' ||
+    path === '/ai'
   ) {
     return `${path}.md`;
   }

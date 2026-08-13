@@ -27,6 +27,7 @@ export const GET: APIRoute = async () => {
     `- [Tool catalog](${siteUrl('/tools.json')}): public WebMCP tools (search, list, get content, press kit, booking)`,
     `- [Press kit JSON](${siteUrl('/press-kit.json')}): bios, topics, photos, booking email`,
     `- [Agent guide](${siteUrl('/agents.md')}): instructions for AI agents consuming this site`,
+    `- [AI readiness](${siteUrl('/ai')}): human explainer of markdown twins, indexes, and WebMCP tools`,
   ];
 
   const body = [

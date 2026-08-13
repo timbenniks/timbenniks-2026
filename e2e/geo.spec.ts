@@ -70,13 +70,28 @@ test.describe('GEO / agent surfaces', () => {
   });
 
   test('static pages have markdown twins', async ({ request }) => {
-    for (const path of ['/about.md', '/press-kit.md', '/speaking.md', '/uses.md', '/index.md']) {
+    for (const path of [
+      '/about.md',
+      '/press-kit.md',
+      '/speaking.md',
+      '/uses.md',
+      '/index.md',
+      '/ai.md',
+    ]) {
       const res = await request.get(path);
       expect(res.ok(), path).toBeTruthy();
       expect(res.headers()['content-type']).toMatch(/text\/markdown/);
       const body = await res.text();
       expect(body.length).toBeGreaterThan(40);
     }
+  });
+
+  test('AI readiness page links agent surfaces', async ({ page }) => {
+    await page.goto('/ai');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Readable');
+    await expect(page.getByRole('link', { name: 'AI readiness' })).toBeVisible();
+    await expect(page.locator('a[href="/llms.txt"]').first()).toBeVisible();
+    await expect(page.locator('a[href="/agents.md"]').first()).toBeVisible();
   });
 
   test('writing markdown twin matches content-index', async ({ request }) => {

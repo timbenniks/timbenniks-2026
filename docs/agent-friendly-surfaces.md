@@ -5,6 +5,7 @@ The site exposes first-class surfaces for AI agents and crawlers:
 - `/llms.txt` is the concise site overview and curated link index.
 - `/llms-full.txt` is the larger markdown corpus with writing entries, video metadata, speaking engagements, and static page summaries.
 - `/agents.md` explains how agents should ingest and attribute the site.
+- `/ai` is the human-facing explainer of the same surfaces (markdown twin at `/ai.md`).
 - `/sitemap.md` mirrors the XML sitemap in markdown.
 - `/writing/<slug>.md` and `/videos/<slug>.md` expose per-entry markdown, with video transcripts included when available.
 

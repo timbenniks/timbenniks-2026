@@ -103,6 +103,13 @@
         { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
       ],
       "destination": "/videos.md"
+    },
+    {
+      "source": "/ai",
+      "has": [
+        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+      ],
+      "destination": "/ai.md"
     }
   ]
 }

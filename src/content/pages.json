@@ -1459,5 +1459,180 @@
         ]
       }
     ]
+  },
+  "ai": {
+    "path": "/ai",
+    "metadata": {
+      "title": "AI readiness",
+      "description": "How timbenniks.dev is built for AI agents and crawlers: markdown twins, llms.txt, content indexes, and public WebMCP tools — without turning the site into a dump.",
+      "keywords": "AI readiness, llms.txt, WebMCP, GEO, markdown twins, agent-friendly website"
+    },
+    "sections": [
+      {
+        "kind": "hero",
+        "eyebrow": "/ai",
+        "headline": {
+          "lead": "Built for humans.",
+          "em": "Readable",
+          "tail": "by agents."
+        },
+        "subline": "This site is meant to be read, summarized, and quoted — with attribution. The HTML is for people. The machine surfaces are first-class, not an afterthought.",
+        "ctas": [
+          {
+            "label": "Agent guide",
+            "href": "/agents.md",
+            "variant": "primary"
+          },
+          {
+            "label": "Open llms.txt",
+            "href": "/llms.txt",
+            "variant": "secondary"
+          }
+        ],
+        "imageSide": "right"
+      },
+      {
+        "kind": "copy-blocks",
+        "eyebrow": "Principles",
+        "title": "Three ways in",
+        "lede": "Remote crawlers, in-tab agents, and humans who want the source — same content, different doors.",
+        "items": [
+          {
+            "label": "01 · Markdown twins",
+            "body": "Every essay, video, project, and main page has a .md companion. Or send Accept: text/markdown to the HTML URL — the edge serves the twin.",
+            "style": "serif"
+          },
+          {
+            "label": "02 · Indexes, not scrapes",
+            "body": "llms.txt, content-index.json, feeds, and sitemaps give agents a map first. Fetch what you need; skip dumping the whole corpus.",
+            "style": "serif"
+          },
+          {
+            "label": "03 · Tools in the tab",
+            "body": "When the browser exposes document.modelContext, six read-only WebMCP tools register on every public page. Search, list, get content, press kit, booking.",
+            "style": "serif"
+          }
+        ]
+      },
+      {
+        "kind": "factsheet",
+        "eyebrow": "Surfaces",
+        "title": "Where agents start",
+        "lede": "Prefer a map over a scrape. Start here, then fetch only the pages you need.",
+        "items": [
+          {
+            "term": "/llms.txt",
+            "value": "Curated site overview (llmstxt.org)",
+            "href": "/llms.txt"
+          },
+          {
+            "term": "/llms-full.txt",
+            "value": "Full corpus as one markdown document",
+            "href": "/llms-full.txt"
+          },
+          {
+            "term": "/content-index.json",
+            "value": "Compact JSON index with markdown URLs",
+            "href": "/content-index.json"
+          },
+          {
+            "term": "/tools.json",
+            "value": "Public WebMCP tool catalog + schemas",
+            "href": "/tools.json"
+          },
+          {
+            "term": "/agents.md",
+            "value": "Contract for remote and in-tab agents",
+            "href": "/agents.md"
+          },
+          {
+            "term": "/press-kit.json",
+            "value": "Bios, topics, photos, booking email",
+            "href": "/press-kit.json"
+          },
+          {
+            "term": "/sitemap.md",
+            "value": "Markdown sitemap with .md twins",
+            "href": "/sitemap.md"
+          },
+          {
+            "term": "/feed.json",
+            "value": "Writing feed (JSON Feed 1.1)",
+            "href": "/feed.json"
+          }
+        ]
+      },
+      {
+        "kind": "faq",
+        "eyebrow": "WebMCP",
+        "title": "WebMCP",
+        "lede": "Registered on every public page when the browser exposes document.modelContext (Chrome origin trial / WebMCP testing flag). Admin CMS tools stay behind /admin. Full schema: /tools.json.",
+        "tone": "dark",
+        "items": [
+          {
+            "question": "get_page_context",
+            "answer": "Call this first. Returns what this page is: canonical URL, content type, markdown twin URL if any, and which other tools to use next. No inputs."
+          },
+          {
+            "question": "search_site",
+            "answer": "Full-text search across writing and videos. Prefer this over fetching llms-full.txt. Returns title, type, date, url, markdown url, and a short snippet."
+          },
+          {
+            "question": "list_content",
+            "answer": "List recent writing, videos, talks, or projects without a search query. Returns compact metadata plus markdown URLs."
+          },
+          {
+            "question": "get_content",
+            "answer": "Fetch one piece of content as markdown by path or slug. For videos this includes the transcript when one exists. Do not dump the full corpus."
+          },
+          {
+            "question": "get_press_kit",
+            "answer": "Bios, speaker topics, headshots, on-stage photos, factsheet, and booking email."
+          },
+          {
+            "question": "request_booking",
+            "answer": "How to book Tim for a conference, podcast, or workshop. Returns the email address and what to include — does not send email."
+          }
+        ]
+      },
+      {
+        "kind": "topic-grid",
+        "eyebrow": "Markdown everywhere",
+        "title": "Append .md",
+        "lede": "Writing, videos, projects, and the main static pages all have markdown twins. HTML pages advertise the twin with rel=\"alternate\".",
+        "items": [
+          {
+            "title": "URL twins",
+            "body": "Append .md to any /writing/<slug>, /videos/<slug>, /projects/<slug>, or static page URL — /about.md, /press-kit.md, /ai.md, and so on."
+          },
+          {
+            "title": "Content negotiation",
+            "body": "Send Accept: text/markdown to the canonical HTML URL. The edge rewrites to the markdown twin. Try: curl -H 'Accept: text/markdown' https://timbenniks.dev/about"
+          }
+        ],
+        "pills": [],
+        "noteBefore": "Example essay: ",
+        "noteHref": "/writing/when-output-is-cheap-taste-is-everything.md",
+        "noteLinkLabel": "when-output-is-cheap-taste-is-everything.md",
+        "noteAfter": ""
+      },
+      {
+        "kind": "cta-strip",
+        "text": "Quote freely.",
+        "em": " Link back.",
+        "ctas": [
+          {
+            "label": "Agent guide",
+            "href": "/agents.md",
+            "variant": "accent"
+          },
+          {
+            "label": "Press kit",
+            "href": "/press-kit",
+            "variant": "secondary"
+          }
+        ]
+      }
+    ]
   }
 }

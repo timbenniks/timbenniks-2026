@@ -58,6 +58,21 @@ Roles: Co-chair, MACH Alliance Enterprise AI Agents Workgroup. Ambassador for Nu
       'Bios, headshots, on-stage photos, speaker topics, and contact details for booking Tim Benniks for conferences, podcasts, and developer events.',
     prose: `Speaker bios (short, medium, long), headshots and on-stage photos, talk topics, and contact details for booking conferences, podcasts, and developer events. Available at /press-kit.`,
   },
+  {
+    path: '/ai',
+    title: 'AI readiness',
+    description:
+      'How timbenniks.dev is built for AI agents and crawlers: markdown twins, llms.txt, content indexes, and public WebMCP tools — without turning the site into a dump.',
+    prose: `This site is built for humans first, and for AI agents as a first-class audience. Content is meant to be read, summarized, and quoted — with attribution.
+
+Three principles:
+
+1. Markdown twins — append .md to writing, video, project, and main page URLs, or send Accept: text/markdown.
+2. Indexes, not scrapes — start with /llms.txt, /content-index.json, feeds, and sitemaps.
+3. In-tab tools — six read-only WebMCP tools register when document.modelContext exists.
+
+Human explainer: /ai. Agent contract: /agents.md.`,
+  },
 ];
 
 export const SITE_SUMMARY =

@@ -1,0 +1,17 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PagePreloadLinks from "../components/PagePreloadLinks.astro";
+import PageSections from "../components/PageSections.astro";
+import JsonLd from "../components/primitives/JsonLd.astro";
+import { loadPage, pageBreadcrumbGraph } from "../lib/page";
+
+const page = await loadPage("ai");
+const { metadata, sections } = page.data;
+const graph = pageBreadcrumbGraph("ai");
+---
+
+<BaseLayout {...metadata}>
+  <PagePreloadLinks slot="head" sections={sections} />
+  <JsonLd slot="head" data={graph} />
+  <PageSections pageId="ai" sections={sections} />
+</BaseLayout>

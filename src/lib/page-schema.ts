@@ -268,6 +268,7 @@ export const FIXED_PAGE_IDS = [
   'projects',
   'uses',
   'press-kit',
+  'ai',
 ] as const;
 
 export type FixedPageId = (typeof FIXED_PAGE_IDS)[number];
@@ -281,6 +282,7 @@ export const FIXED_PAGE_PATHS: Record<FixedPageId, string> = {
   projects: '/projects',
   uses: '/uses',
   'press-kit': '/press-kit',
+  ai: '/ai',
 };
 
 /** @deprecated Use listPageIds() / getPagePath() — kept for gradual migration. */

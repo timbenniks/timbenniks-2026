@@ -26,6 +26,7 @@
       "links": [
         { "label": "About Tim", "href": "/about" },
         { "label": "Press kit", "href": "/press-kit" },
+        { "label": "AI readiness", "href": "/ai" },
         { "label": "Uses", "href": "/uses" },
         { "label": "Projects", "href": "/projects" }
       ]
