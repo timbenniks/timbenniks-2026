@@ -420,7 +420,12 @@ export function bootEditor() {
     s.selectedSection = to;
     markDirty();
     renderSections();
-    void applyLiveStructural('move', { from, to, highlightIndex: to }).then((ok) => {
+    void applyLiveStructural('move', {
+      from,
+      to,
+      highlightIndex: to,
+      statusMsg: `Moved ${from + 1} → ${to + 1}`,
+    }).then((ok) => {
       if (!ok) persistPreview(to, 'Updating preview…');
     });
   }
@@ -437,7 +442,7 @@ export function bootEditor() {
     void applyLiveStructural('insert', {
       sectionIndex: index + 1,
       highlightIndex: index + 1,
-      statusMsg: 'Duplicated section',
+      statusMsg: `Duplicated ${section.kind.replace(/-/g, ' ')}`,
     }).then((ok) => {
       if (!ok) persistPreview(s.selectedSection, 'Updating preview…');
     });
@@ -456,6 +461,7 @@ export function bootEditor() {
     void applyLiveStructural('remove', {
       index,
       highlightIndex: s.selectedSection,
+      statusMsg: `Deleted ${section.kind.replace(/-/g, ' ')}`,
     }).then((ok) => {
       if (!ok) persistPreview(s.selectedSection, 'Updating preview…');
     });
@@ -471,7 +477,7 @@ export function bootEditor() {
     void applyLiveStructural('insert', {
       sectionIndex: clamped,
       highlightIndex: clamped,
-      statusMsg: `Added “${kind}”`,
+      statusMsg: `Added ${kind.replace(/-/g, ' ')} at position ${clamped + 1}`,
     }).then((ok) => {
       if (!ok) persistPreview(clamped, `Adding “${kind}” to preview…`);
     });
@@ -1265,25 +1271,32 @@ export function bootEditor() {
     if (!chip) {
       chip = document.createElement('span');
       chip.id = 'webmcp-chip';
-      chip.className = 'chip webmcp-chip';
+      chip.className = 'webmcp-chip';
       s.statusEl?.appendChild(chip);
     }
     const info = window.__tbWebMcp;
     if (!info) {
-      chip.textContent = 'WebMCP…';
+      chip.textContent = 'Connecting WebMCP…';
       chip.classList.remove('ok', 'error');
+      chip.title = 'Waiting for the browser modelContext API so Cursor can drive this editor.';
       return;
     }
     if (info.ready) {
-      chip.textContent = `WebMCP · ${info.tools}`;
+      const names = info.toolNames || [];
+      const shown = names.slice(0, 8).join(', ');
+      const extra = names.length > 8 ? ` +${names.length - 8} more` : '';
+      const hosts = (info.contexts || []).map((c) => c.label).join(', ') || 'the browser';
+      chip.textContent = `WebMCP on · ${info.tools} tools`;
       chip.classList.add('ok');
       chip.classList.remove('error');
-      chip.title = `Registered ${info.tools} tools on ${(info.contexts || []).map((c) => c.label).join(', ')}`;
+      chip.title = `This page registered ${info.tools} editing tools on ${hosts}${shown ? `: ${shown}${extra}` : ''}.`;
     } else {
       chip.textContent = 'WebMCP off';
       chip.classList.add('error');
       chip.classList.remove('ok');
-      chip.title = (info.errors || []).join(' · ') || 'No modelContext API';
+      chip.title =
+        (info.errors || []).join(' · ') ||
+        'No modelContext API in this browser — enable WebMCP in Chrome/Cursor to drive the editor.';
     }
   }
 
@@ -1327,7 +1340,7 @@ export function bootEditor() {
     renderSectionFields(highlightIndex ?? s.selectedSection);
     renderMeta();
     markDirty();
-    return persistPreview(highlightIndex ?? s.selectedSection, 'Agent updated preview…');
+    return persistPreview(highlightIndex ?? s.selectedSection, 'Preview updated');
   }
   s.refreshAfterStructural = refreshAfterStructural;
 

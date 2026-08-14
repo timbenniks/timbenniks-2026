@@ -5,6 +5,7 @@ import { documentMetaPatch } from "../lib/messaging.js";
 import { editorPathFor, hardNavigate } from "../lib/navigate.js";
 import { deepClone, getByPath } from "../lib/utils.js";
 import { LIST_SPECS, SECTION_FORM } from "./catalog.js";
+import { humanizePath } from "./paths.js";
 const FIELD_DESC_KEYS = [
   "key",
   "type",
@@ -140,6 +141,46 @@ function createVisualEditorFacade(s) {
     const leaf = String(info.rel || "").split(".")[0];
     return /^(source|limit|columns|tags|playlist|window|hideWhenEmpty)$/.test(leaf);
   }
+  function prettyKind(kind) {
+    return kind.replace(/-/g, " ");
+  }
+  function clip(value, n = 72) {
+    const raw = Array.isArray(value) ? value.map(String).join(", ") : typeof value === "string" ? value : value == null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value);
+    const t = raw.replace(/\s+/g, " ").trim();
+    if (!t) return "";
+    return t.length > n ? `${t.slice(0, n - 1)}\u2026` : t;
+  }
+  function humanizeKey(key) {
+    return key.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+  function describeSectionAt(index) {
+    const i = Number(index);
+    const section = s.draft.sections[i];
+    if (!section) return `section ${i + 1}`;
+    const sum = summarizeSection(section, i);
+    const kind = prettyKind(sum.kind);
+    const title = clip(sum.title, 40);
+    return title ? `${kind} \u201C${title}\u201D` : `${kind} (section ${i + 1})`;
+  }
+  function fieldPhrase(fullPath) {
+    if (fullPath.startsWith("metadata.")) {
+      return `page \xB7 ${humanizeKey(fullPath.slice("metadata.".length))}`;
+    }
+    const info = lookupFieldDef(fullPath);
+    const m = fullPath.match(/^sections\.(\d+)\.(.+)$/);
+    if (m) {
+      const section = info?.section || s.draft.sections[Number(m[1])];
+      const kind = section ? prettyKind(section.kind) : `section ${Number(m[1]) + 1}`;
+      const field = info?.def?.label || humanizePath(fullPath, Number(m[1])).label;
+      return `${kind} \xB7 ${field}`;
+    }
+    return fullPath;
+  }
+  function formatValue(value) {
+    if (value == null || value === "") return "";
+    if (typeof value === "boolean" || typeof value === "number") return String(value);
+    return `\u201C${clip(value)}\u201D`;
+  }
   function coerceAgentValue(def, value) {
     if (!def) return value;
     if (def.type === "multi-select") {
@@ -254,7 +295,7 @@ function createVisualEditorFacade(s) {
     },
     selectSection(index, opts = {}) {
       s.selectSection(Number(index), opts);
-      s.setStatus(`Agent selected section ${Number(index)}`, "ok");
+      s.setStatus(`Selecting ${describeSectionAt(index)}`, "ok");
       return facade.getState();
     },
     addSection({ kind, index } = {}) {
@@ -263,25 +304,29 @@ function createVisualEditorFacade(s) {
       }
       const at = index == null ? s.draft.sections.length : Number(index);
       s.insertSectionAt(at, kind);
-      s.setStatus(`Agent added ${kind} at ${at}`, "ok");
+      const insertedAt = Math.max(0, Math.min(at, s.draft.sections.length - 1));
+      s.setStatus(`Added ${prettyKind(kind)} at position ${insertedAt + 1}`, "ok");
       return {
         ...facade.getState(),
-        insertedAt: Math.max(0, Math.min(at, s.draft.sections.length - 1))
+        insertedAt
       };
     },
     moveSection({ from, to }) {
+      const label = describeSectionAt(from);
       s.moveSection(Number(from), Number(to));
-      s.setStatus(`Agent moved section ${from} \u2192 ${to}`, "ok");
+      s.setStatus(`Moved ${label} to position ${Number(to) + 1}`, "ok");
       return facade.getState();
     },
     duplicateSection(index) {
+      const label = describeSectionAt(index);
       s.duplicateSection(Number(index));
-      s.setStatus(`Agent duplicated section ${index}`, "ok");
+      s.setStatus(`Duplicated ${label}`, "ok");
       return facade.getState();
     },
     deleteSection(index) {
+      const label = describeSectionAt(index);
       s.deleteSection(Number(index));
-      s.setStatus(`Agent deleted section ${index}`, "ok");
+      s.setStatus(`Deleted ${label}`, "ok");
       return facade.getState();
     },
     async replaceSection({ index, section }) {
@@ -300,7 +345,7 @@ function createVisualEditorFacade(s) {
       s.selectedSection = i;
       await s.refreshAfterStructural(i);
       s.selectSection(i);
-      s.setStatus(`Agent replaced section ${i} (${section.kind})`, "ok");
+      s.setStatus(`Replaced section ${i + 1} with ${prettyKind(section.kind)}`, "ok");
       return facade.getSection(i);
     },
     async patchSection({ index, patch }) {
@@ -322,7 +367,9 @@ function createVisualEditorFacade(s) {
       s.selectedSection = i;
       await s.refreshAfterStructural(i);
       s.selectSection(i);
-      s.setStatus(`Agent patched section ${i}`, "ok");
+      const keys = Object.keys(patch).filter((k) => k !== "kind");
+      const fields = keys.map(humanizeKey).join(", ") || "content";
+      s.setStatus(`Updated ${describeSectionAt(i)} \xB7 ${fields}`, "ok");
       return facade.getSection(i);
     },
     setField({ path, value, sectionIndex, structural = false }) {
@@ -346,7 +393,8 @@ function createVisualEditorFacade(s) {
         const at = idx;
         return s.refreshAfterStructural(at).then(() => {
           s.selectSection(at, { keepPath: true, focusPath: fullPath });
-          s.setStatus(`Agent set ${fullPath}`, "ok");
+          const shown2 = formatValue(s.getByPath(s.draft, fullPath));
+          s.setStatus(shown2 ? `Set ${fieldPhrase(fullPath)} \u2192 ${shown2}` : `Set ${fieldPhrase(fullPath)}`, "ok");
           return { path: fullPath, value: s.getByPath(s.draft, fullPath), previewReloaded: true };
         });
       }
@@ -359,7 +407,8 @@ function createVisualEditorFacade(s) {
       } else if (fullPath.startsWith("metadata.")) {
         s.renderMeta();
       }
-      s.setStatus(`Agent set ${fullPath}`, "ok");
+      const shown = formatValue(s.getByPath(s.draft, fullPath));
+      s.setStatus(shown ? `Set ${fieldPhrase(fullPath)} \u2192 ${shown}` : `Set ${fieldPhrase(fullPath)}`, "ok");
       return { path: fullPath, value: s.getByPath(s.draft, fullPath), previewReloaded: false };
     },
     updateMetadata(fields) {
@@ -379,7 +428,8 @@ function createVisualEditorFacade(s) {
       }
       s.renderMeta();
       s.markDirty();
-      s.setStatus("Agent updated metadata", "ok");
+      const keys = Object.keys(fields).filter((k) => k !== "pageId" && k !== "id");
+      s.setStatus(`Updated page metadata \xB7 ${keys.map(humanizeKey).join(", ") || "fields"}`, "ok");
       return deepClone(s.draft.metadata);
     },
     setDevice(mode) {
@@ -387,7 +437,7 @@ function createVisualEditorFacade(s) {
         throw new Error("mode must be desktop, mobile, or full");
       }
       s.setDevice(mode);
-      s.setStatus(`Agent preview: ${mode}`, "ok");
+      s.setStatus(`Preview width: ${mode}`, "ok");
       return { deviceMode: mode };
     },
     undo() {
@@ -403,7 +453,7 @@ function createVisualEditorFacade(s) {
       return { ...facade.getState(), dirty: s.dirty };
     },
     async refreshPreview() {
-      await s.persistPreview(s.selectedSection, "Agent refreshing preview\u2026");
+      await s.persistPreview(s.selectedSection, "Refreshing the preview\u2026");
       return facade.getState();
     },
     async searchImages({
@@ -442,7 +492,7 @@ function createVisualEditorFacade(s) {
       const n = data.assets?.length ?? 0;
       const metaNote = data.metadata?.used && data.metadata?.terms?.length ? ` (metadata: ${data.metadata.terms.slice(0, 5).join(", ")})` : "";
       const visionNote = data.vision?.used ? ` (vision-ranked from ${data.vision.candidates} thumbs)` : data.vision?.error ? ` (${data.vision.error})` : "";
-      s.setStatus(`Found ${n} Cloudinary images${metaNote}${visionNote}`, "ok");
+      s.setStatus(`Found ${n} image${n === 1 ? "" : "s"} in the media library${metaNote}${visionNote}`, "ok");
       return data;
     },
     async getImageLibraryConfig() {
@@ -478,7 +528,7 @@ function createVisualEditorFacade(s) {
       }
       s.clearPreviewPersistTimer();
       await s.persistPreview(sectionIdx, "Updating image preview\u2026");
-      s.setStatus(`Agent set image ${fieldPath}`, "ok");
+      s.setStatus(`Set image on ${fieldPhrase(fieldPath)}`, "ok");
       return {
         path: fieldPath,
         src: s.getByPath(s.draft, fieldPath),
@@ -559,7 +609,7 @@ function createVisualEditorFacade(s) {
       arr.push(item != null ? deepClone(item) : spec.create());
       await s.refreshAfterStructural(i);
       const last = arr.length - 1;
-      s.setStatus(`Agent added item at ${listPath}.${last}`, "ok");
+      s.setStatus(`Added to ${spec.label} on ${describeSectionAt(i)}`, "ok");
       return {
         listPath,
         index: last,
@@ -593,11 +643,11 @@ function createVisualEditorFacade(s) {
       s.checkpoint();
       arr.splice(idx, 1);
       await s.refreshAfterStructural(i);
-      s.setStatus(`Agent removed item at ${listPath}.${idx}`, "ok");
+      s.setStatus(`Removed from ${spec.label} on ${describeSectionAt(i)}`, "ok");
       return facade.getState();
     },
     async moveListItem({ sectionIndex, listKey, nestedKey, parentItemIndex, from, to } = {}) {
-      const { i, listPath } = resolveListTarget({
+      const { i, spec, listPath } = resolveListTarget({
         sectionIndex,
         listKey,
         nestedKey,
@@ -618,7 +668,10 @@ function createVisualEditorFacade(s) {
       const [moved] = arr.splice(fromIdx, 1);
       arr.splice(toIdx, 0, moved);
       await s.refreshAfterStructural(i);
-      s.setStatus(`Agent moved item ${fromIdx} \u2192 ${toIdx} in ${listPath}`, "ok");
+      s.setStatus(
+        `Reordered ${spec.label} on ${describeSectionAt(i)} (${fromIdx + 1} \u2192 ${toIdx + 1})`,
+        "ok"
+      );
       return facade.getState();
     },
     async getChanges() {
