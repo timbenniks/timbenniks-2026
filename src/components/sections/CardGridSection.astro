@@ -61,9 +61,9 @@ const showHeading = Boolean(eyebrow || title || lede);
     ]}
     data-pagefind-ignore={pagefindIgnore ? true : undefined}
   >
-    {items.map((item, i) => (
+    {items.map((item) => (
       <li>
-        <Card item={item} format="standard" eager={i < 3} />
+        <Card item={item} format="standard" />
       </li>
     ))}
   </ul>

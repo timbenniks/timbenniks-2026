@@ -8,7 +8,7 @@ import Eyebrow from '../../components/primitives/Eyebrow.astro';
 import Meta from '../../components/primitives/Meta.astro';
 import JsonLd from '../../components/primitives/JsonLd.astro';
 import TagPill from '../../components/primitives/TagPill.astro';
-import MediaFrame from '../../components/primitives/MediaFrame.astro';
+import YoutubeEmbed from '../../components/primitives/YoutubeEmbed.astro';
 import AuthorByline from '../../components/primitives/AuthorByline.astro';
 import Button from '../../components/primitives/Button.astro';
 import RelatedCards from '../../components/RelatedCards.astro';
@@ -45,12 +45,13 @@ const playlistUrl = playlistHref(entry.data.playlist);
 const playlistName = playlistLabel(entry.data.playlist);
 
 const { url: ytPosterSrc } = await resolveYoutubeThumbnail(entry.data.videoId);
-const [ytThumbImg, litePosterImg] = await Promise.all([
-  getImage({ src: ytPosterSrc, width: 1280, height: 720, alt: entry.data.title }),
-  getImage({ src: ytPosterSrc, width: 720, height: 405, alt: entry.data.title }),
-]);
+const ytThumbImg = await getImage({
+  src: ytPosterSrc,
+  width: 1280,
+  height: 720,
+  alt: entry.data.title,
+});
 const ytThumb = ytThumbImg.src;
-const litePoster = litePosterImg.src;
 
 const allVideos = await getCollection('videos');
 const related = await Promise.all(relatedVideos(entry, allVideos).map(videoToCard));
@@ -121,27 +122,25 @@ const videoGraph = buildGraph(
 
         {
           entry.data.videoId && (
-            <MediaFrame aspect="video" class="mt-10">
-              <lite-youtube
-                videoid={entry.data.videoId}
-                videotitle={entry.data.title}
-                style={`background-image: url('${litePoster}');`}
-              ></lite-youtube>
-            </MediaFrame>
+            <YoutubeEmbed
+              class="mt-10"
+              videoId={entry.data.videoId}
+              title={entry.data.title}
+              poster={ytThumb}
+            />
           )
         }
 
         <div class="mt-12 flex flex-col gap-12 lg:flex-row lg:gap-14">
           <div class="min-w-0 flex-1">
-            {
-              entry.data.description && (
-                <p class="max-w-[720px] font-serif text-xl leading-snug text-ink">
-                  {entry.data.description}
-                </p>
-              )
-            }
-
-            <div class:list={[articleBodyClass, 'mt-8 max-w-[720px] space-y-5 text-ink leading-relaxed']}>
+            <div class:list={[articleBodyClass, 'max-w-[720px] space-y-5 text-ink leading-relaxed']}>
+              {
+                entry.data.description &&
+                  entry.data.description
+                    .trim()
+                    .split(/\n{2,}/)
+                    .map((paragraph) => <p>{paragraph}</p>)
+              }
               <Content />
             </div>
 
@@ -190,8 +189,3 @@ const videoGraph = buildGraph(
     </Container>
   </Section>
 </BaseLayout>
-
-<script>
-  import 'lite-youtube-embed';
-  import 'lite-youtube-embed/src/lite-yt-embed.css';
-</script>

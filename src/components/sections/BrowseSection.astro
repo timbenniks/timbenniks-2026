@@ -56,9 +56,9 @@ const gridCols = columns === 2 ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols
       data-pagefind-ignore={pagefindIgnore ? true : undefined}
       role="list"
     >
-      {items.map((item, i) => (
+      {items.map((item) => (
         <li>
-          <Card item={item} format="standard" eager={i < 3} />
+          <Card item={item} format="standard" />
         </li>
       ))}
     </ul>
