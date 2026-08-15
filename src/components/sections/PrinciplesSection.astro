@@ -1,0 +1,56 @@
+---
+import Section from '../primitives/Section.astro';
+import SectionHeading from '../primitives/SectionHeading.astro';
+import { editAttr, editPath } from '../../lib/admin/edit-path';
+
+interface Props {
+  editBase?: string;
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  tone?: 'light' | 'dark';
+  items: { kicker?: string; title: string; body: string }[];
+}
+
+const { editBase, eyebrow, title, lede, tone = 'light', items } = Astro.props;
+const dark = tone === 'dark';
+---
+
+<Section tone={tone} padding="lg" bordered>
+  <SectionHeading editBase={editBase} eyebrow={eyebrow} title={title} lede={lede} dark={dark} />
+  <ol class="mt-14 flex flex-col gap-12 md:gap-16">
+    {items.map((item, i) => (
+      <li class="grid grid-cols-1 gap-4 md:grid-cols-[7rem_1fr] md:gap-12">
+        <p
+          class:list={[
+            'font-mono text-sm uppercase tracking-wide md:pt-2',
+            dark ? 'text-accent-bright' : 'text-accent',
+          ]}
+          {...editAttr(editPath(editBase, 'items', i, 'kicker'))}
+        >
+          {item.kicker || String(i + 1).padStart(2, '0')}
+        </p>
+        <div class="max-w-prose-lg">
+          <h3
+            class:list={[
+              'font-serif text-3xl leading-tight md:text-4xl',
+              dark ? 'text-cream' : 'text-ink',
+            ]}
+            {...editAttr(editPath(editBase, 'items', i, 'title'))}
+          >
+            {item.title}
+          </h3>
+          <p
+            class:list={[
+              'mt-4 text-base leading-relaxed md:text-lg',
+              dark ? 'text-cream-muted' : 'text-ink-muted',
+            ]}
+            {...editAttr(editPath(editBase, 'items', i, 'body'))}
+          >
+            {item.body}
+          </p>
+        </div>
+      </li>
+    ))}
+  </ol>
+</Section>

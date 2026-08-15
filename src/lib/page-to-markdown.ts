@@ -67,7 +67,10 @@ function sectionToMarkdown(section: PageSection): string {
     case 'inventory': {
       const groups = section.groups.map((g) => {
         const items = g.items
-          .map((i) => `- **${i.name}**${i.note ? ` — ${i.note}` : ''}`)
+          .map((i) => {
+            const name = i.href ? `[${i.name}](${i.href})` : i.name;
+            return `- **${name}**${i.note ? ` — ${i.note}` : ''}`;
+          })
           .join('\n');
         return `### ${g.heading}\n\n${items}`;
       });
@@ -139,6 +142,37 @@ function sectionToMarkdown(section: PageSection): string {
     case 'cta-strip': {
       const text = `${section.text}${section.em ?? ''}`;
       return [text, ...ctaLine(section.ctas)].filter(Boolean).join('\n\n');
+    }
+    case 'principles': {
+      const items = section.items.map((i, n) => {
+        const kicker = i.kicker || String(n + 1).padStart(2, '0');
+        return `### ${kicker} · ${i.title}\n\n${i.body}`;
+      });
+      return [...heading(section), ...items].filter(Boolean).join('\n\n');
+    }
+    case 'logo-row': {
+      const items = section.items.map((i) =>
+        i.href ? `- [${i.label}](${i.href})${i.note ? ` — ${i.note}` : ''}` : `- ${i.label}${i.note ? ` — ${i.note}` : ''}`,
+      );
+      return [...heading(section), items.join('\n')].filter(Boolean).join('\n\n');
+    }
+    case 'downloads': {
+      const items = section.items.map((i) => {
+        const meta = i.meta ? ` (${i.meta})` : '';
+        const note = i.note ? ` — ${i.note}` : '';
+        return `- [${i.label}](${i.href})${meta}${note}`;
+      });
+      return [...heading(section), items.join('\n')].filter(Boolean).join('\n\n');
+    }
+    case 'swatches': {
+      const items = section.items.map((i) =>
+        `- **${i.name}** \`${i.hex}\`${i.usage ? ` — ${i.usage}` : ''}`,
+      );
+      return [...heading(section), items.join('\n')].filter(Boolean).join('\n\n');
+    }
+    case 'jump-nav': {
+      const items = section.items.map((i) => `- [${i.label}](${i.href})`);
+      return [section.label, items.join('\n')].filter(Boolean).join('\n\n');
     }
     default: {
       const _never: never = section;

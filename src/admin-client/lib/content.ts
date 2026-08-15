@@ -10,7 +10,7 @@ import type { PageData, PageSection } from '../../lib/page-schema';
 export type { PageData, PageSection, PageId, FixedPageId } from '../../lib/page-schema';
 export type { SiteChrome, NavLink, FooterColumn } from '../../lib/site-schema';
 
-/** The 16 section kinds, straight off the discriminated union. */
+/** Section kinds, straight off the discriminated union. */
 export type SectionKind = PageSection['kind'];
 
 export type PageMetadata = PageData['metadata'];

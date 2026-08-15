@@ -15,6 +15,11 @@ import CopyBlocksSection from "./sections/CopyBlocksSection.astro";
 import PhotoGridSection from "./sections/PhotoGridSection.astro";
 import TopicGridSection from "./sections/TopicGridSection.astro";
 import FactsheetSection from "./sections/FactsheetSection.astro";
+import PrinciplesSection from "./sections/PrinciplesSection.astro";
+import LogoRowSection from "./sections/LogoRowSection.astro";
+import DownloadsSection from "./sections/DownloadsSection.astro";
+import SwatchesSection from "./sections/SwatchesSection.astro";
+import JumpNavSection from "./sections/JumpNavSection.astro";
 import type { AstroComponentFactory } from "astro/runtime/server/index.js";
 import {
   resolvePageSections,
@@ -55,6 +60,11 @@ const sectionComponents: Record<
   "photo-grid": PhotoGridSection,
   "topic-grid": TopicGridSection,
   factsheet: FactsheetSection,
+  principles: PrinciplesSection,
+  "logo-row": LogoRowSection,
+  downloads: DownloadsSection,
+  swatches: SwatchesSection,
+  "jump-nav": JumpNavSection,
 };
 ---
 
@@ -63,7 +73,10 @@ const sectionComponents: Record<
     const Component = sectionComponents[section.kind];
     return (
       <div
-        class:list={[editEnabled && "tb-ve-block"]}
+        class:list={[
+          editEnabled && "tb-ve-block",
+          section.kind === "jump-nav" && "sticky top-[4.75rem] z-40",
+        ]}
         {...sectionEditAttrs(i, section.kind, pageId)}
       >
         <Component

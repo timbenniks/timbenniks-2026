@@ -1,0 +1,72 @@
+---
+import Section from '../primitives/Section.astro';
+import SectionHeading from '../primitives/SectionHeading.astro';
+import { editAttr, editPath } from '../../lib/admin/edit-path';
+
+interface Props {
+  editBase?: string;
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  tone?: 'light' | 'dark';
+  items: { label: string; href: string; meta?: string; note?: string }[];
+}
+
+const { editBase, eyebrow, title, lede, tone = 'light', items } = Astro.props;
+const dark = tone === 'dark';
+---
+
+<Section tone={tone} padding="lg" bordered>
+  <div class="grid grid-cols-1 gap-12 md:grid-cols-[1fr_1.4fr]">
+    <SectionHeading editBase={editBase} eyebrow={eyebrow} title={title} lede={lede} dark={dark} />
+    <ul class="flex flex-col">
+      {items.map((item, i) => (
+        <li
+          class:list={[
+            'border-b first:border-t',
+            dark ? 'border-line-dark' : 'border-line',
+          ]}
+        >
+          <a
+            href={item.href}
+            class="group grid grid-cols-[1fr_auto] items-baseline gap-4 py-5 no-underline"
+            download
+          >
+            <span>
+              <span
+                class:list={[
+                  'font-serif text-lg leading-snug',
+                  dark ? 'text-cream group-hover:text-accent-bright' : 'text-ink group-hover:text-accent',
+                ]}
+                {...editAttr(editPath(editBase, 'items', i, 'label'))}
+              >
+                {item.label}
+              </span>
+              {item.note && (
+                <span
+                  class:list={[
+                    'mt-1 block text-sm',
+                    dark ? 'text-cream-muted' : 'text-ink-muted',
+                  ]}
+                  {...editAttr(editPath(editBase, 'items', i, 'note'))}
+                >
+                  {item.note}
+                </span>
+              )}
+            </span>
+            <span
+              class:list={[
+                'font-mono text-[11px] uppercase tracking-wide',
+                dark ? 'text-cream-subtle' : 'text-ink-subtle',
+              ]}
+              {...editAttr(editPath(editBase, 'items', i, 'meta'))}
+            >
+              {item.meta ?? 'Download'}
+              <span aria-hidden="true" class="ml-2">↓</span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</Section>

@@ -105,6 +105,74 @@ function newSection(kind: SectionKind): SectionInput {
         em: ' Let’s talk.',
         ctas: [{ label: 'Get in touch', href: 'mailto:hi@timbenniks.dev', variant: 'accent' }],
       };
+    case 'principles':
+      return {
+        kind: 'principles',
+        eyebrow: 'Principles',
+        title: 'How this works',
+        tone: 'dark',
+        items: [
+          {
+            kicker: '01',
+            title: 'A clear first principle',
+            body: 'One or two sentences. Keep it concrete — this layout is for manifesto points, not paragraphs.',
+          },
+          {
+            kicker: '02',
+            title: 'A second beat',
+            body: 'Add three to five items. Numbered kickers are optional; the index fills in if you leave them blank.',
+          },
+        ],
+      };
+    case 'logo-row':
+      return {
+        kind: 'logo-row',
+        eyebrow: 'With',
+        title: 'Affiliations',
+        tone: 'light',
+        items: [
+          { label: 'Partner one', note: 'Role', href: 'https://example.com' },
+          { label: 'Partner two', note: 'Ambassador' },
+          { label: 'Partner three', note: 'Member' },
+        ],
+      };
+    case 'downloads':
+      return {
+        kind: 'downloads',
+        eyebrow: 'Assets',
+        title: 'Downloads',
+        lede: 'Full-resolution files. Credit is not required.',
+        tone: 'light',
+        items: [
+          {
+            label: 'Studio portrait',
+            href: 'https://res.cloudinary.com/dwfcofnrd/image/upload/Tim/tim_june_2024.jpg',
+            meta: 'JPEG',
+            note: 'Headshot, 2024',
+          },
+        ],
+      };
+    case 'swatches':
+      return {
+        kind: 'swatches',
+        eyebrow: 'Brand',
+        title: 'Colors',
+        lede: 'The live site palette. Copy the hex.',
+        items: [
+          { name: 'Ink', hex: '#0A0A0A', usage: 'Body text' },
+          { name: 'Accent', hex: '#0062FF', usage: 'Links and buttons' },
+          { name: 'Page', hex: '#FFFDF8', usage: 'Background' },
+        ],
+      };
+    case 'jump-nav':
+      return {
+        kind: 'jump-nav',
+        label: 'On this page',
+        items: [
+          { label: 'First section', href: '#first' },
+          { label: 'Second section', href: '#second' },
+        ],
+      };
     case 'quote-callout':
       return {
         kind: 'quote-callout',
@@ -506,6 +574,12 @@ export const SECTION_FORM: Record<SectionKind, SectionFormSpec> = {
       { key: 'title', type: 'text' },
       { key: 'lede', type: 'textarea' },
       { key: 'tone', type: 'select', options: ['light', 'dark'] },
+      {
+        key: 'anchor',
+        type: 'text',
+        label: 'Anchor id',
+        hint: 'Optional. Used by jump-nav, e.g. computer-desk',
+      },
     ],
   },
   'copy-blocks': {
@@ -611,6 +685,40 @@ export const SECTION_FORM: Record<SectionKind, SectionFormSpec> = {
       { key: 'em', type: 'text', label: 'Emphasis' },
     ],
   },
+  principles: {
+    fields: [
+      { key: 'eyebrow', type: 'text' },
+      { key: 'title', type: 'text' },
+      { key: 'lede', type: 'textarea' },
+      { key: 'tone', type: 'select', options: ['light', 'dark'] },
+    ],
+  },
+  'logo-row': {
+    fields: [
+      { key: 'eyebrow', type: 'text' },
+      { key: 'title', type: 'text' },
+      { key: 'lede', type: 'textarea' },
+      { key: 'tone', type: 'select', options: ['light', 'dark'] },
+    ],
+  },
+  downloads: {
+    fields: [
+      { key: 'eyebrow', type: 'text' },
+      { key: 'title', type: 'text' },
+      { key: 'lede', type: 'textarea' },
+      { key: 'tone', type: 'select', options: ['light', 'dark'] },
+    ],
+  },
+  swatches: {
+    fields: [
+      { key: 'eyebrow', type: 'text' },
+      { key: 'title', type: 'text' },
+      { key: 'lede', type: 'textarea' },
+    ],
+  },
+  'jump-nav': {
+    fields: [{ key: 'label', type: 'text', label: 'Label' }],
+  },
 };
 
 /** Nested array editors — add / remove / reorder instead of leaf-only fallback. */
@@ -699,6 +807,7 @@ export const LIST_SPECS: Partial<Record<SectionKind, ListSpec[]>> = {
         fields: [
           { key: 'name', type: 'text' },
           { key: 'note', type: 'text' },
+          { key: 'href', type: 'text', label: 'Link' },
         ],
       },
     },
@@ -789,6 +898,80 @@ export const LIST_SPECS: Partial<Record<SectionKind, ListSpec[]>> = {
         { key: 'location', type: 'text' },
         { key: 'url', type: 'text' },
         { key: 'text', type: 'textarea' },
+      ],
+    },
+  ],
+  principles: [
+    {
+      key: 'items',
+      label: 'Principles',
+      min: 1,
+      create: () => ({
+        kicker: '01',
+        title: 'New principle',
+        body: 'One or two sentences.',
+      }),
+      fields: [
+        { key: 'kicker', type: 'text', label: 'Kicker', hint: 'Optional. Falls back to 01, 02, …' },
+        { key: 'title', type: 'text' },
+        { key: 'body', type: 'textarea' },
+      ],
+    },
+  ],
+  'logo-row': [
+    {
+      key: 'items',
+      label: 'Marks',
+      min: 1,
+      create: () => ({ label: 'Name', note: '', href: '' }),
+      fields: [
+        { key: 'label', type: 'text' },
+        { key: 'note', type: 'text' },
+        { key: 'href', type: 'text', label: 'Link' },
+      ],
+    },
+  ],
+  downloads: [
+    {
+      key: 'items',
+      label: 'Files',
+      min: 1,
+      create: () => ({
+        label: 'New file',
+        href: 'https://res.cloudinary.com/dwfcofnrd/image/upload/website/tim-hero-square.png',
+        meta: 'JPEG',
+        note: '',
+      }),
+      fields: [
+        { key: 'label', type: 'text' },
+        { key: 'href', type: 'url', label: 'File URL' },
+        { key: 'meta', type: 'text', label: 'Meta', hint: 'e.g. JPEG · 2400×1600' },
+        { key: 'note', type: 'text' },
+      ],
+    },
+  ],
+  swatches: [
+    {
+      key: 'items',
+      label: 'Swatches',
+      min: 1,
+      create: () => ({ name: 'Ink', hex: '#0A0A0A', usage: 'Body text' }),
+      fields: [
+        { key: 'name', type: 'text' },
+        { key: 'hex', type: 'text', label: 'Hex', hint: '#RGB or #RRGGBB' },
+        { key: 'usage', type: 'text' },
+      ],
+    },
+  ],
+  'jump-nav': [
+    {
+      key: 'items',
+      label: 'Links',
+      min: 1,
+      create: () => ({ label: 'Section', href: '#section' }),
+      fields: [
+        { key: 'label', type: 'text' },
+        { key: 'href', type: 'text', label: 'Href', hint: 'In-page, e.g. #computer-desk' },
       ],
     },
   ],

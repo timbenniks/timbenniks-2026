@@ -13,8 +13,12 @@
   --color-line-strong: rgb(0 0 0 / 0.22);
   --color-line-dark: #2a2a2a;
   --color-line-dark-hover: #555555;
+  /* accent: text on light + button fill (4.93:1 on bg, 5.01:1 white-on). */
   --color-accent: #0062ff;
-  --color-accent-bright: #2a7bff;
+  /* accent-bright: text on dark surfaces only (5.02:1 on bg-dark-card). */
+  --color-accent-bright: #3a8bff;
+  /* accent-hover: darker fill/link hover so white text stays ≥4.5:1. */
+  --color-accent-hover: #0056e6;
   --color-cream: #f1f1f1;
   --color-cream-muted: #bcbcbc;
   --color-cream-subtle: #9a9a9a;

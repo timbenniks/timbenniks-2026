@@ -9,6 +9,7 @@ interface Props {
   padding?: Padding;
   bordered?: boolean;
   contained?: boolean;
+  id?: string;
   class?: string;
 }
 
@@ -17,6 +18,7 @@ const {
   padding = 'md',
   bordered = false,
   contained = true,
+  id,
   class: className = '',
 } = Astro.props;
 
@@ -36,6 +38,7 @@ const paddingClass: Record<Padding, string> = {
 ---
 
 <section
+  id={id}
   class:list={[
     toneClass[tone],
     paddingClass[padding],

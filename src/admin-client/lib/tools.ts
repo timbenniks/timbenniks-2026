@@ -46,6 +46,11 @@ const SECTION_KIND_HELP = {
   faq: 'FAQ accordion items',
   timeline: 'Career / history timeline',
   'cta-strip': 'Short call-to-action band',
+  principles: 'Numbered manifesto points (large type, not a 2-col grid)',
+  'logo-row': 'Affiliation / partner name row',
+  downloads: 'Downloadable asset list (press photos, files)',
+  swatches: 'Brand color chips with hex + usage',
+  'jump-nav': 'Sticky on-page section links',
 } satisfies Record<SectionKind, string>;
 
 /** Insertable kinds, in help-map order. The `satisfies` above pins the keys. */

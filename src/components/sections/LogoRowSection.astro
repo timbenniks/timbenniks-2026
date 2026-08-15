@@ -1,0 +1,85 @@
+---
+import Section from '../primitives/Section.astro';
+import SectionHeading from '../primitives/SectionHeading.astro';
+import { editAttr, editPath } from '../../lib/admin/edit-path';
+
+interface Props {
+  editBase?: string;
+  eyebrow?: string;
+  title?: string;
+  lede?: string;
+  tone?: 'light' | 'dark';
+  items: { label: string; href?: string; note?: string }[];
+}
+
+const { editBase, eyebrow, title, lede, tone = 'light', items } = Astro.props;
+const dark = tone === 'dark';
+const showHeading = Boolean(eyebrow || title || lede);
+---
+
+<Section tone={tone} padding={showHeading ? 'lg' : 'md'} bordered>
+  {showHeading && title && (
+    <SectionHeading editBase={editBase} eyebrow={eyebrow} title={title} lede={lede} dark={dark} />
+  )}
+  {!title && eyebrow && (
+    <p
+      class:list={[
+        'mb-6 font-mono text-xs uppercase tracking-wide',
+        dark ? 'text-cream-subtle' : 'text-ink-subtle',
+      ]}
+      {...editAttr(editPath(editBase, 'eyebrow'))}
+    >
+      {eyebrow}
+    </p>
+  )}
+  <ul
+    class:list={[
+      'grid grid-cols-2 gap-px sm:grid-cols-3 lg:grid-cols-6',
+      showHeading && title ? 'mt-10' : '',
+      dark ? 'bg-line-dark' : 'bg-line',
+    ]}
+  >
+    {items.map((item, i) => {
+      const classes = [
+        'group flex flex-col justify-center gap-1 px-4 py-6 no-underline',
+        dark ? 'bg-bg-dark' : 'bg-bg',
+      ];
+      const inner = (
+        <>
+          <span
+            class:list={[
+              'font-serif text-xl leading-snug',
+              dark ? 'text-cream' : 'text-ink',
+              item.href && (dark ? 'group-hover:text-accent-bright' : 'group-hover:text-accent'),
+            ]}
+            {...editAttr(editPath(editBase, 'items', i, 'label'))}
+          >
+            {item.label}
+          </span>
+          {item.note && (
+            <span
+              class:list={[
+                'font-mono text-[11px] uppercase tracking-wide',
+                dark ? 'text-cream-subtle' : 'text-ink-subtle',
+              ]}
+              {...editAttr(editPath(editBase, 'items', i, 'note'))}
+            >
+              {item.note}
+            </span>
+          )}
+        </>
+      );
+      return (
+        <li class:list={[dark ? 'bg-bg-dark' : 'bg-bg']}>
+          {item.href ? (
+            <a href={item.href} class:list={classes}>
+              {inner}
+            </a>
+          ) : (
+            <div class:list={classes}>{inner}</div>
+          )}
+        </li>
+      );
+    })}
+  </ul>
+</Section>

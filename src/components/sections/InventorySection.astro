@@ -3,7 +3,7 @@ import Section from '../primitives/Section.astro';
 import SectionHeading from '../primitives/SectionHeading.astro';
 import { editAttr, editPath } from '../../lib/admin/edit-path';
 
-type Item = { name: string; note?: string };
+type Item = { name: string; note?: string; href?: string };
 type Group = { heading: string; items: Item[] };
 
 interface Props {
@@ -12,14 +12,15 @@ interface Props {
   title: string;
   lede?: string;
   tone?: 'light' | 'dark';
+  anchor?: string;
   groups: Group[];
 }
 
-const { editBase, eyebrow, title, lede, tone = 'light', groups } = Astro.props;
+const { editBase, eyebrow, title, lede, tone = 'light', groups, anchor } = Astro.props;
 const dark = tone === 'dark';
 ---
 
-<Section bordered padding="lg" tone={tone}>
+<Section bordered padding="lg" tone={tone} id={anchor} class={anchor ? 'scroll-mt-36' : undefined}>
   <div class="grid grid-cols-1 gap-12 md:grid-cols-[1fr_1.4fr]">
     <div class="md:sticky md:top-24 md:self-start">
       <SectionHeading editBase={editBase} eyebrow={eyebrow} title={title} lede={lede} dark={dark} />
@@ -52,7 +53,19 @@ const dark = tone === 'dark';
                   ]}
                   {...editAttr(editPath(editBase, 'groups', gi, 'items', ii, 'name'))}
                 >
-                  {item.name}
+                  {item.href ? (
+                    <a
+                      href={item.href}
+                      class:list={[
+                        'no-underline underline-offset-[3px] hover:underline',
+                        dark ? 'hover:text-accent-bright' : 'hover:text-accent',
+                      ]}
+                    >
+                      {item.name}
+                    </a>
+                  ) : (
+                    item.name
+                  )}
                 </span>
                 {item.note && (
                   <span

@@ -1,0 +1,49 @@
+---
+import Section from '../primitives/Section.astro';
+import SectionHeading from '../primitives/SectionHeading.astro';
+import { editAttr, editPath } from '../../lib/admin/edit-path';
+
+interface Props {
+  editBase?: string;
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  items: { name: string; hex: string; usage?: string }[];
+}
+
+const { editBase, eyebrow, title, lede, items } = Astro.props;
+---
+
+<Section bordered padding="lg">
+  <SectionHeading editBase={editBase} eyebrow={eyebrow} title={title} lede={lede} />
+  <ul class="mt-12 grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-5">
+    {items.map((item, i) => (
+      <li class="flex flex-col gap-3">
+        <div
+          class="aspect-4/3 border border-line"
+          style={`background:${item.hex}`}
+          aria-hidden="true"
+        />
+        <div>
+          <p class="font-serif text-lg text-ink" {...editAttr(editPath(editBase, 'items', i, 'name'))}>
+            {item.name}
+          </p>
+          <p
+            class="mt-0.5 font-mono text-xs uppercase tracking-wide text-ink-subtle"
+            {...editAttr(editPath(editBase, 'items', i, 'hex'))}
+          >
+            {item.hex}
+          </p>
+          {item.usage && (
+            <p
+              class="mt-2 text-sm text-ink-muted"
+              {...editAttr(editPath(editBase, 'items', i, 'usage'))}
+            >
+              {item.usage}
+            </p>
+          )}
+        </div>
+      </li>
+    ))}
+  </ul>
+</Section>

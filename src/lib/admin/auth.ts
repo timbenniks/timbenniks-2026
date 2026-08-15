@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import type { AstroCookies } from 'astro';
 import { serverEnv } from './server-env';
 
 const COOKIE = 'tb_admin';
@@ -63,13 +64,18 @@ export function readSessionCookie(cookieHeader: string | null): string | undefin
   return match?.[1];
 }
 
-export function sessionCookieHeader(token: string): string {
-  const secure = import.meta.env.PROD ? '; Secure' : '';
-  return `${COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${MAX_AGE}${secure}`;
+export function applySessionCookie(cookies: AstroCookies, token: string): void {
+  cookies.set(COOKIE, token, {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+    maxAge: MAX_AGE,
+    secure: import.meta.env.PROD,
+  });
 }
 
-export function clearSessionCookieHeader(): string {
-  return `${COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
+export function clearSessionCookie(cookies: AstroCookies): void {
+  cookies.delete(COOKIE, { path: '/' });
 }
 
 export function isAdminAuthed(request: Request): boolean {

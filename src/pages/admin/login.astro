@@ -1,7 +1,25 @@
 ---
 export const prerender = false;
 
-const next = Astro.url.searchParams.get('next') || '/admin';
+function safeAdminNext(raw: string | null): string {
+  const fallback = '/admin';
+  if (!raw) return fallback;
+  let path = raw;
+  if (/^https?:\/\//i.test(raw)) {
+    try {
+      path = new URL(raw).pathname;
+    } catch {
+      return fallback;
+    }
+  }
+  if (!path.startsWith('/') || path.startsWith('//')) return fallback;
+  if (!path.startsWith('/admin') || path.startsWith('/admin/login')) return fallback;
+  // Desk lives at /admin; /admin/pages is the editor namespace for /admin/pages/:id.
+  if (path === '/admin/pages' || path === '/admin/pages/') return fallback;
+  return path;
+}
+
+const next = safeAdminNext(Astro.url.searchParams.get('next'));
 ---
 
 <!doctype html>
@@ -63,6 +81,7 @@ const next = Astro.url.searchParams.get('next') || '/admin';
         err.textContent = '';
         const res = await fetch('/api/admin/login', {
           method: 'POST',
+          credentials: 'same-origin',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ password }),
         });

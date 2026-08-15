@@ -1,23 +1,20 @@
 import type { APIRoute } from 'astro';
 import {
+  applySessionCookie,
   createSessionToken,
-  sessionCookieHeader,
   verifyPassword,
   isDevAuthBypass,
 } from '../../../lib/admin/auth';
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
   const body = (await request.json().catch(() => ({}))) as { password?: string };
   if (isDevAuthBypass() || verifyPassword(body.password ?? '')) {
-    const token = createSessionToken(body.password ?? 'dev');
+    applySessionCookie(cookies, createSessionToken(body.password ?? 'dev'));
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Set-Cookie': sessionCookieHeader(token),
-      },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
   return new Response(JSON.stringify({ error: 'Invalid password' }), {

@@ -11,6 +11,8 @@ export function extractPressKit(data: PageData) {
   const topics: Array<{ title: string; body: string }> = [];
   const photos: Array<{ src: string; alt: string; label?: string }> = [];
   const facts: Array<{ term: string; value: string; href?: string }> = [];
+  const downloads: Array<{ label: string; href: string; meta?: string; note?: string }> = [];
+  const colors: Array<{ name: string; hex: string; usage?: string }> = [];
   let stages: string[] = [];
   let intro = '';
 
@@ -39,6 +41,12 @@ export function extractPressKit(data: PageData) {
       case 'factsheet':
         facts.push(...section.items);
         break;
+      case 'downloads':
+        downloads.push(...section.items);
+        break;
+      case 'swatches':
+        colors.push(...section.items);
+        break;
       default:
         break;
     }
@@ -58,5 +66,7 @@ export function extractPressKit(data: PageData) {
     stages,
     photos,
     facts,
+    downloads,
+    colors,
   };
 }

@@ -114,6 +114,8 @@ export const pageSectionSchema = z.discriminatedUnion('kind', [
     kind: z.literal('inventory'),
     ...headingFields,
     title: z.string(),
+    /** In-page id for jump-nav links, e.g. `computer-desk`. */
+    anchor: z.string().optional(),
     tone,
     groups: z.array(
       z.object({
@@ -122,6 +124,7 @@ export const pageSectionSchema = z.discriminatedUnion('kind', [
           z.object({
             name: z.string(),
             note: z.string().optional(),
+            href: z.string().optional(),
           }),
         ),
       }),
@@ -233,6 +236,69 @@ export const pageSectionSchema = z.discriminatedUnion('kind', [
       .array(cta.extend({ variant: z.enum(['primary', 'secondary', 'accent']).optional() }))
       .min(1),
   }),
+  z.object({
+    kind: z.literal('principles'),
+    ...headingFields,
+    title: z.string(),
+    tone,
+    items: z.array(
+      z.object({
+        kicker: z.string().optional(),
+        title: z.string(),
+        body: z.string(),
+      }),
+    ),
+  }),
+  z.object({
+    kind: z.literal('logo-row'),
+    ...headingFields,
+    tone,
+    items: z.array(
+      z.object({
+        label: z.string(),
+        href: z.string().optional(),
+        note: z.string().optional(),
+      }),
+    ),
+  }),
+  z.object({
+    kind: z.literal('downloads'),
+    ...headingFields,
+    title: z.string(),
+    tone,
+    items: z.array(
+      z.object({
+        label: z.string(),
+        href: z.string(),
+        meta: z.string().optional(),
+        note: z.string().optional(),
+      }),
+    ),
+  }),
+  z.object({
+    kind: z.literal('swatches'),
+    ...headingFields,
+    title: z.string(),
+    items: z.array(
+      z.object({
+        name: z.string(),
+        hex: z.string().regex(/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/, {
+          message: 'hex must be #RGB or #RRGGBB',
+        }),
+        usage: z.string().optional(),
+      }),
+    ),
+  }),
+  z.object({
+    kind: z.literal('jump-nav'),
+    label: z.string().optional(),
+    items: z.array(
+      z.object({
+        label: z.string(),
+        href: z.string(),
+      }),
+    ),
+  }),
 ]);
 
 export const pageDataSchema = z.object({
@@ -324,6 +390,11 @@ export const SECTION_KINDS = [
   'faq',
   'timeline',
   'cta-strip',
+  'principles',
+  'logo-row',
+  'downloads',
+  'swatches',
+  'jump-nav',
 ] as const satisfies readonly PageSection['kind'][];
 
 type SectionKindsCoverUnion<T extends never> = T;

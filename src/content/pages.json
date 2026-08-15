@@ -66,6 +66,43 @@
         }
       },
       {
+        "kind": "logo-row",
+        "eyebrow": "With",
+        "tone": "light",
+        "items": [
+          {
+            "label": "Contentstack",
+            "note": "DX Lead",
+            "href": "https://www.contentstack.com"
+          },
+          {
+            "label": "MACH Alliance",
+            "note": "Co-chair",
+            "href": "https://machalliance.org"
+          },
+          {
+            "label": "Nuxt",
+            "note": "Ambassador",
+            "href": "https://nuxt.com"
+          },
+          {
+            "label": "Cloudinary",
+            "note": "Ambassador",
+            "href": "https://cloudinary.com"
+          },
+          {
+            "label": "Supabase",
+            "note": "Ambassador",
+            "href": "https://supabase.com"
+          },
+          {
+            "label": "Algolia",
+            "note": "Ambassador",
+            "href": "https://www.algolia.com"
+          }
+        ]
+      },
+      {
         "kind": "feature-split",
         "eyebrow": "The journal",
         "title": "Recent writing",
@@ -217,6 +254,45 @@
           "label": "Find speaking info",
           "href": "/press-kit"
         }
+      },
+      {
+        "kind": "logo-row",
+        "eyebrow": "Where the work sits",
+        "title": "Platforms and alliances",
+        "lede": "The companies and communities that currently shape the work — not a logo wall, the actual affiliations.",
+        "tone": "light",
+        "items": [
+          {
+            "label": "Contentstack",
+            "note": "Developer Experience Lead",
+            "href": "https://www.contentstack.com"
+          },
+          {
+            "label": "MACH Alliance",
+            "note": "Enterprise AI Agents",
+            "href": "https://machalliance.org"
+          },
+          {
+            "label": "Nuxt",
+            "note": "Ambassador",
+            "href": "https://nuxt.com"
+          },
+          {
+            "label": "Cloudinary",
+            "note": "Ambassador",
+            "href": "https://cloudinary.com"
+          },
+          {
+            "label": "Supabase",
+            "note": "Ambassador",
+            "href": "https://supabase.com"
+          },
+          {
+            "label": "Algolia",
+            "note": "Ambassador",
+            "href": "https://www.algolia.com"
+          }
+        ]
       },
       {
         "kind": "quote-callout",
@@ -985,10 +1061,21 @@
         }
       },
       {
+        "kind": "jump-nav",
+        "label": "On this page",
+        "items": [
+          { "label": "Computer & desk", "href": "#computer-desk" },
+          { "label": "Audio & video", "href": "#audio-video" },
+          { "label": "Software", "href": "#software" },
+          { "label": "Music", "href": "#music" }
+        ]
+      },
+      {
         "kind": "inventory",
         "eyebrow": "Office",
         "title": "Computer & desk",
         "lede": "Boring on purpose. Reliable compute, a sit/stand desk, and enough Stream Deck buttons that recording never requires a scavenger hunt.",
+        "anchor": "computer-desk",
         "tone": "light",
         "groups": [
           {
@@ -1036,6 +1123,7 @@
         "eyebrow": "Studio",
         "title": "Audio & video",
         "lede": "Built to record talks, livestreams, and YouTube without thinking about gear mid-sentence. Redundant interfaces on purpose — failure during a live session is not an aesthetic.",
+        "anchor": "audio-video",
         "tone": "dark",
         "groups": [
           {
@@ -1103,6 +1191,7 @@
         "eyebrow": "Software",
         "title": "What runs all day",
         "lede": "A small kit, swapped slowly. The fewer surprises in the editor, the more attention left for the work.",
+        "anchor": "software",
         "tone": "light",
         "groups": [
           {
@@ -1110,19 +1199,23 @@
             "items": [
               {
                 "name": "Cursor",
-                "note": "Daily driver"
+                "note": "Daily driver",
+                "href": "https://cursor.com"
               },
               {
                 "name": "Visual Studio Code",
-                "note": "Night Owl · Material Icon Theme"
+                "note": "Night Owl · Material Icon Theme",
+                "href": "https://code.visualstudio.com"
               },
               {
                 "name": "Warp",
-                "note": "with zsh"
+                "note": "with zsh",
+                "href": "https://www.warp.dev"
               },
               {
                 "name": "Claude Code",
-                "note": "Heavy lifting in the terminal"
+                "note": "Heavy lifting in the terminal",
+                "href": "https://docs.anthropic.com/en/docs/claude-code"
               }
             ]
           },
@@ -1131,11 +1224,13 @@
             "items": [
               {
                 "name": "Arc",
-                "note": "Daily driver"
+                "note": "Daily driver",
+                "href": "https://arc.net"
               },
               {
                 "name": "Chrome",
-                "note": "For DevTools"
+                "note": "For DevTools",
+                "href": "https://www.google.com/chrome/"
               }
             ]
           },
@@ -1143,15 +1238,18 @@
             "heading": "Design & video",
             "items": [
               {
-                "name": "Figma"
+                "name": "Figma",
+                "href": "https://www.figma.com"
               },
               {
                 "name": "DaVinci Resolve",
-                "note": "YouTube edits"
+                "note": "YouTube edits",
+                "href": "https://www.blackmagicdesign.com/products/davinciresolve"
               },
               {
                 "name": "OBS",
-                "note": "Livestreaming"
+                "note": "Livestreaming",
+                "href": "https://obsproject.com"
               }
             ]
           }
@@ -1162,6 +1260,7 @@
         "eyebrow": "Off the clock",
         "title": "Music",
         "lede": "What happens after the laptop closes. Mostly tube amps, mostly old pedals, mostly loud.",
+        "anchor": "music",
         "tone": "dark",
         "groups": [
           {
@@ -1363,6 +1462,51 @@
         ]
       },
       {
+        "kind": "downloads",
+        "eyebrow": "Save these",
+        "title": "Headshots and stage photos",
+        "lede": "Full-resolution files from the grids above. Credit isn't required; a Bluesky tag is always welcome.",
+        "tone": "light",
+        "items": [
+          {
+            "label": "Studio portrait, June 2024",
+            "href": "https://res.cloudinary.com/dwfcofnrd/image/upload/Tim/tim_june_2024.jpg",
+            "meta": "JPEG",
+            "note": "Primary headshot"
+          },
+          {
+            "label": "Studio portrait, August 2023",
+            "href": "https://res.cloudinary.com/dwfcofnrd/image/upload/presskit/tim_aug_2023_no_logo.png",
+            "meta": "PNG",
+            "note": "No logo"
+          },
+          {
+            "label": "On-location, 2024",
+            "href": "https://res.cloudinary.com/dwfcofnrd/image/upload/presskit/IMG_0144",
+            "meta": "JPEG",
+            "note": "Candid"
+          },
+          {
+            "label": "FDLC keynote",
+            "href": "https://res.cloudinary.com/dwfcofnrd/image/upload/Presskit/FDLC2019_462.jpg",
+            "meta": "JPEG",
+            "note": "On stage"
+          },
+          {
+            "label": "Conference talk",
+            "href": "https://res.cloudinary.com/dwfcofnrd/image/upload/Tim/IMG_1020.jpg",
+            "meta": "JPEG",
+            "note": "On stage"
+          },
+          {
+            "label": "Live audience",
+            "href": "https://res.cloudinary.com/dwfcofnrd/image/upload/website/tim_on_stage.png",
+            "meta": "PNG",
+            "note": "Wide stage shot"
+          }
+        ]
+      },
+      {
         "kind": "topic-grid",
         "eyebrow": "Speaker topics",
         "title": "What I talk about",
@@ -1442,6 +1586,39 @@
         ]
       },
       {
+        "kind": "swatches",
+        "eyebrow": "Brand",
+        "title": "Colors from the live site",
+        "lede": "Use these if you need a slide, a lower-third, or a speaker card. Hex values match the production tokens.",
+        "items": [
+          {
+            "name": "Ink",
+            "hex": "#0A0A0A",
+            "usage": "Body text and primary buttons"
+          },
+          {
+            "name": "Page",
+            "hex": "#FFFDF8",
+            "usage": "Page background"
+          },
+          {
+            "name": "Accent",
+            "hex": "#0062FF",
+            "usage": "Links, accent buttons, focus rings"
+          },
+          {
+            "name": "On dark",
+            "hex": "#3A8BFF",
+            "usage": "Labels and links on black sections"
+          },
+          {
+            "name": "Stage",
+            "hex": "#111111",
+            "usage": "Dark bands and quote beats"
+          }
+        ]
+      },
+      {
         "kind": "cta-strip",
         "text": "Got a stage, a podcast, or a developer team that needs sharpening?",
         "em": " Let's talk.",
@@ -1492,25 +1669,36 @@
         "imageSide": "right"
       },
       {
-        "kind": "copy-blocks",
+        "kind": "principles",
         "eyebrow": "Principles",
-        "title": "Three ways in",
+        "title": "How this site treats agents",
         "lede": "Remote crawlers, in-tab agents, and humans who want the source — same content, different doors.",
+        "tone": "dark",
         "items": [
           {
-            "label": "01 · Markdown twins",
-            "body": "Every essay, video, project, and main page has a .md companion. Or send Accept: text/markdown to the HTML URL — the edge serves the twin.",
-            "style": "serif"
+            "kicker": "01",
+            "title": "HTML for humans",
+            "body": "The pages are designed to be read. Machine surfaces are twins of that reading experience, not a dump of the CMS."
           },
           {
-            "label": "02 · Indexes, not scrapes",
-            "body": "llms.txt, content-index.json, feeds, and sitemaps give agents a map first. Fetch what you need; skip dumping the whole corpus.",
-            "style": "serif"
+            "kicker": "02",
+            "title": "Maps, not scrapes",
+            "body": "Start at llms.txt, content-index.json, feeds, or the sitemap. Fetch the pages you need. Skip dumping the whole corpus."
           },
           {
-            "label": "03 · Tools in the tab",
-            "body": "When the browser exposes document.modelContext, six read-only WebMCP tools register on every public page. Search, list, get content, press kit, booking.",
-            "style": "serif"
+            "kicker": "03",
+            "title": "Tools in the tab",
+            "body": "When the browser exposes document.modelContext, six read-only WebMCP tools register on every public page: search, list, get content, press kit, booking."
+          },
+          {
+            "kicker": "04",
+            "title": "Same words, two doors",
+            "body": "Append .md to any writing, video, project, or main page URL. Or send Accept: text/markdown to the HTML URL — the edge serves the twin. Example: /about.md"
+          },
+          {
+            "kicker": "05",
+            "title": "Quote freely. Link back.",
+            "body": "That is the contract. Attribution is the whole ask."
           }
         ]
       },
@@ -1594,27 +1782,6 @@
             "answer": "How to book Tim for a conference, podcast, or workshop. Returns the email address and what to include — does not send email."
           }
         ]
-      },
-      {
-        "kind": "topic-grid",
-        "eyebrow": "Markdown everywhere",
-        "title": "Append .md",
-        "lede": "Writing, videos, projects, and the main static pages all have markdown twins. HTML pages advertise the twin with rel=\"alternate\".",
-        "items": [
-          {
-            "title": "URL twins",
-            "body": "Append .md to any /writing/<slug>, /videos/<slug>, /projects/<slug>, or static page URL — /about.md, /press-kit.md, /ai.md, and so on."
-          },
-          {
-            "title": "Content negotiation",
-            "body": "Send Accept: text/markdown to the canonical HTML URL. The edge rewrites to the markdown twin. Try: curl -H 'Accept: text/markdown' https://timbenniks.dev/about"
-          }
-        ],
-        "pills": [],
-        "noteBefore": "Example essay: ",
-        "noteHref": "/writing/when-output-is-cheap-taste-is-everything.md",
-        "noteLinkLabel": "when-output-is-cheap-taste-is-everything.md",
-        "noteAfter": ""
       },
       {
         "kind": "cta-strip",
