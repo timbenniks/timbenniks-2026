@@ -66,43 +66,6 @@
         }
       },
       {
-        "kind": "logo-row",
-        "eyebrow": "With",
-        "tone": "light",
-        "items": [
-          {
-            "label": "Contentstack",
-            "note": "DX Lead",
-            "href": "https://www.contentstack.com"
-          },
-          {
-            "label": "MACH Alliance",
-            "note": "Co-chair",
-            "href": "https://machalliance.org"
-          },
-          {
-            "label": "Nuxt",
-            "note": "Ambassador",
-            "href": "https://nuxt.com"
-          },
-          {
-            "label": "Cloudinary",
-            "note": "Ambassador",
-            "href": "https://cloudinary.com"
-          },
-          {
-            "label": "Supabase",
-            "note": "Ambassador",
-            "href": "https://supabase.com"
-          },
-          {
-            "label": "Algolia",
-            "note": "Ambassador",
-            "href": "https://www.algolia.com"
-          }
-        ]
-      },
-      {
         "kind": "feature-split",
         "eyebrow": "The journal",
         "title": "Recent writing",
@@ -264,33 +227,33 @@
         "items": [
           {
             "label": "Contentstack",
-            "note": "Developer Experience Lead",
-            "href": "https://www.contentstack.com"
+            "href": "https://www.contentstack.com",
+            "note": "Developer Experience Lead"
           },
           {
             "label": "MACH Alliance",
-            "note": "Enterprise AI Agents",
-            "href": "https://machalliance.org"
+            "href": "https://machalliance.org",
+            "note": "Enterprise AI Agents"
           },
           {
             "label": "Nuxt",
-            "note": "Ambassador",
-            "href": "https://nuxt.com"
+            "href": "https://nuxt.com",
+            "note": "Ambassador"
           },
           {
             "label": "Cloudinary",
-            "note": "Ambassador",
-            "href": "https://cloudinary.com"
+            "href": "https://cloudinary.com",
+            "note": "Ambassador"
           },
           {
             "label": "Supabase",
-            "note": "Ambassador",
-            "href": "https://supabase.com"
+            "href": "https://supabase.com",
+            "note": "Ambassador"
           },
           {
             "label": "Algolia",
-            "note": "Ambassador",
-            "href": "https://www.algolia.com"
+            "href": "https://www.algolia.com",
+            "note": "Ambassador"
           }
         ]
       },
@@ -1064,10 +1027,22 @@
         "kind": "jump-nav",
         "label": "On this page",
         "items": [
-          { "label": "Computer & desk", "href": "#computer-desk" },
-          { "label": "Audio & video", "href": "#audio-video" },
-          { "label": "Software", "href": "#software" },
-          { "label": "Music", "href": "#music" }
+          {
+            "label": "Computer & desk",
+            "href": "#computer-desk"
+          },
+          {
+            "label": "Audio & video",
+            "href": "#audio-video"
+          },
+          {
+            "label": "Software",
+            "href": "#software"
+          },
+          {
+            "label": "Music",
+            "href": "#music"
+          }
         ]
       },
       {
