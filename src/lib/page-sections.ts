@@ -35,7 +35,7 @@ const hasSource = (section: PageSection): section is SourceSection =>
   section.kind !== 'browse';
 
 const pickItems = (items: CardItem[], limit?: number) =>
-  limit ? items.slice(0, limit) : items;
+  limit == null ? items : items.slice(0, limit);
 
 const matchesTags = (entryTags: string[], selected: string[]) =>
   selected.some((tag) => entryTags.includes(tag));
@@ -211,7 +211,7 @@ export async function resolvePageSections(
 
       if (section.kind === 'browse') {
         const { pills, items } = await resolveBrowse(section.source);
-        return { ...section, pills, items };
+        return { ...section, pills, items: pickItems(items, section.limit) };
       }
 
       if (

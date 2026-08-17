@@ -37,7 +37,7 @@ There are two ways in, depending on how you arrived:
 
 Writing, videos, projects, and the main static pages all have markdown twins. Per-video markdown includes the transcript when one is available.
 
-- Append \`.md\` to the URL: \`${writingMarkdownExample}\`, \`${videoMarkdownExample}\`, \`${siteUrl('/about.md')}\`, \`${siteUrl('/press-kit.md')}\`, \`${siteUrl('/speaking.md')}\`, \`${siteUrl('/uses.md')}\`, \`${siteUrl('/projects.md')}\`, \`${siteUrl('/index.md')}\`.
+- Append \`.md\` to the URL: \`${writingMarkdownExample}\`, \`${videoMarkdownExample}\`, \`${siteUrl('/about.md')}\`, \`${siteUrl('/press-kit.md')}\`, \`${siteUrl('/speaking.md')}\`, \`${siteUrl('/uses.md')}\`, \`${siteUrl('/projects.md')}\`, \`${siteUrl('/index.md')}\`, \`${siteUrl('/livestreams.md')}\`, \`${siteUrl('/alive-and-kicking.md')}\`.
 - Or send \`Accept: text/markdown\` to the canonical URL — the edge serves the markdown variant.
 - HTML pages expose \`<link rel="alternate" type="text/markdown" href="…">\` in the \`<head>\` for autodiscovery.
 

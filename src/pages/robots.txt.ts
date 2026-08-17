@@ -23,7 +23,7 @@ Sitemap: ${md}
 # - ${agents}        — instructions for AI agents
 # - ${tools}       — public WebMCP tool catalog
 # Markdown twins: /writing/<slug>.md /videos/<slug>.md /projects/<slug>.md
-# Static pages: /about.md /press-kit.md /speaking.md /uses.md /projects.md /index.md
+# Static pages: /about.md /press-kit.md /speaking.md /uses.md /projects.md /index.md /livestreams.md /alive-and-kicking.md
 # Accept: text/markdown on canonical URLs rewrites to the .md twin.
 `;
 };

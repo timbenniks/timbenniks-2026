@@ -20,7 +20,7 @@ export const GET: APIRoute = async () => {
   const optional = [
     `- [RSS feed](${siteUrl('/feed.xml')}): full writing feed in RSS 2.0`,
     `- [JSON feed](${siteUrl('/feed.json')}): writing feed in JSON Feed 1.1`,
-    `- [XML sitemap](${siteUrl('/sitemap-index.xml')}): machine-readable URL index`,
+    `- [XML sitemap](${siteUrl('/sitemap-index.xml')}): machine-readable URL index (\`/sitemap.xml\` redirects here)`,
     `- [Markdown sitemap](${siteUrl('/sitemap.md')}): the same index, in markdown`,
     `- [Full corpus](${siteUrl('/llms-full.txt')}): writing entries, video metadata, speaking engagements, and static page summaries inlined as markdown`,
     `- [Content index](${siteUrl('/content-index.json')}): compact JSON index for writing, videos, talks, projects, and pages`,

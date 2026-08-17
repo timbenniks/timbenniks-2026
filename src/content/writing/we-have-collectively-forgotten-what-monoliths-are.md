@@ -1,10 +1,11 @@
 ---
 id: 484847473833
-slug: we-have-collectively forgotten-what-monoliths-are
+slug: we-have-collectively-forgotten-what-monoliths-are
 title: We have collectively forgotten what monoliths are
 description: Exploring the misconception of modern CMS platforms as monoliths and clarifying the distinctions between true monolithic systems and today's flexible, API-driven content management solutions.
 date: "2025-01-10T13:05:48Z"
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/v1736502870/website/monoliths.png
+canonical_url: https://timbenniks.dev/writing/we-have-collectively-forgotten-what-monoliths-are
 tags: [composable-architecture, cms, api-design, frontend, product-strategy]
 reading_time: 3 min read
 head:

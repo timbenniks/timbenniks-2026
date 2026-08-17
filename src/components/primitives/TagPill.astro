@@ -8,6 +8,8 @@ interface Props {
   size?: Size;
   count?: number;
   class?: string;
+  /** Full page load — needed for /search so ClientRouter + missing Pagefind cannot loop. */
+  reload?: boolean;
 }
 
 const {
@@ -16,6 +18,7 @@ const {
   size = 'md',
   count,
   class: className = '',
+  reload = false,
 } = Astro.props;
 
 const sizes: Record<Size, string> = {
@@ -38,7 +41,12 @@ const classes = [base, sizes[size], tones[tone], href && hover[tone], className]
 ---
 
 {href ? (
-  <a href={href} class:list={classes}>
+  <a
+    href={href}
+    class:list={classes}
+    data-astro-reload={reload ? true : undefined}
+    data-astro-prefetch={reload ? 'false' : undefined}
+  >
     <slot />
     {typeof count === 'number' && <span class="text-ink-subtle">· {count}</span>}
   </a>

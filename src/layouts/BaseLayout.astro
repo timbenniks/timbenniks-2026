@@ -56,6 +56,32 @@ const editMarkupEnabled = isEditMarkupEnabled();
     }
     <Font cssVariable="--font-fraunces" preload />
     <Font cssVariable="--font-inter" preload />
+    <script is:inline>
+      // Search loads Pagefind at runtime; ClientRouter + Vite prefetch can
+      // infinite-loop that import and kill the tab. Force a full navigation.
+      document.addEventListener(
+        'click',
+        function (event) {
+          var el = event.target;
+          if (!el || !el.closest) return;
+          var link = el.closest('a[href]');
+          if (!link) return;
+          var href = link.getAttribute('href');
+          if (!href) return;
+          var path;
+          try {
+            path = new URL(href, location.href).pathname;
+          } catch (e) {
+            return;
+          }
+          if (path === '/search' || path === '/search/') {
+            link.setAttribute('data-astro-reload', '');
+            link.setAttribute('data-astro-prefetch', 'false');
+          }
+        },
+        true,
+      );
+    </script>
     <ClientRouter />
     {
       import.meta.env.PROD && (

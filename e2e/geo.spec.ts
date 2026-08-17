@@ -77,6 +77,8 @@ test.describe('GEO / agent surfaces', () => {
       '/uses.md',
       '/index.md',
       '/ai.md',
+      '/livestreams.md',
+      '/alive-and-kicking.md',
     ]) {
       const res = await request.get(path);
       expect(res.ok(), path).toBeTruthy();
@@ -111,6 +113,28 @@ test.describe('GEO / agent surfaces', () => {
     const res = await request.get('/about.md');
     expect(res.ok()).toBeTruthy();
     expect(await res.text()).toMatch(/title:/);
+  });
+
+  test('legacy live URLs redirect', async ({ request }) => {
+    const pairs: Array<[string, string]> = [
+      ['/presskit', '/press-kit'],
+      ['/videos/tim', '/videos/playlist/tim'],
+      ['/sitemap.xml', '/sitemap-index.xml'],
+    ];
+    for (const [from, to] of pairs) {
+      const res = await request.get(from, { maxRedirects: 0 });
+      expect(res.status(), from).toBeGreaterThanOrEqual(300);
+      expect(res.status(), from).toBeLessThan(400);
+      const location = res.headers()['location'] ?? '';
+      expect(location, from).toContain(to);
+    }
+  });
+
+  test('livestreams and alive-and-kicking pages render', async ({ page }) => {
+    await page.goto('/livestreams');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await page.goto('/alive-and-kicking');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   });
 
   test('search form is annotated for WebMCP', async ({ page }) => {

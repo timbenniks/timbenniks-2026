@@ -45,7 +45,7 @@ const gridCols = columns === 2 ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols
     ))}
     {searchHref && (
       <li>
-        <TagPill href={searchHref} tone="accent">Search everything →</TagPill>
+        <TagPill href={searchHref} tone="accent" reload>Search everything →</TagPill>
       </li>
     )}
   </ul>

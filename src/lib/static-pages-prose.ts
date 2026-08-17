@@ -39,6 +39,27 @@ Career arc:
 Roles: Co-chair, MACH Alliance Enterprise AI Agents Workgroup. Ambassador for Nuxt, Cloudinary, Supabase, Algolia. Based in the French countryside. Off the clock: guitar, family, two corgis.`,
   },
   {
+    path: '/livestreams',
+    title: 'Livestreams',
+    description:
+      'Contentstack, Hygraph, Uniform, and personal livestreams. Tim learns in public with guests — every stream has a live coding element.',
+    prose: `Four livestream series:
+
+- Contentstack Streams (current, bi-weekly): DXP topics with a live coding element. Agent OS, Visual Builder, Edge, Automate.
+- Hygraph Streams (archive): weekly headless CMS sessions.
+- Uniform Streams (archive): product meetups and stack deep-dives.
+- Personal / misc streams: Dare Dialogues and one-off MACH conversations.
+
+Index: /livestreams. Playlists: /videos/playlist/live-contentstack, /videos/playlist/live-hygraph, /videos/playlist/live-uniform, /videos/playlist/misc-streams.`,
+  },
+  {
+    path: '/alive-and-kicking',
+    title: 'Alive and Kicking',
+    description:
+      'An interactive guitar karaoke experience in the browser. Vue, Nuxt, WebMIDI, and a live-voting audience — built to show what composable architecture can do on stage.',
+    prose: `Alive and Kicking is a conference talk and browser-based rock & roll guitar karaoke experience. Vue, Nuxt, WebMIDI, Supabase, Cloudinary, Hygraph, and Vercel drive backing tracks, amp presets, and a live-voting audience. Attendees vote on the next song; votes appear on the big screen. Videos: /videos/playlist/alive-and-kicking. Booking: /press-kit.`,
+  },
+  {
     path: '/uses',
     title: 'Uses',
     description:

@@ -109,6 +109,8 @@ export const pageSectionSchema = z.discriminatedUnion('kind', [
     searchHref: z.string().optional(),
     columns: z.union([z.literal(2), z.literal(3)]).default(3),
     pagefindIgnore: z.boolean().default(true),
+    /** Cap the item grid. `0` keeps playlist/tag pills and hides the cards. */
+    limit: z.number().optional(),
   }),
   z.object({
     kind: z.literal('inventory'),

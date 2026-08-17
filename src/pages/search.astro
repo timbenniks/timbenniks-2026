@@ -136,8 +136,11 @@ const tagLabelsJSON = JSON.stringify(TAG_LABELS);
     if (pagefind) return pagefind;
     if (pagefindLoadFailed) return null;
     try {
-      // @ts-expect-error: dynamic import of an emitted asset path
-      const mod = (await import(/* @vite-ignore */ '/pagefind/pagefind.js')) as PagefindModule;
+      // Bypass Vite import-analysis: it still wraps `import(url)` with
+      // `__vite__injectQuery` even when @vite-ignore is present.
+      const src = `${window.location.origin}/pagefind/pagefind.js`;
+      const load = new Function('u', 'return import(u)') as (u: string) => Promise<PagefindModule>;
+      const mod = await load(src);
       await mod.options({ excerptLength: 28 });
       pagefind = mod;
       return mod;
@@ -182,7 +185,9 @@ const tagLabelsJSON = JSON.stringify(TAG_LABELS);
     if (state.year) params.set('year', state.year);
     if (state.tags.size) params.set('tags', [...state.tags].join(','));
     const qs = params.toString();
-    history.replaceState(null, '', qs ? `/search?${qs}` : '/search');
+    const next = qs ? `/search?${qs}` : '/search';
+    if (`${location.pathname}${location.search}` === next) return;
+    history.replaceState(null, '', next);
   }
 
   function buildFilters(state: FilterState): Record<string, unknown> {
@@ -200,7 +205,8 @@ const tagLabelsJSON = JSON.stringify(TAG_LABELS);
 
   async function boot() {
     const root = document.querySelector<HTMLElement>('[data-search-root]');
-    if (!root) return;
+    if (!root || root.dataset.booted === '1') return;
+    root.dataset.booted = '1';
 
     const labelsRaw = root.dataset.tagLabels;
     if (labelsRaw) {
@@ -371,7 +377,16 @@ const tagLabelsJSON = JSON.stringify(TAG_LABELS);
     run();
   }
 
-  document.addEventListener('astro:page-load', boot);
+  declare global {
+    interface Window {
+      __tbSearchBootBound?: boolean;
+    }
+  }
+  if (!window.__tbSearchBootBound) {
+    window.__tbSearchBootBound = true;
+    document.addEventListener('astro:page-load', boot);
+  }
+  boot();
 </script>
 
 <style is:global>

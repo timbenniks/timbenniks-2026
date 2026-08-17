@@ -110,6 +110,20 @@
         { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
       ],
       "destination": "/ai.md"
+    },
+    {
+      "source": "/livestreams",
+      "has": [
+        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+      ],
+      "destination": "/livestreams.md"
+    },
+    {
+      "source": "/alive-and-kicking",
+      "has": [
+        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+      ],
+      "destination": "/alive-and-kicking.md"
     }
   ]
 }
