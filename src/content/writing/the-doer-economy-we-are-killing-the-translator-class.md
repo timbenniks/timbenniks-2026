@@ -3,7 +3,7 @@ title: The Doer Economy - we are killing the translator class
 slug: the-doer-economy-we-are-killing-the-translator-class
 description: This article argues that AI is collapsing the distance between vision and execution, ushering in a Doer Economy where the primary winners are those who can both imagine and build. The traditional corporate stack of translators—product managers, marketers, and multiple layers of management—is shrinking because executional tasks are increasingly handled by AI. Founders and CEOs are moving closer to product, validating ideas directly with AI-generated scaffolds and modern SaaS primitives. For individuals, the value has shifted from narrow, ticket-driven skills to end-to-end ownership, product thinking, and understanding users. The future belongs to people who ship, iterate quickly, and leverage AI and SaaS platforms to focus on business logic and user experience, rather than those who only manage the builders.
 date: "2026-08-17T10:00:00Z"
-canonical_url: https://timbenniks.dev/writing/the-rise-of-the-doer-economy-and-the-shrinking-software-machine
+canonical_url: https://timbenniks.dev/writing/the-doer-economy-we-are-killing-the-translator-class
 reading_time: 5 min read
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto/v1786961432/website/tim-doer-economy-blue.png
 tags:
