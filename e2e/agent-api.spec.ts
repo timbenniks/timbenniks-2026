@@ -63,16 +63,67 @@ test.describe('public agent API', () => {
     const operations = Object.values(spec.paths).flatMap((path: any) =>
       Object.values(path).filter((operation: any) => operation?.operationId),
     ) as any[];
-    expect(operations).toHaveLength(5);
+    expect(operations).toHaveLength(6);
     for (const operation of operations) {
       expect(operation.operationId).toBeTruthy();
       expect(operation.description).toBeTruthy();
+      // Every operation declares its input shape explicitly (even when empty)
+      // so OpenAPI -> LLM function-calling converters see a typed schema.
+      expect(Array.isArray(operation.parameters)).toBe(true);
       expect(operation.responses['200'].content['application/json'].schema).toBeTruthy();
       expect(operation.responses['400']).toBeTruthy();
       expect(operation.responses['404']).toBeTruthy();
       expect(operation.responses['429']).toBeTruthy();
       expect(operation.responses['500']).toBeTruthy();
     }
+  });
+
+  test('versions endpoint publishes a live deprecation policy', async ({ request }) => {
+    const response = await request.get('/api/v1/versions');
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.current).toBe('v1');
+    expect(body.versions).toContainEqual(
+      expect.objectContaining({ version: 'v1', path: '/api/v1', deprecated: false }),
+    );
+    expect(body.policy.notice_period_days).toBeGreaterThan(0);
+    expect(Array.isArray(body.policy.signals)).toBe(true);
+
+    const index = await (await request.get('/api/v1')).json();
+    expect(index.endpoints.versions).toBe('https://timbenniks.dev/api/v1/versions');
+
+    const spec = await (await request.get('/openapi.json')).json();
+    expect(spec.paths['/api/v1/versions'].get.operationId).toBe('getApiVersions');
+    expect(spec['x-api-versioning'].policy).toBe('https://timbenniks.dev/api/v1/versions');
+  });
+
+  test('.well-known/mcp serves discovery over GET and a live handshake over POST', async ({ request }) => {
+    const discovery = await request.get('/.well-known/mcp');
+    expect(discovery.status()).toBe(200);
+    const manifest = await discovery.json();
+    expect(manifest.endpoint).toBe('https://timbenniks.dev/api/mcp');
+    expect(manifest.handshake).toBe('https://timbenniks.dev/.well-known/mcp');
+
+    const init = await request.post('/.well-known/mcp', {
+      data: { jsonrpc: '2.0', id: 1, method: 'initialize' },
+    });
+    expect(init.status()).toBe(200);
+    const initBody = await init.json();
+    expect(initBody.result.protocolVersion).toBe('2024-11-05');
+    expect(initBody.result.serverInfo.name).toBe('timbenniks.dev');
+
+    const list = await request.post('/.well-known/mcp', {
+      data: { jsonrpc: '2.0', id: 2, method: 'tools/list' },
+    });
+    const listBody = await list.json();
+    expect(Array.isArray(listBody.result.tools)).toBe(true);
+    expect(listBody.result.tools.length).toBeGreaterThan(0);
+
+    // /api/mcp still answers the same handshake identically.
+    const apiInit = await request.post('/api/mcp', {
+      data: { jsonrpc: '2.0', id: 1, method: 'initialize' },
+    });
+    expect((await apiInit.json()).result.serverInfo.name).toBe('timbenniks.dev');
   });
 
   test('canonical HTML negotiates markdown and varies by Accept', async ({ request }) => {

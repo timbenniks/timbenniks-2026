@@ -15,8 +15,10 @@ export function mcpDiscoveryManifest() {
     tools_catalog: siteUrl('/tools.json'),
     openapi: siteUrl('/openapi.json'),
     endpoint: siteUrl('/api/mcp'),
+    handshake: siteUrl('/.well-known/mcp'),
     transport: 'streamable-http',
     authentication: { required: false },
+    note: 'GET returns this discovery document. POST JSON-RPC 2.0 (initialize, tools/list, tools/call) to this same URL, or to `endpoint`, for a live handshake.',
     capabilities: {
       tools: PUBLIC_TOOLS.map((t) => t.name),
     },

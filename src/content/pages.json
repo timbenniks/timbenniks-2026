@@ -2271,12 +2271,12 @@
         "items": [
           {
             "term": "/.well-known/mcp",
-            "value": "Discovery handshake — endpoint, transport, tool names",
+            "value": "GET discovery doc, or POST JSON-RPC 2.0 for a live handshake — initialize, tools/list, tools/call",
             "href": "/.well-known/mcp"
           },
           {
             "term": "POST /api/mcp",
-            "value": "JSON-RPC 2.0 — initialize, tools/list, tools/call",
+            "value": "Same JSON-RPC 2.0 handshake, canonical endpoint",
             "href": "/api/mcp"
           },
           {
@@ -2317,13 +2317,19 @@
             "href": "/api/v1/press-kit"
           },
           {
+            "term": "GET /api/v1/versions",
+            "value": "Live version status, deprecation policy, and sunset signal headers",
+            "href": "/api/v1/versions"
+          },
+          {
             "term": "/openapi.json",
             "value": "OpenAPI 3.1 contract with typed success and RFC 9457 error schemas",
             "href": "/openapi.json"
           },
           {
             "term": "Version policy",
-            "value": "Major versions in the URL; at least 90 days' notice via Deprecation and Sunset headers"
+            "value": "Major versions in the URL; at least 90 days' notice via Deprecation and Sunset headers",
+            "href": "/api/v1/versions"
           },
           {
             "term": "Rate limits",

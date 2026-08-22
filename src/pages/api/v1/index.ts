@@ -15,6 +15,7 @@ export const GET: APIRoute = ({ request }) =>
       search: siteUrl('/api/v1/search'),
       content: siteUrl('/api/v1/content'),
       press_kit: siteUrl('/api/v1/press-kit'),
+      versions: siteUrl('/api/v1/versions'),
     },
   });
 

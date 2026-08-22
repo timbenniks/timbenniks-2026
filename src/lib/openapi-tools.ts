@@ -57,8 +57,22 @@ export function publicAgentOpenApi() {
           summary: 'Get the Tim Benniks Public API index',
           description: 'Health and discovery document for the stable v1 REST API.',
           tags: ['Discovery'],
+          parameters: [],
           responses: {
             '200': jsonResponse('API index', { $ref: '#/components/schemas/ApiIndex' }),
+            ...errors,
+          },
+        },
+      },
+      '/api/v1/versions': {
+        get: {
+          operationId: 'getApiVersions',
+          summary: 'Get the API versioning and deprecation policy',
+          description: 'Live status for every REST API major version, plus the deprecation notice period and the response headers used to signal a sunset.',
+          tags: ['Discovery'],
+          parameters: [],
+          responses: {
+            '200': jsonResponse('Versioning policy', { $ref: '#/components/schemas/ApiVersions' }),
             ...errors,
           },
         },
@@ -119,6 +133,7 @@ export function publicAgentOpenApi() {
           summary: 'Get the Tim Benniks press kit',
           description: 'Return public bios, topics, photographs, facts, and booking contact details.',
           tags: ['Press'],
+          parameters: [],
           responses: {
             '200': jsonResponse('Press kit', { $ref: '#/components/schemas/PressKit' }),
             ...errors,
@@ -136,6 +151,40 @@ export function publicAgentOpenApi() {
             name: { type: 'string' }, version: { type: 'string' }, status: { type: 'string', const: 'ok' },
             documentation: { type: 'string', format: 'uri' }, openapi: { type: 'string', format: 'uri' },
             endpoints: { type: 'object', additionalProperties: { type: 'string', format: 'uri' } },
+          },
+        },
+        ApiVersions: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['current', 'versions', 'policy'],
+          properties: {
+            current: { type: 'string' },
+            versions: {
+              type: 'array',
+              items: {
+                type: 'object',
+                additionalProperties: false,
+                required: ['version', 'path', 'status', 'deprecated', 'sunset'],
+                properties: {
+                  version: { type: 'string' },
+                  path: { type: 'string' },
+                  status: { type: 'string', enum: ['stable', 'deprecated'] },
+                  deprecated: { type: 'boolean' },
+                  sunset: { type: ['string', 'null'], format: 'date' },
+                },
+              },
+            },
+            policy: {
+              type: 'object',
+              additionalProperties: false,
+              required: ['strategy', 'notice_period_days', 'signals', 'documentation'],
+              properties: {
+                strategy: { type: 'string' },
+                notice_period_days: { type: 'integer', minimum: 0 },
+                signals: { type: 'array', items: { type: 'string' } },
+                documentation: { type: 'string', format: 'uri' },
+              },
+            },
           },
         },
         ContentSummary: {
@@ -199,6 +248,7 @@ export function publicAgentOpenApi() {
       compatibility: 'Additive fields may be introduced within a major version.',
       deprecation: 'Deprecated versions send Deprecation and Link rel="deprecation" headers.',
       sunset: 'Sunset is announced with an HTTP-date Sunset header at least 90 days in advance.',
+      policy: siteUrl('/api/v1/versions'),
     },
   };
 }
