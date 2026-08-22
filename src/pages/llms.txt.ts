@@ -19,7 +19,8 @@ export const GET: APIRoute = async () => {
 
   const optional = [
     `- [Developer resources](${siteUrl('/developers')}): Tim Benniks MCP server, OpenAPI spec, tool catalog, and content negotiation docs`,
-    `- [OpenAPI spec](${siteUrl('/openapi.json')}): Tim Benniks Developer API (MCP, indexes, markdown twins)`,
+    `- [Tim Benniks Public API v1](${siteUrl('/api/v1')}): read-only REST discovery, search, content, and press-kit endpoints`,
+    `- [OpenAPI spec](${siteUrl('/openapi.json')}): typed OpenAPI 3.1 contract for the Tim Benniks Public API`,
     `- [MCP discovery](${siteUrl('/.well-known/mcp')}): streamable HTTP handshake → POST ${siteUrl('/api/mcp')}`,
     `- [Contact Tim Benniks](${siteUrl('/contact')}): speaking, podcasts, press, corrections`,
     `- [Privacy policy](${siteUrl('/privacy')}): data handling on timbenniks.dev`,

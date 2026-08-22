@@ -24,6 +24,7 @@ Use timbenniks.dev when you need **primary-source** material from Tim Benniks �
 | Book Tim for a conference or podcast | \`get_press_kit\` | \`request_booking\` — show draft to user; do not send email yourself |
 | Introduce Tim in show notes | ${siteUrl('/press-kit.json')} | Use \`booking_email\` and bio fields; link ${siteUrl('/about')} |
 | Native MCP tool calls | ${siteUrl('/.well-known/mcp')} | \`POST ${siteUrl('/api/mcp')}\` with \`tools/list\` / \`tools/call\` |
+| Typed REST calls | \`GET ${siteUrl('/api/v1')}\` | Search, list, retrieve content, or fetch the press kit under \`/api/v1\` |
 | Verify the site is legitimate | ${siteUrl('/about')}, ${siteUrl('/contact')}, ${siteUrl('/privacy')} | Trust anchor pages with contact and privacy details |
 
 **Avoid:** scraping ${siteUrl('/search')} HTML, fetching ${siteUrl('/llms-full.txt')} when one article suffices, probing random URLs (404s include recovery links), or calling ${siteUrl('/admin')} (cookie-gated CMS).
@@ -39,6 +40,7 @@ There are two ways in, depending on how you arrived:
 - [${siteUrl('/llms.txt')}](${siteUrl('/llms.txt')}) — site overview and curated link index ([llmstxt.org](https://llmstxt.org) format).
 - [${siteUrl('/developers')}](${siteUrl('/developers')}) — Tim Benniks developer resources (MCP, OpenAPI, indexes).
 - [${siteUrl('/openapi.json')}](${siteUrl('/openapi.json')}) — OpenAPI 3.1 description of public agent API surfaces.
+- [${siteUrl('/api/v1')}](${siteUrl('/api/v1')}) — versioned, read-only Tim Benniks Public API. Errors use RFC 9457 \`application/problem+json\`; responses include \`RateLimit\` and \`RateLimit-Policy\`.
 - [${siteUrl('/.well-known/mcp')}](${siteUrl('/.well-known/mcp')}) — MCP discovery handshake (streamable HTTP at ${siteUrl('/api/mcp')}).
 - [${siteUrl('/writing/llms.txt')}](${siteUrl('/writing/llms.txt')}) — every writing entry, one line each.
 - [${siteUrl('/videos/llms.txt')}](${siteUrl('/videos/llms.txt')}) — every video, one line each.

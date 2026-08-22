@@ -124,11 +124,17 @@ Contact: hi@timbenniks.dev or /contact. Last updated August 2026.`,
       'Developer API docs for timbenniks.dev — Tim Benniks MCP server, OpenAPI spec, WebMCP tools, content indexes, and markdown content negotiation.',
     prose: `Tim Benniks Developer Resources — machine-readable API surfaces for AI agents and integrators consuming timbenniks.dev.
 
-Discovery: /llms.txt (site map), /agents.md (agent contract), /developers (this page).
+Discovery: /llms.txt (site map), /agents.md (agent contract), /developers (this page), /openapi.json (OpenAPI 3.1 contract).
+
+REST API: GET /api/v1 for discovery; GET /api/v1/search?query=... to search; GET /api/v1/content to list content; GET /api/v1/content/{path} to retrieve one markdown document in JSON; GET /api/v1/press-kit for structured speaker assets. It is public, read-only, and requires no authentication.
+
+Errors: every /api/v1 error uses RFC 9457 application/problem+json with type, title, status, detail, instance, code, and resolution. Responses advertise a 120-request / 60-second quota using RateLimit and RateLimit-Policy; 429 responses also include Retry-After.
+
+Versioning: stable REST endpoints use major URL versions (/api/v1). Additive changes stay within a major version. Breaking changes use a new major version. Deprecations are announced with Deprecation, Sunset, and Link headers at least 90 days before shutdown.
 
 MCP server: /.well-known/mcp (discovery handshake) → POST /api/mcp (streamable HTTP JSON-RPC). Six read-only tools: get_page_context, search_site, list_content, get_content, get_press_kit, request_booking. Tool schemas: /tools.json and /.well-known/webmcp.json.
 
-OpenAPI: /openapi.json describes indexes, MCP transport, and tool catalog.
+OpenAPI: /openapi.json describes every REST operation and its typed success and RFC 9457 error responses.
 
 Content negotiation: send Accept: text/markdown to any main page URL, or append .md to writing/video/project/static URLs. Vary: Accept, Accept-Encoding on negotiable responses.
 

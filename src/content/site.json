@@ -28,6 +28,7 @@
         { "label": "Press kit", "href": "/press-kit" },
         { "label": "Alive and kicking", "href": "/alive-and-kicking" },
         { "label": "AI readiness", "href": "/ai" },
+        { "label": "Developer API", "href": "/developers" },
         { "label": "Uses", "href": "/uses" },
         { "label": "Projects", "href": "/projects" }
       ]

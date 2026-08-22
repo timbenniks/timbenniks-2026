@@ -2294,13 +2294,48 @@
       {
         "kind": "factsheet",
         "eyebrow": "Tim Benniks Developer API",
-        "title": "Indexes and content",
+        "title": "Versioned REST API",
         "items": [
           {
+            "term": "GET /api/v1",
+            "value": "API status, version, and endpoint discovery",
+            "href": "/api/v1"
+          },
+          {
+            "term": "GET /api/v1/search",
+            "value": "Search public content with typed JSON responses",
+            "href": "/api/v1/search?query=developer%20experience"
+          },
+          {
+            "term": "GET /api/v1/content",
+            "value": "List or retrieve writing, videos, talks, projects, and pages",
+            "href": "/api/v1/content"
+          },
+          {
+            "term": "GET /api/v1/press-kit",
+            "value": "Structured bios, topics, photos, and booking details",
+            "href": "/api/v1/press-kit"
+          },
+          {
             "term": "/openapi.json",
-            "value": "OpenAPI 3.1 description of public surfaces",
+            "value": "OpenAPI 3.1 contract with typed success and RFC 9457 error schemas",
             "href": "/openapi.json"
           },
+          {
+            "term": "Version policy",
+            "value": "Major versions in the URL; at least 90 days' notice via Deprecation and Sunset headers"
+          },
+          {
+            "term": "Rate limits",
+            "value": "120 requests per 60 seconds; inspect RateLimit and RateLimit-Policy headers"
+          }
+        ]
+      },
+      {
+        "kind": "factsheet",
+        "eyebrow": "Agent-readable resources",
+        "title": "Indexes and content negotiation",
+        "items": [
           {
             "term": "/llms.txt",
             "value": "Curated site map (llmstxt.org)",

@@ -1,7 +1,6 @@
 import { defineMiddleware } from 'astro:middleware';
 import { isAdminAuthed } from './lib/admin/auth';
 import { adminRequestContext } from './lib/admin/request-context';
-import { inferredMarkdownHref } from './lib/markdown';
 import { NEGOTIATION_VARY } from './lib/not-found-markdown';
 import { isNegotiablePath, negotiateMarkdownResponse } from './lib/content-negotiation';
 
