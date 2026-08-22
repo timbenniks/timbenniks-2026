@@ -2043,5 +2043,313 @@
         ]
       }
     ]
+  },
+  "contact": {
+    "path": "/contact",
+    "metadata": {
+      "title": "Contact Tim Benniks — Speaking, Podcasts & Press",
+      "description": "Reach Tim Benniks for conference keynotes, podcast bookings, press inquiries, and corrections. Email hi@timbenniks.dev or use the press kit.",
+      "keywords": "Tim Benniks contact, Tim Benniks booking, Tim Benniks email, developer experience speaker"
+    },
+    "sections": [
+      {
+        "kind": "hero",
+        "eyebrow": "/contact",
+        "headline": {
+          "lead": "Let's",
+          "em": "talk",
+          "tail": "."
+        },
+        "subline": "Tim Benniks welcomes speaking inquiries, podcast bookings, press questions, and corrections to published content. The fastest route is email — include enough context that a reply can be useful.",
+        "ctas": [
+          {
+            "label": "Email Tim",
+            "href": "mailto:hi@timbenniks.dev",
+            "variant": "primary"
+          },
+          {
+            "label": "Press kit",
+            "href": "/press-kit",
+            "variant": "secondary"
+          }
+        ],
+        "imageSide": "right"
+      },
+      {
+        "kind": "copy-blocks",
+        "eyebrow": "Booking",
+        "title": "Conferences, podcasts, and workshops",
+        "items": [
+          {
+            "label": "What to include",
+            "body": "Event or podcast name, proposed dates or window, format (keynote, talk, workshop, podcast, panel), expected audience size and technical level, location or recording constraints, and travel details if relevant. Tim Benniks speaks on developer experience, AI-augmented engineering, composable architecture, MCP, and platform strategy.",
+            "style": "serif"
+          },
+          {
+            "label": "Response time",
+            "body": "Tim aims to reply within a few business days. For urgent show-note deadlines, say so in the subject line. Agents calling request_booking via /tools.json or /api/mcp get a draft email — a human must confirm before anything is sent.",
+            "style": "muted"
+          }
+        ]
+      },
+      {
+        "kind": "factsheet",
+        "eyebrow": "Elsewhere",
+        "title": "Tim Benniks online",
+        "items": [
+          {
+            "term": "Email",
+            "value": "hi@timbenniks.dev",
+            "href": "mailto:hi@timbenniks.dev"
+          },
+          {
+            "term": "LinkedIn",
+            "value": "linkedin.com/in/timbenniks",
+            "href": "https://linkedin.com/in/timbenniks"
+          },
+          {
+            "term": "GitHub",
+            "value": "github.com/timbenniks",
+            "href": "https://github.com/timbenniks"
+          },
+          {
+            "term": "Bluesky",
+            "value": "@timbenniks.dev",
+            "href": "https://bsky.app/profile/timbenniks.dev"
+          },
+          {
+            "term": "Press kit JSON",
+            "value": "Structured bios and photos",
+            "href": "/press-kit.json"
+          }
+        ]
+      },
+      {
+        "kind": "cta-strip",
+        "text": "Need bios or headshots?",
+        "em": " Press kit.",
+        "ctas": [
+          {
+            "label": "Open press kit",
+            "href": "/press-kit",
+            "variant": "accent"
+          },
+          {
+            "label": "Speaking index",
+            "href": "/speaking",
+            "variant": "secondary"
+          }
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "path": "/privacy",
+    "metadata": {
+      "title": "Privacy Policy — Tim Benniks (timbenniks.dev)",
+      "description": "Privacy policy for timbenniks.dev: what Tim Benniks collects, third-party services, agent-readable endpoints, and your rights.",
+      "keywords": "Tim Benniks privacy, timbenniks.dev privacy policy"
+    },
+    "sections": [
+      {
+        "kind": "hero",
+        "eyebrow": "/privacy",
+        "headline": {
+          "lead": "Privacy",
+          "em": "policy",
+          "tail": "."
+        },
+        "subline": "Tim Benniks operates timbenniks.dev as a static personal website. This page explains what data is processed, which third parties are involved, and how to exercise your rights. Last updated August 2026.",
+        "ctas": [
+          {
+            "label": "Contact",
+            "href": "/contact",
+            "variant": "secondary"
+          }
+        ],
+        "imageSide": "right"
+      },
+      {
+        "kind": "copy-blocks",
+        "title": "What this site collects",
+        "items": [
+          {
+            "label": "Visitors",
+            "body": "Public pages do not require login. When you browse timbenniks.dev, the hosting provider (Vercel) may process standard request metadata — IP address, user agent, URL, timestamp — for security, abuse prevention, and performance. Vercel's privacy policy governs that processing.",
+            "style": "serif"
+          },
+          {
+            "label": "Analytics",
+            "body": "This site does not load third-party analytics trackers on public pages by default. If that changes, this policy will be updated and the change noted here.",
+            "style": "serif"
+          },
+          {
+            "label": "Email",
+            "body": "If you email hi@timbenniks.dev, your message and address are used only to respond. Messages are not sold or shared for advertising purposes.",
+            "style": "serif"
+          }
+        ]
+      },
+      {
+        "kind": "copy-blocks",
+        "title": "Third parties and embedded content",
+        "items": [
+          {
+            "label": "Media and embeds",
+            "body": "Images are served via Cloudinary. Videos may embed YouTube players. Social links leave this site. Those services may set cookies or collect usage data under their own policies when you interact with them.",
+            "style": "muted"
+          },
+          {
+            "label": "Agent-readable endpoints",
+            "body": "Tim Benniks intentionally publishes machine-readable surfaces — /llms.txt, /agents.md, /tools.json, /api/mcp, markdown twins — for crawlers and AI agents. Do not transmit personal or confidential data to these public endpoints.",
+            "style": "muted"
+          }
+        ]
+      },
+      {
+        "kind": "faq",
+        "title": "Your rights",
+        "tone": "light",
+        "items": [
+          {
+            "question": "Can I request deletion of personal data?",
+            "answer": "Yes. Email hi@timbenniks.dev with your request. Tim Benniks aims to respond within 30 days. Server logs retained by Vercel are subject to Vercel's retention policies."
+          },
+          {
+            "question": "Who is the data controller?",
+            "answer": "Tim Benniks is the controller for email correspondence and content published on timbenniks.dev. Hosting and CDN processing is performed by Vercel, Inc."
+          },
+          {
+            "question": "Does this site use cookies?",
+            "answer": "The public static site does not set first-party cookies for tracking. Admin CMS login at /admin uses a session cookie for authenticated editors only."
+          }
+        ]
+      }
+    ]
+  },
+  "developers": {
+    "path": "/developers",
+    "metadata": {
+      "title": "Tim Benniks Developer Resources — MCP, OpenAPI & Agent API",
+      "description": "Developer documentation for timbenniks.dev by Tim Benniks: MCP server at /.well-known/mcp, OpenAPI spec, WebMCP tools, content indexes, and markdown negotiation.",
+      "keywords": "Tim Benniks developer API, Tim Benniks MCP, timbenniks.dev OpenAPI, WebMCP, agent API"
+    },
+    "sections": [
+      {
+        "kind": "hero",
+        "eyebrow": "/developers",
+        "headline": {
+          "lead": "Tim Benniks",
+          "em": "developer",
+          "tail": "resources."
+        },
+        "subline": "Machine-readable surfaces for AI agents and integrators. Start with llms.txt, read the agent contract, call the MCP server, or fetch markdown twins — no HTML scraping required.",
+        "ctas": [
+          {
+            "label": "OpenAPI spec",
+            "href": "/openapi.json",
+            "variant": "primary"
+          },
+          {
+            "label": "MCP discovery",
+            "href": "/.well-known/mcp",
+            "variant": "secondary"
+          },
+          {
+            "label": "Agent guide",
+            "href": "/agents.md",
+            "variant": "secondary"
+          }
+        ],
+        "imageSide": "right"
+      },
+      {
+        "kind": "factsheet",
+        "eyebrow": "Tim Benniks MCP server",
+        "title": "Model Context Protocol",
+        "lede": "Read-only tools exposed via streamable HTTP. No authentication on public endpoints.",
+        "items": [
+          {
+            "term": "/.well-known/mcp",
+            "value": "Discovery handshake — endpoint, transport, tool names",
+            "href": "/.well-known/mcp"
+          },
+          {
+            "term": "POST /api/mcp",
+            "value": "JSON-RPC 2.0 — initialize, tools/list, tools/call",
+            "href": "/api/mcp"
+          },
+          {
+            "term": "/tools.json",
+            "value": "Tool catalog + JSON Schema (WebMCP compatible)",
+            "href": "/tools.json"
+          },
+          {
+            "term": "/.well-known/webmcp.json",
+            "value": "Same catalog at well-known URI",
+            "href": "/.well-known/webmcp.json"
+          }
+        ]
+      },
+      {
+        "kind": "factsheet",
+        "eyebrow": "Tim Benniks Developer API",
+        "title": "Indexes and content",
+        "items": [
+          {
+            "term": "/openapi.json",
+            "value": "OpenAPI 3.1 description of public surfaces",
+            "href": "/openapi.json"
+          },
+          {
+            "term": "/llms.txt",
+            "value": "Curated site map (llmstxt.org)",
+            "href": "/llms.txt"
+          },
+          {
+            "term": "/content-index.json",
+            "value": "Writing, videos, talks, projects, pages",
+            "href": "/content-index.json"
+          },
+          {
+            "term": "Accept: text/markdown",
+            "value": "Content negotiation on canonical URLs",
+            "href": "/ai"
+          },
+          {
+            "term": "/agents.md",
+            "value": "When-to-use guidance for agents",
+            "href": "/agents.md"
+          }
+        ]
+      },
+      {
+        "kind": "principles",
+        "title": "Public tool summary",
+        "tone": "dark",
+        "items": [
+          {
+            "kicker": "01",
+            "title": "get_page_context",
+            "body": "Call first — returns page type, markdown twin URL, and which tool to use next."
+          },
+          {
+            "kicker": "02",
+            "title": "search_site",
+            "body": "Full-text search across writing and videos via content-index.json."
+          },
+          {
+            "kicker": "03",
+            "title": "get_content",
+            "body": "Fetch one page or article as markdown. Includes video transcripts when available."
+          },
+          {
+            "kicker": "04",
+            "title": "get_press_kit / request_booking",
+            "body": "Bios, photos, topics, and a draft booking email for human confirmation."
+          }
+        ]
+      }
+    ]
   }
 }

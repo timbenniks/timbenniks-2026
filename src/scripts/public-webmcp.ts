@@ -84,6 +84,9 @@ function mdUrlForPath(pathname: string): string | undefined {
     '/writing',
     '/videos',
     '/ai',
+    '/contact',
+    '/privacy',
+    '/developers',
     '/livestreams',
     '/alive-and-kicking',
   ];

@@ -134,6 +134,10 @@ export function publicToolCatalog() {
     homepage: 'https://timbenniks.dev',
     agents_guide: 'https://timbenniks.dev/agents.md',
     llms: 'https://timbenniks.dev/llms.txt',
+    developers: 'https://timbenniks.dev/developers',
+    openapi: 'https://timbenniks.dev/openapi.json',
+    mcp_discovery: 'https://timbenniks.dev/.well-known/mcp',
+    mcp_endpoint: 'https://timbenniks.dev/api/mcp',
     booking_email: BOOKING_EMAIL,
     tools: PUBLIC_TOOLS.map((tool) => ({
       name: tool.name,

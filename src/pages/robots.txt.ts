@@ -9,6 +9,9 @@ const body = (site: URL) => {
   const llmsFull = new URL("llms-full.txt", site).href;
   const agents = new URL("agents.md", site).href;
   const tools = new URL("tools.json", site).href;
+  const developers = new URL("developers", site).href;
+  const openapi = new URL("openapi.json", site).href;
+  const mcp = new URL(".well-known/mcp", site).href;
   return `User-agent: *
 Disallow:
 
@@ -22,9 +25,12 @@ Sitemap: ${md}
 # - ${llmsFull}   — full corpus, every entry inlined as markdown
 # - ${agents}        — instructions for AI agents
 # - ${tools}       — public WebMCP tool catalog
+# - ${developers}  — Tim Benniks developer resources (MCP, OpenAPI)
+# - ${openapi}     — OpenAPI 3.1 spec
+# - ${mcp}         — MCP discovery handshake
 # Markdown twins: /writing/<slug>.md /videos/<slug>.md /projects/<slug>.md
-# Static pages: /about.md /press-kit.md /speaking.md /uses.md /projects.md /index.md /livestreams.md /alive-and-kicking.md
-# Accept: text/markdown on canonical URLs rewrites to the .md twin.
+# Static pages: /about.md /contact.md /privacy.md /developers.md /press-kit.md /speaking.md /uses.md /projects.md /index.md
+# Accept: text/markdown on canonical URLs rewrites to the .md twin (Vary: Accept, Accept-Encoding).
 `;
 };
 

@@ -16,13 +16,51 @@
     {
       "source": "/(.*)\\.md",
       "headers": [
-        { "key": "Content-Type", "value": "text/markdown; charset=utf-8" }
+        { "key": "Content-Type", "value": "text/markdown; charset=utf-8" },
+        { "key": "Vary", "value": "Accept, Accept-Encoding" }
       ]
     },
     {
       "source": "/(.*)\\.txt",
       "headers": [
         { "key": "Content-Type", "value": "text/plain; charset=utf-8" }
+      ]
+    },
+    {
+      "source": "/(about|press-kit|uses|projects|speaking|writing|videos|ai|contact|privacy|developers|livestreams|alive-and-kicking)",
+      "headers": [
+        { "key": "Vary", "value": "Accept, Accept-Encoding" }
+      ]
+    },
+    {
+      "source": "/",
+      "headers": [
+        { "key": "Vary", "value": "Accept, Accept-Encoding" }
+      ]
+    },
+    {
+      "source": "/writing/:slug((?!tag(?:/.*)?$|index$|llms\\.txt$).+)",
+      "headers": [
+        { "key": "Vary", "value": "Accept, Accept-Encoding" }
+      ]
+    },
+    {
+      "source": "/videos/:slug((?!playlist(?:/.*)?$|index$|llms\\.txt$).+)",
+      "headers": [
+        { "key": "Vary", "value": "Accept, Accept-Encoding" }
+      ]
+    },
+    {
+      "source": "/projects/:slug((?!index$).+)",
+      "headers": [
+        { "key": "Vary", "value": "Accept, Accept-Encoding" }
+      ]
+    },
+    {
+      "source": "/404.md",
+      "headers": [
+        { "key": "Content-Type", "value": "text/markdown; charset=utf-8" },
+        { "key": "Vary", "value": "Accept, Accept-Encoding" }
       ]
     }
   ],
@@ -112,6 +150,27 @@
       "destination": "/ai.md"
     },
     {
+      "source": "/contact",
+      "has": [
+        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+      ],
+      "destination": "/contact.md"
+    },
+    {
+      "source": "/privacy",
+      "has": [
+        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+      ],
+      "destination": "/privacy.md"
+    },
+    {
+      "source": "/developers",
+      "has": [
+        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+      ],
+      "destination": "/developers.md"
+    },
+    {
       "source": "/livestreams",
       "has": [
         { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
@@ -124,6 +183,20 @@
         { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
       ],
       "destination": "/alive-and-kicking.md"
+    },
+    {
+      "source": "/:slug((?!writing|videos|projects|admin|api|search|_astro|pagefind|fonts|favicon)[a-z0-9-]+)",
+      "has": [
+        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+      ],
+      "destination": "/:slug.md"
+    },
+    {
+      "source": "/:path((?!.*\\.).*)",
+      "has": [
+        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+      ],
+      "destination": "/404.md"
     }
   ]
 }

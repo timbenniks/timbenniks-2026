@@ -12,11 +12,16 @@ import Button from '../components/primitives/Button.astro';
         That page <em class="italic text-accent">doesn't exist.</em>
       </h1>
       <p class="mt-6 text-lg text-ink-muted">
-        Either it never did, or I moved it. Try the home page, the writing index, or
-        search for what you were looking for.
+        Either it never did, or I moved it. For agents: start at
+        <a href="/llms.txt" class="underline decoration-accent/40 underline-offset-2">llms.txt</a>,
+        <a href="/agents.md" class="underline decoration-accent/40 underline-offset-2">agents.md</a>,
+        or the
+        <a href="/sitemap.md" class="underline decoration-accent/40 underline-offset-2">markdown sitemap</a>.
+        Humans can try home, writing, or search.
       </p>
       <div class="mt-8 flex flex-wrap gap-3">
         <Button href="/" variant="primary">Home</Button>
+        <Button href="/llms.txt" variant="secondary">llms.txt</Button>
         <Button href="/writing" variant="secondary">Writing</Button>
         <Button href="/search" variant="secondary">Search</Button>
       </div>

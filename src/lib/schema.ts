@@ -35,6 +35,7 @@ export const websiteSchema = () => ({
   '@id': `${SITE}/#website`,
   url: `${SITE}/`,
   name: seo.siteName,
+  alternateName: ['timbenniks.dev', 'Tim Benniks personal site'],
   description:
     'Personal website of Tim Benniks. Writing, talks, and videos on developer experience and AI-augmented engineering.',
   inLanguage: seo.locale,
