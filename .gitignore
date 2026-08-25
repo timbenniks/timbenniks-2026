@@ -39,3 +39,4 @@ pnpm-debug.log*
 /e2e/.auth/
 .vercel
 .env*
+.agentlint/

@@ -140,7 +140,7 @@ export const pageSectionSchema = z.discriminatedUnion('kind', [
       z.object({
         label: z.string(),
         body: z.string(),
-        style: z.enum(['serif', 'muted']).default('serif'),
+        style: z.enum(['serif', 'muted', 'mono']).default('serif'),
       }),
     ),
   }),

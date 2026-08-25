@@ -793,7 +793,7 @@ export const LIST_SPECS: Partial<Record<SectionKind, ListSpec[]>> = {
       fields: [
         { key: 'label', type: 'text' },
         { key: 'body', type: 'textarea' },
-        { key: 'style', type: 'select', options: ['serif', 'muted'] },
+        { key: 'style', type: 'select', options: ['serif', 'muted', 'mono'] },
       ],
     },
   ],

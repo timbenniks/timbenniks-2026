@@ -29,7 +29,12 @@ interface Props {
 const seoProps = Astro.props;
 const originTrial = import.meta.env.PUBLIC_WEBMCP_ORIGIN_TRIAL_TOKEN as string | undefined;
 const canonicalURL = seoProps.canonical ?? pageCanonical(Astro.url.pathname);
-const markdownHref = seoProps.markdownHref ?? inferredMarkdownHref(Astro.url.pathname);
+// A noindex page (404, /search, admin preview) has no canonical markdown twin.
+// Without this guard the 404 route advertises `<unknown-path>.md`, sending agents
+// after a resource that does not exist.
+const markdownHref = seoProps.noindex
+  ? seoProps.markdownHref
+  : (seoProps.markdownHref ?? inferredMarkdownHref(Astro.url.pathname));
 const baseGraph = buildGraph(
   webPageSchema({
     url: canonicalURL,

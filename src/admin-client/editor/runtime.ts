@@ -120,7 +120,6 @@ export function bootEditor() {
     historyCache: null,
     changesCache: null,
     previewPersistTimer: null,
-    previewPersistInFlight: null,
   } satisfies Partial<EditorSession> as unknown as EditorSession;
 
   /** When true, the next preview `ready` highlight should scroll into view (URL deep link). */

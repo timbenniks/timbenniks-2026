@@ -2264,6 +2264,34 @@
         "imageSide": "right"
       },
       {
+        "kind": "copy-blocks",
+        "eyebrow": "First call",
+        "title": "Run one request",
+        "lede": "No key, no account, no signup — every public endpoint below is unauthenticated and read-only. Copy a line, run it, and you have a working call. Errors come back as application/problem+json (RFC 9457); every response carries RateLimit and RateLimit-Policy headers.",
+        "items": [
+          {
+            "label": "Search the content · REST",
+            "body": "curl -s 'https://timbenniks.dev/api/v1/search?query=composable&limit=2'\n\n# 200 application/json\n# { \"results\": [ { \"type\": \"writing\",\n#                  \"title\": \"Ten AI security problems hiding in plain text\",\n#                  \"date\": \"2026-08-05\", \"description\": \"…\", \"tags\": [ … ],\n#                  \"url\": \"https://timbenniks.dev/writing/<slug>\",\n#                  \"md\": \"https://timbenniks.dev/writing/<slug>.md\",\n#                  \"source\": \"…\" } ],\n#   \"engine\": \"index\" }",
+            "style": "mono"
+          },
+          {
+            "label": "List the tools · MCP handshake",
+            "body": "curl -s https://timbenniks.dev/api/mcp \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'\n\n# 200 — {\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"tools\":[\n#   {\"name\":\"get_page_context\", \"inputSchema\":{…},\n#    \"annotations\":{\"readOnlyHint\":true}}, … ]}}\n# Then: {\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/call\",\n#        \"params\":{\"name\":\"search_site\",\"arguments\":{\"query\":\"mcp\"}}}",
+            "style": "mono"
+          },
+          {
+            "label": "Read a page as markdown",
+            "body": "curl -s https://timbenniks.dev/about.md\ncurl -s -H 'Accept: text/markdown' https://timbenniks.dev/about\n\n# 200 text/markdown; charset=utf-8\n# Vary: Accept, Accept-Encoding\n# Same twin for /writing/<slug>.md, /videos/<slug>.md, /projects/<slug>.md.",
+            "style": "mono"
+          },
+          {
+            "label": "What failure looks like",
+            "body": "curl -si 'https://timbenniks.dev/api/v1/search'   # query is required\n\n# 400 application/problem+json; charset=utf-8\n# api-version: 1\n# ratelimit: \"public\";r=118;t=60\n# ratelimit-policy: \"public\";q=120;w=60\n# { \"type\": \"https://timbenniks.dev/developers#missing-query\",\n#   \"title\": \"Search query required\", \"status\": 400,\n#   \"detail\": \"The query parameter is required and must not be empty.\",\n#   \"instance\": \"/api/v1/search\", \"code\": \"MISSING_QUERY\",\n#   \"resolution\": \"Retry with a URL such as /api/v1/search?query=developer%20experience.\" }\n#\n# 429 once you pass 120 requests / 60s — read RateLimit and Retry-After to back off.",
+            "style": "mono"
+          }
+        ]
+      },
+      {
         "kind": "factsheet",
         "eyebrow": "Tim Benniks MCP server",
         "title": "Model Context Protocol",
