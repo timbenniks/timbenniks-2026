@@ -87,8 +87,7 @@ function bootEditor() {
     HISTORY_LIMIT: 50,
     historyCache: null,
     changesCache: null,
-    previewPersistTimer: null,
-    previewPersistInFlight: null
+    previewPersistTimer: null
   };
   let deepLinkScroll = false;
   root.innerHTML = editorShellHtml({ boot, slugPath, icon });

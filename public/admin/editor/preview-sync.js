@@ -128,7 +128,7 @@ function createPreviewSync(s) {
   function schedulePersistPreview(highlightIndex, statusMsg) {
     clearTimeout(s.previewPersistTimer ?? void 0);
     s.previewPersistTimer = setTimeout(() => {
-      s.previewPersistInFlight = persistPreview(highlightIndex, statusMsg);
+      void persistPreview(highlightIndex, statusMsg);
     }, 280);
   }
   function restorePreviewAfterReady() {
