@@ -8,6 +8,8 @@ export const WRITING_SLUG_REDIRECTS: Record<string, string> = {
   'every-string-is-now-part-of-your-ai-security-model': 'ten-ai-security-problems-hiding-in-plain-text',
   'gatsby-source-plugins-are-an-anti-pattern': 'gatsby-source-plugins-are-anti-pattern',
   'mcp-servers-need-context': 'build-context-aware-mcp-not-api-wrappers',
+  'mcp-profile-hub-and-the-value-of-enriched-tools':
+    'building-mcp-profile-hub-part-1-stop-making-the-agent-ask',
   'off-platform-ai-and-on-platform-ai-as-reach-and-trust-layers':
     'ai-will-not-live-in-one-place-but-trust-has-to',
   'plot-twist-ai-is-making-devs-more-valuable':
@@ -16,6 +18,8 @@ export const WRITING_SLUG_REDIRECTS: Record<string, string> = {
   'stop-burning-tokens-on-what-a-script-can-do':
     'the-agentic-spectrum-stop-burning-tokens-on-what-a-script-can-do',
   'the-ai-advantage-of-a-middle-sized-company': 'the-biggest-risk-to-ai-is-the-enterprise-org-chart',
+  'the-rise-of-the-doer-economy-and-the-shrinking-software-machine':
+    'the-doer-economy-we-are-killing-the-translator-class',
   'when-output-is-cheap-taste-and-rest-matter-most': 'when-output-is-cheap-taste-is-everything',
   'why-experience-is-the-real-flagship': 'the-experience-factory-01-why-experience-is-the-real-flagship',
 };

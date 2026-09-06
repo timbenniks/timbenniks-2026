@@ -1,4 +1,7 @@
 ---
+import { Font } from 'astro:assets';
+import '../../styles/global.css';
+
 export const prerender = false;
 
 function safeAdminNext(raw: string | null): string {
@@ -27,70 +30,196 @@ const next = safeAdminNext(Astro.url.searchParams.get('next'));
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Admin login</title>
-    <style>
-      body {
-        margin: 0;
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        font-family: ui-sans-serif, system-ui, sans-serif;
-        background: #faf9f7;
-        color: #1a1a1a;
-      }
-      form {
-        width: min(360px, 92vw);
-        padding: 1.5rem;
-        background: #fff;
-        border: 1px solid #e5e5e5;
-        border-radius: 10px;
-      }
-      label { display: block; font-size: 0.85rem; margin-bottom: 0.35rem; }
-      input {
-        width: 100%;
-        padding: 0.65rem 0.75rem;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        margin-bottom: 1rem;
-      }
-      button {
-        width: 100%;
-        padding: 0.7rem;
-        border: 0;
-        border-radius: 6px;
-        background: #1a1a1a;
-        color: #fff;
-        cursor: pointer;
-      }
-      .err { color: #b42318; font-size: 0.85rem; margin-bottom: 0.75rem; min-height: 1.2em; }
-    </style>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Admin login · Tim Benniks</title>
+    <Font cssVariable="--font-fraunces" preload />
+    <Font cssVariable="--font-inter" preload />
   </head>
   <body>
-    <form id="login">
-      <h1 style="margin-top:0;font-size:1.2rem">Admin login</h1>
-      <div class="err" id="err"></div>
-      <label for="password">Password</label>
-      <input id="password" name="password" type="password" autocomplete="current-password" required />
-      <button type="submit">Sign in</button>
-    </form>
+    <header class="login-header">
+      <a class="brand" href="/">Tim Benniks</a>
+      <a class="back-link" href="/"><span aria-hidden="true">←</span> Back to the website</a>
+    </header>
+
+    <main>
+      <div class="login-layout">
+        <div class="intro">
+          <p class="eyebrow">The writing desk</p>
+          <h1>Behind<br />the pages<span class="accent">.</span></h1>
+          <p class="intro-copy">A place to edit, publish, and keep this little corner of the web up to date.</p>
+        </div>
+
+        <section class="login-panel" aria-labelledby="login-title">
+          <h2 id="login-title">Admin login</h2>
+          <p class="login-copy" id="login-help">Enter your password to get back to work.</p>
+          <form id="login" aria-describedby="login-help">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" aria-describedby="err" required />
+            <p class="err" id="err" role="alert" aria-atomic="true"></p>
+            <button type="submit">
+              <span id="submit-label">Sign in</span>
+              <span aria-hidden="true">↗</span>
+            </button>
+          </form>
+        </section>
+      </div>
+    </main>
+
+    <footer><span>timbenniks.dev</span><span>Content &amp; publishing</span></footer>
+
     <script is:inline define:vars={{ next }}>
-      document.getElementById('login')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const password = document.getElementById('password').value;
-        const err = document.getElementById('err');
+      const form = document.getElementById('login');
+      const input = document.getElementById('password');
+      const err = document.getElementById('err');
+      const button = form.querySelector('button[type="submit"]');
+      const label = document.getElementById('submit-label');
+
+      input.addEventListener('input', () => {
+        input.removeAttribute('aria-invalid');
         err.textContent = '';
-        const res = await fetch('/api/admin/login', {
-          method: 'POST',
-          credentials: 'same-origin',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password }),
-        });
-        if (!res.ok) {
-          err.textContent = 'Invalid password';
-          return;
+      });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (button.disabled) return;
+        err.textContent = '';
+        input.removeAttribute('aria-invalid');
+        button.disabled = true;
+        form.setAttribute('aria-busy', 'true');
+        label.textContent = 'Signing in…';
+        try {
+          const res = await fetch('/api/admin/login', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: input.value }),
+          });
+          if (!res.ok) {
+            if (res.status === 401) {
+              err.textContent = 'Invalid password';
+              input.setAttribute('aria-invalid', 'true');
+              input.focus();
+            } else {
+              err.textContent = 'Sign in is unavailable. Please try again.';
+            }
+            return;
+          }
+          location.href = next;
+        } catch {
+          err.textContent = 'Could not connect. Check your connection and try again.';
+        } finally {
+          button.disabled = false;
+          form.removeAttribute('aria-busy');
+          label.textContent = 'Sign in';
         }
-        location.href = next;
       });
     </script>
   </body>
 </html>
+
+<style>
+  body {
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+  }
+  .login-header, footer {
+    width: min(100% - 3rem, 1392px);
+    margin-inline: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .login-header { padding-block: 1.25rem; border-bottom: 1px solid var(--color-line); }
+  .brand {
+    font-family: var(--font-serif);
+    font-size: 1.875rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+  }
+  .back-link { font-size: 0.875rem; text-decoration: none; color: var(--color-ink-muted); }
+  .back-link:hover { color: var(--color-accent); }
+  .back-link span { margin-right: 0.4rem; }
+  main { flex: 1; display: grid; align-items: center; padding: 5rem 1.5rem; }
+  .login-layout {
+    width: min(100%, 1040px);
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    align-items: center;
+    gap: clamp(3rem, 7vw, 7rem);
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-ink-muted);
+    margin-bottom: 1.5rem;
+  }
+  h1 { font-family: var(--font-serif); font-size: clamp(3.75rem, 6.5vw, 6rem); font-weight: 400; line-height: 1.04; letter-spacing: -0.045em; }
+  .accent { color: var(--color-accent); }
+  .intro-copy { max-width: 340px; margin-top: 1.75rem; color: var(--color-ink-muted); font-size: 1rem; }
+  .login-panel { border-left: 1px solid var(--color-line-strong); padding-left: clamp(2rem, 4vw, 4rem); }
+  h2 { font-family: var(--font-serif); font-size: 2rem; line-height: 1.2; font-weight: 400; }
+  .login-copy { margin-top: 0.75rem; font-size: 0.875rem; color: var(--color-ink-muted); }
+  form { margin-top: 2rem; }
+  label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; }
+  input {
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-ink);
+    font: inherit;
+  }
+  input:focus-visible { border-color: var(--color-accent); }
+  input[aria-invalid="true"] { border-color: #b42318; }
+  .err { color: #b42318; font-size: 0.8125rem; min-height: 1.5rem; margin-block: 0.5rem 1rem; }
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: var(--color-accent);
+    color: white;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 150ms;
+  }
+  button:hover { background: var(--color-accent-hover); }
+  button:disabled { opacity: 0.65; cursor: wait; }
+  footer {
+    border-top: 1px solid var(--color-line);
+    padding-block: 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--color-ink-subtle);
+  }
+  @media (max-width: 700px) {
+    .brand { font-size: 1.5rem; }
+    .back-link { font-size: 0.75rem; }
+    .login-layout { max-width: 420px; grid-template-columns: 1fr; gap: 2.5rem; }
+    main { padding-block: 3rem; }
+    h1 { font-size: clamp(3.5rem, 12vw, 4.5rem); }
+    .eyebrow { margin-bottom: 1rem; }
+    .intro-copy { margin-top: 1.25rem; }
+    .login-panel { border-left: 0; border-top: 1px solid var(--color-line-strong); padding: 2rem 0 0; }
+  }
+  @media (max-width: 360px) {
+    .login-header { align-items: flex-start; flex-direction: column; gap: 0.75rem; }
+    footer { gap: 0.75rem; flex-wrap: wrap; }
+  }
+</style>
