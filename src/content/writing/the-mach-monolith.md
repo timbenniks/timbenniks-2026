@@ -66,7 +66,7 @@ We’re seeing a couple of patterns over and over again.
 
 ![MACH Monolith](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/fp3gnzgd3unj8tbvru3c.png){provider="cloudinaryFetch" loading="lazy" sizes="sm:100vw" width="1280"}
 
-If the separation of concerns is not respected, software vendors create an indivisible and interconnected bundle of best-of-breed tools—a complicated scenario that makes it tough to discern what’s connected to what, not to mention that you have created your very own vendor lock-in. Things work in only one way, and only the original build team understands how they work. Onboarding of new team members becomes complicated and burdensome, leading to frustration among developers.
+If the separation of concerns is not respected, software vendors create an indivisible and interconnected bundle of best-of-breed tools, a complicated scenario that makes it tough to discern what’s connected to what, not to mention that you have created your very own vendor lock-in. Things work in only one way, and only the original build team understands how they work. Onboarding of new team members becomes complicated and burdensome, leading to frustration among developers.
 
 Separately, contextual composition data is often stored in the CMS and mixed with the clean data model you started with, such as adding a checkbox to spotlight an item on a page, which is a design decision for the item in a specific context. What if that context changes when the item is shown in a different place on the website? Composing pages with specific user contexts is problematic in a CMS, invariably generating dirty data over time. Instead, page composition in the context of a user must occur in the front end or a composition platform.
 

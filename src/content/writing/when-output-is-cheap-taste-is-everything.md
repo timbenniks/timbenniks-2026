@@ -1,7 +1,7 @@
 ---
 title: When Output Is Cheap, Taste Is Everything
 slug: when-output-is-cheap-taste-is-everything
-description: This article explores how AI has radically reduced the cost of producing things, creating an intoxicating sense of limitless output for ambitious people. But when building becomes almost frictionless, the real bottleneck shifts from implementation to judgment. The author argues that taste—the ability to choose what is worth building—and genuine rest become the true sources of leverage. AI is an exceptional how engine, but deciding what and why remains a deeply human responsibility. Without rest, our judgment degrades, and we risk building more but meaning less. The piece encourages pairing curiosity and experimentation with discipline, restraint, and strategic downtime.
+description: This article explores how AI has radically reduced the cost of producing things, creating an intoxicating sense of limitless output for ambitious people. But when building becomes almost frictionless, the real bottleneck shifts from implementation to judgment. The author argues that taste (the ability to choose what is worth building) and genuine rest become the true sources of leverage. AI is an exceptional how engine, but deciding what and why remains a deeply human responsibility. Without rest, our judgment degrades, and we risk building more but meaning less. The piece encourages pairing curiosity and experimentation with discipline, restraint, and strategic downtime.
 date: "2026-02-08T10:00:00Z"
 canonical_url: https://timbenniks.dev/writing/when-output-is-cheap-taste-is-everything
 reading_time: 5 min read
@@ -13,18 +13,18 @@ tags:
   - personal
 faqs:
   - question: What is the main argument of this article?
-    answer: The article argues that in an era where AI makes output cheap and fast, the real competitive advantage is no longer how much you can build but whether you choose the right things to build. Taste—rooted in domain expertise, user empathy, and experience—and adequate rest become critical, because they enable better judgment about direction, not just speed.
+    answer: The article argues that in an era where AI makes output cheap and fast, the real competitive advantage is no longer how much you can build but whether you choose the right things to build. Taste (rooted in domain expertise, user empathy, and experience) and adequate rest become critical, because they enable better judgment about direction, not just speed.
   - question: How does AI change the way we should think about productivity?
     answer: AI shifts productivity from a question of "can we build this" to "should we build this." Since AI drastically lowers the cost and time of implementation, simply producing more is no longer impressive or strategically sound. Instead, the focus must move to deciding which ideas are truly valuable, sustainable, and aligned with user needs and long-term goals.
   - question: Why does the author emphasize rest in the context of AI and output?
-    answer: The author emphasizes rest because high-quality judgment—and therefore good taste—requires a rested mind. Overworking, even with powerful AI tools, leads to deteriorating decision-making, where people ship features just because they can. Rest creates the mental space where insights emerge, helping you distinguish between noise and the few ideas that genuinely matter.
+    answer: The author emphasizes rest because high-quality judgment (and therefore good taste) requires a rested mind. Overworking, even with powerful AI tools, leads to deteriorating decision-making, where people ship features just because they can. Rest creates the mental space where insights emerge, helping you distinguish between noise and the few ideas that genuinely matter.
 draft: false
 head:
   meta:
     - property: twitter:title
       content: When Output Is Cheap, Taste Is Everything
     - property: twitter:description
-      content: This article explores how AI has radically reduced the cost of producing things, creating an intoxicating sense of limitless output for ambitious people. But when building becomes almost frictionless, the real bottleneck shifts from implementation to judgment. The author argues that taste—the ability to choose what is worth building—and genuine rest become the true sources of leverage. AI is an exceptional how engine, but deciding what and why remains a deeply human responsibility. Without rest, our judgment degrades, and we risk building more but meaning less. The piece encourages pairing curiosity and experimentation with discipline, restraint, and strategic downtime.
+      content: This article explores how AI has radically reduced the cost of producing things, creating an intoxicating sense of limitless output for ambitious people. But when building becomes almost frictionless, the real bottleneck shifts from implementation to judgment. The author argues that taste (the ability to choose what is worth building) and genuine rest become the true sources of leverage. AI is an exceptional how engine, but deciding what and why remains a deeply human responsibility. Without rest, our judgment degrades, and we risk building more but meaning less. The piece encourages pairing curiosity and experimentation with discipline, restraint, and strategic downtime.
     - property: keywords
       content: ai, architecture, career, personal, process
     - property: twitter:image

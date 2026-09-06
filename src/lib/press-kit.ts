@@ -1,5 +1,5 @@
 import type { PageData, PageSection } from './page-schema';
-import { BOOKING_EMAIL } from './public-tools';
+import { BOOKING_CONTACT_URL } from './public-tools';
 import { pageMarkdownPath, siteUrl } from './markdown';
 
 function headlineText(h: { lead: string; em: string; tail: string }): string {
@@ -57,7 +57,7 @@ export function extractPressKit(data: PageData) {
   return {
     url: siteUrl('/press-kit'),
     markdown: siteUrl(pageMarkdownPath('/press-kit')),
-    booking_email: BOOKING_EMAIL,
+    contact_url: BOOKING_CONTACT_URL,
     title: data.metadata.title,
     description: data.metadata.description,
     intro,
@@ -66,7 +66,11 @@ export function extractPressKit(data: PageData) {
     stages,
     photos,
     facts,
-    downloads,
+    downloads: downloads.length ? downloads : photos.map((photo) => ({
+      label: photo.label ?? photo.alt,
+      href: photo.src,
+      note: 'Full-resolution photo',
+    })),
     colors,
   };
 }

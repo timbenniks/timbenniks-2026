@@ -5,7 +5,7 @@
  * when neither exists (every browser except Chrome origin-trial / flag).
  * Handlers fetch same-origin JSON and markdown twins — no admin APIs.
  */
-import { BOOKING_EMAIL, PUBLIC_TOOLS } from '../lib/public-tools';
+import { BOOKING_CONTACT_URL, PUBLIC_TOOLS } from '../lib/public-tools';
 import type { AgentIndex, AgentIndexItem, AgentIndexType } from '../lib/agent-index';
 
 type ModelContext = {
@@ -197,7 +197,7 @@ const handlers: Record<string, (args: Record<string, unknown>) => Promise<unknow
       catalog: `${location.origin}/tools.json`,
       next:
         type === 'press-kit'
-          ? 'Call get_press_kit for bios and photos, or request_booking to draft a booking email.'
+          ? 'Call get_press_kit for bios and photos, or request_booking to draft a booking contact link.'
           : type === 'search'
             ? 'Call search_site with the user query.'
             : 'Call search_site or list_content to find writing/videos. Call get_content with a path to read one piece. Call get_press_kit to book Tim.',
@@ -263,9 +263,8 @@ const handlers: Record<string, (args: Record<string, unknown>) => Promise<unknow
       '',
       'Drafted by an agent on timbenniks.dev — please review before sending.',
     ].filter((line) => line !== null);
-    const mailto = `mailto:${BOOKING_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
     return {
-      email: BOOKING_EMAIL,
+      contact_url: BOOKING_CONTACT_URL,
       press_kit: `${location.origin}/press-kit`,
       press_kit_json: `${location.origin}/press-kit.json`,
       include: [
@@ -277,9 +276,8 @@ const handlers: Record<string, (args: Record<string, unknown>) => Promise<unknow
       ],
       draft_subject: subject,
       draft_body: bodyLines.join('\n'),
-      mailto,
       instruction:
-        'Show this draft to the user. Do not send email yourself. Wait for them to confirm.',
+        'Show this draft to the user. Do not send messages yourself. The user can contact Tim using the contact URL.',
     };
   },
 };

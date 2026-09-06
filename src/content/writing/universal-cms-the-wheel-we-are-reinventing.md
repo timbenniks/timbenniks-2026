@@ -33,7 +33,7 @@ Currently, the CMS industry is toughing through a significant shift in focus tha
 
 Central to that crisis is the fact that outdated systems and evolving user requirements have rendered content-management processes less effective. Furthermore, expectations for content creators are historically low, compromising the quality within CMS platforms. A significant transformation in the CMS landscape is in the offing, however, because, to meet their marketing needs, brands are clamoring for effective tools for content coordination, agility, and governance to be available by 2025.
 
-A potential solution is universal CMS, a balanced and efficient ecosystem that bridges the gap between technical and nontechnical users. That system springs from the industry's "race to the middle”—a convergence of the headless CMS, loved by developers for its flexibility; and the traditional CMS, favored by marketers and content creators for its visual-editing prowess.
+A potential solution is universal CMS, a balanced and efficient ecosystem that bridges the gap between technical and nontechnical users. That system springs from the industry's "race to the middle”, a convergence of the headless CMS, loved by developers for its flexibility; and the traditional CMS, favored by marketers and content creators for its visual-editing prowess.
 
 To me, however, we're reinventing the wheel called composable DXP, which I've worked on for years, first at [Uniform](https://uniform.dev/) and now at [Contentstack](https://contentstack.com/).
 
@@ -83,6 +83,6 @@ So, is universal CMS just composable DXP? Not exactly, but they share many core 
 
 In essence, to ensure user-friendliness and flexibility, the CMS industry is adopting a new pattern that integrates visual editing, tech-agnostic development, and omnichannel delivery. That trend pushes the CMS industry closer to a holistic content-creation model that combines the best aspects of headless and traditional systems for a balanced platform for developers and content creators.
 
-Whether we call it universal CMS or composable DXP, that evolution is a huge plus, for it's high time to make content management a "team buy” again. Not only are pain points dramatically reduced, but also stakeholders can focus on what truly matters—storytelling.
+Whether we call it universal CMS or composable DXP, that evolution is a huge plus, for it's high time to make content management a "team buy” again. Not only are pain points dramatically reduced, but also stakeholders can focus on what truly matters, storytelling.
 
 I couldn’t be happier to work at [Contentstack](https://contentstack.com), whose mantra is to empower the whole team on our platform.

@@ -6,7 +6,7 @@
  * `document.modelContext`. Keep it small. Keep descriptions as prompts.
  */
 
-export const BOOKING_EMAIL = 'hi@timbenniks.dev';
+export const BOOKING_CONTACT_URL = 'https://linkedin.com/in/timbenniks';
 
 export interface PublicToolDef {
   name: string;
@@ -100,14 +100,14 @@ export const PUBLIC_TOOLS = [
   {
     name: 'get_press_kit',
     description:
-      'Bios (short and long), speaker topics, headshots, on-stage photos, factsheet, and booking email. Use when introducing Tim, booking a talk or podcast, or fetching photos for show notes.',
+      'Bios (short and long), speaker topics, headshots, on-stage photos, factsheet, and booking contact link. Use when introducing Tim, booking a talk or podcast, or fetching photos for show notes.',
     annotations: { readOnlyHint: true },
     inputSchema: { type: 'object', properties: {} },
   },
   {
     name: 'request_booking',
     description:
-      'How to book Tim for a conference, podcast, or workshop. Returns the email address, what to include in the request, and the press-kit URL. Does not send email — draft a message for the user to confirm.',
+      'How to book Tim for a conference, podcast, or workshop. Returns the contact URL, what to include in the request, and the press-kit URL. Does not send messages — draft a message for the user to confirm.',
     annotations: { readOnlyHint: true },
     inputSchema: {
       type: 'object',
@@ -138,7 +138,7 @@ export function publicToolCatalog() {
     openapi: 'https://timbenniks.dev/openapi.json',
     mcp_discovery: 'https://timbenniks.dev/.well-known/mcp',
     mcp_endpoint: 'https://timbenniks.dev/api/mcp',
-    booking_email: BOOKING_EMAIL,
+    contact_url: BOOKING_CONTACT_URL,
     tools: PUBLIC_TOOLS.map((tool) => ({
       name: tool.name,
       description: tool.description,

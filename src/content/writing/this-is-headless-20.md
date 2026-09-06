@@ -22,11 +22,11 @@ head:
 
 ---
 
-That’s a bold title, but it’s high time to change how we work with headless technology. I wrote about the [MACH monolith](https://www.linkedin.com/pulse/mach-monolith-tim-benniks) before. Here, I’ll describe how to avoid ending up in a codebase full of technical debt, aka glue code—chores that overburden and frustrate developers.
+That’s a bold title, but it’s high time to change how we work with headless technology. I wrote about the [MACH monolith](https://www.linkedin.com/pulse/mach-monolith-tim-benniks) before. Here, I’ll describe how to avoid ending up in a codebase full of technical debt, aka glue code, chores that overburden and frustrate developers.
 
 ### The why
 
-Headless technology has gained prominence in web development, offering benefits like higher performance, front-end freedom, DX features, and management through APIs—a thrill for techies. However, at scale, complexities arise due to an endless need for glue code for connecting content sources, let alone authoring issues caused by disconnects between content editors and front-end presentation.
+Headless technology has gained prominence in web development, offering benefits like higher performance, front-end freedom, DX features, and management through APIs, a thrill for techies. However, at scale, complexities arise due to an endless need for glue code for connecting content sources, let alone authoring issues caused by disconnects between content editors and front-end presentation.
 
 In particular, separation of content authoring and presentation results in a steep learning curve for content editors, who would need help to preview their work and ensure a correct display. But how do you preview content that connects to multiple sources, all offering some form of preview capability? As a fix, people do either of the following:
 
@@ -50,7 +50,7 @@ Two things are paramount as a fix:
 -   Elimination of the need for content editors to tackle the abstractness of a composable architecture populated by a plethora of different tools. Content editors need a visual-editing capability across headless sources to ensure the display is exactly what they desire without giving up on a solid technical architecture.
     
 
-In other words, content editors need a page-composition process similar in concept to that of GraphQL, i.e., one that returns only the needed properties and content of all page components. All the editors need to do is add the component props with data from external sources—with no need to know the data’s origin. The result is curated, page-specific JSON output that can be consumed by the front end, which need not connect to external data sources.
+In other words, content editors need a page-composition process similar in concept to that of GraphQL, i.e., one that returns only the needed properties and content of all page components. All the editors need to do is add the component props with data from external sources, with no need to know the data’s origin. The result is curated, page-specific JSON output that can be consumed by the front end, which need not connect to external data sources.
 
 ![Connect services to design system components and compose a page. Curate your data a la GraphQL but visually.](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/fu1m8gqp9r20nq7fx7dy.png){provider="cloudinaryFetch" loading="lazy" sizes="sm:100vw" width="1280"}
 
@@ -87,7 +87,7 @@ Map design system component props to individual API response fields to create a 
 
 Connecting everything code-first at scale is painful for developers and content editors alike, the former having to maintain the connections and content mappings, and the latter getting lost in the abstract tools with no clues of what happens on a click to publish.
 
-A composable architecture of headless sources must be a team buy, not just a developer choice. What’s needed is a visual workspace that’s—
+A composable architecture of headless sources must be a team buy, not just a developer choice. What’s needed is a visual workspace that’s:
 
 -   Friendly to content editors but also feature-rich for developers while maintaining excellent technical architecture without compromises.
     

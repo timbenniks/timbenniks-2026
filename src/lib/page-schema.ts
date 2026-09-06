@@ -26,6 +26,7 @@ const headingFields = {
 export const pageSectionSchema = z.discriminatedUnion('kind', [
   z.object({
     kind: z.literal('hero'),
+    layout: z.enum(['split', 'wide']).default('split'),
     eyebrow: z.string().optional(),
     headline,
     subline: z.string().optional(),
@@ -151,6 +152,7 @@ export const pageSectionSchema = z.discriminatedUnion('kind', [
     tone,
     columns: z.union([z.literal(2), z.literal(3)]).default(3),
     aspect: z.enum(['video', 'portrait']).default('video'),
+    fit: z.enum(['cover', 'contain']).default('cover'),
     items: z.array(
       z.object({
         src: z.url(),

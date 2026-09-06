@@ -58,11 +58,11 @@ Most traditional CMS systems focus on content editing or cataloguing of content 
 
 Nowadays, there are companies that solve specific problems within the eco-system of websites. We call these “best-of-breed” solutions, and they tend to be cloud native SaaS companies. Among these companies, there is a category that only deals with media asset delivery.
 
-Images and videos are particularly hard. If we ask a content editor, filmmaker, or web developer how to optimize assets for the web, they generally do not know. The same goes for the best-of-suite CMS systems. They do not specifically optimize assets for the web—they serve them as is.
+Images and videos are particularly hard. If we ask a content editor, filmmaker, or web developer how to optimize assets for the web, they generally do not know. The same goes for the best-of-suite CMS systems. They do not specifically optimize assets for the web; they serve them as is.
 
 This leaves the responsibility to the content editor. We have seen people struggle with photoshop and not know how to optimize an image. Teaching courses and paying for Adobe licenses is commonplace and awfully expensive.
 
-Fortunately, there is a plethora of ways to optimize images and videos for the web—and the SaaS solutions mentioned above take care of the problem for you. They serve assets in the right format for the user’s context (browser, device, resolution). And they reduce the file size with AI to be indistinguishable from the original—doing this by hand as a content editor is impossible.
+Fortunately, there is a plethora of ways to optimize images and videos for the web, and the SaaS solutions mentioned above take care of the problem for you. They serve assets in the right format for the user’s context (browser, device, resolution). And they reduce the file size with AI to be indistinguishable from the original; doing this by hand as a content editor is impossible.
 
 We have had projects where the page weight dropped by 90 percent without loss of quality. Content editors would only upload the original image and the system did the rest.
 
@@ -82,4 +82,4 @@ Look at the future and choose a best-of-breed solution that handles one of the m
 
 And wouldn’t it be nice if content editors did not need photoshop licenses anymore? The overhead of training and the extra process is not worth it.
 
-Instead, have your media delivered by a specialized solution—Mother Nature will thank you for having a low-carbon website.
+Instead, have your media delivered by a specialized solution; Mother Nature will thank you for having a low-carbon website.

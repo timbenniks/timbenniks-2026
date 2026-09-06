@@ -44,6 +44,7 @@ void getSiteDraft().then((rec) => {
     renderFooter();
     nlHeading.value = draft.newsletter?.heading || "";
     nlBody.value = draft.newsletter?.body || "";
+    nlSubscribeUrl.value = draft.newsletter?.subscribeUrl || "";
     footerHuman.value = draft.footerHuman || "";
     if (saveBtn) saveBtn.disabled = false;
   }
@@ -81,6 +82,10 @@ root.innerHTML = `
       <label for="nl-body">Body</label>
       <textarea id="nl-body"></textarea>
     </div>
+    <div class="field">
+      <label for="nl-subscribe-url">LinkedIn newsletter subscription URL</label>
+      <input id="nl-subscribe-url" type="url" placeholder="https://www.linkedin.com/build-relation/newsletter-follow?entityUrn=\u2026" />
+    </div>
   </section>
 
   <section class="panel" id="footer">
@@ -106,6 +111,7 @@ const navRows = requireEl("nav-rows");
 const footerCols = requireEl("footer-cols");
 const nlHeading = requireEl("nl-heading");
 const nlBody = requireEl("nl-body");
+const nlSubscribeUrl = requireEl("nl-subscribe-url");
 const footerHuman = requireEl("footer-human");
 const setStatus = bindStatus(statusEl);
 const setChip = bindStateChip(chip);
@@ -278,6 +284,7 @@ function syncToc() {
 }
 nlHeading.value = draft.newsletter?.heading ?? "";
 nlBody.value = draft.newsletter?.body ?? "";
+nlSubscribeUrl.value = draft.newsletter?.subscribeUrl ?? "";
 footerHuman.value = draft.footerHuman ?? "";
 nlHeading.addEventListener("input", () => {
   if (!draft.newsletter) draft.newsletter = { heading: "", body: "" };
@@ -287,6 +294,10 @@ nlHeading.addEventListener("input", () => {
 nlBody.addEventListener("input", () => {
   if (!draft.newsletter) draft.newsletter = { heading: "", body: "" };
   draft.newsletter.body = nlBody.value;
+  markDirty();
+});
+nlSubscribeUrl.addEventListener("input", () => {
+  draft.newsletter.subscribeUrl = nlSubscribeUrl.value.trim() || void 0;
   markDirty();
 });
 footerHuman.addEventListener("input", () => {

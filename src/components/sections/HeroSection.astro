@@ -11,6 +11,7 @@ type ImageSide = "left" | "right";
 
 interface Props {
   editBase?: string;
+  layout?: "split" | "wide";
   eyebrow?: string;
   headline: { lead: string; em: string; tail: string };
   subline?: string;
@@ -34,6 +35,7 @@ interface Props {
 
 const {
   editBase,
+  layout = "split",
   eyebrow,
   headline,
   subline,
@@ -53,14 +55,14 @@ const externalCta = (href: string) =>
   <div
     class:list={[
       "grid grid-cols-1 items-center",
-      hasMedia && "md:grid-cols-2",
+      hasMedia && layout !== "wide" && "md:grid-cols-2",
       gallery ? "gap-12" : hasMedia && "gap-10 md:gap-8 lg:gap-12",
     ]}
   >
     <div
       class:list={[
-        "max-w-prose-lg mb-12 md:mb-0",
-        imageSide === "left" && !gallery && "md:order-2 md:ml-auto",
+        layout === "wide" ? "max-w-5xl" : "max-w-prose-lg mb-12 md:mb-0",
+        layout !== "wide" && imageSide === "left" && !gallery && "md:order-2 md:ml-auto",
       ]}
     >
       {eyebrow && (
@@ -161,14 +163,14 @@ const externalCta = (href: string) =>
             <Image
               src={image.src}
               widths={widths}
-              sizes="(min-width: 768px) 33vw, 100vw"
+              sizes={layout === "wide" ? "(min-width: 1440px) 1392px, 100vw" : "(min-width: 768px) 33vw, 100vw"}
               alt={image.alt}
               width={image.width}
               height={image.height}
               loading={image.eager ? "eager" : "lazy"}
               fetchpriority={image.eager ? "high" : "auto"}
               decoding={image.eager ? "sync" : "async"}
-              class="w-full max-h-[360px] object-contain sm:max-h-[420px] md:max-h-[380px] lg:max-h-[520px] xl:max-h-[642px]"
+              class={layout === "wide" ? "w-full h-auto" : "w-full max-h-[360px] object-contain sm:max-h-[420px] md:max-h-[380px] lg:max-h-[520px] xl:max-h-[642px]"}
               {...editAttr(editPath(editBase, 'image', 'src'))}
             />
           </div>

@@ -23,7 +23,7 @@ head:
 
 ---
 
-To maintain an engaging relationship with your audience and increase conversions to your site, you need personalization. However, creating personalized experiences is technically challenging. Most personalization techniques involve dynamic rendering and an origin server that holds personalization rules for end-users—a slow approach that often negates the conversions gained through personalization.
+To maintain an engaging relationship with your audience and increase conversions to your site, you need personalization. However, creating personalized experiences is technically challenging. Most personalization techniques involve dynamic rendering and an origin server that holds personalization rules for end-users, a slow approach that often negates the conversions gained through personalization.
 
 Among the many moving parts to consider, performance and scalability are tough nuts to crack. Fortunately, companies like Vercel, which recently released [Edge Middleware](https://vercel.com/docs/concepts/functions/edge-middleware), make those problems readily solvable for developers. With Vercel in place, you only need to choose the right tech to personalize at the CDN edge without having to grapple with the one thing that slows things down: the origin server.
 

@@ -13,7 +13,7 @@ import {
   writingEntryToMarkdown,
 } from './markdown';
 import { pageToMarkdown } from './page-to-markdown';
-import { BOOKING_EMAIL, PUBLIC_TOOLS } from './public-tools';
+import { BOOKING_CONTACT_URL, PUBLIC_TOOLS } from './public-tools';
 import { extractPressKit } from './press-kit';
 
 function clamp(n: unknown, fallback: number, max: number): number {
@@ -173,7 +173,7 @@ export async function executePublicTool(
         mcp: siteUrl('/.well-known/mcp'),
         next:
           type === 'press-kit'
-            ? 'Call get_press_kit for bios and photos, or request_booking to draft a booking email.'
+            ? 'Call get_press_kit for bios and photos, or request_booking to draft a booking contact link.'
             : type === 'search'
               ? 'Call search_site with the user query.'
               : 'Call search_site or list_content to find writing/videos. Call get_content with a path to read one piece. Call get_press_kit to book Tim.',
@@ -232,9 +232,8 @@ export async function executePublicTool(
         '',
         'Drafted by an agent on timbenniks.dev — please review before sending.',
       ].filter((line) => line !== null);
-      const mailto = `mailto:${BOOKING_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
       return {
-        email: BOOKING_EMAIL,
+        contact_url: BOOKING_CONTACT_URL,
         press_kit: siteUrl('/press-kit'),
         press_kit_json: siteUrl('/press-kit.json'),
         include: [
@@ -246,9 +245,8 @@ export async function executePublicTool(
         ],
         draft_subject: subject,
         draft_body: bodyLines.join('\n'),
-        mailto,
         instruction:
-          'Show this draft to the user. Do not send email yourself. Wait for them to confirm.',
+          'Show this draft to the user. Do not send messages yourself. The user can contact Tim using the contact URL.',
       };
     }
     default:

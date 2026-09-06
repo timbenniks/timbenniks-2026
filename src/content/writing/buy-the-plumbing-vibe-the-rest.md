@@ -1,7 +1,7 @@
 ---
 title: Buy the plumbing, vibe the rest
 slug: buy-the-plumbing-vibe-the-rest
-description: AI makes it tempting to cancel SaaS tools and prompt your own internal platforms into existence, but that often creates brittle systems that are “a mile wide and an inch deep.” Performance, security, and edge cases quickly become serious problems, and suddenly your team is doing database administration and security engineering instead of solving business problems. A better pattern is to buy robust, headless infrastructure for the hard, invisible parts—content, data, security, scaling—and then use AI to build bespoke experiences on top. With a solid SDK and stable backend services, AI tools like Claude can safely orchestrate UI and workflows instead of guessing at architecture. Pay for the plumbing, and vibe on the interface layer where your differentiation really lives.
+description: AI makes it tempting to cancel SaaS tools and prompt your own internal platforms into existence, but that often creates brittle systems that are “a mile wide and an inch deep.” Performance, security, and edge cases quickly become serious problems, and suddenly your team is doing database administration and security engineering instead of solving business problems. A better pattern is to buy robust, headless infrastructure for the hard, invisible parts (content, data, security, scaling) and then use AI to build bespoke experiences on top. With a solid SDK and stable backend services, AI tools like Claude can safely orchestrate UI and workflows instead of guessing at architecture. Pay for the plumbing, and vibe on the interface layer where your differentiation really lives.
 date: "2026-08-22T10:00:00Z"
 canonical_url: https://timbenniks.dev/writing/buy-the-plumbing-vibe-the-rest
 reading_time: 3 min read
@@ -17,7 +17,7 @@ faqs:
   - question: Why is building an entire internal platform with AI risky?
     answer: Prompting an entire platform into existence often skips proper architecture, security, and performance considerations. The first version can look impressive but quickly breaks under real usage, exposes security flaws, and fails on edge cases. You effectively turn your team into accidental infrastructure engineers instead of focusing on business value.
   - question: How does a platform SDK improve AI powered development?
-    answer: A platform SDK encapsulates the complex backend mechanics—typing, routing, authentication, and connection protocols—into a stable foundation. AI tools like Claude can then focus on orchestrating UI components and workflows against this reliable layer, rather than guessing how to design databases or security. This leads to faster, safer, and more maintainable applications.
+    answer: A platform SDK encapsulates the complex backend mechanics (typing, routing, authentication, and connection protocols) into a stable foundation. AI tools like Claude can then focus on orchestrating UI components and workflows against this reliable layer, rather than guessing how to design databases or security. This leads to faster, safer, and more maintainable applications.
 draft: false
 head:
   meta:
@@ -26,7 +26,7 @@ head:
     - property: twitter:title
       content: Buy the plumbing, vibe the rest
     - property: twitter:description
-      content: AI makes it tempting to cancel SaaS tools and prompt your own internal platforms into existence, but that often creates brittle systems that are “a mile wide and an inch deep.” Performance, security, and edge cases quickly become serious problems, and suddenly your team is doing database administration and security engineering instead of solving business problems. A better pattern is to buy robust, headless infrastructure for the hard, invisible parts—content, data, security, scaling—and then use AI to build bespoke experiences on top. With a solid SDK and stable backend services, AI tools like Claude can safely orchestrate UI and workflows instead of guessing at architecture. Pay for the plumbing, and vibe on the interface layer where your differentiation really lives.
+      content: AI makes it tempting to cancel SaaS tools and prompt your own internal platforms into existence, but that often creates brittle systems that are “a mile wide and an inch deep.” Performance, security, and edge cases quickly become serious problems, and suddenly your team is doing database administration and security engineering instead of solving business problems. A better pattern is to buy robust, headless infrastructure for the hard, invisible parts (content, data, security, scaling) and then use AI to build bespoke experiences on top. With a solid SDK and stable backend services, AI tools like Claude can safely orchestrate UI and workflows instead of guessing at architecture. Pay for the plumbing, and vibe on the interface layer where your differentiation really lives.
     - property: keywords
       content: composable-architecture, ai-engineering, frontend, developer-experience
 

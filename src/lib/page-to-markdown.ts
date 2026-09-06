@@ -44,7 +44,7 @@ function sectionToMarkdown(section: PageSection): string {
     }
     case 'quote-callout': {
       const quote = `> ${headlineText(section.headline)}`;
-      return [quote, section.attribution ? `— ${section.attribution}` : '']
+      return [quote, section.attribution ? section.attribution : '']
         .filter(Boolean)
         .join('\n\n');
     }
@@ -54,7 +54,7 @@ function sectionToMarkdown(section: PageSection): string {
       const sourcePath = `/${section.source}`;
       return [
         ...heading(section),
-        `Live ${section.source} cards — see [${section.source}](${siteUrl(sourcePath)}) or \`${sourcePath}.md\`.`,
+        `Live ${section.source} cards. See [${section.source}](${siteUrl(sourcePath)}) or \`${sourcePath}.md\`.`,
         ...ctaLine('cta' in section && section.cta ? [section.cta] : undefined),
       ]
         .filter(Boolean)
@@ -69,7 +69,7 @@ function sectionToMarkdown(section: PageSection): string {
         const items = g.items
           .map((i) => {
             const name = i.href ? `[${i.name}](${i.href})` : i.name;
-            return `- **${name}**${i.note ? ` — ${i.note}` : ''}`;
+            return `- **${name}**${i.note ? `: ${i.note}` : ''}`;
           })
           .join('\n');
         return `### ${g.heading}\n\n${items}`;
@@ -129,7 +129,7 @@ function sectionToMarkdown(section: PageSection): string {
       const items = section.items.map((i) => {
         const loc = i.location ? ` · ${i.location}` : '';
         const company = i.url ? `[${i.company}](${i.url})` : i.company;
-        return `### ${i.title} — ${company}\n\n${i.daterange}${loc}\n\n${i.text}`;
+        return `### ${i.title}, ${company}\n\n${i.daterange}${loc}\n\n${i.text}`;
       });
       return [
         ...heading(section),
@@ -152,21 +152,21 @@ function sectionToMarkdown(section: PageSection): string {
     }
     case 'logo-row': {
       const items = section.items.map((i) =>
-        i.href ? `- [${i.label}](${i.href})${i.note ? ` — ${i.note}` : ''}` : `- ${i.label}${i.note ? ` — ${i.note}` : ''}`,
+        i.href ? `- [${i.label}](${i.href})${i.note ? `: ${i.note}` : ''}` : `- ${i.label}${i.note ? `: ${i.note}` : ''}`,
       );
       return [...heading(section), items.join('\n')].filter(Boolean).join('\n\n');
     }
     case 'downloads': {
       const items = section.items.map((i) => {
         const meta = i.meta ? ` (${i.meta})` : '';
-        const note = i.note ? ` — ${i.note}` : '';
+        const note = i.note ? `: ${i.note}` : '';
         return `- [${i.label}](${i.href})${meta}${note}`;
       });
       return [...heading(section), items.join('\n')].filter(Boolean).join('\n\n');
     }
     case 'swatches': {
       const items = section.items.map((i) =>
-        `- **${i.name}** \`${i.hex}\`${i.usage ? ` — ${i.usage}` : ''}`,
+        `- **${i.name}** \`${i.hex}\`${i.usage ? `: ${i.usage}` : ''}`,
       );
       return [...heading(section), items.join('\n')].filter(Boolean).join('\n\n');
     }

@@ -103,7 +103,7 @@ function newSection(kind: SectionKind): SectionInput {
         kind: 'cta-strip',
         text: 'Ready to take the next step?',
         em: ' Let’s talk.',
-        ctas: [{ label: 'Get in touch', href: 'mailto:hi@timbenniks.dev', variant: 'accent' }],
+        ctas: [{ label: 'Get in touch', href: '/contact', variant: 'accent' }],
       };
     case 'principles':
       return {
@@ -288,7 +288,7 @@ function newSection(kind: SectionKind): SectionInput {
         items: [
           { term: 'Role', value: 'Developer Experience Lead' },
           { term: 'Location', value: 'Remote' },
-          { term: 'Contact', value: 'hi@timbenniks.dev', href: 'mailto:hi@timbenniks.dev' },
+          { term: 'Contact', value: 'Contact Tim', href: '/contact' },
         ],
       };
     case 'faq':
@@ -450,6 +450,7 @@ export const PLAYLIST_OPTIONS: readonly FieldOption[] = [
 export const SECTION_FORM: Record<SectionKind, SectionFormSpec> = {
   hero: {
     fields: [
+      { key: 'layout', type: 'select', options: ['split', 'wide'], label: 'Hero layout' },
       { key: 'eyebrow', type: 'text' },
       { key: 'headline.lead', type: 'text' },
       { key: 'headline.em', type: 'text' },
@@ -605,6 +606,7 @@ export const SECTION_FORM: Record<SectionKind, SectionFormSpec> = {
       { key: 'tone', type: 'select', options: ['light', 'dark'] },
       { key: 'columns', type: 'select', options: ['2', '3'], coerce: 'number' },
       { key: 'aspect', type: 'select', options: ['video', 'portrait'] },
+      { key: 'fit', type: 'select', options: ['cover', 'contain'], label: 'Image fit' },
     ],
   },
   'topic-grid': {

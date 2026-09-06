@@ -50,7 +50,7 @@ Overall, a federated architecture is a powerful way to decouple data and systems
 
 While most federation articles focus on the benefits of unification, system autonomy is really the key benefit. This autonomy means that systems can be developed and managed independently without worrying about the other systems in the architecture. This can be a major advantage, as it allows organizations to be more agile and responsive to change while still maintaining standards.
 
-This enforced autonomy increases the reach of standardization. In an e-commerce application, product information — pricing, description, categorization — should be standardized wherever it’s used. Without Content Federation, the product data would be re-entered in the systems that don’t house it. When an editor of the blog goes to create a post about a product, they introduce the human potential for error. If they merely select a product from the e-commerce system, they can rely on the owners of that data to keep their data standardized.
+This enforced autonomy increases the reach of standardization. In an e-commerce application, product information (pricing, description, categorization) should be standardized wherever it’s used. Without Content Federation, the product data would be re-entered in the systems that don’t house it. When an editor of the blog goes to create a post about a product, they introduce the human potential for error. If they merely select a product from the e-commerce system, they can rely on the owners of that data to keep their data standardized.
 
 When the standards for a particular piece of data changes, the data is changed in the home system, and each other system is ready to receive that change. No additional work necessary.
 

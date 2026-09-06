@@ -14,13 +14,13 @@ reading_time: 8 min read
 
 ## Calling for a revolution in how agencies run tech projects
 
-I spent a lot of time working through messy production processes during my years at digital agencies. From single campaigns to building 800+ websites for a brand and its sub-brands, easier processes would have been better for the final result and my hairline. I’m so excited to work with new technology that will change the game for managing agency processes—making everything from delivery to collaboration much easier and faster.
+I spent a lot of time working through messy production processes during my years at digital agencies. From single campaigns to building 800+ websites for a brand and its sub-brands, easier processes would have been better for the final result and my hairline. I’m so excited to work with new technology that will change the game for managing agency processes, making everything from delivery to collaboration much easier and faster.
 
-I have no illusions that I can fix everything—but I hope that you read this with an open mind and see that a better way is possible. Agency processes are ever-changing, and things always seem to fall apart as deadlines near. Nonetheless, by following what I describe below, you can deliver faster from day one and show results to clients for better feedback, all while setting up brands with a future-proof architecture. And yes, you can stay agile at the same time!
+I have no illusions that I can fix everything, but I hope that you read this with an open mind and see that a better way is possible. Agency processes are ever-changing, and things always seem to fall apart as deadlines near. Nonetheless, by following what I describe below, you can deliver faster from day one and show results to clients for better feedback, all while setting up brands with a future-proof architecture. And yes, you can stay agile at the same time!
 
 ## Why agencies embracing composable architectures face challenges
 
-Agencies that start working with [composable architectures](https://uniform.dev/blogs/composable-architecture/composable-platforms-what-why-how) quickly see the benefits during the pitch stage, but when the work starts, so do the problems—mainly when you connect services and when content editors or marketers start working. Because projects are complex, agencies generally sell discovery phases, workshops, and agile methodologies. That’s a great practice, but one that also runs face-first into the challenge of building composable projects at scale.
+Agencies that start working with [composable architectures](https://uniform.dev/blogs/composable-architecture/composable-platforms-what-why-how) quickly see the benefits during the pitch stage, but when the work starts, so do the problems, mainly when you connect services and when content editors or marketers start working. Because projects are complex, agencies generally sell discovery phases, workshops, and agile methodologies. That’s a great practice, but one that also runs face-first into the challenge of building composable projects at scale.
 
 Here are two key issues:
 
@@ -36,7 +36,7 @@ As you scale that up, things get very painful very fast. 
         
 2. Developers are constantly involved with the publication process because content editors need technical support to create experiences. That means that developers are kept from building new, value-adding features and pursuing innovation, and every sprint is filled with unpredictable disruption.
         
-3. A tech stack connected through tightly-coupled integration code is way worse than the legacy monoliths. If things go wrong, no sole organization is at fault. Instead, the people with the overall responsibility—the agency—are held accountable.
+3. A tech stack connected through tightly-coupled integration code is way worse than the legacy monoliths. If things go wrong, no sole organization is at fault. Instead, the people with the overall responsibility (the agency) are held accountable.
         
 4. That glue code I mentioned before? It sticks _hard_. You must prepare for pain when you try to replace a single headless source in a web of hard-integrated sources and front-end code.    
 
@@ -62,7 +62,7 @@ Even without a CMS, content editors can fill in the component fields with conten
 
 ### How a DXCP enables parallel collaboration
 
-If you know what kind of components you need or have a library like [kickstartDS](https://www.kickstartds.com/) or [Tailwind UI](https://tailwindui.com/), you can configure them in the DXCP and start composing pages—with no need for a CMS initially. Simultaneously, the back-end team can select the headless tool while the front-end team can choose a front-end framework and start querying the composed pages. The QA team can start testing the front end as soon as the first few pages have been created with the component library.
+If you know what kind of components you need or have a library like [kickstartDS](https://www.kickstartds.com/) or [Tailwind UI](https://tailwindui.com/), you can configure them in the DXCP and start composing pages, with no need for a CMS initially. Simultaneously, the back-end team can select the headless tool while the front-end team can choose a front-end framework and start querying the composed pages. The QA team can start testing the front end as soon as the first few pages have been created with the component library.
 
 Since the DXCP does not dictate what kind of hosting or CI/CD stack is needed, the DevOps team can work on the setup while the rest of the process is proceeding. Once you install the CDN integration, anyone with the appropriate access privileges can handle releases. Can’t find the prebuilt integration? Build your own, or just add a few webhooks for communication.
 
@@ -70,14 +70,14 @@ On top of that, DXCPs also feature a project map as a basis for creating pages a
 
 ### How to ensure the architecture is divisible and maintainable
 
-Due to the nature of DXCP, you don’t need to interconnect external tools; they all talk directly to the DXCP. Likewise, changing or adding headless sources does not affect developers in nearly the same way. Without developer involvement in the no-code editor, universal previews, and project maps, content editors are much more productive. Business users don’t need to ‘publish and pray’ when they build a page from multiple sources—it’s all right there.
+Due to the nature of DXCP, you don’t need to interconnect external tools; they all talk directly to the DXCP. Likewise, changing or adding headless sources does not affect developers in nearly the same way. Without developer involvement in the no-code editor, universal previews, and project maps, content editors are much more productive. Business users don’t need to ‘publish and pray’ when they build a page from multiple sources; it’s all right there.
 
-Moreover, since the no-code editor integrates flawlessly with external sources and normalizes their interfaces, content editors don’t need to understand how those systems work—making it far easier to onboard new team members. Add that to the freedom of grouping components together and easily personalizing those sources; business users are empowered to own their workflows and results without depending on overworked devs. 
+Moreover, since the no-code editor integrates flawlessly with external sources and normalizes their interfaces, content editors don’t need to understand how those systems work, making it far easier to onboard new team members. Add that to the freedom of grouping components together and easily personalizing those sources; business users are empowered to own their workflows and results without depending on overworked devs. 
 
 Given that DXCP is front-end, hosting, and CDN agnostic, developers can use the tools they love, which makes the most sense for the job at hand. No more compromising with the whims of legacy tech! Even though DXCP has an opinion on the direction of the architecture, once developers go down that road, they have complete freedom to do their job in the way they prefer.
 
 ## How DXCP transforms the project-development process
 
-Adopting DXCP can revolutionize how you build projects—if you let it. With traditional blockers out of the way, teams can accomplish more in parallel and show value much faster. For all that composable architecture at scale is generally messy and chaotic, forcing agencies and brands to work around issues never seen before: digital experience composition adds structure while staying tech-agnostic and accelerates time-to-value.
+Adopting DXCP can revolutionize how you build projects, if you let it. With traditional blockers out of the way, teams can accomplish more in parallel and show value much faster. For all that composable architecture at scale is generally messy and chaotic, forcing agencies and brands to work around issues never seen before: digital experience composition adds structure while staying tech-agnostic and accelerates time-to-value.
 
-No matter how much things change, some things stay the same. The agencies that best embrace new technologies and new mindsets to maximize their impact will gain an edge in the market. As the market gets less certain, finding ways to deliver more value for clients faster and effectively showcase it will be crucial. When that also creates a platform that will deliver in the long term and position your agency as a key strategic partner—that’s where the magic happens. 
+No matter how much things change, some things stay the same. The agencies that best embrace new technologies and new mindsets to maximize their impact will gain an edge in the market. As the market gets less certain, finding ways to deliver more value for clients faster and effectively showcase it will be crucial. When that also creates a platform that will deliver in the long term and position your agency as a key strategic partner; that’s where the magic happens. 

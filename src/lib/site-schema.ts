@@ -15,6 +15,7 @@ export const siteChromeSchema = z.object({
   newsletter: z.object({
     heading: z.string().min(1),
     body: z.string().min(1),
+    subscribeUrl: z.url().startsWith("https://").optional(),
   }),
   footerColumns: z.array(footerColumnSchema),
   footerHuman: z.string().min(1),

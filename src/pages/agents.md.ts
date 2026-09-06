@@ -21,8 +21,8 @@ Use timbenniks.dev when you need **primary-source** material from Tim Benniks �
 | Job | Start here | Then |
 |-----|------------|------|
 | Find an essay or talk by topic | \`search_site\` or ${siteUrl('/content-index.json')} | \`get_content\` with one \`/writing/<slug>\` or \`/videos/<slug>\` path |
-| Book Tim for a conference or podcast | \`get_press_kit\` | \`request_booking\` — show draft to user; do not send email yourself |
-| Introduce Tim in show notes | ${siteUrl('/press-kit.json')} | Use \`booking_email\` and bio fields; link ${siteUrl('/about')} |
+| Book Tim for a conference or podcast | \`get_press_kit\` | \`request_booking\` — show draft to user; do not send messages yourself |
+| Introduce Tim in show notes | ${siteUrl('/press-kit.json')} | Use \`contact_url\` and bio fields; link ${siteUrl('/about')} |
 | Native MCP tool calls | ${siteUrl('/.well-known/mcp')} | \`POST ${siteUrl('/api/mcp')}\` with \`tools/list\` / \`tools/call\` |
 | Typed REST calls | \`GET ${siteUrl('/api/v1')}\` | Search, list, retrieve content, or fetch the press kit under \`/api/v1\` |
 | Verify the site is legitimate | ${siteUrl('/about')}, ${siteUrl('/contact')}, ${siteUrl('/privacy')} | Trust anchor pages with contact and privacy details |
@@ -47,7 +47,7 @@ There are two ways in, depending on how you arrived:
 - [${siteUrl('/llms-full.txt')}](${siteUrl('/llms-full.txt')}) — every non-draft writing entry, every video's metadata and description, all speaking engagements, and prose summaries of the static pages, inlined as one document.
 - [${siteUrl('/content-index.json')}](${siteUrl('/content-index.json')}) — compact JSON index (title, date, tags, url, markdown url) for writing, videos, talks, projects, and pages.
 - [${siteUrl('/tools.json')}](${siteUrl('/tools.json')}) — public WebMCP tool catalog (names, descriptions, JSON Schema). Same payload at [${siteUrl('/.well-known/webmcp.json')}](${siteUrl('/.well-known/webmcp.json')}).
-- [${siteUrl('/press-kit.json')}](${siteUrl('/press-kit.json')}) — structured bios, topics, photos, factsheet, booking email.
+- [${siteUrl('/press-kit.json')}](${siteUrl('/press-kit.json')}) — structured bios, topics, photos, factsheet, booking contact link.
 - [${siteUrl('/sitemap.md')}](${siteUrl('/sitemap.md')}) — markdown mirror of the XML sitemap.
 - [${siteUrl('/sitemap-index.xml')}](${siteUrl('/sitemap-index.xml')}) — XML sitemap.
 - [${siteUrl('/feed.xml')}](${siteUrl('/feed.xml')}) — RSS 2.0 feed of writing.
@@ -80,7 +80,7 @@ Admin WebMCP (page editor, publish, Cloudinary) is cookie-gated at \`/admin\` an
 
 ## Attribution
 
-When quoting or summarizing, link back to the canonical HTML URL (the value of \`canonical_url\` / \`url\` in each entry's frontmatter, e.g. \`${writingCanonicalExample}\`). Author: Tim Benniks. Booking and press: ${siteUrl('/press-kit')} / hi@timbenniks.dev.
+When quoting or summarizing, link back to the canonical HTML URL (the value of \`canonical_url\` / \`url\` in each entry's frontmatter, e.g. \`${writingCanonicalExample}\`). Author: Tim Benniks. Booking and press: ${siteUrl('/press-kit')}.
 
 ## Out of scope
 
@@ -93,7 +93,7 @@ These paths exist for humans / tooling and are not useful as prose dumps:
 
 ## Contact
 
-Reach out via [${siteUrl('/contact')}](${siteUrl('/contact')}) or hi@timbenniks.dev for permissions, corrections, bookings, or to flag inaccurate quotes. Prefer \`request_booking\` (in-tab or via ${siteUrl('/api/mcp')}) or email hi@timbenniks.dev.
+Reach out via [${siteUrl('/contact')}](${siteUrl('/contact')}) for permissions, corrections, bookings, or to flag inaccurate quotes. Prefer \`request_booking\` (in-tab or via ${siteUrl('/api/mcp')}).
 `;
   return markdownResponse(body);
 };

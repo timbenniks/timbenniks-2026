@@ -88,7 +88,7 @@ The new product category digital experience composition facilitates degluing. Ty
 
 DXCPs map component properties to specific data fields of APIs. That means you could add to your video component an image from a DAM, a title and description from YouTube, and viewer metadata from an ERP system. Want to feature the video somewhere? Simply add a checkbox in the DXCP in the context of the component in question without affecting the data model of external systems. As a last step, add the data attached to the component to the CDN edge for caching. Alternatively, grab the information on the data source and query it yourself. 
 
-The front end contains a light and fast SDK that can query component compositions in the CDN-edge cache. With the content mapped explicitly to your component properties in the DXCP, no data mapping is required. And you are now deglued!—with no need to build code to straighten up data or query external systems.
+The front end contains a light and fast SDK that can query component compositions in the CDN-edge cache. With the content mapped explicitly to your component properties in the DXCP, no data mapping is required. And you are now deglued, with no need to build code to straighten up data or query external systems.
 
 Want to add a tiny bit of glue nonetheless? The SDK also contains hooks through which you can enrich or map data from the API before sending the data to the components.
 

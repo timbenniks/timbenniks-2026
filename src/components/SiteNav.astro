@@ -2,7 +2,10 @@
 import { loadSiteChrome } from '../lib/site-chrome';
 import Button from './primitives/Button.astro';
 
-const { nav } = await loadSiteChrome();
+const { nav, newsletter } = await loadSiteChrome();
+const subscribeHref = newsletter.subscribeUrl || '#newsletter';
+const subscribeTarget = newsletter.subscribeUrl ? '_blank' : undefined;
+const subscribeRel = newsletter.subscribeUrl ? 'noopener noreferrer' : undefined;
 const pathname = Astro.url.pathname;
 const isActive = (href: string) => {
   if (href === '/') return pathname === '/';
@@ -47,7 +50,7 @@ const linkClass = (href: string, mobile = false) => [
         </svg>
       </a>
       <div class="hidden sm:block">
-        <Button href="#newsletter" variant="accent" size="md">Subscribe</Button>
+        <Button href={subscribeHref} target={subscribeTarget} rel={subscribeRel} variant="accent" size="md">Subscribe</Button>
       </div>
       <details class="relative lg:hidden">
         <summary
@@ -67,7 +70,7 @@ const linkClass = (href: string, mobile = false) => [
             </li>
           ))}
           <li>
-            <a href="#newsletter" class:list={linkClass('#newsletter', true)}>Subscribe</a>
+            <a href={subscribeHref} target={subscribeTarget} rel={subscribeRel} class:list={linkClass(subscribeHref, true)}>Subscribe</a>
           </li>
         </ul>
       </details>

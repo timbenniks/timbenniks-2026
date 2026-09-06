@@ -26,7 +26,7 @@ That’s not a direct comparison to monolithic solutions in tech per se since co
 
 ## Why are monolithic applications not the way forward?
 
-A pro-con analysis shows real—or at least perceived—benefits in relying on a monolithic architecture for your tech stack. If your IT team is well versed in the vendor along with its code and operating system, an established ease of use exists. Furthermore, it feels simple to keep and manage everything in one place and to have, theoretically, one source of truth, with all the tools housed together under the purview of one provider. Not to mention that you have one all-knowing point of contact or support team to call on in case of issues. 
+A pro-con analysis shows real (or at least perceived) benefits in relying on a monolithic architecture for your tech stack. If your IT team is well versed in the vendor along with its code and operating system, an established ease of use exists. Furthermore, it feels simple to keep and manage everything in one place and to have, theoretically, one source of truth, with all the tools housed together under the purview of one provider. Not to mention that you have one all-knowing point of contact or support team to call on in case of issues.
 
 Nonetheless, given the future of business and the digital experiences consumers demand, the cons of monolithic applications far outweigh the pros in three key areas:
 

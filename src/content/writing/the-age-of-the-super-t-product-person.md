@@ -66,9 +66,9 @@ If the traditional _T-shaped_ model showed depth in one area and breadth across 
 
 **Visualize it like this:**
 
--   The **vertical bar** still represents your deep craft—product strategy, design, or engineering.
+-   The **vertical bar** still represents your deep craft, product strategy, design, or engineering.
     
--   The **horizontal bar** represents cross-domain fluency—understanding the workflows, incentives, and constraints of other disciplines.
+-   The **horizontal bar** represents cross-domain fluency, understanding the workflows, incentives, and constraints of other disciplines.
     
 -   The **AI halo** around the T is what makes it _super_: it accelerates learning, automates translation between domains, and amplifies decision-making.
     

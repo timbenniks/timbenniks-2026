@@ -81,7 +81,7 @@ Tools that propel collaboration fall into different categories. For example, Jir
 
 Even though developers love the freedom to choose the tools they prefer to build websites, it comes at the price of abstract interfaces and many open tabs for marketers. As technology evolves, techies must keep up with industry trends without being bogged down by marketers’ tool choices. That’s where headless has failed us: The pendulum of architecture choices to build websites has swung too far. Developers love it, yet marketers hate it. 
 
-A [digital experience composition platform (DXCP)](https://uniform.dev/what-is-digital-experience-composition) affords both developers and marketers control of features, content, and the ever-ticking clock. Though technically agnostic, a DXCP—
+A [digital experience composition platform (DXCP)](https://uniform.dev/what-is-digital-experience-composition) affords both developers and marketers control of features, content, and the ever-ticking clock. Though technically agnostic, a DXCP:
 
 -   Helps developers funnel data to a front-end channel of their choice without compromises.
     

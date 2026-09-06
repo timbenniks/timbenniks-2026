@@ -126,7 +126,8 @@ test.describe('GEO / agent surfaces', () => {
     });
     expect(callRes.ok()).toBeTruthy();
     const callBody = await callRes.json();
-    expect(callBody.result.content[0].text).toContain('hi@timbenniks.dev');
+    expect(callBody.result.content[0].text).toContain('https://linkedin.com/in/timbenniks');
+    expect(callBody.result.content[0].text).not.toContain('booking_email');
   });
 
   test('content-index.json has writing, videos, talks', async ({ request }) => {
@@ -141,11 +142,12 @@ test.describe('GEO / agent surfaces', () => {
     ).toBeTruthy();
   });
 
-  test('press-kit.json has bios and booking email', async ({ request }) => {
+  test('press-kit.json has bios and a contact link', async ({ request }) => {
     const res = await request.get('/press-kit.json');
     expect(res.ok()).toBeTruthy();
     const body = await res.json();
-    expect(body.booking_email).toBe('hi@timbenniks.dev');
+    expect(body.contact_url).toBe('https://linkedin.com/in/timbenniks');
+    expect(body).not.toHaveProperty('booking_email');
     expect(Array.isArray(body.bios)).toBeTruthy();
     expect(body.bios.length).toBeGreaterThan(0);
     expect(Array.isArray(body.topics)).toBeTruthy();

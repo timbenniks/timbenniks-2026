@@ -13,6 +13,7 @@ interface Props {
   tone?: 'light' | 'dark';
   columns?: 2 | 3;
   aspect?: 'video' | 'portrait';
+  fit?: 'cover' | 'contain';
   items: {
     src: string;
     alt: string;
@@ -30,6 +31,7 @@ const {
   tone = 'light',
   columns = 3,
   aspect = 'video',
+  fit = 'cover',
   items,
 } = Astro.props;
 
@@ -61,7 +63,7 @@ const aspectClass = aspect === 'portrait' ? 'aspect-4/5' : 'aspect-video';
           alt={p.alt}
           loading="lazy"
           decoding="async"
-          class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+          class:list={['h-full w-full transition-transform duration-300 group-hover:scale-[1.02]', fit === 'contain' ? 'object-contain' : 'object-cover']}
           {...editAttr(editPath(editBase, 'items', i, 'src'))}
         />
         {p.label && (

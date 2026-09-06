@@ -2,7 +2,7 @@
 id: 20251024
 slug: devrel-is-product-strategy-disguised-as-empathy
 title: The DevRel Playbook. Product Strategy Disguised as Empathy
-description: TL;DR Developer Relations is product strategy rooted in empathy. It works when you fix developer experience before promoting it, teach workflows instead of pitching features, and measure success by activation and retention—not vanity metrics. The goal is to reduce friction, build trust, and help developers succeed so the community grows naturally.
+description: TL;DR Developer Relations is product strategy rooted in empathy. It works when you fix developer experience before promoting it, teach workflows instead of pitching features, and measure success by activation and retention, not vanity metrics. The goal is to reduce friction, build trust, and help developers succeed so the community grows naturally.
 date: 2025-10-24T10:00:00Z
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto/website/devrel-empathy.png
 canonical_url: https://timbenniks.dev/writing/devrel-is-product-strategy-disguised-as-empathy
@@ -17,7 +17,7 @@ head:
     - property: twitter:title
       content: The DevRel Playbook. Product Strategy Disguised as Empathy
     - property: twitter:description
-      content: TL;DR Developer Relations is product strategy rooted in empathy. It works when you fix developer experience before promoting it, teach workflows instead of pitching features, and measure success by activation and retention—not vanity metrics. The goal is to reduce friction, build trust, and help developers succeed so the community grows naturally.
+      content: TL;DR Developer Relations is product strategy rooted in empathy. It works when you fix developer experience before promoting it, teach workflows instead of pitching features, and measure success by activation and retention, not vanity metrics. The goal is to reduce friction, build trust, and help developers succeed so the community grows naturally.
     - property: keywords
       content: product, marketing, community, Education, Development, process, performance
 faqs:

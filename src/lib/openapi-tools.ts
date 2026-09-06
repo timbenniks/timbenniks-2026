@@ -40,7 +40,7 @@ export function publicAgentOpenApi() {
       summary: 'Read-only content API for timbenniks.dev',
       description:
         'A public, unauthenticated REST API for agents and integrations reading Tim Benniks content. Stable endpoints use the /api/v1 path. Breaking changes receive a new major path; deprecated versions are announced with Deprecation, Sunset, and Link headers for at least 90 days.',
-      contact: { name: 'Tim Benniks', email: 'hi@timbenniks.dev', url: siteUrl('/contact') },
+      contact: { name: 'Tim Benniks', url: siteUrl('/contact') },
       license: { name: 'Public website content; attribution requested', url: siteUrl('/agents.md') },
     },
     servers: [{ url: siteUrl('/'), description: 'Canonical production origin' }],
@@ -213,9 +213,9 @@ export function publicAgentOpenApi() {
         PressKit: {
           type: 'object',
           description: 'Structured public press-kit fields. New optional assets may be added without a major version.',
-          required: ['url', 'markdown', 'booking_email', 'title', 'description', 'intro', 'bios', 'topics', 'stages', 'photos', 'facts', 'downloads', 'colors'],
+          required: ['url', 'markdown', 'contact_url', 'title', 'description', 'intro', 'bios', 'topics', 'stages', 'photos', 'facts', 'downloads', 'colors'],
           properties: {
-            url: { type: 'string', format: 'uri' }, markdown: { type: 'string', format: 'uri' }, booking_email: { type: 'string', format: 'email' },
+            url: { type: 'string', format: 'uri' }, markdown: { type: 'string', format: 'uri' }, contact_url: { type: 'string', format: 'uri' },
             title: { type: 'string' }, description: { type: 'string' }, intro: { type: 'string' },
             bios: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['label', 'body'], properties: { label: { type: 'string' }, body: { type: 'string' } } } },
             topics: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['title', 'body'], properties: { title: { type: 'string' }, body: { type: 'string' } } } },

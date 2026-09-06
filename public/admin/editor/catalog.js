@@ -35,7 +35,7 @@ function newSection(kind) {
         kind: "cta-strip",
         text: "Ready to take the next step?",
         em: " Let\u2019s talk.",
-        ctas: [{ label: "Get in touch", href: "mailto:hi@timbenniks.dev", variant: "accent" }]
+        ctas: [{ label: "Get in touch", href: "/contact", variant: "accent" }]
       };
     case "principles":
       return {
@@ -220,7 +220,7 @@ function newSection(kind) {
         items: [
           { term: "Role", value: "Developer Experience Lead" },
           { term: "Location", value: "Remote" },
-          { term: "Contact", value: "hi@timbenniks.dev", href: "mailto:hi@timbenniks.dev" }
+          { term: "Contact", value: "Contact Tim", href: "/contact" }
         ]
       };
     case "faq":
@@ -361,6 +361,7 @@ const PLAYLIST_OPTIONS = [
 const SECTION_FORM = {
   hero: {
     fields: [
+      { key: "layout", type: "select", options: ["split", "wide"], label: "Hero layout" },
       { key: "eyebrow", type: "text" },
       { key: "headline.lead", type: "text" },
       { key: "headline.em", type: "text" },
@@ -515,7 +516,8 @@ const SECTION_FORM = {
       { key: "lede", type: "textarea" },
       { key: "tone", type: "select", options: ["light", "dark"] },
       { key: "columns", type: "select", options: ["2", "3"], coerce: "number" },
-      { key: "aspect", type: "select", options: ["video", "portrait"] }
+      { key: "aspect", type: "select", options: ["video", "portrait"] },
+      { key: "fit", type: "select", options: ["cover", "contain"], label: "Image fit" }
     ]
   },
   "topic-grid": {

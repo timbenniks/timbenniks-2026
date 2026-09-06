@@ -1,47 +1,111 @@
 {
   "nav": [
-    { "label": "About", "href": "/about" },
-    { "label": "Writing", "href": "/writing" },
-    { "label": "Videos", "href": "/videos" },
-    { "label": "Speaking", "href": "/speaking" },
-    { "label": "Projects", "href": "/projects" },
-    { "label": "Uses", "href": "/uses" }
+    {
+      "label": "About",
+      "href": "/about"
+    },
+    {
+      "label": "Writing",
+      "href": "/writing"
+    },
+    {
+      "label": "Videos",
+      "href": "/videos"
+    },
+    {
+      "label": "Speaking",
+      "href": "/speaking"
+    },
+    {
+      "label": "Projects",
+      "href": "/projects"
+    },
+    {
+      "label": "Uses",
+      "href": "/uses"
+    }
   ],
   "newsletter": {
     "heading": "The good stuff, occasionally.",
-    "body": "One email when there's something worth reading. No drip campaign, no funnel, just writing."
+    "body": "Join 1,150+ readers on LinkedIn for writing on AI engineering, developer experience, and composable architecture.",
+    "subscribeUrl": "https://www.linkedin.com/build-relation/newsletter-follow?entityUrn=6977566966609760256"
   },
   "footerColumns": [
     {
       "heading": "Read",
       "links": [
-        { "label": "Writing", "href": "/writing" },
-        { "label": "Videos", "href": "/videos" },
-        { "label": "Livestreams", "href": "/livestreams" },
-        { "label": "Speaking", "href": "/speaking" }
+        {
+          "label": "Writing",
+          "href": "/writing"
+        },
+        {
+          "label": "Videos",
+          "href": "/videos"
+        },
+        {
+          "label": "Livestreams",
+          "href": "/livestreams"
+        },
+        {
+          "label": "Speaking",
+          "href": "/speaking"
+        }
       ]
     },
     {
       "heading": "About",
       "links": [
-        { "label": "About Tim", "href": "/about" },
-        { "label": "Press kit", "href": "/press-kit" },
-        { "label": "Alive and kicking", "href": "/alive-and-kicking" },
-        { "label": "AI readiness", "href": "/ai" },
-        { "label": "Developer API", "href": "/developers" },
-        { "label": "Uses", "href": "/uses" },
-        { "label": "Projects", "href": "/projects" }
+        {
+          "label": "About Tim",
+          "href": "/about"
+        },
+        {
+          "label": "Press kit",
+          "href": "/press-kit"
+        },
+        {
+          "label": "Alive and kicking",
+          "href": "/alive-and-kicking"
+        },
+        {
+          "label": "AI readiness",
+          "href": "/ai"
+        },
+        {
+          "label": "For developers",
+          "href": "/developers"
+        },
+        {
+          "label": "Uses",
+          "href": "/uses"
+        },
+        {
+          "label": "Projects",
+          "href": "/projects"
+        }
       ]
     },
     {
       "heading": "Elsewhere",
       "links": [
-        { "label": "LinkedIn", "href": "https://linkedin.com/in/timbenniks" },
-        { "label": "YouTube", "href": "https://youtube.com/timbenniks" },
-        { "label": "GitHub", "href": "https://github.com/timbenniks" },
-        { "label": "Bluesky", "href": "https://bsky.app/profile/timbenniks.dev" }
+        {
+          "label": "LinkedIn",
+          "href": "https://linkedin.com/in/timbenniks"
+        },
+        {
+          "label": "YouTube",
+          "href": "https://youtube.com/timbenniks"
+        },
+        {
+          "label": "GitHub",
+          "href": "https://github.com/timbenniks"
+        },
+        {
+          "label": "Bluesky",
+          "href": "https://bsky.app/profile/timbenniks.dev"
+        }
       ]
     }
   ],
-  "footerHuman": "Crafted by hand. No tokens were burnt in the making of this website."
+  "footerHuman": "Built for humans. The agents insisted on documentation."
 }

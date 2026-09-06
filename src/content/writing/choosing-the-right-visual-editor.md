@@ -42,7 +42,7 @@ Visual editors in or outside CMS are gaining traction for their intuitive interf
 
 ## The rise of visual editors in composable architectures
 
-Visual editors have become a cornerstone in modern web design, particularly within composable architectures. These architectures are akin to a puzzle, integrating various content sources—from CMSs and e-commerce systems to payment and digital asset management—into a cohesive website. Visual editors simplify the editing process, allowing content editors to make changes without deep knowledge of the underlying platforms.
+Visual editors have become a cornerstone in modern web design, particularly within composable architectures. These architectures are akin to a puzzle, integrating various content sources (from CMSs and e-commerce systems to payment and digital asset management) into a cohesive website. Visual editors simplify the editing process, allowing content editors to make changes without deep knowledge of the underlying platforms.
 
 ## The two big buckets of visual editors
 
@@ -50,7 +50,7 @@ Visual editors generally fall into two categories: platform-first and code-first
 
 ### Platform-first visual editors
 
-Platform-first visual editors are all about providing a comprehensive service. They offer a web interface that connects all your data sources, allowing you to edit your website components—from hero’s to lists—visually within the platform.
+Platform-first visual editors are all about providing a comprehensive service. They offer a web interface that connects all your data sources, allowing you to edit your website components (from hero’s to lists) visually within the platform.
 
 How it works:
 

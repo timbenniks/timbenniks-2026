@@ -2,7 +2,7 @@
 id: 94712001
 slug: the-mach-monolith-in-2026
 title: The MACH monolith in 2026
-description: The 2022 diagnosis was right. Composable architectures need orchestration or they collapse. But the form factor was wrong. Teams rejected standalone orchestration layers as too heavy—another vendor, contract, and critical path. The 2026 reality is platforms that integrate orchestration directly, staying API-first and modular while providing built-in coordination. The shift isn't about more tools, but smarter platforms that reduce complexity fatigue without losing flexibility.
+description: The 2022 diagnosis was right. Composable architectures need orchestration or they collapse. But the form factor was wrong. Teams rejected standalone orchestration layers as too heavy, another vendor, contract, and critical path. The 2026 reality is platforms that integrate orchestration directly, staying API-first and modular while providing built-in coordination. The shift isn't about more tools, but smarter platforms that reduce complexity fatigue without losing flexibility.
 date: 2025-11-17T10:00:00Z
 image: https://res.cloudinary.com/dwfcofnrd/image/upload/q_auto,f_auto/website/mach-monolith-2026.png
 canonical_url: https://timbenniks.dev/writing/the-mach-monolith-in-2026
@@ -16,18 +16,18 @@ head:
     - property: twitter:title
       content: The MACH monolith in 2026
     - property: twitter:description
-      content: The 2022 diagnosis was right. Composable architectures need orchestration or they collapse. But the form factor was wrong. Teams rejected standalone orchestration layers as too heavy—another vendor, contract, and critical path. The 2026 reality is platforms that integrate orchestration directly, staying API-first and modular while providing built-in coordination. The shift isn't about more tools, but smarter platforms that reduce complexity fatigue without losing flexibility.
+      content: The 2022 diagnosis was right. Composable architectures need orchestration or they collapse. But the form factor was wrong. Teams rejected standalone orchestration layers as too heavy, another vendor, contract, and critical path. The 2026 reality is platforms that integrate orchestration directly, staying API-first and modular while providing built-in coordination. The shift isn't about more tools, but smarter platforms that reduce complexity fatigue without losing flexibility.
     - property: keywords
       content: architecture, orchestration, cms, api, ai, web development, product, Governance
 faqs:
   - question: What was wrong with standalone orchestration layers?
-    answer: Teams didn't reject the idea of orchestration—they rejected the overhead. A standalone orchestration layer adds another vendor, contract, team, and critical path. Leadership wasn't happy hearing they needed a CMS, commerce, search, personalization, and an orchestration layer on top.
+    answer: Teams didn't reject the idea of orchestration; they rejected the overhead. A standalone orchestration layer adds another vendor, contract, team, and critical path. Leadership wasn't happy hearing they needed a CMS, commerce, search, personalization, and an orchestration layer on top.
   - question: How has orchestration changed since 2022?
-    answer: The orchestration concept was right, but the form factor wasn't. Modern platforms have absorbed orchestration directly instead of relying on a standalone coordination layer. You get unified composition, native experience management, and integrated connections—all while staying API-first and modular.
+    answer: The orchestration concept was right, but the form factor wasn't. Modern platforms have absorbed orchestration directly instead of relying on a standalone coordination layer. You get unified composition, native experience management, and integrated connections, all while staying API-first and modular.
   - question: What are the main challenges teams face with composable architecture?
     answer: Complexity fatigue is the biggest challenge. Developers, architects, and editors are tired of endless choices. Teams also struggle with governance, cost control, and operational complexity. Many discovered their "composable" setup was more rigid than the monolith they replaced, with fuzzy ownership across systems.
   - question: What's the difference between a platform and a suite?
-    answer: You're not buying a suite. You're buying a platform that knows how to coordinate. Platforms stay agnostic and API-driven—you can still bring your own stack—but provide pre-connected capabilities that lower operational cost without forcing a traditional monolith.
+    answer: You're not buying a suite. You're buying a platform that knows how to coordinate. Platforms stay agnostic and API-driven (you can still bring your own stack) but provide pre-connected capabilities that lower operational cost without forcing a traditional monolith.
 draft: false
 ---
 

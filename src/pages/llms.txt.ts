@@ -32,7 +32,7 @@ export const GET: APIRoute = async () => {
     `- [Full corpus](${siteUrl('/llms-full.txt')}): writing entries, video metadata, speaking engagements, and static page summaries inlined as markdown`,
     `- [Content index](${siteUrl('/content-index.json')}): compact JSON index for writing, videos, talks, projects, and pages`,
     `- [Tool catalog](${siteUrl('/tools.json')}): public WebMCP tools (search, list, get content, press kit, booking)`,
-    `- [Press kit JSON](${siteUrl('/press-kit.json')}): bios, topics, photos, booking email`,
+    `- [Press kit JSON](${siteUrl('/press-kit.json')}): bios, topics, photos, booking contact link`,
     `- [Agent guide](${siteUrl('/agents.md')}): instructions for AI agents consuming this site`,
     `- [AI readiness](${siteUrl('/ai')}): human explainer of markdown twins, indexes, and WebMCP tools`,
   ];

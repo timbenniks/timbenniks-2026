@@ -69,7 +69,7 @@ By using the `features.noScripts` I saw a big speed improvement in the Nuxt conf
 
 ## Preloading with speculation rules
 
-Turning off scripts has a downside—you lose some of Nuxt's handy functionalities, like pre-rendering linked pages for faster subsequent page loads. To address this, I utilized a native browser feature called speculation rules, which allowed me to pre-render top-level URLs without relying on Nuxt's scripts.
+Turning off scripts has a downside, you lose some of Nuxt's handy functionalities, like pre-rendering linked pages for faster subsequent page loads. To address this, I utilized a native browser feature called speculation rules, which allowed me to pre-render top-level URLs without relying on Nuxt's scripts.
 
 ```html
 <script type="speculationrules">
