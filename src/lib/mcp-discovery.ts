@@ -7,7 +7,7 @@ export function mcpDiscoveryManifest() {
     name: 'Tim Benniks',
     description:
       'Public read-only MCP tools for timbenniks.dev — search writing and videos, fetch markdown content, press kit, and booking info for Tim Benniks.',
-    icon: siteUrl('/favicon.svg'),
+    icon: siteUrl('/favicon.ico'),
     homepage: siteUrl('/'),
     documentation: siteUrl('/developers'),
     agents_guide: siteUrl('/agents.md'),

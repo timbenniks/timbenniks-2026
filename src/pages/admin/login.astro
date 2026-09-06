@@ -1,5 +1,6 @@
 ---
 import { Font } from 'astro:assets';
+import SiteIcons from '../../components/primitives/SiteIcons.astro';
 import '../../styles/global.css';
 
 export const prerender = false;
@@ -31,7 +32,7 @@ const next = safeAdminNext(Astro.url.searchParams.get('next'));
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <SiteIcons />
     <title>Admin login · Tim Benniks</title>
     <Font cssVariable="--font-fraunces" preload />
     <Font cssVariable="--font-inter" preload />

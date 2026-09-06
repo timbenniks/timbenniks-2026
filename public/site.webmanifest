@@ -1,0 +1,18 @@
+{
+  "id": "/",
+  "name": "Tim Benniks",
+  "short_name": "Tim Benniks",
+  "start_url": "/",
+  "scope": "/",
+  "display": "browser",
+  "background_color": "#FFFDF8",
+  "theme_color": "#FFFDF8",
+  "icons": [
+    {
+      "src": "/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -17,7 +17,7 @@ export const GET: APIRoute = async () => {
       'Writing on developer experience, AI-accelerated engineering, and composable platforms.',
     language: seo.locale,
     icon: seo.defaultImage,
-    favicon: siteUrl('/favicon.svg'),
+    favicon: siteUrl('/favicon.ico'),
     authors: [
       {
         name: 'Tim Benniks',
