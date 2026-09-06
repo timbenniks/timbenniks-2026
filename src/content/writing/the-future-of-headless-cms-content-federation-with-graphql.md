@@ -44,7 +44,7 @@ A few benefits of a federated architecture include:
 
 Overall, a federated architecture is a powerful way to decouple data and systems, giving organizations more flexibility, agility, and security.
 
-![Federated Content Platform](https://media.graphassets.com/4wC9B4MBSaZDeQvB26QA){provider="cloudinaryFetch" loading="lazy" sizes="sm:100vw" width="1280"}
+![Federated Content Platform](https://res.cloudinary.com/dwfcofnrd/image/fetch/f_auto,q_auto,w_1280/https://media.graphassets.com/4wC9B4MBSaZDeQvB26QA)
 
 ## The importance of autonomy in a federated architecture
 

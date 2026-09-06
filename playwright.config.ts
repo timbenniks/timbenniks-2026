@@ -32,7 +32,7 @@ export default defineConfig({
         storageState: 'e2e/.auth/admin.json',
       },
       dependencies: ['setup'],
-      testIgnore: [/auth\.setup\.ts/, /geo\.spec\.ts/],
+      testIgnore: [/auth\.setup\.ts/, /geo\.spec\.ts/, /migration\.spec\.ts/],
     },
   ],
   webServer: {

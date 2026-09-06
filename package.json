@@ -19,6 +19,7 @@
     "pretest:e2e": "npm run build:admin",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "test:migration": "playwright test --config=playwright.migration.config.ts",
     "test:e2e:install": "playwright install chromium",
     "agentlint": "agentlint scan --agent --missions",
     "agentlint:local": "agentlint scan http://127.0.0.1:4321 --allow-private --agent --missions"

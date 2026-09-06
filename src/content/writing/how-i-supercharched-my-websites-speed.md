@@ -37,7 +37,7 @@ head:
 
 In this blog post, I want to share how I transformed my website, [timbenniks.dev](https://timbenniks.dev), into the fastest site I've ever built. I'll walk you through the steps, my unconventional decisions, and the tools I used to achieve this feat.
 
-![Before and after](/website/performance-before-after-1.jpg){provider="cloudinaryNative" loading="lazy" sizes="sm:100vw" width="1280" class="fancy-image-alt"}
+![Before and after](https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1280/website/performance-before-after-1.jpg)
 
 ## Choosing the right framework
 
@@ -82,7 +82,7 @@ Turning off scripts has a downside, you lose some of Nuxt's handy functionalitie
 
 ```
 
-![Before and after](/website/preload-before-after.jpg){provider="cloudinaryNative" loading="lazy" sizes="sm:100vw" width="1280" class="fancy-image-alt"}
+![Before and after](https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1280/website/preload-before-after.jpg)
 
 ## Simple vanilla JavaScript
 

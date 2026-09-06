@@ -12,6 +12,8 @@ export async function GET(context: APIContext) {
     description:
       "Writing on developer experience, AI-accelerated engineering, and composable platforms.",
     site: context.site!,
+    // Keep the existing production feed's links and GUIDs stable for subscribers.
+    trailingSlash: false,
     items: posts.map((post) => ({
       title: post.data.title,
       pubDate: post.data.date,

@@ -479,7 +479,7 @@
     "metadata": {
       "title": "Videos",
       "description": "Tutorials, livestreams, conference vlogs, and product deep-dives from Tim Benniks: YouTube, Contentstack, and a decade of composable tech.",
-      "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/website/time-video-sketch.png",
+      "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1786388859/website/video.png",
       "imageAlt": "Illustrated Tim Benniks recording video",
       "keywords": "YouTube, livestream, workshop, tutorial, Contentstack, DevRel, developer experience, videos"
     },
@@ -1442,8 +1442,8 @@
             "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/presskit/IMG_0144",
             "alt": "Tim Benniks candid portrait",
             "label": "On-location · 2024",
-            "width": 4640,
-            "height": 6960
+            "width": 1600,
+            "height": 2400
           },
           {
             "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/Presskit/FDLC2019_462.jpg",

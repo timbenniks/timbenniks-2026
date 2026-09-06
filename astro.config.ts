@@ -60,6 +60,8 @@ function externalPagefind(): Plugin {
 
 export default defineConfig({
   site: "https://timbenniks.dev",
+  // Match Vercel's slash redirects in canonical URLs and the generated sitemap.
+  trailingSlash: "never",
   redirects: { ...writingRedirectMap(), ...legacyRedirectMap() },
   adapter: vercel({
     // Dynamic fs reads of these paths are invisible to NFT; without this the

@@ -86,7 +86,10 @@ const articleGraph = buildGraph(
     <Container>
       <article
         data-pagefind-body
-        data-pagefind-meta={`title:${entry.data.title}, date:${entry.data.date.toISOString().slice(0, 10)}, image:${entry.data.image ?? ''}`}
+        data-pagefind-meta="title[data-title], date[data-date], image[data-image]"
+        data-title={entry.data.title}
+        data-date={entry.data.date.toISOString().slice(0, 10)}
+        data-image={entry.data.image ?? ''}
       >
         <span hidden data-pagefind-filter="type:writing">writing</span>
         <span hidden data-pagefind-filter={`year:${entry.data.date.getUTCFullYear()}`}>{entry.data.date.getUTCFullYear()}</span>

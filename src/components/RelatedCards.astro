@@ -13,7 +13,7 @@ const { title, items, id = 'related-cards-heading' } = Astro.props;
 
 {
   items.length > 0 && (
-    <section class="mt-16 border-t border-line pt-12" aria-labelledby={id}>
+    <section class="mt-16 border-t border-line pt-12" aria-labelledby={id} data-pagefind-ignore>
       <h2 id={id} class="font-serif text-3xl font-medium text-ink md:text-4xl">
         {title}
       </h2>
