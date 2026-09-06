@@ -5,6 +5,7 @@ import vercel from "@astrojs/vercel";
 import { loadEnv, type Plugin } from "vite";
 import { resolve } from "node:path";
 import { writingRedirectMap } from "./src/data/writing-redirects";
+import { legacyRedirectMap } from "./src/data/legacy-redirects";
 import { assertWritingCanonicals } from "./scripts/check-writing-canonicals.mjs";
 
 // Astro config runs before Vite's env pipeline. Seed process.env from `.env*`
@@ -43,9 +44,23 @@ function reloadOnContentJson(): Plugin {
   };
 }
 
+/** Pagefind is emitted after `astro build`. Vite must not try to resolve it in dev. */
+function externalPagefind(): Plugin {
+  return {
+    name: "external-pagefind",
+    enforce: "pre",
+    resolveId(id) {
+      const bare = id.split("?")[0];
+      if (bare === "/pagefind/pagefind.js" || bare.startsWith("/pagefind/")) {
+        return { id: bare, external: true };
+      }
+    },
+  };
+}
+
 export default defineConfig({
   site: "https://timbenniks.dev",
-  redirects: writingRedirectMap(),
+  redirects: { ...writingRedirectMap(), ...legacyRedirectMap() },
   adapter: vercel({
     // Dynamic fs reads of these paths are invisible to NFT; without this the
     // serverless function looks for /var/task/src/content/*.json and ENOENTs.
@@ -98,7 +113,7 @@ export default defineConfig({
   ],
 
   vite: {
-    plugins: [tailwindcss(), reloadOnContentJson()],
+    plugins: [tailwindcss(), reloadOnContentJson(), externalPagefind()],
     server: {
       // Playwright drives a freshly started `astro dev`. A Vite full-reload
       // fired while the server finishes warming up (font provider, content

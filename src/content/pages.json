@@ -15,10 +15,10 @@
           "em": "websites.",
           "tail": "Now I build what builds them."
         },
-        "subline": "Tim Benniks. Developer Experience Lead at Contentstack. Co-chair, MACH Alliance Enterprise AI Agents Workgroup. Ambassador for Nuxt, Cloudinary, Supabase, and Algolia.",
+        "subline": "Tim Benniks. Developer Experience and Product Leader, AI, MCP and agentic developer systems. Open-source builder, speaker and MACH Alliance workgroup co-chair.",
         "ctas": [
           {
-            "label": "Read the writing",
+            "label": "Thought leadership",
             "href": "/writing",
             "variant": "primary"
           },
@@ -64,43 +64,6 @@
           "width": 2355,
           "height": 1011
         }
-      },
-      {
-        "kind": "logo-row",
-        "eyebrow": "With",
-        "tone": "light",
-        "items": [
-          {
-            "label": "Contentstack",
-            "note": "DX Lead",
-            "href": "https://www.contentstack.com"
-          },
-          {
-            "label": "MACH Alliance",
-            "note": "Co-chair",
-            "href": "https://machalliance.org"
-          },
-          {
-            "label": "Nuxt",
-            "note": "Ambassador",
-            "href": "https://nuxt.com"
-          },
-          {
-            "label": "Cloudinary",
-            "note": "Ambassador",
-            "href": "https://cloudinary.com"
-          },
-          {
-            "label": "Supabase",
-            "note": "Ambassador",
-            "href": "https://supabase.com"
-          },
-          {
-            "label": "Algolia",
-            "note": "Ambassador",
-            "href": "https://www.algolia.com"
-          }
-        ]
       },
       {
         "kind": "feature-split",
@@ -156,7 +119,6 @@
         "lede": "Workshops, demos, and conversations from the YouTube channel and Contentstack streams.",
         "source": "videos",
         "limit": 3,
-        "playlist": "tim",
         "columns": 3,
         "tone": "light",
         "cta": {
@@ -264,33 +226,33 @@
         "items": [
           {
             "label": "Contentstack",
-            "note": "Developer Experience Lead",
-            "href": "https://www.contentstack.com"
+            "href": "https://www.contentstack.com",
+            "note": "Developer Experience Lead"
           },
           {
             "label": "MACH Alliance",
-            "note": "Enterprise AI Agents",
-            "href": "https://machalliance.org"
+            "href": "https://machalliance.org",
+            "note": "Enterprise AI Agents"
           },
           {
             "label": "Nuxt",
-            "note": "Ambassador",
-            "href": "https://nuxt.com"
+            "href": "https://nuxt.com",
+            "note": "Ambassador"
           },
           {
             "label": "Cloudinary",
-            "note": "Ambassador",
-            "href": "https://cloudinary.com"
+            "href": "https://cloudinary.com",
+            "note": "Ambassador"
           },
           {
             "label": "Supabase",
-            "note": "Ambassador",
-            "href": "https://supabase.com"
+            "href": "https://supabase.com",
+            "note": "Ambassador"
           },
           {
             "label": "Algolia",
-            "note": "Ambassador",
-            "href": "https://www.algolia.com"
+            "href": "https://www.algolia.com",
+            "note": "Ambassador"
           }
         ]
       },
@@ -622,19 +584,116 @@
       {
         "kind": "browse",
         "source": "videos",
-        "eyebrow": "Browse by playlist",
+        "eyebrow": "All playlists",
         "searchHref": "/search",
         "columns": 3,
+        "pagefindIgnore": true,
+        "limit": 0
+      },
+      {
+        "kind": "card-grid",
+        "eyebrow": "Personal",
+        "title": "Tim Benniks",
+        "lede": "The personal channel. AI workflows, Nuxt, Contentstack, Cloudinary, and whatever I'm actually building that week.",
+        "source": "videos",
+        "limit": 3,
+        "playlist": "tim",
+        "columns": 3,
+        "tone": "light",
+        "cta": {
+          "label": "All personal videos",
+          "href": "/videos/playlist/tim"
+        },
+        "pagefindIgnore": true
+      },
+      {
+        "kind": "card-grid",
+        "eyebrow": "Product",
+        "title": "Contentstack",
+        "lede": "Thought leadership on composable DXP, Kickstarts, and academy sessions.",
+        "source": "videos",
+        "limit": 3,
+        "playlist": "contentstack",
+        "columns": 3,
+        "tone": "light",
+        "cta": {
+          "label": "All Contentstack videos",
+          "href": "/videos/playlist/contentstack"
+        },
+        "pagefindIgnore": true
+      },
+      {
+        "kind": "card-grid",
+        "eyebrow": "Day-of",
+        "title": "Middleware Productions",
+        "lede": "Same-day conference vlogs with Marc. Shot in the morning, shown before the closing keynote.",
+        "source": "videos",
+        "limit": 3,
+        "playlist": "mp",
+        "columns": 3,
+        "tone": "light",
+        "cta": {
+          "label": "All MP videos",
+          "href": "/videos/playlist/mp"
+        },
+        "pagefindIgnore": true
+      },
+      {
+        "kind": "card-grid",
+        "eyebrow": "Earlier chapters",
+        "title": "Hygraph",
+        "lede": "CMS Maverick showdowns and headless architecture sessions from the Hygraph years.",
+        "source": "videos",
+        "limit": 3,
+        "playlist": "hygraph",
+        "columns": 3,
+        "tone": "light",
+        "cta": {
+          "label": "All Hygraph videos",
+          "href": "/videos/playlist/hygraph"
+        },
+        "pagefindIgnore": true
+      },
+      {
+        "kind": "card-grid",
+        "eyebrow": "Earlier chapters",
+        "title": "Uniform",
+        "lede": "Uniform DXC tutorials, Canvas walkthroughs, and composable stack deep-dives.",
+        "source": "videos",
+        "limit": 3,
+        "playlist": "uniform",
+        "columns": 3,
+        "tone": "light",
+        "cta": {
+          "label": "All Uniform videos",
+          "href": "/videos/playlist/uniform"
+        },
+        "pagefindIgnore": true
+      },
+      {
+        "kind": "card-grid",
+        "eyebrow": "Earlier chapters",
+        "title": "Headless Creator",
+        "lede": "The series on moving from DXP to DXC. Still useful when the question is architectural.",
+        "source": "videos",
+        "limit": 3,
+        "playlist": "headless-creator",
+        "columns": 3,
+        "tone": "light",
+        "cta": {
+          "label": "All Headless Creator videos",
+          "href": "/videos/playlist/headless-creator"
+        },
         "pagefindIgnore": true
       },
       {
         "kind": "cta-strip",
-        "text": "Got a topic you want walked through on camera?",
-        "em": " Pitch it.",
+        "text": "The livestreams live next door.",
+        "em": " Same camera, different room.",
         "ctas": [
           {
-            "label": "hi@timbenniks.dev",
-            "href": "mailto:hi@timbenniks.dev",
+            "label": "Livestreams",
+            "href": "/livestreams",
             "variant": "accent"
           },
           {
@@ -708,21 +767,16 @@
         "kind": "hero",
         "eyebrow": "Stages",
         "headline": {
-          "lead": "I've been on stage for six years.",
-          "em": "I still show up.",
+          "lead": "From guitarist to speaker",
+          "em": " stages are fun!",
           "tail": ""
         },
-        "subline": "Practical talks — keynotes, hands-on workshops, and podcasts — about developer experience, AI agents, and composable architecture. I focus on useful ideas, not buzzwords. I travel when it’s a good fit.",
+        "subline": "Practical talks, keynotes, hands-on workshops, and podcasts about developer experience, AI agents, and composable architecture. I focus on useful ideas, not buzzwords. I travel when it’s a good fit.",
         "ctas": [
           {
             "label": "Press kit & booking",
             "href": "/press-kit",
             "variant": "primary"
-          },
-          {
-            "label": "Email Tim",
-            "href": "mailto:hi@timbenniks.dev",
-            "variant": "secondary"
           }
         ],
         "image": {
@@ -761,76 +815,8 @@
         }
       },
       {
-        "kind": "topic-grid",
-        "eyebrow": "How I work a stage",
-        "title": "What you get when I'm on the bill",
-        "lede": "I do in-person and virtual. The aim is the same: people leave smarter and glad they stayed.",
-        "items": [
-          {
-            "title": "Interactive, not ornamental",
-            "body": "I favour interaction over performance. Live coding, audience prompts, and — when it fits — live music. They're part of the talk, not an add-on."
-          },
-          {
-            "title": "Virtual that doesn't feel second-class",
-            "body": "I treat virtual like a first-class format: clear visuals, tight edits, and pacing that works through a laptop speaker."
-          },
-          {
-            "title": "Substance first, theatre second",
-            "body": "I start with a technical idea that matters. Any theatrics exist to make that idea stick."
-          },
-          {
-            "title": "Built for the audience in the room",
-            "body": "I rebuild slides for the crowd. A Vue audience gets a different talk than an AI meetup."
-          }
-        ],
-        "pills": [
-          "Developer experience as strategy",
-          "AI-augmented engineering",
-          "Composable / MACH architecture",
-          "Agents at the content layer",
-          "Team leadership under pressure"
-        ],
-        "pillsLabel": "Usual topics",
-        "noteBefore": "Full bios, headshots, and topic blurbs live in the ",
-        "noteHref": "/press-kit",
-        "noteLinkLabel": "press kit",
-        "noteAfter": " — copy-paste ready for your CFP or show notes."
-      },
-      {
         "kind": "stats",
         "source": "speaking"
-      },
-      {
-        "kind": "photo-grid",
-        "eyebrow": "Receipts",
-        "title": "A few rooms I've stood in",
-        "lede": "From small meetups to big keynotes — photos (and more) are in the press kit.",
-        "tone": "dark",
-        "columns": 3,
-        "aspect": "video",
-        "items": [
-          {
-            "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/Presskit/FDLC2019_462.jpg",
-            "alt": "Tim Benniks speaking at FDLC",
-            "label": "FDLC keynote",
-            "width": 1600,
-            "height": 900
-          },
-          {
-            "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/website/tim-vueams.jpg",
-            "alt": "Tim Benniks on stage at Vue.js Amsterdam",
-            "label": "Vue.js Amsterdam",
-            "width": 1600,
-            "height": 900
-          },
-          {
-            "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/website/tim_on_stage.png",
-            "alt": "Tim Benniks on stage in front of a live audience",
-            "label": "Live audience",
-            "width": 1600,
-            "height": 900
-          }
-        ]
       },
       {
         "kind": "card-rows",
@@ -1064,10 +1050,22 @@
         "kind": "jump-nav",
         "label": "On this page",
         "items": [
-          { "label": "Computer & desk", "href": "#computer-desk" },
-          { "label": "Audio & video", "href": "#audio-video" },
-          { "label": "Software", "href": "#software" },
-          { "label": "Music", "href": "#music" }
+          {
+            "label": "Computer & desk",
+            "href": "#computer-desk"
+          },
+          {
+            "label": "Audio & video",
+            "href": "#audio-video"
+          },
+          {
+            "label": "Software",
+            "href": "#software"
+          },
+          {
+            "label": "Music",
+            "href": "#music"
+          }
         ]
       },
       {
@@ -1797,6 +1795,627 @@
             "label": "Press kit",
             "href": "/press-kit",
             "variant": "secondary"
+          }
+        ]
+      }
+    ]
+  },
+  "livestreams": {
+    "path": "/livestreams",
+    "metadata": {
+      "title": "Livestreams",
+      "description": "Contentstack, Hygraph, Uniform, and personal livestreams. Tim learns in public with guests — every stream has a live coding element.",
+      "keywords": "livestream, Contentstack, Hygraph, Uniform, DXP, headless CMS, live coding"
+    },
+    "sections": [
+      {
+        "kind": "hero",
+        "eyebrow": "On air",
+        "headline": {
+          "lead": "Learn in public.",
+          "em": "Code included.",
+          "tail": ""
+        },
+        "subline": "Bi-weekly product streams, older CMS chapters, and the odd ad-hoc conversation. Same camera as the YouTube channel — a different room.",
+        "ctas": [
+          {
+            "label": "All videos",
+            "href": "/videos",
+            "variant": "secondary"
+          },
+          {
+            "label": "YouTube",
+            "href": "https://www.youtube.com/c/timbenniks",
+            "variant": "primary"
+          }
+        ],
+        "image": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1786388859/website/video.png",
+          "alt": "Illustrated Tim Benniks recording video",
+          "width": 1341,
+          "height": 964,
+          "widths": [
+            640,
+            960
+          ],
+          "eager": true,
+          "preload": true
+        },
+        "imageSide": "right"
+      },
+      {
+        "kind": "topic-grid",
+        "eyebrow": "The series",
+        "title": "Four shelves, one camera",
+        "lede": "Start with the current Contentstack streams. The Hygraph and Uniform archives are still the shortest path into those platforms.",
+        "items": [
+          {
+            "title": "Contentstack Streams",
+            "body": "Bi-weekly. Tim learns in public with guests from the industry or Contentstack. Every week a DXP topic, every stream a live coding element."
+          },
+          {
+            "title": "Hygraph Streams",
+            "body": "Weekly, from the Hygraph years. Headless CMS, personalization, Astro, Svelte, Cloudinary — always with a live coding pass."
+          },
+          {
+            "title": "Uniform Streams",
+            "body": "Product Streams for new features, Composable Without Compromise with industry veterans, and Unpack The Stack with guests."
+          },
+          {
+            "title": "Personal streams",
+            "body": "Ad-hoc. Dare Dialogues with Sonja Keerl and Leoni Janssen, plus one-off MACH and migration sessions."
+          }
+        ],
+        "pills": []
+      },
+      {
+        "kind": "card-grid",
+        "eyebrow": "Contentstack",
+        "title": "Current streams",
+        "lede": "Agent OS, Visual Builder, Edge, Automate — the sessions running now.",
+        "source": "videos",
+        "limit": 6,
+        "playlist": "live-contentstack",
+        "columns": 3,
+        "tone": "light",
+        "cta": {
+          "label": "All Contentstack streams",
+          "href": "/videos/playlist/live-contentstack"
+        },
+        "pagefindIgnore": false
+      },
+      {
+        "kind": "card-grid",
+        "eyebrow": "Hygraph",
+        "title": "Hygraph Streams",
+        "lede": "Weekly learn-in-public sessions on headless CMS, with a live coding element every time.",
+        "source": "videos",
+        "limit": 6,
+        "playlist": "live-hygraph",
+        "columns": 3,
+        "tone": "light",
+        "cta": {
+          "label": "All Hygraph streams",
+          "href": "/videos/playlist/live-hygraph"
+        },
+        "pagefindIgnore": true
+      },
+      {
+        "kind": "card-grid",
+        "eyebrow": "Uniform",
+        "title": "Uniform Streams",
+        "lede": "Product meetups, Jamstack Fridays, and stack deep-dives.",
+        "source": "videos",
+        "limit": 6,
+        "playlist": "live-uniform",
+        "columns": 3,
+        "tone": "light",
+        "cta": {
+          "label": "All Uniform streams",
+          "href": "/videos/playlist/live-uniform"
+        },
+        "pagefindIgnore": true
+      },
+      {
+        "kind": "card-grid",
+        "eyebrow": "Personal",
+        "title": "Misc streams",
+        "lede": "Dare Dialogues and one-off MACH conversations.",
+        "source": "videos",
+        "limit": 6,
+        "playlist": "misc-streams",
+        "columns": 3,
+        "tone": "light",
+        "cta": {
+          "label": "All personal streams",
+          "href": "/videos/playlist/misc-streams"
+        },
+        "pagefindIgnore": true
+      },
+      {
+        "kind": "cta-strip",
+        "text": "Got a topic you want walked through on camera?",
+        "em": " Pitch it.",
+        "ctas": [
+          {
+            "label": "hi@timbenniks.dev",
+            "href": "mailto:hi@timbenniks.dev",
+            "variant": "accent"
+          },
+          {
+            "label": "YouTube",
+            "href": "https://www.youtube.com/c/timbenniks",
+            "variant": "secondary"
+          }
+        ]
+      }
+    ]
+  },
+  "alive-and-kicking": {
+    "path": "/alive-and-kicking",
+    "metadata": {
+      "title": "Alive and Kicking",
+      "description": "An interactive guitar karaoke experience in the browser. Vue, Nuxt, WebMIDI, and a live-voting audience — built to show what composable architecture can do on stage.",
+      "keywords": "Alive and Kicking, Vue, Nuxt, WebMIDI, guitar karaoke, conference talk, composable architecture"
+    },
+    "sections": [
+      {
+        "kind": "hero",
+        "eyebrow": "A Vue into rock & roll",
+        "headline": {
+          "lead": "Guitar karaoke.",
+          "em": "In the browser.",
+          "tail": ""
+        },
+        "subline": "An electrifying conference talk: backing tracks, amp presets, and a live-voting audience, all wired through a composable stack.",
+        "ctas": [
+          {
+            "label": "The videos",
+            "href": "/videos/playlist/alive-and-kicking",
+            "variant": "primary"
+          },
+          {
+            "label": "Book the talk",
+            "href": "/press-kit",
+            "variant": "secondary"
+          }
+        ],
+        "image": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778503867/website/tim-speaking.png",
+          "alt": "Illustrated Tim Benniks speaking into a microphone",
+          "width": 1536,
+          "height": 1024,
+          "widths": [
+            640,
+            960
+          ],
+          "eager": true,
+          "preload": true
+        },
+        "imageSide": "right"
+      },
+      {
+        "kind": "image-text",
+        "eyebrow": "Rock & roll in the browser",
+        "title": "What composable looks like when it has to play in time",
+        "lede": "Vue, Nuxt, WebMIDI, Supabase, Cloudinary, Hygraph, and Vercel. Backing tracks and guitar amp presets are dynamically controlled. Attendees vote. The next song is whatever the room picked.",
+        "body": "You log in, you vote, your face bounces across the big screen as a ball. After the vote you get a personalized image of the song plus your profile picture to share. You vote, I play.",
+        "image": {
+          "src": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1743504260/website/tim_on_stage-1.png",
+          "alt": "Tim Benniks on stage",
+          "width": 2355,
+          "height": 1011
+        },
+        "equalWidth": true,
+        "imageSide": "left"
+      },
+      {
+        "kind": "card-grid",
+        "eyebrow": "The tapes",
+        "title": "Alive and Kicking videos",
+        "lede": "How it was built, the Austin vlog, and the Vue.js Amsterdam talks.",
+        "source": "videos",
+        "limit": 6,
+        "playlist": "alive-and-kicking",
+        "columns": 3,
+        "tone": "light",
+        "cta": {
+          "label": "All Alive and Kicking videos",
+          "href": "/videos/playlist/alive-and-kicking"
+        },
+        "pagefindIgnore": false
+      },
+      {
+        "kind": "cta-strip",
+        "text": "Want this in your conference hall?",
+        "em": " Let's talk.",
+        "ctas": [
+          {
+            "label": "Press kit & booking",
+            "href": "/press-kit",
+            "variant": "accent"
+          },
+          {
+            "label": "Speaking",
+            "href": "/speaking",
+            "variant": "secondary"
+          }
+        ]
+      }
+    ]
+  },
+  "contact": {
+    "path": "/contact",
+    "metadata": {
+      "title": "Contact Tim Benniks — Speaking, Podcasts & Press",
+      "description": "Reach Tim Benniks for conference keynotes, podcast bookings, press inquiries, and corrections. Email hi@timbenniks.dev or use the press kit.",
+      "keywords": "Tim Benniks contact, Tim Benniks booking, Tim Benniks email, developer experience speaker"
+    },
+    "sections": [
+      {
+        "kind": "hero",
+        "eyebrow": "/contact",
+        "headline": {
+          "lead": "Let's",
+          "em": "talk",
+          "tail": "."
+        },
+        "subline": "Tim Benniks welcomes speaking inquiries, podcast bookings, press questions, and corrections to published content. The fastest route is email — include enough context that a reply can be useful.",
+        "ctas": [
+          {
+            "label": "Email Tim",
+            "href": "mailto:hi@timbenniks.dev",
+            "variant": "primary"
+          },
+          {
+            "label": "Press kit",
+            "href": "/press-kit",
+            "variant": "secondary"
+          }
+        ],
+        "imageSide": "right"
+      },
+      {
+        "kind": "copy-blocks",
+        "eyebrow": "Booking",
+        "title": "Conferences, podcasts, and workshops",
+        "items": [
+          {
+            "label": "What to include",
+            "body": "Event or podcast name, proposed dates or window, format (keynote, talk, workshop, podcast, panel), expected audience size and technical level, location or recording constraints, and travel details if relevant. Tim Benniks speaks on developer experience, AI-augmented engineering, composable architecture, MCP, and platform strategy.",
+            "style": "serif"
+          },
+          {
+            "label": "Response time",
+            "body": "Tim aims to reply within a few business days. For urgent show-note deadlines, say so in the subject line. Agents calling request_booking via /tools.json or /api/mcp get a draft email — a human must confirm before anything is sent.",
+            "style": "muted"
+          }
+        ]
+      },
+      {
+        "kind": "factsheet",
+        "eyebrow": "Elsewhere",
+        "title": "Tim Benniks online",
+        "items": [
+          {
+            "term": "Email",
+            "value": "hi@timbenniks.dev",
+            "href": "mailto:hi@timbenniks.dev"
+          },
+          {
+            "term": "LinkedIn",
+            "value": "linkedin.com/in/timbenniks",
+            "href": "https://linkedin.com/in/timbenniks"
+          },
+          {
+            "term": "GitHub",
+            "value": "github.com/timbenniks",
+            "href": "https://github.com/timbenniks"
+          },
+          {
+            "term": "Bluesky",
+            "value": "@timbenniks.dev",
+            "href": "https://bsky.app/profile/timbenniks.dev"
+          },
+          {
+            "term": "Press kit JSON",
+            "value": "Structured bios and photos",
+            "href": "/press-kit.json"
+          }
+        ]
+      },
+      {
+        "kind": "cta-strip",
+        "text": "Need bios or headshots?",
+        "em": " Press kit.",
+        "ctas": [
+          {
+            "label": "Open press kit",
+            "href": "/press-kit",
+            "variant": "accent"
+          },
+          {
+            "label": "Speaking index",
+            "href": "/speaking",
+            "variant": "secondary"
+          }
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "path": "/privacy",
+    "metadata": {
+      "title": "Privacy Policy — Tim Benniks (timbenniks.dev)",
+      "description": "Privacy policy for timbenniks.dev: what Tim Benniks collects, third-party services, agent-readable endpoints, and your rights.",
+      "keywords": "Tim Benniks privacy, timbenniks.dev privacy policy"
+    },
+    "sections": [
+      {
+        "kind": "hero",
+        "eyebrow": "/privacy",
+        "headline": {
+          "lead": "Privacy",
+          "em": "policy",
+          "tail": "."
+        },
+        "subline": "Tim Benniks operates timbenniks.dev as a static personal website. This page explains what data is processed, which third parties are involved, and how to exercise your rights. Last updated August 2026.",
+        "ctas": [
+          {
+            "label": "Contact",
+            "href": "/contact",
+            "variant": "secondary"
+          }
+        ],
+        "imageSide": "right"
+      },
+      {
+        "kind": "copy-blocks",
+        "title": "What this site collects",
+        "items": [
+          {
+            "label": "Visitors",
+            "body": "Public pages do not require login. When you browse timbenniks.dev, the hosting provider (Vercel) may process standard request metadata — IP address, user agent, URL, timestamp — for security, abuse prevention, and performance. Vercel's privacy policy governs that processing.",
+            "style": "serif"
+          },
+          {
+            "label": "Analytics",
+            "body": "This site does not load third-party analytics trackers on public pages by default. If that changes, this policy will be updated and the change noted here.",
+            "style": "serif"
+          },
+          {
+            "label": "Email",
+            "body": "If you email hi@timbenniks.dev, your message and address are used only to respond. Messages are not sold or shared for advertising purposes.",
+            "style": "serif"
+          }
+        ]
+      },
+      {
+        "kind": "copy-blocks",
+        "title": "Third parties and embedded content",
+        "items": [
+          {
+            "label": "Media and embeds",
+            "body": "Images are served via Cloudinary. Videos may embed YouTube players. Social links leave this site. Those services may set cookies or collect usage data under their own policies when you interact with them.",
+            "style": "muted"
+          },
+          {
+            "label": "Agent-readable endpoints",
+            "body": "Tim Benniks intentionally publishes machine-readable surfaces — /llms.txt, /agents.md, /tools.json, /api/mcp, markdown twins — for crawlers and AI agents. Do not transmit personal or confidential data to these public endpoints.",
+            "style": "muted"
+          }
+        ]
+      },
+      {
+        "kind": "faq",
+        "title": "Your rights",
+        "tone": "light",
+        "items": [
+          {
+            "question": "Can I request deletion of personal data?",
+            "answer": "Yes. Email hi@timbenniks.dev with your request. Tim Benniks aims to respond within 30 days. Server logs retained by Vercel are subject to Vercel's retention policies."
+          },
+          {
+            "question": "Who is the data controller?",
+            "answer": "Tim Benniks is the controller for email correspondence and content published on timbenniks.dev. Hosting and CDN processing is performed by Vercel, Inc."
+          },
+          {
+            "question": "Does this site use cookies?",
+            "answer": "The public static site does not set first-party cookies for tracking. Admin CMS login at /admin uses a session cookie for authenticated editors only."
+          }
+        ]
+      }
+    ]
+  },
+  "developers": {
+    "path": "/developers",
+    "metadata": {
+      "title": "Tim Benniks Developer Resources — MCP, OpenAPI & Agent API",
+      "description": "Developer documentation for timbenniks.dev by Tim Benniks: MCP server at /.well-known/mcp, OpenAPI spec, WebMCP tools, content indexes, and markdown negotiation.",
+      "keywords": "Tim Benniks developer API, Tim Benniks MCP, timbenniks.dev OpenAPI, WebMCP, agent API"
+    },
+    "sections": [
+      {
+        "kind": "hero",
+        "eyebrow": "/developers",
+        "headline": {
+          "lead": "Tim Benniks",
+          "em": "developer",
+          "tail": "resources."
+        },
+        "subline": "Machine-readable surfaces for AI agents and integrators. Start with llms.txt, read the agent contract, call the MCP server, or fetch markdown twins — no HTML scraping required.",
+        "ctas": [
+          {
+            "label": "OpenAPI spec",
+            "href": "/openapi.json",
+            "variant": "primary"
+          },
+          {
+            "label": "MCP discovery",
+            "href": "/.well-known/mcp",
+            "variant": "secondary"
+          },
+          {
+            "label": "Agent guide",
+            "href": "/agents.md",
+            "variant": "secondary"
+          }
+        ],
+        "imageSide": "right"
+      },
+      {
+        "kind": "copy-blocks",
+        "eyebrow": "First call",
+        "title": "Run one request",
+        "lede": "No key, no account, no signup — every public endpoint below is unauthenticated and read-only. Copy a line, run it, and you have a working call. Errors come back as application/problem+json (RFC 9457); every response carries RateLimit and RateLimit-Policy headers.",
+        "items": [
+          {
+            "label": "Search the content · REST",
+            "body": "curl -s 'https://timbenniks.dev/api/v1/search?query=composable&limit=2'\n\n# 200 application/json\n# { \"results\": [ { \"type\": \"writing\",\n#                  \"title\": \"Ten AI security problems hiding in plain text\",\n#                  \"date\": \"2026-08-05\", \"description\": \"…\", \"tags\": [ … ],\n#                  \"url\": \"https://timbenniks.dev/writing/<slug>\",\n#                  \"md\": \"https://timbenniks.dev/writing/<slug>.md\",\n#                  \"source\": \"…\" } ],\n#   \"engine\": \"index\" }",
+            "style": "mono"
+          },
+          {
+            "label": "List the tools · MCP handshake",
+            "body": "curl -s https://timbenniks.dev/api/mcp \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}'\n\n# 200 — {\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"tools\":[\n#   {\"name\":\"get_page_context\", \"inputSchema\":{…},\n#    \"annotations\":{\"readOnlyHint\":true}}, … ]}}\n# Then: {\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/call\",\n#        \"params\":{\"name\":\"search_site\",\"arguments\":{\"query\":\"mcp\"}}}",
+            "style": "mono"
+          },
+          {
+            "label": "Read a page as markdown",
+            "body": "curl -s https://timbenniks.dev/about.md\ncurl -s -H 'Accept: text/markdown' https://timbenniks.dev/about\n\n# 200 text/markdown; charset=utf-8\n# Vary: Accept, Accept-Encoding\n# Same twin for /writing/<slug>.md, /videos/<slug>.md, /projects/<slug>.md.",
+            "style": "mono"
+          },
+          {
+            "label": "What failure looks like",
+            "body": "curl -si 'https://timbenniks.dev/api/v1/search'   # query is required\n\n# 400 application/problem+json; charset=utf-8\n# api-version: 1\n# ratelimit: \"public\";r=118;t=60\n# ratelimit-policy: \"public\";q=120;w=60\n# { \"type\": \"https://timbenniks.dev/developers#missing-query\",\n#   \"title\": \"Search query required\", \"status\": 400,\n#   \"detail\": \"The query parameter is required and must not be empty.\",\n#   \"instance\": \"/api/v1/search\", \"code\": \"MISSING_QUERY\",\n#   \"resolution\": \"Retry with a URL such as /api/v1/search?query=developer%20experience.\" }\n#\n# 429 once you pass 120 requests / 60s — read RateLimit and Retry-After to back off.",
+            "style": "mono"
+          }
+        ]
+      },
+      {
+        "kind": "factsheet",
+        "eyebrow": "Tim Benniks MCP server",
+        "title": "Model Context Protocol",
+        "lede": "Read-only tools exposed via streamable HTTP. No authentication on public endpoints.",
+        "items": [
+          {
+            "term": "/.well-known/mcp",
+            "value": "GET discovery doc, or POST JSON-RPC 2.0 for a live handshake — initialize, tools/list, tools/call",
+            "href": "/.well-known/mcp"
+          },
+          {
+            "term": "POST /api/mcp",
+            "value": "Same JSON-RPC 2.0 handshake, canonical endpoint",
+            "href": "/api/mcp"
+          },
+          {
+            "term": "/tools.json",
+            "value": "Tool catalog + JSON Schema (WebMCP compatible)",
+            "href": "/tools.json"
+          },
+          {
+            "term": "/.well-known/webmcp.json",
+            "value": "Same catalog at well-known URI",
+            "href": "/.well-known/webmcp.json"
+          }
+        ]
+      },
+      {
+        "kind": "factsheet",
+        "eyebrow": "Tim Benniks Developer API",
+        "title": "Versioned REST API",
+        "items": [
+          {
+            "term": "GET /api/v1",
+            "value": "API status, version, and endpoint discovery",
+            "href": "/api/v1"
+          },
+          {
+            "term": "GET /api/v1/search",
+            "value": "Search public content with typed JSON responses",
+            "href": "/api/v1/search?query=developer%20experience"
+          },
+          {
+            "term": "GET /api/v1/content",
+            "value": "List or retrieve writing, videos, talks, projects, and pages",
+            "href": "/api/v1/content"
+          },
+          {
+            "term": "GET /api/v1/press-kit",
+            "value": "Structured bios, topics, photos, and booking details",
+            "href": "/api/v1/press-kit"
+          },
+          {
+            "term": "GET /api/v1/versions",
+            "value": "Live version status, deprecation policy, and sunset signal headers",
+            "href": "/api/v1/versions"
+          },
+          {
+            "term": "/openapi.json",
+            "value": "OpenAPI 3.1 contract with typed success and RFC 9457 error schemas",
+            "href": "/openapi.json"
+          },
+          {
+            "term": "Version policy",
+            "value": "Major versions in the URL; at least 90 days' notice via Deprecation and Sunset headers",
+            "href": "/api/v1/versions"
+          },
+          {
+            "term": "Rate limits",
+            "value": "120 requests per 60 seconds; inspect RateLimit and RateLimit-Policy headers"
+          }
+        ]
+      },
+      {
+        "kind": "factsheet",
+        "eyebrow": "Agent-readable resources",
+        "title": "Indexes and content negotiation",
+        "items": [
+          {
+            "term": "/llms.txt",
+            "value": "Curated site map (llmstxt.org)",
+            "href": "/llms.txt"
+          },
+          {
+            "term": "/content-index.json",
+            "value": "Writing, videos, talks, projects, pages",
+            "href": "/content-index.json"
+          },
+          {
+            "term": "Accept: text/markdown",
+            "value": "Content negotiation on canonical URLs",
+            "href": "/ai"
+          },
+          {
+            "term": "/agents.md",
+            "value": "When-to-use guidance for agents",
+            "href": "/agents.md"
+          }
+        ]
+      },
+      {
+        "kind": "principles",
+        "title": "Public tool summary",
+        "tone": "dark",
+        "items": [
+          {
+            "kicker": "01",
+            "title": "get_page_context",
+            "body": "Call first — returns page type, markdown twin URL, and which tool to use next."
+          },
+          {
+            "kicker": "02",
+            "title": "search_site",
+            "body": "Full-text search across writing and videos via content-index.json."
+          },
+          {
+            "kicker": "03",
+            "title": "get_content",
+            "body": "Fetch one page or article as markdown. Includes video transcripts when available."
+          },
+          {
+            "kicker": "04",
+            "title": "get_press_kit / request_booking",
+            "body": "Bios, photos, topics, and a draft booking email for human confirmation."
           }
         ]
       }

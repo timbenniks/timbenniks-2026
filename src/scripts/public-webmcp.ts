@@ -75,7 +75,21 @@ function mdUrlForPath(pathname: string): string | undefined {
   ) {
     return pathname.endsWith('.md') ? pathname : `${pathname}.md`;
   }
-  const staticPages = ['/about', '/press-kit', '/uses', '/projects', '/speaking', '/writing', '/videos'];
+  const staticPages = [
+    '/about',
+    '/press-kit',
+    '/uses',
+    '/projects',
+    '/speaking',
+    '/writing',
+    '/videos',
+    '/ai',
+    '/contact',
+    '/privacy',
+    '/developers',
+    '/livestreams',
+    '/alive-and-kicking',
+  ];
   if (staticPages.includes(pathname)) return `${pathname}.md`;
   return undefined;
 }

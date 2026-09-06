@@ -167,7 +167,7 @@ export function createPreviewSync(s: EditorSession): PreviewSyncApi {
   function schedulePersistPreview(highlightIndex?: number | null, statusMsg?: string) {
     clearTimeout(s.previewPersistTimer ?? undefined);
     s.previewPersistTimer = setTimeout(() => {
-      s.previewPersistInFlight = persistPreview(highlightIndex, statusMsg);
+      void persistPreview(highlightIndex, statusMsg);
     }, 280);
   }
 

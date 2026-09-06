@@ -472,6 +472,14 @@ const SECTION_FORM = {
   browse: {
     query: [
       { key: "source", type: "select", options: SOURCE_BROWSE, label: "Source" },
+      {
+        key: "limit",
+        type: "number",
+        min: 0,
+        max: 48,
+        label: "Card limit",
+        hint: "How many cards under the pills. 0 = pills only (no dump of the whole archive)."
+      },
       { key: "columns", type: "select", options: ["2", "3"], coerce: "number", label: "Columns" }
     ],
     fields: [
@@ -694,7 +702,7 @@ const LIST_SPECS = {
       fields: [
         { key: "label", type: "text" },
         { key: "body", type: "textarea" },
-        { key: "style", type: "select", options: ["serif", "muted"] }
+        { key: "style", type: "select", options: ["serif", "muted", "mono"] }
       ]
     }
   ],

@@ -40,6 +40,7 @@ const formatted = entry.data.date.toLocaleDateString('en-US', {
 
 const tags = entry.data.tags ?? [];
 const description = entry.data.description ?? entry.data.title;
+const descriptionParagraphs = entry.data.description?.trim().split(/\n{2,}/) ?? [];
 const youtubeUrl = `https://www.youtube.com/watch?v=${entry.data.videoId}`;
 const playlistUrl = playlistHref(entry.data.playlist);
 const playlistName = playlistLabel(entry.data.playlist);
@@ -134,13 +135,7 @@ const videoGraph = buildGraph(
         <div class="mt-12 flex flex-col gap-12 lg:flex-row lg:gap-14">
           <div class="min-w-0 flex-1">
             <div class:list={[articleBodyClass, 'max-w-[720px] space-y-5 text-ink leading-relaxed']}>
-              {
-                entry.data.description &&
-                  entry.data.description
-                    .trim()
-                    .split(/\n{2,}/)
-                    .map((paragraph) => <p>{paragraph}</p>)
-              }
+              {descriptionParagraphs.map((paragraph) => <p>{paragraph}</p>)}
               <Content />
             </div>
 

@@ -57,7 +57,9 @@ export function editorShellHtml({ boot, slugPath, icon }: EditorShellOpts): stri
       <div class="preview-frame is-full" id="preview-frame">
         <iframe id="frame" src="${boot.previewUrl}" title="Preview"></iframe>
       </div>
-      <div class="status-line" id="status">Loading preview…</div>
+      <div class="status-line" id="status">
+        <span class="status-msg" role="status" aria-live="polite">Loading preview…</span>
+      </div>
     </div>
 
     <aside class="form-rail" id="form-panel">

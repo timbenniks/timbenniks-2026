@@ -46,7 +46,9 @@ function editorShellHtml({ boot, slugPath, icon }) {
       <div class="preview-frame is-full" id="preview-frame">
         <iframe id="frame" src="${boot.previewUrl}" title="Preview"></iframe>
       </div>
-      <div class="status-line" id="status">Loading preview\u2026</div>
+      <div class="status-line" id="status">
+        <span class="status-msg" role="status" aria-live="polite">Loading preview\u2026</span>
+      </div>
     </div>
 
     <aside class="form-rail" id="form-panel">

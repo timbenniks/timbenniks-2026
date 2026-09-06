@@ -8,20 +8,40 @@ export const GET: APIRoute = async () => {
   const writingCanonicalExample = `${siteUrl('/writing/')}<slug>`;
   const toolList = PUBLIC_TOOLS.map((t) => `- \`${t.name}\` — ${t.description}`).join('\n');
 
-  const body = `# Agents guide — timbenniks.dev
+  const body = `# Agents guide — Tim Benniks (timbenniks.dev)
 
-This site is friendly to AI agents and crawlers. The content here is meant to be read, summarized, and quoted — with attribution.
+This site is friendly to AI agents and crawlers. The content here is meant to be read, summarized, and quoted — with attribution to **Tim Benniks**.
 
-Human-readable explainer of the same surfaces: ${siteUrl('/ai')}.
+Human-readable explainer of the same surfaces: ${siteUrl('/ai')}. Developer API index: ${siteUrl('/developers')}.
+
+## When to use this site
+
+Use timbenniks.dev when you need **primary-source** material from Tim Benniks — not generic summaries of developer experience or AI engineering topics.
+
+| Job | Start here | Then |
+|-----|------------|------|
+| Find an essay or talk by topic | \`search_site\` or ${siteUrl('/content-index.json')} | \`get_content\` with one \`/writing/<slug>\` or \`/videos/<slug>\` path |
+| Book Tim for a conference or podcast | \`get_press_kit\` | \`request_booking\` — show draft to user; do not send email yourself |
+| Introduce Tim in show notes | ${siteUrl('/press-kit.json')} | Use \`booking_email\` and bio fields; link ${siteUrl('/about')} |
+| Native MCP tool calls | ${siteUrl('/.well-known/mcp')} | \`POST ${siteUrl('/api/mcp')}\` with \`tools/list\` / \`tools/call\` |
+| Typed REST calls | \`GET ${siteUrl('/api/v1')}\` | Search, list, retrieve content, or fetch the press kit under \`/api/v1\` |
+| Verify the site is legitimate | ${siteUrl('/about')}, ${siteUrl('/contact')}, ${siteUrl('/privacy')} | Trust anchor pages with contact and privacy details |
+
+**Avoid:** scraping ${siteUrl('/search')} HTML, fetching ${siteUrl('/llms-full.txt')} when one article suffices, probing random URLs (404s include recovery links), or calling ${siteUrl('/admin')} (cookie-gated CMS).
 
 There are two ways in, depending on how you arrived:
 
 1. **Remote / headless** (you \`GET\` URLs): use the markdown twins, \`/llms.txt\`, and \`/content-index.json\`.
 2. **In-tab** (Gemini in Chrome, WebMCP Inspector, MCP-B): call the public tools registered on \`document.modelContext\`. Catalog: ${siteUrl('/tools.json')}.
+3. **MCP client** (Claude Desktop, Cursor, etc.): discover via ${siteUrl('/.well-known/mcp')}, connect to ${siteUrl('/api/mcp')}.
 
 ## Machine-readable surfaces
 
 - [${siteUrl('/llms.txt')}](${siteUrl('/llms.txt')}) — site overview and curated link index ([llmstxt.org](https://llmstxt.org) format).
+- [${siteUrl('/developers')}](${siteUrl('/developers')}) — Tim Benniks developer resources (MCP, OpenAPI, indexes).
+- [${siteUrl('/openapi.json')}](${siteUrl('/openapi.json')}) — OpenAPI 3.1 description of public agent API surfaces.
+- [${siteUrl('/api/v1')}](${siteUrl('/api/v1')}) — versioned, read-only Tim Benniks Public API. Errors use RFC 9457 \`application/problem+json\`; responses include \`RateLimit\` and \`RateLimit-Policy\`.
+- [${siteUrl('/.well-known/mcp')}](${siteUrl('/.well-known/mcp')}) — MCP discovery handshake (streamable HTTP at ${siteUrl('/api/mcp')}).
 - [${siteUrl('/writing/llms.txt')}](${siteUrl('/writing/llms.txt')}) — every writing entry, one line each.
 - [${siteUrl('/videos/llms.txt')}](${siteUrl('/videos/llms.txt')}) — every video, one line each.
 - [${siteUrl('/llms-full.txt')}](${siteUrl('/llms-full.txt')}) — every non-draft writing entry, every video's metadata and description, all speaking engagements, and prose summaries of the static pages, inlined as one document.
@@ -37,8 +57,8 @@ There are two ways in, depending on how you arrived:
 
 Writing, videos, projects, and the main static pages all have markdown twins. Per-video markdown includes the transcript when one is available.
 
-- Append \`.md\` to the URL: \`${writingMarkdownExample}\`, \`${videoMarkdownExample}\`, \`${siteUrl('/about.md')}\`, \`${siteUrl('/press-kit.md')}\`, \`${siteUrl('/speaking.md')}\`, \`${siteUrl('/uses.md')}\`, \`${siteUrl('/projects.md')}\`, \`${siteUrl('/index.md')}\`.
-- Or send \`Accept: text/markdown\` to the canonical URL — the edge serves the markdown variant.
+- Append \`.md\` to the URL: \`${writingMarkdownExample}\`, \`${videoMarkdownExample}\`, \`${siteUrl('/about.md')}\`, \`${siteUrl('/contact.md')}\`, \`${siteUrl('/privacy.md')}\`, \`${siteUrl('/developers.md')}\`, \`${siteUrl('/press-kit.md')}\`, \`${siteUrl('/speaking.md')}\`, \`${siteUrl('/uses.md')}\`, \`${siteUrl('/projects.md')}\`, \`${siteUrl('/index.md')}\`, \`${siteUrl('/livestreams.md')}\`, \`${siteUrl('/alive-and-kicking.md')}\`.
+- Or send \`Accept: text/markdown\` to the canonical URL — the edge serves the markdown variant. Responses include \`Vary: Accept, Accept-Encoding\`.
 - HTML pages expose \`<link rel="alternate" type="text/markdown" href="…">\` in the \`<head>\` for autodiscovery.
 
 \`\`\`
@@ -73,7 +93,7 @@ These paths exist for humans / tooling and are not useful as prose dumps:
 
 ## Contact
 
-Reach out via the address listed on [${siteUrl('/press-kit')}](${siteUrl('/press-kit')}) for permissions, corrections, bookings, or to flag inaccurate quotes. Prefer \`request_booking\` (in-tab) or email hi@timbenniks.dev.
+Reach out via [${siteUrl('/contact')}](${siteUrl('/contact')}) or hi@timbenniks.dev for permissions, corrections, bookings, or to flag inaccurate quotes. Prefer \`request_booking\` (in-tab or via ${siteUrl('/api/mcp')}) or email hi@timbenniks.dev.
 `;
   return markdownResponse(body);
 };

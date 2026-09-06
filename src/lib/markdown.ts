@@ -153,7 +153,10 @@ export function inferredMarkdownHref(pathname: string): string | undefined {
     path === '/speaking' ||
     path === '/writing' ||
     path === '/videos' ||
-    path === '/ai'
+    path === '/ai' ||
+    path === '/contact' ||
+    path === '/privacy' ||
+    path === '/developers'
   ) {
     return `${path}.md`;
   }
@@ -177,6 +180,7 @@ export function markdownResponse(body: string): Response {
     headers: {
       'Content-Type': 'text/markdown; charset=utf-8',
       'Cache-Control': 'public, max-age=0, must-revalidate',
+      Vary: 'Accept, Accept-Encoding',
     },
   });
 }

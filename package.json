@@ -19,7 +19,9 @@
     "pretest:e2e": "npm run build:admin",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:install": "playwright install chromium"
+    "test:e2e:install": "playwright install chromium",
+    "agentlint": "agentlint scan --agent --missions",
+    "agentlint:local": "agentlint scan http://127.0.0.1:4321 --allow-private --agent --missions"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.0",
@@ -29,6 +31,7 @@
     "@comark/html": "^0.6.2",
     "@mcp-b/global": "^4.0.0",
     "@tailwindcss/vite": "^4.3.3",
+    "@vercel/functions": "^3.8.0",
     "astro": "^7.3.1",
     "dompurify": "^3.4.13",
     "lite-youtube-embed": "^0.3.4",
@@ -37,8 +40,12 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@playwright/test": "^1.62.1",
+    "@timbenniks/agentlint": "^0.1.0-rc.1",
     "esbuild": "^0.28.1",
     "pagefind": "^1.5.2",
     "typescript": "^5.9.3"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true
   }
 }

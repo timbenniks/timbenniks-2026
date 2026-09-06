@@ -37,3 +37,6 @@ pnpm-debug.log*
 /blob-report/
 /playwright/.cache/
 /e2e/.auth/
+.vercel
+.env*
+.agentlint/

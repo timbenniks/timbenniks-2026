@@ -21,32 +21,40 @@ const newsletterWired = newsletterAction !== '#';
         <p class="mb-5 max-w-[360px] text-sm text-ink-muted">
           {newsletter.body}
         </p>
-        <form
-          class="flex max-w-[380px] gap-1.5"
-          action={newsletterAction}
-          method="post"
-          toolname={newsletterWired ? 'subscribe_newsletter' : undefined}
-          tooldescription={
-            newsletterWired
-              ? 'Subscribe to Tim Benniks’ occasional writing email. Requires an email address.'
-              : undefined
-          }
-        >
-          <input
-            type="email"
-            name="email"
-            required
-            placeholder="you@email.com"
-            aria-label="Email address"
-            class="flex-1 rounded-full border border-line-strong bg-transparent px-4 py-2.5 text-sm text-ink focus:border-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          />
-          <button
-            type="submit"
-            class="cursor-pointer rounded-full border-0 bg-accent px-[18px] py-2.5 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover"
-          >
-            Subscribe
-          </button>
-        </form>
+        {
+          newsletterWired ? (
+            <form
+              class="flex max-w-[380px] gap-1.5"
+              action={newsletterAction}
+              method="post"
+              toolname="subscribe_newsletter"
+              tooldescription="Subscribe to Tim Benniks’ occasional writing email. Requires an email address."
+            >
+              <input
+                type="email"
+                name="email"
+                required
+                placeholder="you@email.com"
+                aria-label="Email address"
+                class="flex-1 rounded-full border border-line-strong bg-transparent px-4 py-2.5 text-sm text-ink focus:border-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              />
+              <button
+                type="submit"
+                class="cursor-pointer rounded-full border-0 bg-accent px-[18px] py-2.5 text-sm font-medium text-white transition-colors duration-150 hover:bg-accent-hover"
+              >
+                Subscribe
+              </button>
+            </form>
+          ) : (
+            <p class="text-sm text-ink-muted">
+              No list yet.{' '}
+              <a href="mailto:hi@timbenniks.dev" class="underline underline-offset-[3px]">
+                Email hi@timbenniks.dev
+              </a>{' '}
+              if you want a heads-up when there is one.
+            </p>
+          )
+        }
       </div>
 
       {

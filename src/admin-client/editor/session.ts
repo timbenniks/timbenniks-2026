@@ -130,7 +130,6 @@ export interface EditorSession {
   pendingHighlight: number | null;
   pendingScroll: { x: number; y: number } | null;
   previewPersistTimer: ReturnType<typeof setTimeout> | null;
-  previewPersistInFlight: Promise<void> | null;
   draftAutosaveTimer?: ReturnType<typeof setTimeout>;
 
   // ── Undo / redo ─────────────────────────────────────────────────────────

@@ -45,6 +45,10 @@ export default defineConfig({
       ADMIN_PASSWORD: E2E_ADMIN_PASSWORD,
       // See astro.config.ts — a warm-up full-reload wipes filled form fields.
       E2E_DISABLE_HMR: '1',
+      // Astro 7 auto-daemonizes `astro dev` when it detects an AI-agent shell
+      // (am-i-vibing). The npm process then exits 0 and Playwright reports
+      // "webServer exited early". Setting this pins the server to foreground.
+      ASTRO_DEV_BACKGROUND: '0',
       // Avoid accidental publish/discard against a real repo during local runs
       // if the developer has these set in their shell.
       GITHUB_TOKEN: '',

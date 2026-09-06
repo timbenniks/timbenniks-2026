@@ -10,8 +10,25 @@ export function bindStatus(el: HTMLElement | null, opts: { baseClass?: string } 
   const baseClass = opts.baseClass || 'status';
   return function setStatus(msg, cls = '') {
     if (!el) return;
-    el.textContent = msg;
+    let msgEl = el.querySelector<HTMLElement>(':scope > .status-msg');
+    if (!msgEl) {
+      msgEl = document.createElement('span');
+      msgEl.className = 'status-msg';
+      msgEl.setAttribute('role', 'status');
+      msgEl.setAttribute('aria-live', 'polite');
+      for (const child of [...el.childNodes]) {
+        if (child.nodeType === Node.TEXT_NODE) child.remove();
+      }
+      el.prepend(msgEl);
+    }
+    const changed = msgEl.textContent !== msg;
+    msgEl.textContent = msg;
+    msgEl.title = msg;
     el.className = `${baseClass} ${cls}`.trim();
+    if (!changed) return;
+    el.classList.remove('is-fresh');
+    void el.offsetWidth;
+    el.classList.add('is-fresh');
   };
 }
 

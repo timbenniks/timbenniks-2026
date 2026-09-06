@@ -39,10 +39,19 @@ const base =
   'inline-flex items-center justify-center rounded-full font-medium whitespace-nowrap transition-colors duration-150 cursor-pointer no-underline';
 
 const classes = [base, sizes[size], variants[variant], className];
+const searchHref =
+  typeof href === 'string' && (href === '/search' || href.startsWith('/search?') || href.startsWith('/search#'));
 ---
 
 {href ? (
-  <a href={href} class:list={classes} target={target} rel={rel}>
+  <a
+    href={href}
+    class:list={classes}
+    target={target}
+    rel={rel}
+    data-astro-reload={searchHref ? true : undefined}
+    data-astro-prefetch={searchHref ? 'false' : undefined}
+  >
     <slot />
   </a>
 ) : (

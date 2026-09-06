@@ -22,6 +22,8 @@ export const WRITING_SLUG_REDIRECTS: Record<string, string> = {
     'the-doer-economy-we-are-killing-the-translator-class',
   'when-output-is-cheap-taste-and-rest-matter-most': 'when-output-is-cheap-taste-is-everything',
   'why-experience-is-the-real-flagship': 'the-experience-factory-01-why-experience-is-the-real-flagship',
+  'the-nuanced-impact-of-AI-we-should-not-overlook':
+    'the-nuanced-impact-of-ai-we-should-not-overlook',
 };
 
 export function writingRedirectMap(): Record<string, string> {

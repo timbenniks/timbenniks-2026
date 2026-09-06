@@ -8,7 +8,7 @@ interface Props {
   eyebrow?: string;
   title: string;
   lede?: string;
-  items: { label: string; body: string; style?: 'serif' | 'muted' }[];
+  items: { label: string; body: string; style?: 'serif' | 'muted' | 'mono' }[];
 }
 
 const { editBase, eyebrow, title, lede, items } = Astro.props;
@@ -25,17 +25,24 @@ const { editBase, eyebrow, title, lede, items } = Astro.props;
         >
           {item.label}
         </p>
-        <p
-          class:list={[
-            'mt-4 leading-snug',
-            item.style === 'muted'
-              ? 'text-base leading-relaxed text-ink-muted'
-              : 'font-serif text-xl text-ink',
-          ]}
-          {...editAttr(editPath(editBase, 'items', i, 'body'))}
-        >
-          {item.body}
-        </p>
+        {item.style === 'mono' ? (
+          <pre
+            class="mt-4 overflow-x-auto rounded-md border border-line bg-bg-soft p-4 font-mono text-xs leading-relaxed text-ink"
+            {...editAttr(editPath(editBase, 'items', i, 'body'))}
+          ><code>{item.body}</code></pre>
+        ) : (
+          <p
+            class:list={[
+              'mt-4 leading-snug',
+              item.style === 'muted'
+                ? 'text-base leading-relaxed text-ink-muted'
+                : 'font-serif text-xl text-ink',
+            ]}
+            {...editAttr(editPath(editBase, 'items', i, 'body'))}
+          >
+            {item.body}
+          </p>
+        )}
       </div>
     ))}
   </div>
