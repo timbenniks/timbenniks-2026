@@ -75,6 +75,13 @@ test.describe('public agent API', () => {
       expect(operation.responses['404']).toBeTruthy();
       expect(operation.responses['429']).toBeTruthy();
       expect(operation.responses['500']).toBeTruthy();
+      // Resolve BOTH reference levels; a response $ref is valid OpenAPI.
+      for (const code of ['400', '404', '405', '429', '500']) {
+        const ref = operation.responses[code].$ref;
+        const response = spec.components.responses[ref.split('/').pop()];
+        expect(response.content['application/problem+json'].schema.$ref).toBe('#/components/schemas/Problem');
+        expect(spec.components.schemas.Problem.required).toEqual(expect.arrayContaining(['code', 'detail', 'status']));
+      }
     }
   });
 
@@ -105,14 +112,16 @@ test.describe('public agent API', () => {
     expect(manifest.handshake).toBe('https://timbenniks.dev/.well-known/mcp');
 
     const init = await request.post('/.well-known/mcp', {
-      data: { jsonrpc: '2.0', id: 1, method: 'initialize' },
+      headers: { Accept: 'application/json, text/event-stream' },
+      data: { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'test', version: '1.0' } } },
     });
     expect(init.status()).toBe(200);
     const initBody = await init.json();
-    expect(initBody.result.protocolVersion).toBe('2024-11-05');
+    expect(initBody.result.protocolVersion).toBe('2025-11-25');
     expect(initBody.result.serverInfo.name).toBe('timbenniks.dev');
 
     const list = await request.post('/.well-known/mcp', {
+      headers: { Accept: 'application/json, text/event-stream' },
       data: { jsonrpc: '2.0', id: 2, method: 'tools/list' },
     });
     const listBody = await list.json();
@@ -121,12 +130,14 @@ test.describe('public agent API', () => {
 
     // /api/mcp still answers the same handshake identically.
     const apiInit = await request.post('/api/mcp', {
-      data: { jsonrpc: '2.0', id: 1, method: 'initialize' },
+      headers: { Accept: 'application/json, text/event-stream' },
+      data: { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'test', version: '1.0' } } },
     });
     expect((await apiInit.json()).result.serverInfo.name).toBe('timbenniks.dev');
   });
 
   test('canonical HTML negotiates markdown and varies by Accept', async ({ request }) => {
+    test.skip(!process.env.E2E_BASE_URL, 'Requires a production build: Vercel applies Accept rewrites to static HTML.');
     const markdown = await request.get('/about', { headers: { Accept: 'text/markdown' } });
     expect(markdown.status()).toBe(200);
     expect(markdown.headers()['content-type']).toContain('text/markdown');
@@ -139,6 +150,6 @@ test.describe('public agent API', () => {
 
   test('homepage links the developer resources', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('footer a[href="/developers"]')).toHaveText('Developer API');
+    await expect(page.locator('footer a[href="/developers"]')).toHaveText('For developers');
   });
 });

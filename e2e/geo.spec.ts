@@ -20,6 +20,7 @@ test.describe('GEO / agent surfaces', () => {
   });
 
   test('agents.md documents remote and in-tab paths', async ({ request }) => {
+    test.skip(!process.env.E2E_BASE_URL, 'Requires a production build: Vite can serve repository AGENTS.md on case-insensitive filesystems.');
     const res = await request.get('/agents.md');
     expect(res.ok()).toBeTruthy();
     expect(res.headers()['content-type']).toMatch(/text\/markdown/);
@@ -102,13 +103,13 @@ test.describe('GEO / agent surfaces', () => {
     const body = await res.json();
     expect(body.openapi).toBe('3.1.0');
     expect(body.info.title).toContain('Tim Benniks');
-    expect(body.paths['/api/mcp']).toBeTruthy();
-    expect(body.paths['/.well-known/mcp']).toBeTruthy();
+    expect(body.paths['/api/v1/search']).toBeTruthy();
+    expect(body.paths['/api/v1/content/{path}']).toBeTruthy();
   });
 
   test('MCP HTTP endpoint lists tools and executes search_site', async ({ request }) => {
     const listRes = await request.post('/api/mcp', {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' },
       data: { jsonrpc: '2.0', id: 1, method: 'tools/list' },
     });
     expect(listRes.ok()).toBeTruthy();
@@ -116,7 +117,7 @@ test.describe('GEO / agent surfaces', () => {
     expect(listBody.result.tools.length).toBe(6);
 
     const callRes = await request.post('/api/mcp', {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' },
       data: {
         jsonrpc: '2.0',
         id: 2,

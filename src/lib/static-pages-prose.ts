@@ -134,6 +134,8 @@ Versioning: stable REST endpoints use major URL versions (/api/v1). Additive cha
 
 MCP server: /.well-known/mcp (discovery handshake) → POST /api/mcp (streamable HTTP JSON-RPC). Six read-only tools: get_page_context, search_site, list_content, get_content, get_press_kit, request_booking. Tool schemas: /tools.json and /.well-known/webmcp.json.
 
+MCP lifecycle: send initialize with protocolVersion, capabilities, and clientInfo; send notifications/initialized (202 with no body); then tools/list or tools/call. POST headers: Content-Type: application/json and Accept: application/json, text/event-stream. After initialization, include the returned version in MCP-Protocol-Version. Stateless requests need no session ID. GET with Accept: text/event-stream returns 405 because this server uses immediate JSON responses. Browser calls must use the same origin; remote clients can omit Origin.
+
 OpenAPI: /openapi.json describes every REST operation and its typed success and RFC 9457 error responses.
 
 Content negotiation: send Accept: text/markdown to any main page URL, or append .md to writing/video/project/static URLs. Vary: Accept, Accept-Encoding on negotiable responses.

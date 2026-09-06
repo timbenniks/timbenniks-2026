@@ -22,7 +22,8 @@
     "test:migration": "playwright test --config=playwright.migration.config.ts",
     "test:e2e:install": "playwright install chromium",
     "agentlint": "agentlint scan --agent --missions",
-    "agentlint:local": "agentlint scan http://127.0.0.1:4321 --allow-private --agent --missions"
+    "agentlint:local": "agentlint scan http://127.0.0.1:4321 --allow-private --agent --missions",
+    "test:agents": "playwright test --config=playwright.agent.config.ts"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.0",
@@ -31,6 +32,7 @@
     "@astrojs/vercel": "^11.0.10",
     "@comark/html": "^0.6.2",
     "@mcp-b/global": "^4.0.0",
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "@tailwindcss/vite": "^4.3.3",
     "@vercel/functions": "^3.8.0",
     "astro": "^7.3.1",

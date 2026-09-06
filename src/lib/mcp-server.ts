@@ -1,90 +1,86 @@
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
+import { CallToolRequestSchema, ListToolsRequestSchema, ErrorCode, McpError, JSONRPCMessageSchema } from '@modelcontextprotocol/sdk/types.js';
+import { siteUrl } from '../data/site';
 import { executePublicTool } from './public-tool-handlers';
 import { PUBLIC_TOOLS } from './public-tools';
 
-export type JsonRpcRequest = {
-  jsonrpc?: string;
-  id?: string | number | null;
-  method?: string;
-  params?: Record<string, unknown>;
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Accept, MCP-Protocol-Version',
+  'Access-Control-Expose-Headers': 'MCP-Protocol-Version',
+  'Cache-Control': 'no-store',
 };
 
-function ok(id: JsonRpcRequest['id'], result: unknown) {
-  return { jsonrpc: '2.0', id: id ?? null, result };
-}
+/** Public read-only endpoint: no credentials, cookies, or per-client server state. */
+export async function handleMcpHttp(request: Request): Promise<Response> {
+  // Browser calls originate on this site. Remote MCP clients omit Origin.
+  const origin = request.headers.get('Origin');
+  const allowedOrigins = [new URL(request.url).origin, new URL(siteUrl('/')).origin];
+  if (origin && !allowedOrigins.includes(origin)) {
+    return new Response('Forbidden origin', { status: 403, headers: corsHeaders });
+  }
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: corsHeaders });
+  }
+  // This server only sends immediate JSON responses, never unsolicited SSE events.
+  if (request.method !== 'POST') {
+    return new Response(null, {
+      status: 405,
+      headers: { ...corsHeaders, Allow: 'POST, OPTIONS' },
+    });
+  }
 
-function err(id: JsonRpcRequest['id'], code: number, message: string) {
-  return { jsonrpc: '2.0', id: id ?? null, error: { code, message } };
-}
-
-export function parseError() {
-  return err(null, -32700, 'Parse error');
-}
-
-export function invalidRequest() {
-  return err(null, -32600, 'Invalid Request');
-}
-
-/** Handles one JSON-RPC 2.0 MCP message (initialize, tools/list, tools/call, ping). */
-export async function handleMcpMessage(msg: JsonRpcRequest) {
-  const { id, method, params } = msg;
-
+  // Distinguish malformed JSON from a valid JSON value that is not JSON-RPC.
+  // The SDK otherwise reports both as parse errors.
+  let body: unknown;
   try {
-    switch (method) {
-      case 'initialize':
-        return ok(id, {
-          protocolVersion: '2024-11-05',
-          capabilities: { tools: {} },
-          serverInfo: { name: 'timbenniks.dev', version: '1.0.0' },
-        });
-      case 'notifications/initialized':
-      case 'initialized':
-        return null;
-      case 'tools/list':
-        return ok(id, {
-          tools: PUBLIC_TOOLS.map((tool) => ({
-            name: tool.name,
-            description: tool.description,
-            inputSchema: tool.inputSchema,
-            annotations: tool.annotations,
-          })),
-        });
-      case 'tools/call': {
-        const name = typeof params?.name === 'string' ? params.name : '';
-        const args =
-          params?.arguments && typeof params.arguments === 'object'
-            ? (params.arguments as Record<string, unknown>)
-            : {};
-        const result = await executePublicTool(name, args);
-        return ok(id, {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
-          isError: false,
-        });
-      }
-      case 'ping':
-        return ok(id, {});
-      default:
-        return err(id, -32601, `Method not found: ${method ?? '(none)'}`);
+    body = await request.clone().json();
+  } catch {
+    return rpcInputError(-32700, 'Parse error');
+  }
+  if (!JSONRPCMessageSchema.safeParse(body).success) {
+    return rpcInputError(-32600, 'Invalid Request');
+  }
+
+  const server = new Server(
+    { name: 'timbenniks.dev', version: '1.1.0' },
+    { capabilities: { tools: {} } },
+  );
+  server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: PUBLIC_TOOLS }));
+  server.setRequestHandler(CallToolRequestSchema, async ({ params }) => {
+    if (!PUBLIC_TOOLS.some((tool) => tool.name === params.name)) {
+      throw new McpError(ErrorCode.InvalidParams, `Unknown tool: ${params.name}`);
     }
-  } catch (e) {
-    const message = e instanceof Error ? e.message : String(e);
-    if (method === 'tools/call') {
-      return ok(id, {
-        content: [{ type: 'text', text: message }],
+    try {
+      const result = await executePublicTool(params.name, params.arguments ?? {});
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], isError: false };
+    } catch (error) {
+      return {
+        content: [{ type: 'text', text: error instanceof Error ? error.message : String(error) }],
         isError: true,
-      });
+      };
     }
-    return err(id, -32603, message);
+  });
+  // One SDK server per request is deliberate: Vercel instances share no sessions.
+  const transport = new WebStandardStreamableHTTPServerTransport({
+    sessionIdGenerator: undefined,
+    enableJsonResponse: true,
+  });
+  try {
+    await server.connect(transport);
+    const response = await transport.handleRequest(request);
+    for (const [name, value] of Object.entries(corsHeaders)) response.headers.set(name, value);
+    return response;
+  } finally {
+    await server.close();
   }
 }
 
-/** Handles a full JSON-RPC request body (single message or a batch array). */
-export async function handleMcpRequestBody(body: unknown) {
-  const messages = Array.isArray(body) ? body : [body];
-  const responses = [];
-  for (const msg of messages) {
-    const res = await handleMcpMessage(msg as JsonRpcRequest);
-    if (res) responses.push(res);
-  }
-
-  return Array.isArray(body) ? responses : (responses[0] ?? invalidRequest());
+function rpcInputError(code: number, message: string): Response {
+  return new Response(JSON.stringify({ jsonrpc: '2.0', id: null, error: { code, message } }), {
+    status: 400,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json; charset=utf-8' },
+  });
 }
