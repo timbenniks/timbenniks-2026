@@ -10,6 +10,7 @@
     "sections": [
       {
         "kind": "hero",
+        "layout": "split",
         "headline": {
           "lead": "I used to build",
           "em": "websites.",
@@ -131,8 +132,8 @@
         "eyebrow": "Stages",
         "title": "Recent talks",
         "source": "speaking",
-        "limit": 3,
-        "window": "past",
+        "limit": 4,
+        "window": "all",
         "hideWhenEmpty": false,
         "cta": {
           "label": "All talks",
@@ -164,6 +165,7 @@
     "sections": [
       {
         "kind": "hero",
+        "layout": "split",
         "headline": {
           "lead": "Hi, my name is",
           "em": " Tim Benniks ",
@@ -486,6 +488,7 @@
     "sections": [
       {
         "kind": "hero",
+        "layout": "split",
         "eyebrow": "On camera",
         "headline": {
           "lead": "Watch me build ",
@@ -677,6 +680,7 @@
     "sections": [
       {
         "kind": "hero",
+        "layout": "split",
         "headline": {
           "lead": "Notes on the",
           "em": "systems",
@@ -811,6 +815,7 @@
     "sections": [
       {
         "kind": "hero",
+        "layout": "split",
         "eyebrow": "Stages",
         "headline": {
           "lead": "From guitarist to speaker",
@@ -917,6 +922,7 @@
     "sections": [
       {
         "kind": "hero",
+        "layout": "split",
         "eyebrow": "The workbench",
         "headline": {
           "lead": "Platform work and",
@@ -986,6 +992,7 @@
     "sections": [
       {
         "kind": "hero",
+        "layout": "split",
         "eyebrow": "/uses",
         "headline": {
           "lead": "The kit that",
@@ -1367,6 +1374,7 @@
     "sections": [
       {
         "kind": "hero",
+        "layout": "split",
         "eyebrow": "Press kit",
         "headline": {
           "lead": "Booking, bios, and the",
@@ -1609,6 +1617,7 @@
     "sections": [
       {
         "kind": "hero",
+        "layout": "split",
         "eyebrow": "/ai",
         "headline": {
           "lead": "Built for humans.",
@@ -1774,6 +1783,7 @@
     "sections": [
       {
         "kind": "hero",
+        "layout": "split",
         "eyebrow": "On air",
         "headline": {
           "lead": "Learn in public.",
@@ -1920,13 +1930,14 @@
     "metadata": {
       "title": "Alive and Kicking",
       "description": "An interactive guitar karaoke experience in the browser. Vue, Nuxt, WebMIDI, and a live-voting audience. Built to show what composable architecture can do on stage.",
-      "keywords": "Alive and Kicking, Vue, Nuxt, WebMIDI, guitar karaoke, conference talk, composable architecture",
       "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/Tim/contentcon-tim.png",
-      "imageAlt": "Tim Benniks playing a gold electric guitar on stage at ContentCon"
+      "imageAlt": "Tim Benniks playing a gold electric guitar on stage at ContentCon",
+      "keywords": "Alive and Kicking, Vue, Nuxt, WebMIDI, guitar karaoke, conference talk, composable architecture"
     },
     "sections": [
       {
         "kind": "hero",
+        "layout": "wide",
         "eyebrow": "Live guitar. Live code. Your setlist.",
         "headline": {
           "lead": "Alive and",
@@ -1960,8 +1971,7 @@
           "eager": true,
           "preload": true
         },
-        "imageSide": "right",
-        "layout": "wide"
+        "imageSide": "right"
       },
       {
         "kind": "principles",
@@ -2070,6 +2080,7 @@
     "sections": [
       {
         "kind": "hero",
+        "layout": "split",
         "eyebrow": "/contact",
         "headline": {
           "lead": "Let's",
@@ -2164,6 +2175,7 @@
     "sections": [
       {
         "kind": "hero",
+        "layout": "split",
         "eyebrow": "/privacy",
         "headline": {
           "lead": "Privacy",
@@ -2248,6 +2260,7 @@
     "sections": [
       {
         "kind": "hero",
+        "layout": "split",
         "eyebrow": "/developers",
         "headline": {
           "lead": "Tim Benniks",
