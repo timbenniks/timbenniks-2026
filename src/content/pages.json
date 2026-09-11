@@ -2340,6 +2340,11 @@
             "term": "/.well-known/webmcp.json",
             "value": "Same catalog at well-known URI",
             "href": "/.well-known/webmcp.json"
+          },
+          {
+            "term": "Accept header",
+            "value": "Send `application/json, text/event-stream`. A JSON-only, wildcard, or absent Accept is widened to that pair rather than refused",
+            "href": "/agents.md"
           }
         ]
       },
@@ -2413,6 +2418,16 @@
             "term": "/agents.md",
             "value": "When-to-use guidance for agents",
             "href": "/agents.md"
+          },
+          {
+            "term": "/.well-known/api-catalog",
+            "value": "RFC 9727 linkset: service description, docs, and MCP endpoint",
+            "href": "/.well-known/api-catalog"
+          },
+          {
+            "term": "404 responses",
+            "value": "Real 404 status; clients that do not ask for text/html get a short markdown recovery body",
+            "href": "/404.md"
           }
         ]
       },

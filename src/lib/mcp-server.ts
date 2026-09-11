@@ -32,6 +32,12 @@ export async function handleMcpHttp(request: Request): Promise<Response> {
     });
   }
 
+  // The transport requires `Accept: application/json, text/event-stream`. Many
+  // agent probes and audit crawlers send `application/json`, `*/*`, or nothing
+  // and get a 406 instead of a handshake. Widen those to the required pair;
+  // a client that explicitly asked for something else (`text/html`) still 406s.
+  request = withNegotiableAccept(request);
+
   // Distinguish malformed JSON from a valid JSON value that is not JSON-RPC.
   // The SDK otherwise reports both as parse errors.
   let body: unknown;
@@ -76,6 +82,27 @@ export async function handleMcpHttp(request: Request): Promise<Response> {
   } finally {
     await server.close();
   }
+}
+
+const REQUIRED_ACCEPT = 'application/json, text/event-stream';
+
+/**
+ * Streamable HTTP requires both media types in `Accept`. Treat an absent,
+ * wildcard, or JSON-only `Accept` as the required pair so lenient clients can
+ * still complete a handshake; anything else is passed through untouched.
+ */
+function withNegotiableAccept(request: Request): Request {
+  const accept = request.headers.get('Accept');
+  if (accept?.includes('text/event-stream')) return request;
+  const lenient =
+    !accept ||
+    accept.trim() === '' ||
+    accept.includes('*/*') ||
+    accept.includes('application/json');
+  if (!lenient) return request;
+  const headers = new Headers(request.headers);
+  headers.set('Accept', REQUIRED_ACCEPT);
+  return new Request(request, { headers });
 }
 
 function rpcInputError(code: number, message: string): Response {

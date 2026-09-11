@@ -272,6 +272,67 @@ export const faqPageSchema = (items: FaqEntry[], opts?: { url?: string }) => ({
   })),
 });
 
+/**
+ * The developer portal, described as a named API so that search engines and
+ * agents can match "Tim Benniks MCP server" or "Tim Benniks OpenAPI spec" to
+ * a URL instead of guessing paths.
+ */
+export const developerApiSchema = () => ({
+  '@type': 'WebAPI',
+  '@id': `${SITE}/developers#api`,
+  name: 'Tim Benniks Public API',
+  alternateName: ['timbenniks.dev API', 'Tim Benniks MCP server'],
+  description:
+    'Public, unauthenticated read-only API for timbenniks.dev: REST endpoints under /api/v1, an OpenAPI 3.1 description, an MCP server over streamable HTTP, and a WebMCP tool catalog.',
+  url: `${SITE}/developers`,
+  documentation: `${SITE}/developers`,
+  termsOfService: `${SITE}/agents.md`,
+  provider: personRef(),
+  inLanguage: seo.locale,
+  potentialAction: [
+    {
+      '@type': 'ConsumeAction',
+      name: 'Search Tim Benniks content',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${SITE}/api/v1/search?query={search_term_string}`,
+        httpMethod: 'GET',
+        contentType: 'application/json',
+      },
+    },
+    {
+      '@type': 'ConsumeAction',
+      name: 'Call the Tim Benniks MCP server',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${SITE}/api/mcp`,
+        httpMethod: 'POST',
+        contentType: 'application/json',
+      },
+    },
+  ],
+  subjectOf: [
+    {
+      '@type': 'CreativeWork',
+      name: 'Tim Benniks Public API OpenAPI 3.1 description',
+      url: `${SITE}/openapi.json`,
+      encodingFormat: 'application/vnd.oai.openapi+json;version=3.1',
+    },
+    {
+      '@type': 'CreativeWork',
+      name: 'Tim Benniks MCP server discovery manifest',
+      url: `${SITE}/.well-known/mcp`,
+      encodingFormat: 'application/json',
+    },
+    {
+      '@type': 'CreativeWork',
+      name: 'Tim Benniks WebMCP tool catalog',
+      url: `${SITE}/tools.json`,
+      encodingFormat: 'application/json',
+    },
+  ],
+});
+
 export const buildGraph = (...nodes: Record<string, unknown>[]) => ({
   '@context': 'https://schema.org',
   '@graph': nodes,

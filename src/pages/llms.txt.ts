@@ -17,12 +17,20 @@ export const GET: APIRoute = async () => {
 
   const speakingItems = speaking.slice(0, 10).map(speakingLine);
 
-  const optional = [
-    `- [Developer resources](${siteUrl('/developers')}): Tim Benniks MCP server, OpenAPI spec, tool catalog, and content negotiation docs`,
+  // Named, predictable entries so the developer surfaces are findable by name
+  // ("Tim Benniks MCP server", "Tim Benniks OpenAPI spec") and not buried.
+  const developerResources = [
+    `- [Tim Benniks Developer Resources](${siteUrl('/developers')}): developer portal — MCP server, OpenAPI spec, tool catalog, and content negotiation docs (also ${siteUrl('/developers.md')})`,
+    `- [Tim Benniks MCP server](${siteUrl('/.well-known/mcp')}): discovery manifest; streamable HTTP handshake → \`POST ${siteUrl('/api/mcp')}\` (\`initialize\`, \`tools/list\`, \`tools/call\`)`,
+    `- [Tim Benniks OpenAPI spec](${siteUrl('/openapi.json')}): OpenAPI 3.1 contract for the Public API; every 4xx/5xx is an RFC 9457 \`application/problem+json\` document`,
     `- [Tim Benniks Public API v1](${siteUrl('/api/v1')}): read-only REST discovery, search, content, and press-kit endpoints`,
-    `- [OpenAPI spec](${siteUrl('/openapi.json')}): typed OpenAPI 3.1 contract for the Tim Benniks Public API`,
     `- [API versioning policy](${siteUrl('/api/v1/versions')}): live version status, deprecation notice period, and sunset signal headers`,
-    `- [MCP discovery](${siteUrl('/.well-known/mcp')}): streamable HTTP handshake → POST ${siteUrl('/api/mcp')}`,
+    `- [API catalog](${siteUrl('/.well-known/api-catalog')}): RFC 9727 linkset pointing at the service description, docs, and MCP endpoint`,
+    `- [Public WebMCP tool catalog](${siteUrl('/tools.json')}): six read-only tools with JSON Schema (search, list, get content, press kit, booking)`,
+    `- No authentication, no API keys. Public rate limit: 120 requests per 60 seconds per client, reported with \`RateLimit\` and \`RateLimit-Policy\` headers.`,
+  ];
+
+  const optional = [
     `- [Contact Tim Benniks](${siteUrl('/contact')}): speaking, podcasts, press, corrections`,
     `- [Privacy policy](${siteUrl('/privacy')}): data handling on timbenniks.dev`,
     `- [RSS feed](${siteUrl('/feed.xml')}): full writing feed in RSS 2.0`,
@@ -31,7 +39,6 @@ export const GET: APIRoute = async () => {
     `- [Markdown sitemap](${siteUrl('/sitemap.md')}): the same index, in markdown`,
     `- [Full corpus](${siteUrl('/llms-full.txt')}): writing entries, video metadata, speaking engagements, and static page summaries inlined as markdown`,
     `- [Content index](${siteUrl('/content-index.json')}): compact JSON index for writing, videos, talks, projects, and pages`,
-    `- [Tool catalog](${siteUrl('/tools.json')}): public WebMCP tools (search, list, get content, press kit, booking)`,
     `- [Press kit JSON](${siteUrl('/press-kit.json')}): bios, topics, photos, booking contact link`,
     `- [Agent guide](${siteUrl('/agents.md')}): instructions for AI agents consuming this site`,
     `- [AI readiness](${siteUrl('/ai')}): human explainer of markdown twins, indexes, and WebMCP tools`,
@@ -74,6 +81,12 @@ export const GET: APIRoute = async () => {
     speakingItems.join('\n'),
     '',
     `All talks: ${siteUrl('/speaking')}`,
+    '',
+    '## Developer resources',
+    '',
+    'Machine-readable APIs for timbenniks.dev, all public and unauthenticated.',
+    '',
+    developerResources.join('\n'),
     '',
     '## Optional',
     '',

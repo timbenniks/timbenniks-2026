@@ -12,6 +12,7 @@ const body = (site: URL) => {
   const developers = new URL("developers", site).href;
   const openapi = new URL("openapi.json", site).href;
   const mcp = new URL(".well-known/mcp", site).href;
+  const apiCatalog = new URL(".well-known/api-catalog", site).href;
   return `User-agent: *
 Disallow:
 
@@ -28,6 +29,7 @@ Sitemap: ${md}
 # - ${developers}  — Tim Benniks developer resources (MCP, OpenAPI)
 # - ${openapi}     — OpenAPI 3.1 spec
 # - ${mcp}         — MCP discovery handshake
+# - ${apiCatalog} — RFC 9727 API catalog linkset
 # Markdown twins: /writing/<slug>.md /videos/<slug>.md /projects/<slug>.md
 # Static pages: /about.md /contact.md /privacy.md /developers.md /press-kit.md /speaking.md /uses.md /projects.md /index.md
 # Accept: text/markdown on canonical URLs rewrites to the .md twin (Vary: Accept, Accept-Encoding).

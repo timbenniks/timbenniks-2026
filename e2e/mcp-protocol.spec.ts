@@ -69,6 +69,23 @@ for (const endpoint of ['/api/mcp', '/.well-known/mcp']) {
     const unacceptable = await request.post(endpoint, { headers: { Accept: 'text/html' }, data: { jsonrpc: '2.0', id: 1, method: 'ping' } });
     expect(unacceptable.status()).toBe(406);
   });
+
+  // Audit crawlers and hand-rolled clients rarely send the full Accept pair.
+  // Refusing them with a 406 reads as "handshake failed" from the outside.
+  test(`${endpoint}: completes a handshake for lenient Accept headers`, async ({ request }) => {
+    const initialize = {
+      jsonrpc: '2.0', id: 1, method: 'initialize',
+      params: { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'lenient', version: '1' } },
+    };
+    for (const accept of ['application/json', '*/*', 'application/json, */*']) {
+      const response = await request.post(endpoint, { headers: { Accept: accept }, data: initialize });
+      expect(response.status(), accept).toBe(200);
+      expect((await response.json()).result.serverInfo.name).toBe('timbenniks.dev');
+      const tools = await request.post(endpoint, { headers: { Accept: accept }, data: { jsonrpc: '2.0', id: 2, method: 'tools/list' } });
+      expect(tools.status(), accept).toBe(200);
+      expect((await tools.json()).result.tools).toHaveLength(6);
+    }
+  });
 }
 
 test('published curl example performs a complete handshake', async ({ request }) => {

@@ -4,6 +4,7 @@ import PagePreloadLinks from "../components/PagePreloadLinks.astro";
 import PageSections from "../components/PageSections.astro";
 import JsonLd from "../components/primitives/JsonLd.astro";
 import { loadPage, pageBreadcrumbGraph } from "../lib/page";
+import { developerApiSchema } from "../lib/schema";
 import {
   findPageByPath,
   listCatchAllPages,
@@ -35,10 +36,14 @@ if (!pageId) {
 const page = await loadPage(pageId);
 const { metadata, sections } = page.data;
 const graph = pageBreadcrumbGraph(page.data.path, pageId);
+// The developer portal also describes a named API, so agents and search
+// engines can resolve "Tim Benniks MCP server" to this page.
+const apiGraph = pageId === "developers" ? developerApiSchema() : undefined;
 ---
 
 <BaseLayout {...metadata}>
   <PagePreloadLinks slot="head" sections={sections} />
   <JsonLd slot="head" data={graph} />
+  {apiGraph && <JsonLd slot="head" data={{ "@context": "https://schema.org", ...apiGraph }} />}
   <PageSections pageId={pageId} sections={sections} />
 </BaseLayout>

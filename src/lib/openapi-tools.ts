@@ -14,12 +14,46 @@ const rateLimitHeaders = {
   },
 };
 
+/**
+ * RFC 9457 problem response. Written inline on every operation (rather than as
+ * a `$ref` to `components/responses`) so the typed error schema is reachable
+ * from `paths.*.*.responses.<code>.content` for every 4xx/5xx, which is where
+ * generators and API scanners look for it.
+ */
+function problemResponse(
+  description: string,
+  headers: Record<string, unknown> = rateLimitHeaders,
+) {
+  return {
+    description,
+    headers,
+    content: {
+      'application/problem+json': { schema: { $ref: '#/components/schemas/Problem' } },
+    },
+  };
+}
+
+const errorResponses = {
+  BadRequest: problemResponse('The request parameters are invalid.'),
+  NotFound: problemResponse('The requested content does not exist.'),
+  MethodNotAllowed: problemResponse('The endpoint does not support this HTTP method.', {
+    ...rateLimitHeaders,
+    Allow: { description: 'Supported methods.', schema: { type: 'string', example: 'GET' } },
+  }),
+  RateLimited: problemResponse('The client exhausted its current quota.', {
+    ...rateLimitHeaders,
+    'Retry-After': { description: 'Seconds before retrying.', schema: { type: 'integer', minimum: 1 } },
+  }),
+  ServerError: problemResponse('The request failed unexpectedly.'),
+};
+
+/** Every operation carries the same typed error set, inlined per response. */
 const errors = {
-  '400': { $ref: '#/components/responses/BadRequest' },
-  '404': { $ref: '#/components/responses/NotFound' },
-  '405': { $ref: '#/components/responses/MethodNotAllowed' },
-  '429': { $ref: '#/components/responses/RateLimited' },
-  '500': { $ref: '#/components/responses/ServerError' },
+  '400': errorResponses.BadRequest,
+  '404': errorResponses.NotFound,
+  '405': errorResponses.MethodNotAllowed,
+  '429': errorResponses.RateLimited,
+  '500': errorResponses.ServerError,
 };
 
 function jsonResponse(description: string, schema: Record<string, unknown>) {
@@ -235,13 +269,7 @@ export function publicAgentOpenApi() {
           },
         },
       },
-      responses: {
-        BadRequest: { description: 'The request parameters are invalid.', headers: rateLimitHeaders, content: { 'application/problem+json': { schema: { $ref: '#/components/schemas/Problem' } } } },
-        NotFound: { description: 'The requested content does not exist.', headers: rateLimitHeaders, content: { 'application/problem+json': { schema: { $ref: '#/components/schemas/Problem' } } } },
-        MethodNotAllowed: { description: 'The endpoint does not support this HTTP method.', headers: { ...rateLimitHeaders, Allow: { description: 'Supported methods.', schema: { type: 'string', example: 'GET' } } }, content: { 'application/problem+json': { schema: { $ref: '#/components/schemas/Problem' } } } },
-        RateLimited: { description: 'The client exhausted its current quota.', headers: { ...rateLimitHeaders, 'Retry-After': { description: 'Seconds before retrying.', schema: { type: 'integer', minimum: 1 } } }, content: { 'application/problem+json': { schema: { $ref: '#/components/schemas/Problem' } } } },
-        ServerError: { description: 'The request failed unexpectedly.', headers: rateLimitHeaders, content: { 'application/problem+json': { schema: { $ref: '#/components/schemas/Problem' } } } },
-      },
+      responses: errorResponses,
     },
     'x-api-versioning': {
       strategy: 'URL path major versioning (/api/v1, /api/v2)',

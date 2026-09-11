@@ -14,6 +14,7 @@ export function mcpDiscoveryManifest() {
     llms: siteUrl('/llms.txt'),
     tools_catalog: siteUrl('/tools.json'),
     openapi: siteUrl('/openapi.json'),
+    api_catalog: siteUrl('/.well-known/api-catalog'),
     endpoint: siteUrl('/api/mcp'),
     handshake: siteUrl('/.well-known/mcp'),
     transport: 'streamable-http',

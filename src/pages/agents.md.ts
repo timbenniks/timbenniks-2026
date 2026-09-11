@@ -41,7 +41,8 @@ There are two ways in, depending on how you arrived:
 - [${siteUrl('/developers')}](${siteUrl('/developers')}) — Tim Benniks developer resources (MCP, OpenAPI, indexes).
 - [${siteUrl('/openapi.json')}](${siteUrl('/openapi.json')}) — OpenAPI 3.1 description of public agent API surfaces.
 - [${siteUrl('/api/v1')}](${siteUrl('/api/v1')}) — versioned, read-only Tim Benniks Public API. Errors use RFC 9457 \`application/problem+json\`; responses include \`RateLimit\` and \`RateLimit-Policy\`.
-- [${siteUrl('/.well-known/mcp')}](${siteUrl('/.well-known/mcp')}) — MCP discovery handshake (streamable HTTP at ${siteUrl('/api/mcp')}).
+- [${siteUrl('/.well-known/mcp')}](${siteUrl('/.well-known/mcp')}) — MCP discovery handshake (streamable HTTP at ${siteUrl('/api/mcp')}). POST with \`Accept: application/json, text/event-stream\`; a JSON-only, wildcard, or missing \`Accept\` is widened to that pair instead of returning 406.
+- [${siteUrl('/.well-known/api-catalog')}](${siteUrl('/.well-known/api-catalog')}) — RFC 9727 API catalog linkset: \`service-desc\` (OpenAPI), \`service-doc\` (${siteUrl('/developers')}), and the MCP endpoint.
 - [${siteUrl('/writing/llms.txt')}](${siteUrl('/writing/llms.txt')}) — every writing entry, one line each.
 - [${siteUrl('/videos/llms.txt')}](${siteUrl('/videos/llms.txt')}) — every video, one line each.
 - [${siteUrl('/llms-full.txt')}](${siteUrl('/llms-full.txt')}) — every non-draft writing entry, every video's metadata and description, all speaking engagements, and prose summaries of the static pages, inlined as one document.
@@ -67,6 +68,17 @@ curl ${writingMarkdownExample}
 curl -H 'Accept: text/markdown' ${siteUrl('/about')}
 curl ${siteUrl('/tools.json')}
 \`\`\`
+
+## When a path does not exist
+
+Missing paths return a real **HTTP 404** — never a 200 with an empty shell, so a 404 means the URL is wrong. Clients that do not ask for \`text/html\` (\`Accept: */*\`, \`application/json\`, or no \`Accept\` at all) get a short markdown body listing where to go next; browsers get the 404 page. \`${siteUrl('/404.md')}\` returns the same body directly.
+
+\`\`\`
+curl -s -o /dev/null -w '%{http_code}\\n' ${siteUrl('/no-such-page')}   # 404
+curl -s ${siteUrl('/no-such-page')}                                  # markdown recovery links
+\`\`\`
+
+Search (\`search_site\`, \`${siteUrl('/api/v1/search')}\`) or read \`${siteUrl('/sitemap.md')}\` rather than probing paths.
 
 ## Public WebMCP tools
 

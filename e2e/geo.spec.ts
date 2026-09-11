@@ -94,6 +94,7 @@ test.describe('GEO / agent surfaces', () => {
     expect(body.endpoint).toContain('/api/mcp');
     expect(body.transport).toBe('streamable-http');
     expect(body.openapi).toContain('/openapi.json');
+    expect(body.api_catalog).toContain('/.well-known/api-catalog');
     expect(body.documentation).toContain('/developers');
   });
 
@@ -199,8 +200,9 @@ test.describe('GEO / agent surfaces', () => {
 
   test('404 returns real status with agent recovery markdown twin', async ({ request }) => {
     const missing = '/some-path-that-does-not-exist-agent-test';
-    const htmlRes = await request.get(missing);
+    const htmlRes = await request.get(missing, { headers: { Accept: 'text/html' } });
     expect(htmlRes.status()).toBe(404);
+    expect(htmlRes.headers()['content-type']).toMatch(/text\/html/);
 
     const mdRes = await request.get('/404.md');
     expect(mdRes.status()).toBe(404);
@@ -210,6 +212,82 @@ test.describe('GEO / agent surfaces', () => {
     expect(body).toContain('/llms.txt');
     expect(body).toContain('/agents.md');
     expect(body).toContain('/sitemap.md');
+  });
+
+  test('404 serves the markdown recovery body to non-HTML clients', async ({ request }) => {
+    // curl, agent fetchers and audit crawlers send these; browsers never do.
+    for (const accept of ['*/*', 'application/json', 'text/markdown', 'text/plain']) {
+      for (const path of ['/no-such-page-agent-test', '/writing/no-such-article', '/deep/fake/path']) {
+        const res = await request.get(path, { headers: { Accept: accept } });
+        expect(res.status(), `${accept} ${path}`).toBe(404);
+        expect(res.headers()['content-type'], `${accept} ${path}`).toMatch(/text\/markdown/);
+        const body = await res.text();
+        expect(body).toContain('404');
+        expect(body).toContain('/llms.txt');
+        expect(body).toContain('/sitemap.md');
+        // Short enough to read; the HTML shell is ~66 KB.
+        expect(body.length).toBeLessThan(4000);
+      }
+    }
+  });
+
+  test('a real page is never mistaken for a 404 by a non-HTML client', async ({ request }) => {
+    const res = await request.get('/developers', { headers: { Accept: '*/*' } });
+    expect(res.status()).toBe(200);
+  });
+
+  test('RFC 9727 api-catalog links the service description and MCP endpoint', async ({ request }) => {
+    const res = await request.get('/.well-known/api-catalog');
+    expect(res.ok()).toBeTruthy();
+    expect(res.headers()['content-type']).toContain('application/linkset+json');
+    const body = await res.json();
+    const anchors = body.linkset.map((entry: { anchor: string }) => entry.anchor);
+    expect(anchors).toContain('https://timbenniks.dev/api/v1');
+    expect(anchors).toContain('https://timbenniks.dev/api/mcp');
+    const api = body.linkset.find((entry: { anchor: string }) => entry.anchor.endsWith('/api/v1'));
+    expect(api['service-desc'][0].href).toBe('https://timbenniks.dev/openapi.json');
+    expect(api['service-doc'][0].href).toBe('https://timbenniks.dev/developers');
+    const mcp = body.linkset.find((entry: { anchor: string }) => entry.anchor.endsWith('/api/mcp'));
+    expect(mcp['service-desc'][0].href).toBe('https://timbenniks.dev/.well-known/mcp');
+  });
+
+  test('developer resources are listed by name in llms.txt', async ({ request }) => {
+    const body = await (await request.get('/llms.txt')).text();
+    expect(body).toContain('## Developer resources');
+    for (const line of [
+      'Tim Benniks Developer Resources',
+      'Tim Benniks MCP server',
+      'Tim Benniks OpenAPI spec',
+      'Tim Benniks Public API v1',
+      'https://timbenniks.dev/openapi.json',
+      'https://timbenniks.dev/.well-known/mcp',
+      'https://timbenniks.dev/.well-known/api-catalog',
+    ]) {
+      expect(body, line).toContain(line);
+    }
+    // The named section must come before "## Optional", which agents may skip.
+    expect(body.indexOf('## Developer resources')).toBeLessThan(body.indexOf('## Optional'));
+  });
+
+  test('predictable developer-doc URLs resolve to /developers', async ({ request }) => {
+    for (const alias of ['/docs', '/developer', '/api-docs', '/developer-docs']) {
+      const res = await request.get(alias, { maxRedirects: 0 });
+      expect([301, 302, 307, 308], alias).toContain(res.status());
+      expect(res.headers()['location'], alias).toContain('/developers');
+    }
+  });
+
+  test('developers page describes a named API in JSON-LD', async ({ request }) => {
+    const html = await (await request.get('/developers')).text();
+    const blocks = [...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)]
+      .map((match) => JSON.parse(match[1]));
+    const api = blocks.find((block) => block['@type'] === 'WebAPI');
+    expect(api).toBeTruthy();
+    expect(api.name).toBe('Tim Benniks Public API');
+    expect(api.alternateName).toContain('Tim Benniks MCP server');
+    expect(api.subjectOf.map((work: { url: string }) => work.url)).toContain(
+      'https://timbenniks.dev/openapi.json',
+    );
   });
 
   test('AI readiness page links agent surfaces', async ({ page }) => {

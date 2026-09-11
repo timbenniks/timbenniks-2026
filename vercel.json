@@ -58,6 +58,22 @@
       ]
     },
     {
+      "source": "/developers",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "<https://timbenniks.dev/openapi.json>; rel=\"service-desc\"; type=\"application/vnd.oai.openapi+json;version=3.1\", <https://timbenniks.dev/.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", <https://timbenniks.dev/developers.md>; rel=\"alternate\"; type=\"text/markdown\""
+        }
+      ]
+    },
+    {
+      "source": "/.well-known/api-catalog",
+      "headers": [
+        { "key": "Content-Type", "value": "application/linkset+json; charset=utf-8" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    },
+    {
       "source": "/404.md",
       "headers": [
         { "key": "Content-Type", "value": "text/markdown; charset=utf-8" },

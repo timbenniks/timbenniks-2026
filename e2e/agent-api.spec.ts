@@ -44,6 +44,16 @@ test.describe('public agent API', () => {
     expect(body.resolution).toContain('/openapi.json');
   });
 
+  test('API 404s stay RFC 9457 whatever the client accepts', async ({ request }) => {
+    // The site-wide markdown 404 must not swallow the API's typed problem body.
+    for (const accept of ['*/*', 'text/markdown', 'application/json']) {
+      const response = await request.get('/api/v1/does-not-exist', { headers: { Accept: accept } });
+      expect(response.status(), accept).toBe(404);
+      expect(response.headers()['content-type'], accept).toContain('application/problem+json');
+      expect((await response.json()).code, accept).toBe('ENDPOINT_NOT_FOUND');
+    }
+  });
+
   test('retrieves one page as markdown in JSON', async ({ request }) => {
     const response = await request.get('/api/v1/content/about');
     expect(response.status()).toBe(200);
@@ -75,14 +85,29 @@ test.describe('public agent API', () => {
       expect(operation.responses['404']).toBeTruthy();
       expect(operation.responses['429']).toBeTruthy();
       expect(operation.responses['500']).toBeTruthy();
-      // Resolve BOTH reference levels; a response $ref is valid OpenAPI.
+      // Each error response names the typed schema inline, so a scanner that
+      // only walks paths.*.*.responses.<code>.content still finds it.
       for (const code of ['400', '404', '405', '429', '500']) {
-        const ref = operation.responses[code].$ref;
-        const response = spec.components.responses[ref.split('/').pop()];
+        const response = operation.responses[code];
+        expect(response.$ref, `${operation.operationId} ${code} must not hide behind a response $ref`).toBeUndefined();
+        expect(response.description).toBeTruthy();
         expect(response.content['application/problem+json'].schema.$ref).toBe('#/components/schemas/Problem');
         expect(spec.components.schemas.Problem.required).toEqual(expect.arrayContaining(['code', 'detail', 'status']));
       }
     }
+  });
+
+  test('OpenAPI documents error headers and keeps reusable responses in sync', async ({ request }) => {
+    const spec = await (await request.get('/openapi.json')).json();
+    const operation = spec.paths['/api/v1/search'].get;
+    expect(Object.keys(operation.responses['405'].headers)).toContain('Allow');
+    expect(Object.keys(operation.responses['429'].headers)).toContain('Retry-After');
+    for (const [name, response] of Object.entries<any>(spec.components.responses)) {
+      expect(response.content['application/problem+json'].schema.$ref, name).toBe(
+        '#/components/schemas/Problem',
+      );
+    }
+    expect(spec.components.responses.NotFound).toEqual(operation.responses['404']);
   });
 
   test('versions endpoint publishes a live deprecation policy', async ({ request }) => {

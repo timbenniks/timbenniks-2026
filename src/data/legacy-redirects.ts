@@ -22,6 +22,11 @@ export function legacyRedirectMap(): Record<string, string> {
     '/videos/contentstack/014-rbbswown6s': '/videos/contentstack/014--rbbswown6s',
     '/videos/alive-and-kicking/004-4m4tij0z20': '/videos/alive-and-kicking/004--4m4tij0z20',
     '/articles/my-fitness-story': '/writing/my-fitness-story',
+    // Predictable names agents and people guess when looking for API docs.
+    '/docs': '/developers',
+    '/developer': '/developers',
+    '/api-docs': '/developers',
+    '/developer-docs': '/developers',
   };
   for (const playlist of VIDEO_PLAYLISTS) {
     out[`/videos/${playlist}`] = `/videos/playlist/${playlist}`;
