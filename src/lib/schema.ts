@@ -135,39 +135,6 @@ export const videoObjectSchema = (opts: {
   author: personRef(),
 });
 
-export const eventSchema = (opts: {
-  id: string;
-  name: string;
-  startDate: string;
-  location?: string;
-  url?: string;
-  conference?: string;
-}) => {
-  const online = opts.location
-    ? /online|virtual|remote/i.test(opts.location)
-    : false;
-  const location = opts.location
-    ? online
-      ? { '@type': 'VirtualLocation', name: opts.location }
-      : { '@type': 'Place', name: opts.location }
-    : undefined;
-  return {
-    '@type': 'Event',
-    '@id': `${SITE}/speaking#${opts.id}`,
-    name: opts.name,
-    startDate: opts.startDate,
-    ...(location ? { location } : {}),
-    url: opts.url || `${SITE}/speaking`,
-    eventAttendanceMode: online
-      ? 'https://schema.org/OnlineEventAttendanceMode'
-      : 'https://schema.org/OfflineEventAttendanceMode',
-    performer: personRef(),
-    ...(opts.conference
-      ? { organizer: { '@type': 'Organization', name: opts.conference } }
-      : {}),
-  };
-};
-
 export const softwareSchema = (opts: {
   url: string;
   name: string;
