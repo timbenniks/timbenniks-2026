@@ -1,7 +1,7 @@
 ---
 title: Contentstack WebMCP
 tag: OSS · WebMCP
-description: Framework-agnostic tools that expose published Contentstack content to in-tab agents via document.modelContext. Vanilla TypeScript first, React and Next adapters if you want them.
+description: "Expose published Contentstack content to browser agents through WebMCP, with framework-agnostic TypeScript tools and adapters for React and Next.js."
 meta: Experimental · @timbenniks/contentstack-webmcp
 order: 5
 github: https://github.com/timbenniks/contentstack-webmcp

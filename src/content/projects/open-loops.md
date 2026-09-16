@@ -1,5 +1,6 @@
 ---
 title: Open Loops
+seoTitle: "Open Loops: A macOS Tracker for Agent Work"
 tag: macOS app · MCP
 description: A local-first macOS tracker for work you hand to coding agents. SQLite on your machine, git-aware tasks, and a full backlog API over MCP.
 meta: Open source · macOS · MIT

@@ -1,7 +1,7 @@
 ---
 title: Contentstack MCP Hub
 tag: MCP · Agent skills
-description: A hub of agent skills with RBAC, so an agent acting for a user can only reach what that user is allowed to touch, and product managers can propose the next skill without writing it.
+description: "A hub of Contentstack agent skills with role-based access control. Agents only reach permitted data, and product managers can propose new skills."
 meta: Active · Internal + open contributions
 order: 6
 ---

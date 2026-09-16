@@ -1,7 +1,7 @@
 ---
 title: Contentstack OpenAPI Plugin
 tag: OSS · CLI
-description: A csdx plugin that introspects a Contentstack stack and writes a valid OpenAPI 3.1 spec for the Delivery or Management API, including schemas, regions, modular blocks, and security schemes.
+description: "Generate OpenAPI 3.1 specs from a Contentstack stack with a csdx plugin covering Delivery and Management APIs, schemas, regions, and security."
 meta: OSS · @contentstack/cli-plugin-openapi
 order: 13
 github: https://github.com/timbenniks/contentstack-cli-plugin-openapi

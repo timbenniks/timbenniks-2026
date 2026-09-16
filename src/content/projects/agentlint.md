@@ -1,7 +1,8 @@
 ---
 title: Agentlint
+seoTitle: "Agentlint: Website Audits for AI Agents"
 tag: CLI · Agent readiness
-description: Lighthouse for agents. A deterministic website scanner that tells you whether agents can find, understand, and use a site, and proves every conclusion with evidence.
+description: "Audit whether AI agents can find, understand, and use your website with Agentlint, a deterministic CLI scanner that backs its findings with evidence."
 meta: Active · @timbenniks/agentlint
 order: 1
 github: https://github.com/timbenniks/agentlint

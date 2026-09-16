@@ -1,7 +1,8 @@
 ---
 title: Cursor Rules
+seoTitle: "Cursor Rules: AI Coding Workflows"
 tag: OSS · Agent workflow
-description: "A reusable Cursor ruleset and command kit so the agent behaves like a senior engineer on a SaaS project: constrained, repeatable, and boring in the ways that matter."
+description: "A reusable Cursor ruleset and command kit for SaaS projects, with planning, small diffs, root-cause debugging, accessibility, and checks before shipping."
 meta: Open source · MIT
 order: 12
 github: https://github.com/timbenniks/timbenniks-cursor-rules

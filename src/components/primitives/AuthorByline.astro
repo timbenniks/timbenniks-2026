@@ -21,7 +21,7 @@ const { label = 'Written by', dark = false } = Astro.props;
   <a href={author.href} class="mt-3 flex items-center gap-3 no-underline group">
     <img
       src={author.avatar}
-      alt=""
+      alt={`Portrait of ${author.name}`}
       width="48"
       height="48"
       class:list={[

@@ -1,7 +1,7 @@
 ---
 title: Contentstack Platform SDK
 tag: SDK · TypeScript
-description: One TypeScript surface for Contentstack (CMA, OAuth, webhooks, image transforms, and generative AI) so you stop stitching four libraries together before you write the actual product.
+description: "Build with one TypeScript SDK for Contentstack, covering the Content Management API, OAuth, webhooks, image transforms, and generative AI."
 meta: Active · @timbenniks/contentstack-platform-sdk
 order: 2
 github: https://github.com/timbenniks/platform-sdk

@@ -1,7 +1,8 @@
 ---
 title: DoorBell DevRel
+seoTitle: "DoorBell DevRel: AI Developer Videos"
 tag: Experiment
-description: AI-generated developer videos at scale, with almost no production code. A live test of what adaptive content looks like when making one more video costs almost nothing.
+description: "An experiment in AI-generated developer videos at scale, using minimal production code to explore adaptive content and the cost of creating more videos."
 meta: Live · doorbell-devrel.timbenniks.dev
 order: 14
 live: https://doorbell-devrel.timbenniks.dev

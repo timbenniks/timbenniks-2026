@@ -1,5 +1,6 @@
 ---
 title: Turbo Relay
+seoTitle: "Turbo Relay: Reviewed Knowledge for AI Agents"
 tag: MCP · Local-first
 description: A local-first intelligence layer for sanctioned AI agents. Agents write evidence-backed knowledge through MCP; humans review, approve, and promote it.
 meta: Open source · macOS · MCP

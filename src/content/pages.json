@@ -2,7 +2,7 @@
   "home": {
     "path": "/",
     "metadata": {
-      "title": "Tim Benniks. Developer Experience Lead at Contentstack",
+      "title": "Developer Experience & AI Engineering",
       "description": "Developer Experience Lead at Contentstack. Essays, talks, and videos on developer tools, AI-augmented engineering, and composable architecture.",
       "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778485778/website/tim-sketch-1.png",
       "keywords": "Tim Benniks, developer experience, AI-augmented engineering, composable architecture, Contentstack, developer relations"
@@ -156,8 +156,8 @@
   "about": {
     "path": "/about",
     "metadata": {
-      "title": "Tim Benniks: Developer Experience Lead | Developer Platforms & AI",
-      "description": "Tim Benniks designs developer platforms and AI‑augmented products. Developer Experience Lead at Contentstack. Speaker and writer on developer experience, platform engineering, and AI‑augmented tooling.",
+      "title": "About: Developer Platforms & AI",
+      "description": "Meet Tim Benniks, Developer Experience Lead at Contentstack, speaker, and writer building developer platforms, AI tools, and composable products.",
       "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/f_auto,q_auto,w_1280,h_550,c_thumb/website/tim-hero.png",
       "imageAlt": "Tim Benniks portrait",
       "keywords": "Tim Benniks, developer experience, developer platforms, AI-augmented engineering, developer tooling, Contentstack"
@@ -913,8 +913,8 @@
   "projects": {
     "path": "/projects",
     "metadata": {
-      "title": "Projects",
-      "description": "Agentlint, platform SDKs, Nuxt modules, MCP servers, and local-first Mac apps from Tim Benniks. Real code with real trade-offs, some of it shipping for thousands of developers.",
+      "title": "Open Source Projects & Developer Tools",
+      "description": "Explore developer tools by Tim Benniks: Agentlint, Contentstack SDKs, Nuxt modules, MCP servers, and local-first Mac apps, with code and project notes.",
       "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/v1778496050/website/tim-sketch-2.png",
       "imageAlt": "Illustrated Tim Benniks at work",
       "keywords": "Agentlint, MCP, SDK, platform engineering, AI agents, open source, Contentstack, Nuxt, Open Loops, Turbo Relay, Loadout, ButterKeys, Dex"
@@ -1610,8 +1610,8 @@
   "ai": {
     "path": "/ai",
     "metadata": {
-      "title": "AI readiness",
-      "description": "How timbenniks.dev is built for AI agents and crawlers: markdown twins, llms.txt, content indexes, and public WebMCP tools, without turning the site into a dump.",
+      "title": "AI Readiness & Agent Tools",
+      "description": "Explore how timbenniks.dev supports AI agents with markdown pages, llms.txt, content indexes, public WebMCP tools, and a read-only MCP server.",
       "keywords": "AI readiness, llms.txt, WebMCP, GEO, markdown twins, agent-friendly website"
     },
     "sections": [
@@ -1776,7 +1776,7 @@
   "livestreams": {
     "path": "/livestreams",
     "metadata": {
-      "title": "Livestreams",
+      "title": "Livestreams & Live Coding",
       "description": "Contentstack, Hygraph, Uniform, and personal livestreams. Tim learns in public with guests. Every stream has a live coding element.",
       "keywords": "livestream, Contentstack, Hygraph, Uniform, DXP, headless CMS, live coding"
     },
@@ -1929,7 +1929,7 @@
     "path": "/alive-and-kicking",
     "metadata": {
       "title": "Alive and Kicking",
-      "description": "An interactive guitar karaoke experience in the browser. Vue, Nuxt, WebMIDI, and a live-voting audience. Built to show what composable architecture can do on stage.",
+      "description": "Explore Alive and Kicking, an interactive guitar karaoke show built with Vue, Nuxt, and WebMIDI, where a live audience votes on what happens next.",
       "image": "https://res.cloudinary.com/dwfcofnrd/image/upload/Tim/contentcon-tim.png",
       "imageAlt": "Tim Benniks playing a gold electric guitar on stage at ContentCon",
       "keywords": "Alive and Kicking, Vue, Nuxt, WebMIDI, guitar karaoke, conference talk, composable architecture"
@@ -2073,7 +2073,7 @@
   "contact": {
     "path": "/contact",
     "metadata": {
-      "title": "Contact Tim Benniks: Speaking, Podcasts & Press",
+      "title": "Contact: Speaking, Podcasts & Press",
       "description": "Reach Tim Benniks for conference keynotes, podcast bookings, press inquiries, and corrections. Contact Tim on LinkedIn or use the press kit.",
       "keywords": "Tim Benniks contact, Tim Benniks booking, Tim Benniks LinkedIn, developer experience speaker"
     },
@@ -2253,8 +2253,8 @@
   "developers": {
     "path": "/developers",
     "metadata": {
-      "title": "Tim Benniks Developer Resources: MCP, OpenAPI & Agent API",
-      "description": "Developer documentation for timbenniks.dev by Tim Benniks: MCP server at /.well-known/mcp, OpenAPI spec, WebMCP tools, content indexes, and markdown negotiation.",
+      "title": "Developer Resources: MCP & OpenAPI",
+      "description": "Use the public APIs on timbenniks.dev: MCP tools, OpenAPI documentation, content search, markdown pages, and read-only access without an API key.",
       "keywords": "Tim Benniks developer API, Tim Benniks MCP, timbenniks.dev OpenAPI, WebMCP, agent API"
     },
     "sections": [

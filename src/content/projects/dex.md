@@ -1,7 +1,8 @@
 ---
 title: Dex
+seoTitle: "Dex: Terminal AI Agent Orchestration"
 tag: TUI · Agent orchestration
-description: "Local-first AI engineering orchestration for the terminal. Agents write the code. Dex runs the rest of the loop: ticket, worktree, tests, PR, review, and the human gate before merge."
+description: "Orchestrate AI engineering in the terminal with Dex, a local-first tool for tickets, worktrees, tests, pull requests, reviews, and human approval."
 meta: Active · local-first · Bun
 order: 9
 github: https://github.com/timbenniks/timbenniks-dex

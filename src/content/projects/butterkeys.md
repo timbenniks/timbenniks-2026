@@ -1,5 +1,6 @@
 ---
 title: ButterKeys
+seoTitle: "ButterKeys: Local Typo Fixes for macOS"
 tag: macOS app · Local-first
 description: A menu bar app that fixes the typos your hands already know how to make (teh, writign, int he) on the machine, with no account and no network.
 meta: macOS 14 · local-first

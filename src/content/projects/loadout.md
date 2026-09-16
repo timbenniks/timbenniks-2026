@@ -1,7 +1,8 @@
 ---
 title: Loadout
+seoTitle: "Loadout: Skills & MCP Manager for macOS"
 tag: macOS app · Skills
-description: A native macOS control plane for Skills and MCP servers across Claude Code, Codex, and Cursor. It does not own your loadout. It shows you what is actually installed.
+description: "Manage Skills and MCP servers across Claude Code, Codex, and Cursor with Loadout, a native macOS app that shows what is installed and how tools differ."
 meta: Early · macOS 15 · Swift
 order: 10
 github: https://github.com/timbenniks/loadout
