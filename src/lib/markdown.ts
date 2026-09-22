@@ -94,12 +94,24 @@ export function videoEntryToMarkdown(
   return `${frontmatter}\n\n${sections.join('\n\n')}\n`;
 }
 
-export function speakingLine(entry: CollectionEntry<'speaking'>): string {
+export function speakingLine(entry: CollectionEntry<'speaking'>, detailed = false): string {
   const d = entry.data;
   const date = isoDate(d.date).slice(0, 10);
   const where = d.location ? ` (${d.location})` : '';
   const link = d.link ? ` — ${d.link}` : '';
-  return `- ${date} — "${d.talk}" at ${d.conference}${where}${link}`;
+  const line = `- ${date} — "${d.talk}" at ${d.conference}${where}${link}`;
+  if (!detailed) return line;
+  return [
+    line,
+    d.description && `  ${d.description}`,
+    d.format && `  Format: ${d.format}`,
+    d.tags.length > 0 && `  Topics: ${d.tags.join(', ')}`,
+    d.session_url && `  Session: ${d.session_url}`,
+    d.recording_url && `  Recording: ${d.recording_url}`,
+    d.slides_url && `  Slides: ${d.slides_url}`,
+    d.sources.length > 0 && `  Sources: ${d.sources.join(', ')}`,
+    d.metadata_checked && `  Metadata checked: ${d.metadata_checked}`,
+  ].filter(Boolean).join('\n');
 }
 
 export function projectEntryToMarkdown(entry: CollectionEntry<'projects'>): string {

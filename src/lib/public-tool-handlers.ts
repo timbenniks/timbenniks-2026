@@ -11,7 +11,9 @@ import {
   projectEntryToMarkdown,
   videoEntryToMarkdown,
   writingEntryToMarkdown,
+  speakingLine,
 } from './markdown';
+import { loadAllSorted } from './collections';
 import { pageToMarkdown } from './page-to-markdown';
 import { BOOKING_CONTACT_URL, PUBLIC_TOOLS } from './public-tools';
 import { extractPressKit } from './press-kit';
@@ -34,6 +36,12 @@ function summarizeItem(item: AgentIndexItem) {
     conference: item.conference,
     location: item.location,
     link: item.link,
+    format: item.format,
+    session_url: item.session_url,
+    recording_url: item.recording_url,
+    slides_url: item.slides_url,
+    sources: item.sources,
+    metadata_checked: item.metadata_checked,
   };
 }
 
@@ -137,10 +145,15 @@ export async function resolveMarkdown(path: string): Promise<{ path: string; url
   const pageMatch = await findPageByPath(normalized);
   if (pageMatch) {
     const page = await loadPage(pageMatch.id);
+    let markdown = pageToMarkdown(page.data);
+    if (normalized === '/speaking') {
+      const { speaking } = await loadAllSorted();
+      markdown = `${markdown.trimEnd()}\n\n---\n\n## All talks\n\n${speaking.map((entry) => speakingLine(entry, true)).join('\n\n')}\n`;
+    }
     return {
       path: `${normalized === '/' ? '/index' : normalized}.md`,
       url: siteUrl(normalized),
-      markdown: pageToMarkdown(page.data),
+      markdown,
     };
   }
 

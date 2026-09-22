@@ -70,6 +70,20 @@ const linkAttrs = item.href
         )}
       </h3>
       {item.badge && <p class="text-sm text-ink-subtle">{item.badge}</p>}
+      {item.description && (
+        <details class="mt-3 text-sm text-ink-muted">
+          <summary class="w-fit cursor-pointer text-ink underline decoration-line underline-offset-4">Talk details</summary>
+          <p class="mt-2 max-w-prose">{item.description}</p>
+          {item.tags && item.tags.length > 0 && <p class="mt-2">Topics: {item.tags.join(' · ')}</p>}
+          {item.talkDetails?.format && <p class="mt-2">Format: {item.talkDetails.format}</p>}
+          <div class="mt-2 flex flex-wrap gap-x-4 gap-y-2">
+            {item.talkDetails?.recording_url && <a class="underline underline-offset-4" href={item.talkDetails.recording_url}>Watch or listen</a>}
+            {item.talkDetails?.slides_url && <a class="underline underline-offset-4" href={item.talkDetails.slides_url}>Slides</a>}
+            {item.talkDetails?.sources.map((url, index) => <a class="underline underline-offset-4" href={url}>Source {index + 1}</a>)}
+          </div>
+          {item.talkDetails?.metadata_checked && <p class="mt-2 text-xs text-ink-subtle">Sources checked {item.talkDetails.metadata_checked}</p>}
+        </details>
+      )}
     </div>
     {item.location && (
       <span class="text-xs tracking-wide whitespace-nowrap text-ink-subtle">

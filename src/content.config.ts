@@ -40,6 +40,14 @@ const speaking = defineCollection({
     location: z.string().optional(),
     date: z.coerce.date(),
     link: z.string().optional(),
+    description: z.string().optional(),
+    tags: z.array(z.string()).default([]),
+    format: z.enum(['talk', 'workshop', 'podcast', 'panel', 'livestream', 'talk and MC']).optional(),
+    session_url: z.url().optional(),
+    recording_url: z.url().optional(),
+    slides_url: z.url().optional(),
+    sources: z.array(z.url()).default([]),
+    metadata_checked: z.iso.date().optional(),
   }),
 });
 

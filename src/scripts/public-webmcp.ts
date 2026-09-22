@@ -145,6 +145,12 @@ function summarizeItem(item: AgentIndexItem) {
     conference: item.conference,
     location: item.location,
     link: item.link,
+    format: item.format,
+    session_url: item.session_url,
+    recording_url: item.recording_url,
+    slides_url: item.slides_url,
+    sources: item.sources,
+    metadata_checked: item.metadata_checked,
   };
 }
 

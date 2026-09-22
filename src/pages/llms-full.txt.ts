@@ -18,7 +18,7 @@ export const GET: APIRoute = async () => {
   const videoBlocks = videos.map((entry) =>
     videoEntryToMarkdown(entry, { includeTranscript: false }),
   );
-  const speakingList = speaking.map(speakingLine).join('\n');
+  const speakingList = speaking.map((entry) => speakingLine(entry, true)).join('\n\n');
 
   const pageBlocks = STATIC_PAGES.map(
     (p) => `# ${p.title}\n\nURL: ${siteUrl(p.path)}\n\n${p.description}\n\n${p.prose}`,

@@ -62,6 +62,33 @@ test.describe('public agent API', () => {
     expect(body.markdown).toContain('# ');
   });
 
+  test('verified talk details are discoverable and consistent across human and agent views', async ({ request, page }) => {
+    // Supabase appears in the researched description, not the original title.
+    const response = await request.get('/api/v1/search?query=Supabase&type=talk&year=2024');
+    expect(response.status()).toBe(200);
+    const { results } = await response.json();
+    const talk = results.find((item: any) => item.conference === 'Algolia DevBit');
+    expect(talk).toMatchObject({
+      recording_url: 'https://www.youtube.com/watch?v=VLovuktyf_k',
+      metadata_checked: '2026-09-22',
+    });
+    expect(talk.tags).toContain('api-design');
+    expect(talk.sources).toContain(talk.recording_url);
+
+    const markdown = await (await request.get('/speaking.md')).text();
+    const document = await (await request.get('/api/v1/content/speaking')).json();
+    expect(document.markdown).toBe(markdown);
+    expect(markdown).toContain(talk.description);
+    expect(markdown).toContain(talk.recording_url);
+    expect(markdown).toContain('EXDS#19'); // Unverified entries are still present.
+
+    await page.goto('/speaking');
+    const details = page.locator('details').filter({ hasText: talk.description });
+    await details.locator('summary').click();
+    await expect(details.getByText(talk.description, { exact: true })).toBeVisible();
+    await expect(details.getByRole('link', { name: 'Watch or listen' })).toHaveAttribute('href', talk.recording_url);
+  });
+
   test('OpenAPI gives every operation typed success and error responses', async ({ request }) => {
     const response = await request.get('/openapi.json');
     expect(response.status()).toBe(200);

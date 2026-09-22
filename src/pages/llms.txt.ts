@@ -15,7 +15,7 @@ export const GET: APIRoute = async () => {
     writingIndexLine(e, { oneSentence: true }),
   );
 
-  const speakingItems = speaking.slice(0, 10).map(speakingLine);
+  const speakingItems = speaking.slice(0, 10).map((entry) => speakingLine(entry));
 
   // Named, predictable entries so the developer surfaces are findable by name
   // ("Tim Benniks MCP server", "Tim Benniks OpenAPI spec") and not buried.

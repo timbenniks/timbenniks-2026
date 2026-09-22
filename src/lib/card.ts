@@ -22,6 +22,7 @@ export type CardItem = {
   duration?: string;
   tags?: string[];
   ctaLabel?: string;
+  talkDetails?: Pick<CollectionEntry<'speaking'>['data'], 'format' | 'recording_url' | 'slides_url' | 'sources' | 'metadata_checked'>;
 };
 
 const usFormatter = new Intl.DateTimeFormat('en-US', {
@@ -113,8 +114,11 @@ export function talkToCard(entry: CollectionEntry<'speaking'>): CardItem {
   return {
     kind: 'talk',
     title: entry.data.talk,
-    href: entry.data.link,
-    external: Boolean(entry.data.link),
+    href: entry.data.session_url ?? entry.data.link,
+    external: Boolean(entry.data.session_url ?? entry.data.link),
+    description: entry.data.description,
+    tags: entry.data.tags.map(tagLabel),
+    talkDetails: entry.data,
     date: info.display,
     dateISO: isoDay(entry.data.date),
     dateParts: info.parts,

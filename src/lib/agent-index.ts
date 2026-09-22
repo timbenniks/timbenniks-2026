@@ -19,6 +19,12 @@ export interface AgentIndexItem {
   conference?: string;
   location?: string;
   link?: string;
+  format?: string;
+  session_url?: string;
+  recording_url?: string;
+  slides_url?: string;
+  sources?: string[];
+  metadata_checked?: string;
 }
 
 export interface AgentIndex {
@@ -71,10 +77,17 @@ export async function buildAgentIndex(): Promise<AgentIndex> {
       id: e.id,
       title: e.data.talk,
       date: ymd(e.data.date),
-      description: e.data.conference,
+      description: e.data.description ?? e.data.conference,
+      tags: e.data.tags,
       conference: e.data.conference,
       location: e.data.location,
       link: e.data.link,
+      format: e.data.format,
+      session_url: e.data.session_url,
+      recording_url: e.data.recording_url,
+      slides_url: e.data.slides_url,
+      sources: e.data.sources,
+      metadata_checked: e.data.metadata_checked,
       url: siteUrl('/speaking'),
       md: siteUrl('/speaking.md'),
     });
