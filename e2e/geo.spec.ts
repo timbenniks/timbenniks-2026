@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
 
 test.describe('GEO / agent surfaces', () => {
@@ -32,23 +31,6 @@ test.describe('GEO / agent surfaces', () => {
     expect(body).toContain('/tools.json');
     expect(body).toContain('/.well-known/mcp');
     expect(body).toContain('/developers');
-  });
-
-  test('vercel.json configures Accept rewrites and Vary headers', () => {
-    const config = JSON.parse(readFileSync('vercel.json', 'utf8')) as {
-      rewrites: Array<{ has?: Array<{ key: string; value: string }>; destination: string }>;
-      headers: Array<{ source: string; headers: Array<{ key: string; value: string }> }>;
-    };
-    const aboutRewrite = config.rewrites.find(
-      (r) => r.destination === '/about.md' && r.has?.some((h) => h.value.includes('text/markdown')),
-    );
-    expect(aboutRewrite).toBeTruthy();
-    const fallback404 = config.rewrites.find((r) => r.destination === '/404.md');
-    expect(fallback404).toBeTruthy();
-    const varyHeader = config.headers.some((h) =>
-      h.headers.some((hdr) => hdr.key === 'Vary' && hdr.value.includes('Accept')),
-    );
-    expect(varyHeader).toBeTruthy();
   });
 
   test('about markdown twin is the negotiated content target', async ({ request }) => {
@@ -340,10 +322,11 @@ test.describe('GEO / agent surfaces', () => {
     await expect(page.locator('#pf-input')).toHaveAttribute('name', 'q');
   });
 
-  test('public WebMCP script exposes the catalog even without modelContext', async ({
+  test('public WebMCP tools work without native browser support', async ({
     page,
   }) => {
     await page.goto('/');
+    await expect.poll(() => page.evaluate(() => window.__tbPublicWebMcp?.ready)).toBe(true);
     const state = await page.evaluate(() => {
       return (
         window as Window & {
@@ -353,6 +336,31 @@ test.describe('GEO / agent surfaces', () => {
     });
     expect(state?.tools).toContain('search_site');
     expect(state?.tools).toContain('get_press_kit');
-    expect(state?.ready).toBe(false);
+    expect(state?.ready).toBe(true);
+    const result = await page.evaluate(async () => {
+      const ctx = document.modelContext as any;
+      const tools = await ctx.getTools();
+      const tool = tools.find((entry: any) => entry.name === 'get_content');
+      return { names: tools.map((entry: any) => entry.name), output: await ctx.executeTool(tool, JSON.stringify({ path: '/about' })) };
+    });
+    expect(result.names).toHaveLength(6);
+    expect(result.output).toContain('Tim Benniks');
+    expect(result.names.some((name: string) => name.includes('admin'))).toBe(false);
+    await page.getByRole('link', { name: 'Writing', exact: true }).first().click();
+    await expect(page).toHaveURL(/\/writing$/);
+    expect(await page.evaluate(async () => (await (document.modelContext as any).getTools()).length)).toBe(6);
+  });
+
+  test('public WebMCP preserves the native browser implementation', async ({ page }) => {
+    await page.addInitScript(() => {
+      const tools: any[] = [];
+      const native = { registerTool: (tool: any) => tools.push(tool), getTools: async () => tools };
+      Object.defineProperty(document, 'modelContext', { value: native, configurable: true });
+      (window as any).__nativeContext = native;
+    });
+    await page.goto('/');
+    await expect.poll(() => page.evaluate(() => window.__tbPublicWebMcp?.ready)).toBe(true);
+    expect(await page.evaluate(() => document.modelContext === (window as any).__nativeContext)).toBe(true);
+    expect(await page.evaluate(async () => (await (document.modelContext as any).getTools()).length)).toBe(6);
   });
 });

@@ -3,10 +3,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Section from '../components/primitives/Section.astro';
 import Button from '../components/primitives/Button.astro';
 
-// Server-rendered so unmatched paths reach middleware, which answers agents
-// (no `text/html` in Accept) with the markdown recovery body instead of this
-// page. A prerendered 404 is served straight from static hosting.
-export const prerender = false;
+// Vercel selects the static HTML or Markdown error body with a real 404 status.
+// Missing assets and crawler probes must not invoke the Astro server.
+export const prerender = true;
 ---
 
 <BaseLayout title="Not found" description="That page doesn't exist." noindex>

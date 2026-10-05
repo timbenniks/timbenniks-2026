@@ -57,11 +57,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   const adminPreview = pathname.startsWith('/admin/preview');
+  // Astro dev still runs middleware for prerendered routes; it needs negotiation.
+  // Only build-time rendering lacks request headers and must leave static HTML intact.
+  const isStaticBuild = context.isPrerendered && !import.meta.env.DEV;
 
   return adminRequestContext.run({ adminPreview }, async () => {
-    const accept = context.request.headers.get('accept');
+    const accept = isStaticBuild ? null : context.request.headers.get('accept');
 
-    if (!isSkippable(pathname) && !pathname.endsWith('.md')) {
+    if (!isStaticBuild && !isSkippable(pathname) && !pathname.endsWith('.md')) {
       const negotiated = await negotiateMarkdownResponse(pathname, accept);
       if (negotiated) return negotiated;
     }
@@ -74,6 +77,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     // an endpoint that already answered in its own machine-readable format
     // (the REST API's RFC 9457 problem document) is left alone.
     if (
+      !isStaticBuild &&
       response.status === 404 &&
       !wantsHtmlAccept(accept) &&
       response.headers.get('Content-Type')?.includes('text/html')

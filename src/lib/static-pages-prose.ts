@@ -157,7 +157,7 @@ Three principles:
 
 1. Markdown twins: append .md to writing, video, project, and main page URLs, or send Accept: text/markdown.
 2. Indexes, not scrapes: start with /llms.txt, /content-index.json, feeds, and sitemaps.
-3. In-tab tools: six read-only WebMCP tools register when document.modelContext exists.
+3. In-tab tools: six read-only WebMCP tools register on document.modelContext, using native support or the MCP-B core polyfill.
 
 Human explainer: /ai. Agent contract: /agents.md.`,
   },

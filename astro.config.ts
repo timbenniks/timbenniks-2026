@@ -18,6 +18,7 @@ for (const [key, value] of Object.entries(loadEnv(viteMode, process.cwd(), "")))
 
 const CLOUDINARY_CLOUD_NAME =
   process.env.PUBLIC_CLOUDINARY_CLOUD_NAME ?? "dwfcofnrd";
+let devServer = false;
 
 /**
  * `loadPage` / site chrome read JSON via `fs.readFile`, so those files are not
@@ -75,7 +76,7 @@ export default defineConfig({
 
   prefetch: {
     prefetchAll: true,
-    defaultStrategy: "viewport",
+    defaultStrategy: "hover",
   },
 
   image: {
@@ -133,6 +134,17 @@ export default defineConfig({
   },
 
   integrations: [
+    {
+      name: "static-error-pages",
+      hooks: {
+        "astro:config:setup": ({ command }) => { devServer = command === "dev"; },
+        "astro:route:setup": ({ route }) => {
+          // Dev has no CDN routing layer. Keep the incoming Accept header so
+          // Astro middleware can select the same error variant as production.
+          if (devServer && route.component.endsWith("/404.astro")) route.prerender = false;
+        },
+      },
+    },
     {
       name: "assert-writing-canonicals",
       hooks: {

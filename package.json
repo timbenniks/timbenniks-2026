@@ -10,7 +10,7 @@
     "dev": "astro dev",
     "dev:admin": "node scripts/build-admin.mjs --watch",
     "prebuild": "npm run build:admin",
-    "build": "astro build && pagefind --site dist/client && rm -rf .vercel/output/static/pagefind && cp -R dist/client/pagefind .vercel/output/static/pagefind",
+    "build": "astro build && pagefind --site dist/client && rm -rf .vercel/output/static/pagefind && cp -R dist/client/pagefind .vercel/output/static/pagefind && node scripts/configure-vercel-routes.mjs",
     "build:admin": "node scripts/build-admin.mjs",
     "preview": "astro preview",
     "check": "astro check",
@@ -23,7 +23,8 @@
     "test:e2e:install": "playwright install chromium",
     "agentlint": "agentlint scan --agent --missions",
     "agentlint:local": "agentlint scan http://127.0.0.1:4321 --allow-private --agent --missions",
-    "test:agents": "playwright test --config=playwright.agent.config.ts"
+    "test:agents": "playwright test --config=playwright.agent.config.ts",
+    "test:build": "E2E_BASE_URL=http://127.0.0.1:4338 playwright test --config=playwright.build.config.ts"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.0",
@@ -32,6 +33,7 @@
     "@astrojs/vercel": "^11.0.10",
     "@comark/html": "^0.6.2",
     "@mcp-b/global": "^4.0.0",
+    "@mcp-b/webmcp-polyfill": "^4.0.0",
     "@modelcontextprotocol/sdk": "^1.30.0",
     "@tailwindcss/vite": "^4.3.3",
     "@vercel/functions": "^3.8.0",
@@ -44,6 +46,7 @@
     "@astrojs/check": "^0.9.10",
     "@playwright/test": "^1.62.1",
     "@timbenniks/agentlint": "^0.1.0-rc.1",
+    "@vercel/routing-utils": "^6.5.0",
     "esbuild": "^0.28.1",
     "pagefind": "^1.5.2",
     "typescript": "^5.9.3"

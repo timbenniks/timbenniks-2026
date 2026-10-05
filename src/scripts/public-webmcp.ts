@@ -1,12 +1,12 @@
 /**
  * Public WebMCP tools for timbenniks.dev.
  *
- * Feature-detects document.modelContext || navigator.modelContext and no-ops
- * when neither exists (every browser except Chrome origin-trial / flag).
+ * Uses native WebMCP when available, with the strict core polyfill otherwise.
  * Handlers fetch same-origin JSON and markdown twins — no admin APIs.
  */
 import { BOOKING_CONTACT_URL, PUBLIC_TOOLS } from '../lib/public-tools';
 import type { AgentIndex, AgentIndexItem, AgentIndexType } from '../lib/agent-index';
+import { initializeWebMCPPolyfill } from '@mcp-b/webmcp-polyfill';
 
 type ModelContext = {
   registerTool?: (tool: {
@@ -319,4 +319,5 @@ function register() {
   console.info('[webmcp-public] registered', names.length, 'tools on', found.label);
 }
 
+initializeWebMCPPolyfill();
 register();

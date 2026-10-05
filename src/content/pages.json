@@ -1659,7 +1659,7 @@
           {
             "kicker": "03",
             "title": "Tools in the tab",
-            "body": "When the browser exposes document.modelContext, six read-only WebMCP tools register on every public page: search, list, get content, press kit, booking."
+            "body": "Six read-only WebMCP tools register on every public page: search, list, get content, press kit, booking. Native document.modelContext is used when available, with the MCP-B core polyfill as a fallback."
           },
           {
             "kicker": "04",
@@ -1725,7 +1725,7 @@
         "kind": "faq",
         "eyebrow": "WebMCP",
         "title": "WebMCP",
-        "lede": "Registered on every public page when the browser exposes document.modelContext (Chrome origin trial / WebMCP testing flag). Admin CMS tools stay behind /admin. Full schema: /tools.json.",
+        "lede": "Registered on every public page using native document.modelContext or the MCP-B core polyfill. No browser flag is required. Admin CMS tools stay behind /admin. Full schema: /tools.json.",
         "tone": "dark",
         "items": [
           {

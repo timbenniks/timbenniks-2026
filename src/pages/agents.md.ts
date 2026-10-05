@@ -82,7 +82,7 @@ Search (\`search_site\`, \`${siteUrl('/api/v1/search')}\`) or read \`${siteUrl('
 
 ## Public WebMCP tools
 
-Registered on every public page when the browser exposes \`document.modelContext\` (Chrome origin trial / \`chrome://flags/#enable-webmcp-testing\`). All six are read-only. They do **not** include the admin CMS tools.
+Registered on every public page using native \`document.modelContext\` when available, with the MCP-B core polyfill as a fallback. No browser flag is required. All six are read-only. They do **not** include the admin CMS tools.
 
 ${toolList}
 
