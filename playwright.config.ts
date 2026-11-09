@@ -32,7 +32,8 @@ export default defineConfig({
         storageState: 'e2e/.auth/admin.json',
       },
       dependencies: ['setup'],
-      testIgnore: [/auth\.setup\.ts/, /geo\.spec\.ts/, /migration\.spec\.ts/],
+      // cdn-routing inspects the built Vercel output; it runs under playwright.build.config.ts.
+      testIgnore: [/auth\.setup\.ts/, /geo\.spec\.ts/, /migration\.spec\.ts/, /cdn-routing\.spec\.ts/],
     },
   ],
   webServer: {

@@ -5,11 +5,12 @@ test.describe('admin visual page editor', () => {
     await page.goto('/admin/pages/home');
     await expect(page).toHaveTitle(/Edit · home/);
     await expect(page.locator('.topbar')).toBeVisible();
-    await expect(page.locator('.brand h1')).toHaveText('home');
+    await expect(page.locator('.page-switcher-id')).toHaveText('home');
     await expect(page.locator('a.back[href="/admin"]')).toBeVisible();
     await expect(page.locator('#save')).toBeVisible();
     await expect(page.locator('#dirty-chip')).toBeVisible();
     await expect(page.locator('#frame')).toHaveAttribute('src', /\/admin\/preview\/home\?edit=1/);
+    await page.locator('.rail-toggle[data-tab="layers"]').click();
     await expect(page.locator('#sections')).toBeVisible();
     await expect(page.locator('#add-kind')).toBeVisible();
     await expect(page.locator('#add-section')).toBeVisible();
@@ -60,6 +61,8 @@ test.describe('admin visual page editor', () => {
 
   test('editor marks dirty when a section field is edited', async ({ page }) => {
     await page.goto('/admin/pages/home');
+    // The editor opens on the Section tab with the first section selected; go via Layers.
+    await page.locator('.rail-toggle[data-tab="layers"]').click();
     await expect(page.locator('#sections li').first()).toBeVisible({ timeout: 15_000 });
     await page.locator('#sections li').first().click();
     const field = page.locator('#section-fields input, #section-fields textarea').first();
