@@ -29,6 +29,22 @@ export interface PageDiff {
   title?: string | undefined;
 }
 
+/** A staged change to a Markdown collection entry (talk, project, …). */
+export interface EntryDraftRecord {
+  updatedAt: number;
+  collection: string;
+  /** Entry id. For a new entry this is the id reserved by the server. */
+  id: string;
+  /** True when the entry is not on main yet. */
+  isNew: boolean;
+  /** Repo path reserved for a new entry. */
+  path?: string | undefined;
+  op: 'upsert' | 'delete';
+  title: string;
+  data: Record<string, unknown>;
+  body?: string | undefined;
+}
+
 let dbPromise: Promise<IDBDatabase> | null = null;
 
 function openDb(): Promise<IDBDatabase> {
@@ -92,6 +108,10 @@ function pageKey(id: string): string {
 }
 
 const SITE_KEY = 'site';
+
+export function entryKey(collection: string, id: string): string {
+  return `entry:${collection}:${id}`;
+}
 
 /** Stable hash for conflict hints (not cryptographic). */
 export function contentHash(value: unknown): string {
@@ -159,7 +179,38 @@ export async function clearSiteDraft(): Promise<void> {
   await idbDelete(SITE_KEY);
 }
 
-/** Clear all page drafts and the site draft. */
+export async function setEntryDraft(
+  record: Omit<EntryDraftRecord, 'updatedAt'>,
+): Promise<EntryDraftRecord> {
+  const full: EntryDraftRecord = { ...record, updatedAt: Date.now() };
+  await idbSet(entryKey(record.collection, record.id), full);
+  return full;
+}
+
+export async function getEntryDraft(collection: string, id: string): Promise<EntryDraftRecord | null> {
+  const raw = await idbGet(entryKey(collection, id));
+  if (!raw || typeof raw !== 'object' || !(raw as EntryDraftRecord).collection) return null;
+  return raw as EntryDraftRecord;
+}
+
+export async function clearEntryDraft(collection: string, id: string): Promise<void> {
+  await idbDelete(entryKey(collection, id));
+}
+
+export async function listEntryDrafts(collection?: string): Promise<EntryDraftRecord[]> {
+  const prefix = collection ? `entry:${collection}:` : 'entry:';
+  const keys = (await idbKeys()).filter((k) => k.startsWith(prefix)).sort();
+  const out: EntryDraftRecord[] = [];
+  for (const key of keys) {
+    const raw = await idbGet(key);
+    if (raw && typeof raw === 'object' && (raw as EntryDraftRecord).collection) {
+      out.push(raw as EntryDraftRecord);
+    }
+  }
+  return out;
+}
+
+/** Clear every local draft: pages, site chrome and collection entries. */
 export async function clearAllDrafts(): Promise<void> {
   const keys = await idbKeys();
   await Promise.all(keys.map((k) => idbDelete(k)));

@@ -58,6 +58,9 @@ function pageKey(id) {
   return `page:${id}`;
 }
 const SITE_KEY = "site";
+function entryKey(collection, id) {
+  return `entry:${collection}:${id}`;
+}
 function contentHash(value) {
   const s = typeof value === "string" ? value : JSON.stringify(value);
   let h = 2166136261;
@@ -104,6 +107,31 @@ async function getSiteDraft() {
 }
 async function clearSiteDraft() {
   await idbDelete(SITE_KEY);
+}
+async function setEntryDraft(record) {
+  const full = { ...record, updatedAt: Date.now() };
+  await idbSet(entryKey(record.collection, record.id), full);
+  return full;
+}
+async function getEntryDraft(collection, id) {
+  const raw = await idbGet(entryKey(collection, id));
+  if (!raw || typeof raw !== "object" || !raw.collection) return null;
+  return raw;
+}
+async function clearEntryDraft(collection, id) {
+  await idbDelete(entryKey(collection, id));
+}
+async function listEntryDrafts(collection) {
+  const prefix = collection ? `entry:${collection}:` : "entry:";
+  const keys = (await idbKeys()).filter((k) => k.startsWith(prefix)).sort();
+  const out = [];
+  for (const key of keys) {
+    const raw = await idbGet(key);
+    if (raw && typeof raw === "object" && raw.collection) {
+      out.push(raw);
+    }
+  }
+  return out;
 }
 async function clearAllDrafts() {
   const keys = await idbKeys();
@@ -166,15 +194,20 @@ async function applyDraftBadges(root = document) {
 export {
   applyDraftBadges,
   clearAllDrafts,
+  clearEntryDraft,
   clearPageDraft,
   clearPageDrafts,
   clearSiteDraft,
   contentHash,
   diffPagesLocal,
+  entryKey,
+  getEntryDraft,
   getPageDraft,
   getSiteDraft,
   listDraftPageIds,
+  listEntryDrafts,
   loadDraftOverlay,
+  setEntryDraft,
   setPageDraft,
   setSiteDraft
 };

@@ -22,6 +22,8 @@ export type AdminContentItem = {
   meta?: string;
   draft?: boolean;
   childCount?: number;
+  /** Projects: sort position (lower first). */
+  order?: number;
 };
 
 export type HubContentCounts = {
@@ -166,6 +168,7 @@ async function listProjects(opts: ListHubContentOpts): Promise<ListHubContentRes
         title: e.data.title,
         href: `/projects/${e.id}`,
         meta: e.data.tag,
+        order: e.data.order,
       }),
     );
   return { items: paginate(items, limit, offset), total: items.length, limit, offset };

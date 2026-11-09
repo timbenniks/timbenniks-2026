@@ -450,3 +450,91 @@ export async function listCommits(opts: {
   });
 }
 
+
+export type TreeFile = { path: string; sha: string };
+
+/** Every blob under `prefix` (a repo-relative directory) on `branch`, via one recursive tree read. */
+export async function listTreeFiles(prefix: string, branch: string): Promise<TreeFile[]> {
+  const { token, repo } = requireGitHubConfig();
+  const { ok, status, data, text } = await ghJson<{
+    tree?: Array<{ path?: string; type?: string; sha?: string }>;
+    truncated?: boolean;
+  }>(
+    `https://api.github.com/repos/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`,
+    { token },
+  );
+  if (!ok) throw new Error(`GitHub get tree failed: ${status} ${text}`);
+  if (data?.truncated) throw new Error('GitHub tree listing was truncated');
+  const dir = prefix.endsWith('/') ? prefix : `${prefix}/`;
+  return (data?.tree ?? [])
+    .filter((n) => n.type === 'blob' && n.path?.startsWith(dir) && n.sha)
+    .map((n) => ({ path: n.path as string, sha: n.sha as string }));
+}
+
+/** One file change in a batched commit. `content: null` deletes the file. */
+export type FileChange = { path: string; content: string | null };
+
+/**
+ * Commit several file writes/deletes to `branch` as a single commit (Git Data API),
+ * so publishing N entries triggers one deploy instead of N.
+ */
+export async function commitFiles(
+  changes: FileChange[],
+  branch: string,
+  message: string,
+): Promise<string> {
+  if (changes.length === 0) throw new Error('Nothing to commit');
+  const { token, repo } = requireGitHubConfig();
+  const api = `https://api.github.com/repos/${repo}/git`;
+
+  async function attempt(): Promise<{ sha: string } | { conflict: true }> {
+    const headSha = await getRefSha(branch);
+    if (!headSha) throw new Error(`Branch “${branch}” not found`);
+
+    const head = await ghJson<{ tree?: { sha?: string } }>(`${api}/commits/${headSha}`, { token });
+    if (!head.ok || !head.data?.tree?.sha) {
+      throw new Error(`GitHub get commit failed: ${head.status} ${head.text}`);
+    }
+
+    const tree = await ghJson<{ sha?: string }>(`${api}/trees`, {
+      method: 'POST',
+      token,
+      body: JSON.stringify({
+        base_tree: head.data.tree.sha,
+        tree: changes.map((c) =>
+          c.content === null
+            ? { path: c.path, mode: '100644', type: 'blob', sha: null }
+            : { path: c.path, mode: '100644', type: 'blob', content: c.content },
+        ),
+      }),
+    });
+    if (!tree.ok || !tree.data?.sha) {
+      throw new Error(`GitHub create tree failed: ${tree.status} ${tree.text}`);
+    }
+
+    const commit = await ghJson<{ sha?: string }>(`${api}/commits`, {
+      method: 'POST',
+      token,
+      body: JSON.stringify({ message, tree: tree.data.sha, parents: [headSha] }),
+    });
+    if (!commit.ok || !commit.data?.sha) {
+      throw new Error(`GitHub create commit failed: ${commit.status} ${commit.text}`);
+    }
+
+    const ref = await ghJson(`${api}/refs/heads/${encodeURIComponent(branch)}`, {
+      method: 'PATCH',
+      token,
+      body: JSON.stringify({ sha: commit.data.sha, force: false }),
+    });
+    // 422 = not a fast-forward: someone else pushed in between. Rebuild on the new tip.
+    if (ref.status === 422) return { conflict: true };
+    if (!ref.ok) throw new Error(`GitHub update ref failed: ${ref.status} ${ref.text}`);
+    return { sha: commit.data.sha };
+  }
+
+  for (let i = 0; i < 3; i++) {
+    const result = await attempt();
+    if ('sha' in result) return result.sha.slice(0, 7);
+  }
+  throw new Error(`Could not update ${branch}: it kept moving during publish. Try again.`);
+}

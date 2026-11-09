@@ -13,6 +13,7 @@ import {
   setSiteDraft,
 } from './lib/draft-store.js';
 import { pageIdFrom } from './lib/tools.js';
+import { entryDraftSummary, publishAllDrafts } from './lib/entries-client.js';
 import type { ChangesSummary, DeskFacade, PageSummary } from './lib/facade.js';
 import type { PageData, PageMetadata, SiteChrome } from './lib/content.js';
 
@@ -132,37 +133,17 @@ export function createDeskFacade(): DeskFacade {
       });
       const draftIds = await listDraftPageIds();
       const site = await getSiteDraft();
+      const entryDrafts = await entryDraftSummary();
       return {
         ...baseline,
         draftIds,
         siteTouched: Boolean(site?.site),
-        aheadBy: draftIds.length + (site?.site ? 1 : 0),
+        entryDrafts,
+        aheadBy: draftIds.length + (site?.site ? 1 : 0) + entryDrafts.length,
       };
     },
     async publishChanges({ message } = {}) {
-      const draftIds = await listDraftPageIds();
-      const pages: Record<string, PageData> = {};
-      for (const id of draftIds) {
-        const rec = await getPageDraft(id);
-        if (rec?.page) pages[id] = rec.page;
-      }
-      const siteRec = await getSiteDraft();
-      const payload: { message: string; pages?: Record<string, PageData>; site?: SiteChrome } = {
-        message: message || 'content: publish drafts',
-        ...(Object.keys(pages).length ? { pages } : {}),
-        ...(siteRec?.site ? { site: siteRec.site } : {}),
-      };
-      if (!payload.pages && !payload.site) {
-        throw new Error('No local drafts to publish');
-      }
-      const result = await apiFetch('/api/admin/changes/publish', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        errorMessage: 'Publish failed',
-      });
-      await clearAllDrafts();
-      return result;
+      return publishAllDrafts({ message });
     },
     async discardChanges() {
       await clearAllDrafts();

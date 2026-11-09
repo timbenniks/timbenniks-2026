@@ -12,6 +12,8 @@ export interface JsonDiffResult {
 
 function linesOf(value: unknown): string[] {
   if (value === undefined) return [];
+  // Raw file text (collection entries) diffs line by line as-is.
+  if (typeof value === 'string') return value.split('\n');
   return JSON.stringify(value, null, 2).split('\n');
 }
 

@@ -36,7 +36,12 @@ Live vs propose:
 - For copy edits the human wants applied now, use set_field so the preview updates live.
 - For alternate copy the human should choose (A/B lines, optional rewrites), call propose_changes with set_field (or patch_section) items \u2014 do NOT apply those yourself.
 - Never call save_to_cms, publish_changes, discard_changes, or apply_site_patch directly. Always use propose_changes with those tools as items so the UI shows Apply / Save / Publish cards.
-- propose_changes items must use only: set_field, set_image, save_to_cms, patch_section, add_section, update_metadata, publish_changes, discard_changes, apply_site_patch. Include a short human label and exact args.
+- propose_changes items must use only: set_field, set_image, save_to_cms, patch_section, add_section, update_metadata, publish_changes, discard_changes, apply_site_patch, stage_entry, delete_entry. Include a short human label and exact args.
+
+Talks, projects, videos & articles:
+- These are Markdown collections, not page sections. Use list_entries / get_entry to read them.
+- To create or change one, propose stage_entry (collection, optional id, data, optional body). Read with get_entry first when updating. Never invent ids.
+- To remove one, propose delete_entry. For articles prefer hiding with stage_entry data.draft=true.
 
 Images:
 - Call get_image_library_config once if unsure, then search_images. After search_images, tell the human to click Use on a thumbnail \u2014 do NOT call set_image unless they ask you to pick for them.
@@ -68,6 +73,7 @@ Your job:
 - For SEO audits: get_page first, then propose_changes with one or more update_metadata items (each needs pageId plus fields: title, description, keywords, image, canonical, imageAlt, noindex). Never call update_metadata directly \u2014 the human gets Apply cards.
 - Never call publish_changes, discard_changes, or apply_site_patch directly \u2014 use propose_changes
 - get_site before site chrome changes; propose apply_site_patch
+- Talks (speaking), projects, videos and articles (writing): list_entries / get_entry to read; propose stage_entry to create or update (omit id to create) and delete_entry to remove. For articles prefer hiding (data.draft=true) over deleting. Never call stage_entry or delete_entry directly.
 - Keep Tim's voice: clear, concrete, short sentences
 - After create_page with open:true, do not wait to narrate at length \u2014 the browser is already navigating
 
@@ -124,6 +130,23 @@ function deferDirectToolToPropose(name, originalArgs) {
         }
       ],
       shortLabel: "SEO metadata"
+    };
+  }
+  if (name === "stage_entry") {
+    const collection = String(args.collection ?? "entry");
+    return {
+      title: args.id ? `Update ${collection} \xB7 ${String(args.id)}` : `New ${collection} entry`,
+      hint: "Validates and saves a local draft. Publish separately from /admin/changes.",
+      items: [{ tool: "stage_entry", args, label: args.id ? "Save draft changes" : "Create draft" }],
+      shortLabel: "Stage entry"
+    };
+  }
+  if (name === "delete_entry") {
+    return {
+      title: `Delete ${String(args.collection ?? "")} \xB7 ${String(args.id ?? "")}`,
+      hint: "Stages a deletion. The file is removed when you publish.",
+      items: [{ tool: "delete_entry", args, label: "Stage deletion" }],
+      shortLabel: "Delete entry"
     };
   }
   return {

@@ -15,12 +15,15 @@ import {
 } from '../../../../lib/admin/site-store';
 import { PAGES_REL, SITE_REL } from '../../../../lib/admin/github-git';
 import type { PageData } from '../../../../lib/page-schema';
+import { publishEntries } from '../../../../lib/admin/entries-store';
+import { parseEntryOps } from '../entries/_shared';
 
 export const prerender = false;
 
 /**
  * Publish client drafts to main (GitHub) or the local working tree (`astro dev`).
- * Body: { message?, pages?: Record<id, PageData>, site?: SiteChrome, pageIds?: string[] }
+ * Body: { message?, pages?: Record<id, PageData>, site?: SiteChrome, pageIds?: string[],
+ *         entries?: EntryOp[] }  — collection entry drafts, written as one commit.
  * If pageIds is set without full pages map, overlays those ids from the provided pages object.
  */
 export const POST: APIRoute = async ({ request }) => {
@@ -43,15 +46,19 @@ export const POST: APIRoute = async ({ request }) => {
   const hasPagesPayload =
     body.pages && typeof body.pages === 'object' && !Array.isArray(body.pages);
   const hasSitePayload = body.site != null;
+  const hasEntriesPayload = Array.isArray(body.entries) && body.entries.length > 0;
 
-  if (!hasPagesPayload && !hasSitePayload) {
+  if (!hasPagesPayload && !hasSitePayload && !hasEntriesPayload) {
     return new Response(
-      JSON.stringify({ error: 'Nothing to publish — include pages and/or site drafts' }),
+      JSON.stringify({ error: 'Nothing to publish — include page, site or entry drafts' }),
       { status: 400, headers: { 'Content-Type': 'application/json' } },
     );
   }
 
   try {
+    // Validate entry drafts before writing anything, so a bad entry can't leave
+    // pages published and entries not.
+    const entryOps = hasEntriesPayload ? parseEntryOps(body.entries) : [];
     await clearDurablePreviewDraftsArtifact();
     const commits: string[] = [];
     const written: string[] = [];
@@ -87,6 +94,17 @@ export const POST: APIRoute = async ({ request }) => {
       );
       commits.push(result.commit);
       written.push(SITE_REL);
+      mode = result.mode;
+      branch = result.branch;
+    }
+
+    if (entryOps.length) {
+      const result = await publishEntries(
+        entryOps,
+        hasPagesPayload || hasSitePayload ? `${message} (entries)` : message,
+      );
+      commits.push(result.commit);
+      written.push(...result.written);
       mode = result.mode;
       branch = result.branch;
     }

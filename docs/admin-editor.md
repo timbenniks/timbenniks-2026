@@ -57,7 +57,31 @@ The Pages desk lists every page shell. Content hubs (`writing`, `videos`, `speak
 
 - Children load on expand via `GET /api/admin/content/{source}` (search + pagination; videos default to playlist groups).
 - **Edit layout** opens the visual page editor. **View** opens the public URL.
-- **Edit** on a child links to `/admin/content/{kind}/{id}` (stub for now — collection editors are not implemented yet).
+- **Edit** on a child opens the entry editor at `/admin/content/{collection}/{id}` (talks, projects, videos, articles).
+- Each hub panel has a **New talk / project / video / article** button. Rows with local drafts show a badge; unpublished new entries are listed at the top.
+- **Projects** rows have ↑/↓ buttons: moving renumbers `order` 1..n and stages only the projects whose order changed.
+
+## Collection entries (talks, projects, videos, articles)
+
+Markdown entries in `src/content/{speaking,projects,videos,writing}` are edited through one generic form ([`entry-editor.ts`](../src/admin-client/entry-editor.ts)) driven by per-collection field definitions in [`entry-fields.ts`](../src/lib/admin/entry-fields.ts). Frontmatter schemas live in [`content-schemas.ts`](../src/lib/content-schemas.ts), shared by `content.config.ts` and the admin.
+
+| Collection | New file name | Extras |
+|---|---|---|
+| Talks (`speaking`) | `YYYY-MM-DD-{event}.md` | Format dropdown, links, sources |
+| Projects | `{title-slug}.md` | Markdown body with preview, `order`, reorder on the desk |
+| Videos | `{playlist}/{NNN}-{videoId}.md` | **Fill from YouTube** (id, title, thumbnail); changing the playlist moves the file (new URL) |
+| Articles (`writing`) | `{slug}.md` | Body with preview + word count, image picker, FAQs, reading time auto-filled, **Hide from site** (`draft: true`) |
+
+- **Save** validates the draft against the schema (`POST /api/admin/entries/preview`) and stores it in IndexedDB (`entry:{collection}:{id}`). **Delete** stages a delete draft; for articles prefer **Hide from site**.
+- New entries reserve a file name with `POST /api/admin/entries/{collection}`; nothing is written until publish.
+- Renaming an article's slug moves the file, points `canonical_url` at the new URL (unless it is off-site), and adds `old → new` to [`writing-redirects.ts`](../src/data/writing-redirects.ts), re-pointing older redirects so there are no chains.
+- **Changes** shows the real file diff per entry, plus related files (old path on a move, the redirect map). **Publish** writes everything in one commit to `main` (Git Data API), or to disk in `astro dev`. All publish paths (Changes desk, desk agent, page editor agent) go through `publishAllDrafts` in [`entries-client.ts`](../src/admin-client/lib/entries-client.ts).
+- Edits rewrite only the frontmatter keys that changed; unknown keys (`id`, `head`, …), quoting and formatting stay byte-identical. Strings a YAML 1.1 reader would mis-type (dates, `3:21`, numbers) are quoted. ([`entries-store.ts`](../src/lib/admin/entries-store.ts))
+- After a production publish, the Pages desk list catches up once Vercel finishes the redeploy; the editor itself reads straight from `main`.
+
+### Agent tools
+
+The desk and editor agents get `list_entries`, `get_entry`, `stage_entry` (create/update a draft) and `delete_entry`. The last two are deferred: the rail turns them into Apply cards, like `apply_site_patch`.
 
 ## Draft → main workflow
 

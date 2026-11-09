@@ -1,6 +1,18 @@
 // Generated from src/admin-client by `npm run build:admin` — do not edit.
 import { apiFetch } from "./lib/api.js";
+import {
+  clearEntryDraft,
+  getEntryDraft,
+  listEntryDrafts,
+  setEntryDraft
+} from "./lib/draft-store.js";
 const PAGE_SIZE = 20;
+const KIND_FOR_SOURCE = {
+  writing: "article",
+  speaking: "talk",
+  videos: "video",
+  projects: "project"
+};
 function errText(err) {
   return err instanceof Error ? err.message : "";
 }
@@ -59,6 +71,20 @@ async function load(panel, state, reset) {
   state.loading = true;
   if (status) status.textContent = "Loading\u2026";
   try {
+    const editable = panel.dataset.editable === "1";
+    const drafts = editable ? await listEntryDrafts(source) : [];
+    const draftById = new Map(drafts.map((d) => [d.id, d]));
+    if (reset && !state.q) {
+      for (const d of drafts.filter((d2) => d2.isNew)) {
+        list.appendChild(
+          renderItem(
+            { kind: KIND_FOR_SOURCE[source] ?? "talk", id: d.id, title: d.title || d.id, meta: "Not published yet" },
+            source,
+            { draft: d, editable }
+          )
+        );
+      }
+    }
     const params = new URLSearchParams({
       limit: String(PAGE_SIZE),
       offset: String(state.offset)
@@ -71,8 +97,21 @@ async function load(panel, state, reset) {
     state.total = Number(data.total) || 0;
     state.loaded = true;
     state.offset += items.length;
+    const effectiveOrder = (item) => {
+      const o = draftById.get(item.id)?.data.order;
+      return typeof o === "number" ? o : item.order ?? 999;
+    };
+    if (source === "projects") {
+      items.sort((a, b) => effectiveOrder(a) - effectiveOrder(b) || a.title.localeCompare(b.title));
+    }
     for (const item of items) {
-      list.appendChild(renderItem(item, source));
+      const li = renderItem(item, source, { draft: draftById.get(item.id), editable });
+      if (source === "projects" && editable && !state.q) {
+        li.dataset.order = String(effectiveOrder(item));
+        li.dataset.publishedOrder = String(item.order ?? 999);
+        addReorderButtons(li, list);
+      }
+      list.appendChild(li);
     }
     const remaining = state.total - state.offset;
     footer.hidden = remaining <= 0;
@@ -126,14 +165,27 @@ async function togglePlaylist(panel, row, btn) {
     });
     nested.replaceChildren();
     const items = Array.isArray(data.items) ? data.items : [];
-    if (items.length === 0) {
+    const drafts = panel.dataset.editable === "1" ? await listEntryDrafts("videos") : [];
+    const draftById = new Map(drafts.map((d) => [d.id, d]));
+    for (const d of drafts.filter((d2) => d2.isNew && d2.data.playlist === playlistId)) {
+      nested.appendChild(
+        renderItem({ kind: "video", id: d.id, title: d.title || d.id, meta: "Not published yet" }, source, {
+          nested: true,
+          draft: d,
+          editable: true
+        })
+      );
+    }
+    if (items.length === 0 && nested.childElementCount === 0) {
       const empty = document.createElement("li");
       empty.className = "child-empty";
       empty.textContent = "No videos";
       nested.appendChild(empty);
     } else {
       for (const item of items) {
-        nested.appendChild(renderItem(item, source, { nested: true }));
+        nested.appendChild(
+          renderItem(item, source, { nested: true, draft: draftById.get(item.id), editable: panel.dataset.editable === "1" })
+        );
       }
     }
     nested.dataset.loaded = "1";
@@ -176,6 +228,15 @@ function renderItem(item, source, opts = {}) {
     chip.textContent = "Draft";
     titleRow.appendChild(chip);
   }
+  if (opts.draft) {
+    const chip = document.createElement("span");
+    const deleting = opts.draft.op === "delete";
+    chip.className = deleting ? "chip error" : "chip dirty";
+    chip.dataset.draftChip = "1";
+    chip.textContent = deleting ? "Delete staged" : opts.draft.isNew ? "New draft" : "Local draft";
+    chip.title = "Publish from Changes";
+    titleRow.appendChild(chip);
+  }
   if (item.kind === "playlist" && item.childCount != null) {
     const chip = document.createElement("span");
     chip.className = "count-badge";
@@ -210,7 +271,7 @@ function renderItem(item, source, opts = {}) {
     const edit = document.createElement("a");
     edit.className = "child-edit";
     edit.href = `/admin/content/${editKind}/${item.id}`;
-    edit.title = "Editing coming soon";
+    if (!opts.editable) edit.title = "Editing coming soon";
     edit.textContent = "Edit";
     actions.appendChild(edit);
   }
@@ -224,6 +285,76 @@ function editKindFor(kind, source) {
   if (kind === "project") return "projects";
   if (kind === "playlist") return null;
   return source || null;
+}
+function addReorderButtons(li, list) {
+  const actions = li.querySelector(".child-actions");
+  if (!actions) return;
+  const wrap = document.createElement("span");
+  wrap.className = "reorder";
+  for (const [dir, label] of [
+    [-1, "\u2191"],
+    [1, "\u2193"]
+  ]) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "ghost";
+    btn.textContent = label;
+    btn.title = dir < 0 ? "Move up" : "Move down";
+    btn.setAttribute("aria-label", btn.title);
+    btn.addEventListener("click", () => void moveProject(li, list, dir));
+    wrap.appendChild(btn);
+  }
+  actions.prepend(wrap);
+}
+async function moveProject(li, list, dir) {
+  const sibling = dir < 0 ? li.previousElementSibling : li.nextElementSibling;
+  if (!(sibling instanceof HTMLElement) || !sibling.dataset.order) return;
+  if (dir < 0) list.insertBefore(li, sibling);
+  else list.insertBefore(sibling, li);
+  const rows = [...list.querySelectorAll(":scope > .child-row[data-order]")];
+  for (const [i, row] of rows.entries()) {
+    const order = i + 1;
+    if (Number(row.dataset.order) === order) continue;
+    row.dataset.order = String(order);
+    const id = row.dataset.id ?? "";
+    const title = row.querySelector(".child-title")?.textContent ?? id;
+    const existing = await getEntryDraft("projects", id);
+    if (existing?.op === "delete") continue;
+    const data = { ...existing?.data ?? {}, order };
+    const onlyOrder = Object.keys(data).length === 1 && !existing?.body;
+    if (onlyOrder && !existing?.isNew && Number(row.dataset.publishedOrder) === order) {
+      await clearEntryDraft("projects", id);
+      setRowChip(row, null);
+      continue;
+    }
+    await setEntryDraft({
+      collection: "projects",
+      id,
+      isNew: existing?.isNew ?? false,
+      path: existing?.path,
+      op: "upsert",
+      title,
+      data,
+      body: existing?.body
+    });
+    setRowChip(row, existing?.isNew ? "New draft" : "Local draft");
+  }
+}
+function setRowChip(row, text) {
+  const titleRow = row.querySelector(".child-title-row");
+  let chip = titleRow?.querySelector(".chip[data-draft-chip]");
+  if (!text) {
+    chip?.remove();
+    return;
+  }
+  if (!chip && titleRow) {
+    chip = document.createElement("span");
+    chip.className = "chip dirty";
+    chip.dataset.draftChip = "1";
+    chip.title = "Publish from Changes";
+    titleRow.appendChild(chip);
+  }
+  if (chip) chip.textContent = text;
 }
 export {
   initPagesOverview

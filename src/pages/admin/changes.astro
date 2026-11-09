@@ -29,14 +29,13 @@ const publishLabel = viaGitHub ? `Publish to ${main}` : 'Publish to working tree
       {
         localDev ? (
           <>
-            Review local drafts stored in this browser (expand each for a JSON diff against
-            on-disk content), then publish straight into
-            <code>src/content/*.json</code>. Commit and push when you want those changes on
-            GitHub / production.
+            Review local drafts stored in this browser (expand each for a diff against on-disk
+            content), then publish straight into <code>src/content</code>. Commit and push when
+            you want those changes on GitHub / production.
           </>
         ) : (
           <>
-            Review local drafts stored in this browser (expand each for a JSON diff against
+            Review local drafts stored in this browser (expand each for a diff against
             published content), then publish into
             <code>{main}</code> (Vercel deploys from main). Discard clears drafts without
             touching Git.
@@ -49,7 +48,7 @@ const publishLabel = viaGitHub ? `Publish to ${main}` : 'Publish to working tree
   {
     localDev ? (
       <div class="changes-banner" id="config-banner">
-        Local <code>astro dev</code>: Publish writes JSON files on disk (even if
+        Local <code>astro dev</code>: Publish writes content files on disk (even if
         <code>GITHUB_TOKEN</code> is set). Production admin uses the GitHub publish flow.
       </div>
     ) : !viaGitHub ? (
@@ -67,6 +66,11 @@ const publishLabel = viaGitHub ? `Publish to ${main}` : 'Publish to working tree
   <section class="panel" id="pages-panel" hidden>
     <div class="panel-head"><h2>Pages</h2></div>
     <ul class="changes-list" id="pages-list"></ul>
+  </section>
+
+  <section class="panel" id="entries-panel" hidden>
+    <div class="panel-head"><h2>Talks, projects, videos &amp; articles</h2></div>
+    <ul class="changes-list" id="entries-list"></ul>
   </section>
 
   <section class="panel" id="site-panel" hidden>
@@ -94,5 +98,6 @@ const publishLabel = viaGitHub ? `Publish to ${main}` : 'Publish to working tree
     </div>
   </section>
 
+  <link slot="head" rel="stylesheet" href="/admin/entry-editor.css" />
   <script slot="scripts" is:inline type="module" src="/admin/changes.js"></script>
 </AdminLayout>

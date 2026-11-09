@@ -75,8 +75,8 @@ test.describe('admin pages desk', () => {
     await expect(panel.locator('[data-list] li').first()).toBeVisible({ timeout: 15_000 });
   });
 
-  test('content stub route renders reserved message', async ({ page }) => {
-    await page.goto('/admin/content/writing/some-post');
+  test('content route for an unknown collection renders the fallback message', async ({ page }) => {
+    await page.goto('/admin/content/podcasts/some-episode');
     await expect(page.getByRole('heading', { name: 'Content editing' })).toBeVisible();
     await expect(page.getByText(/isn’t available yet|isn't available yet/)).toBeVisible();
     await expect(page.getByRole('link', { name: /Back to Pages/ })).toHaveAttribute(

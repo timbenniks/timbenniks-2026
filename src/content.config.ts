@@ -1,89 +1,34 @@
 import { defineCollection } from 'astro:content';
 import { glob, file } from 'astro/loaders';
-import { z } from 'astro/zod';
 import { pageDataSchema } from './lib/page-schema';
+import {
+  projectsSchema,
+  speakingSchema,
+  videosSchema,
+  writingSchema,
+} from './lib/content-schemas';
 
-// `tags` is intentionally a loose `z.array(z.string())`. The canonical vocabulary
-// (17 slugs, lowercase kebab-case) lives in src/lib/tags.ts. Frontmatter should
-// only contain those slugs; new entries that drift can be re-aligned by re-running
-// `node scripts/migrate-tags.mjs`.
+// Frontmatter schemas live in src/lib/content-schemas.ts so the admin entries
+// store validates drafts against exactly the same rules as the build.
 
 const writing = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/writing' }),
-  schema: z
-    .object({
-      title: z.string(),
-      description: z.string().optional(),
-      date: z.coerce.date(),
-      image: z.string().optional(),
-      tags: z.array(z.string()).default([]),
-      canonical_url: z.string().optional(),
-      reading_time: z.union([z.string(), z.number()]).optional(),
-      faqs: z
-        .array(
-          z.object({
-            question: z.string(),
-            answer: z.string(),
-          }),
-        )
-        .optional(),
-      draft: z.boolean().default(false),
-    })
-    .loose(),
+  schema: writingSchema,
 });
 
 const speaking = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/speaking', retainBody: false }),
-  schema: z.object({
-    conference: z.string(),
-    talk: z.string(),
-    location: z.string().optional(),
-    date: z.coerce.date(),
-    link: z.string().optional(),
-    description: z.string().optional(),
-    tags: z.array(z.string()).default([]),
-    format: z.enum(['talk', 'workshop', 'podcast', 'panel', 'livestream', 'talk and MC']).optional(),
-    session_url: z.url().optional(),
-    recording_url: z.url().optional(),
-    slides_url: z.url().optional(),
-    sources: z.array(z.url()).default([]),
-    metadata_checked: z.iso.date().optional(),
-  }),
+  schema: speakingSchema,
 });
 
 const videos = defineCollection({
   loader: glob({ pattern: '*/*.md', base: './src/content/videos' }),
-  schema: z
-    .object({
-      title: z.string(),
-      description: z.string().optional(),
-      date: z.coerce.date(),
-      image: z.string().optional(),
-      videoId: z.string(),
-      playlist: z.string(),
-      duration: z.string().optional(),
-      tags: z.array(z.string()).default([]),
-      transcript: z.string().optional(),
-      position: z.string().optional(),
-    })
-    .loose(),
+  schema: videosSchema,
 });
 
 const projects = defineCollection({
   loader: glob({ pattern: '*.md', base: './src/content/projects' }),
-  schema: z.object({
-    title: z.string(),
-    seoTitle: z.string().optional(),
-    tag: z.string(),
-    description: z.string(),
-    meta: z.string(),
-    order: z.number().default(999),
-    // Optional outbound links, surfaced on the card footer and detail page.
-    github: z.url().optional(),
-    live: z.url().optional(),
-    docs: z.url().optional(),
-    npm: z.string().optional(),
-  }),
+  schema: projectsSchema,
 });
 
 const pages = defineCollection({

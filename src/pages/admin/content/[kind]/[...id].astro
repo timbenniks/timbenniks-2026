@@ -2,26 +2,74 @@
 export const prerender = false;
 
 import AdminLayout from '../../../../components/admin/AdminLayout.astro';
+import { readEntry } from '../../../../lib/admin/entries-store';
+import {
+  entryCollectionDefJson,
+  loadEntryCollectionDef,
+} from '../../../../lib/admin/entry-fields';
+import { isEntryCollection } from '../../../../lib/content-schemas';
 
 const kind = Astro.params.kind ?? '';
 const id = Astro.params.id ?? '';
+const isNew = id === 'new';
+
+const def = isEntryCollection(kind) ? await loadEntryCollectionDef(kind) : null;
+
+let entry = null;
+let loadError: string | null = null;
+if (def && !isNew) {
+  try {
+    entry = await readEntry(def.collection, id);
+  } catch (err) {
+    loadError = err instanceof Error ? err.message : String(err);
+  }
+}
+
+const initial = def
+  ? JSON.stringify({
+      collection: def.collection,
+      id: isNew ? null : id,
+      def: entryCollectionDefJson(def, id),
+      // null for a new entry, or for one that so far only exists as a local draft.
+      entry,
+      loadError,
+    })
+  : '';
+const title = def
+  ? `Admin · ${isNew ? `New ${def.singular}` : `Edit ${def.singular}`}`
+  : 'Admin · Content editing';
 ---
 
-<AdminLayout title="Admin · Content editing" active="pages">
-  <div class="dash-intro">
-    <h2>Content editing</h2>
-    <p>
-      Editing <code>{kind}</code> entries isn’t available yet. Browse and view from
-      <a href="/admin">Pages</a>; layout and SEO still live in the page editor.
-    </p>
-  </div>
-  <div class="changes-banner">
-    <p style="margin:0">
-      Reserved route for future editors:
-      <code class="mono">/admin/content/{kind}/{id}</code>
-    </p>
-  </div>
-  <p style="margin-top:1rem">
-    <a class="btn-secondary" href="/admin">← Back to Pages</a>
-  </p>
+<AdminLayout title={title} active="pages">
+  {
+    def ? (
+      <>
+        <Fragment slot="actions">
+          <span class="chip ok" id="chip">Saved</span>
+          <a class="btn-secondary" href="/admin/changes">Changes</a>
+          <button type="button" class="primary" id="save" disabled>
+            Save
+          </button>
+        </Fragment>
+        <div id="app" data-initial={initial} />
+      </>
+    ) : (
+      <>
+        <div class="dash-intro">
+          <h2>Content editing</h2>
+          <p>
+            Editing <code>{kind}</code> entries isn’t available yet. Browse and view from
+            <a href="/admin">Pages</a>; layout and SEO still live in the page editor.
+          </p>
+        </div>
+        <p style="margin-top:1rem">
+          <a class="btn-secondary" href="/admin">← Back to Pages</a>
+        </p>
+      </>
+    )
+  }
+
+  {def && <link slot="head" rel="stylesheet" href="/admin/entry-editor.css" />}
+  {def && <link slot="head" rel="stylesheet" href="/admin/media-picker.css" />}
+  {def && <script slot="scripts" is:inline type="module" src="/admin/entry-editor.js" />}
 </AdminLayout>
