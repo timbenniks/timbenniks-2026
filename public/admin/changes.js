@@ -8,28 +8,17 @@ import {
   clearEntryDraft,
   clearPageDraft,
   listEntryDrafts,
-  setEntryDraft,
   getPageDraft,
-  getSiteDraft,
-  listDraftPageIds,
   loadDraftOverlay
 } from "./lib/draft-store.js";
-function entryOp(d) {
-  return d.isNew ? { collection: d.collection, op: d.op, path: d.path, data: d.data, body: d.body } : { collection: d.collection, op: d.op, id: d.id, data: d.data, body: d.body };
-}
+import { entryOp, previewEntryOps, publishAllDrafts } from "./lib/entries-client.js";
 async function loadEntryRows() {
   const drafts = await listEntryDrafts();
   return Promise.all(
     drafts.map(async (draft) => {
       try {
-        const res = await apiFetch("/api/admin/entries/preview", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ entries: [entryOp(draft)] }),
-          errorMessage: "Validation failed"
-        });
-        const file = res.files[0];
-        return { draft, path: file?.path, before: file?.before, after: file?.after };
+        const [file] = await previewEntryOps([entryOp(draft)]);
+        return { draft, path: file?.path, before: file?.before, after: file?.after, related: file?.related ?? [] };
       } catch (err) {
         return { draft, error: errText(err) || "Validation failed" };
       }
@@ -93,7 +82,6 @@ const setStatus = bindStatus(statusEl);
 const setChip = bindChip(chip);
 let baseline = null;
 let entryRows = [];
-let entryDraftsInFlight = [];
 function bindEntryDiscardButtons(root) {
   root.querySelectorAll(".discard-entry").forEach((btn) => {
     btn.addEventListener("click", async (e) => {
@@ -231,10 +219,17 @@ async function loadChanges() {
           meta: `${d.collection} \xB7 ${row.path ?? d.id} \xB7 ${entryChangeLabel(row)}`,
           before: row.before ?? void 0,
           after: row.after ?? void 0,
-          href: `/admin/content/${encodeURIComponent(d.collection)}/${encodeURIComponent(d.id)}`,
+          href: `/admin/content/${encodeURIComponent(d.collection)}/${d.id.split("/").map(encodeURIComponent).join("/")}`,
           discardEntryKey: `entry:${d.collection}:${d.id}`,
           ...row.error ? { error: row.error } : {}
-        })}</li>`;
+        })}${(row.related ?? []).map(
+          (r) => `<div class="diff-related">${renderDiffDetails({
+            title: r.path,
+            meta: r.after === null ? "removed (moved)" : "updated",
+            before: r.before ?? void 0,
+            after: r.after ?? void 0
+          })}</div>`
+        ).join("")}</li>`;
       }).join("");
       bindEntryDiscardButtons(entriesList);
     } else {
@@ -262,36 +257,11 @@ publishBtn.addEventListener("click", async () => {
   setChip("Publishing\u2026");
   setStatus(local ? "Writing drafts to disk\u2026" : "Writing drafts to main\u2026");
   try {
-    const draftIds = await listDraftPageIds();
-    const pages = {};
-    for (const id of draftIds) {
-      const rec = await getPageDraft(id);
-      if (rec?.page) pages[id] = rec.page;
-    }
-    const siteRec = await getSiteDraft();
-    entryDraftsInFlight = await listEntryDrafts();
-    const entries = entryDraftsInFlight.map(entryOp);
-    await Promise.all(entryDraftsInFlight.map((d) => clearEntryDraft(d.collection, d.id)));
-    const payload = {
-      message: commitMsg.value.trim() || "content: publish drafts",
-      ...Object.keys(pages).length ? { pages } : {},
-      ...siteRec?.site ? { site: siteRec.site } : {},
-      ...entries.length ? { entries } : {}
-    };
-    const data = await apiFetch("/api/admin/changes/publish", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      errorMessage: "Publish failed"
-    });
-    entryDraftsInFlight = [];
-    await clearAllDrafts();
+    const data = await publishAllDrafts({ message: commitMsg.value });
     setStatus(`Published \xB7 ${data.mode} \xB7 ${data.commit}`, "ok");
     setChip("Published", "ok");
     await loadChanges();
   } catch (err) {
-    await Promise.all(entryDraftsInFlight.map(({ updatedAt: _u, ...d }) => setEntryDraft(d)));
-    entryDraftsInFlight = [];
     setStatus(errText(err) || String(err), "error");
     setChip("Error", "error");
     publishBtn.disabled = false;

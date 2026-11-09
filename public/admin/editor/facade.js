@@ -676,40 +676,27 @@ function createVisualEditorFacade(s) {
     },
     async getChanges() {
       const { listDraftPageIds, getSiteDraft } = await import("../lib/draft-store.js");
+      const { entryDraftSummary } = await import("../lib/entries-client.js");
       const baseline = await apiFetch("/api/admin/changes", {
         errorMessage: "Failed to load changes"
       });
       const draftIds = await listDraftPageIds();
       const site = await getSiteDraft();
+      const entryDrafts = await entryDraftSummary();
       return {
         ...baseline,
         draftIds,
         siteTouched: Boolean(site?.site),
-        aheadBy: draftIds.length + (site?.site ? 1 : 0)
+        entryDrafts,
+        aheadBy: draftIds.length + (site?.site ? 1 : 0) + entryDrafts.length
       };
     },
     async publishChanges({ message } = {}) {
-      const { clearAllDrafts, getPageDraft, getSiteDraft, listDraftPageIds } = await import("../lib/draft-store.js");
-      const draftIds = await listDraftPageIds();
-      const pages = {};
-      for (const id of draftIds) {
-        const rec = await getPageDraft(id);
-        if (rec?.page) pages[id] = rec.page;
-      }
-      if (s.draft) pages[s.boot.id] = s.draft;
-      const siteRec = await getSiteDraft();
-      const payload = {
-        message: message || "content: publish drafts",
-        ...Object.keys(pages).length ? { pages } : {},
-        ...siteRec?.site ? { site: siteRec.site } : {}
-      };
-      const result = await apiFetch("/api/admin/changes/publish", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        errorMessage: "Publish failed"
+      const { publishAllDrafts } = await import("../lib/entries-client.js");
+      const result = await publishAllDrafts({
+        message,
+        extraPages: s.draft ? { [s.boot.id]: s.draft } : void 0
       });
-      await clearAllDrafts();
       s.publishedSnapshot = deepClone(s.draft);
       s.savedSnapshot = deepClone(s.draft);
       s.dirty = false;

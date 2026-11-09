@@ -1,7 +1,13 @@
 /** Pages overview: expandable hub panels with lazy content lists. */
 
 import { apiFetch } from './lib/api.js';
-import { listEntryDrafts, type EntryDraftRecord } from './lib/draft-store.js';
+import {
+  clearEntryDraft,
+  getEntryDraft,
+  listEntryDrafts,
+  setEntryDraft,
+  type EntryDraftRecord,
+} from './lib/draft-store.js';
 import type { AdminContentItem, ListHubContentResult } from '../lib/admin/content-index';
 
 const PAGE_SIZE = 20;
@@ -123,8 +129,21 @@ async function load(panel: HTMLElement, state: PanelState, reset: boolean) {
     state.loaded = true;
     state.offset += items.length;
 
+    const effectiveOrder = (item: AdminContentItem): number => {
+      const o = draftById.get(item.id)?.data.order;
+      return typeof o === 'number' ? o : (item.order ?? 999);
+    };
+    if (source === 'projects') {
+      items.sort((a, b) => effectiveOrder(a) - effectiveOrder(b) || a.title.localeCompare(b.title));
+    }
     for (const item of items) {
-      list.appendChild(renderItem(item, source, { draft: draftById.get(item.id), editable }));
+      const li = renderItem(item, source, { draft: draftById.get(item.id), editable });
+      if (source === 'projects' && editable && !state.q) {
+        li.dataset.order = String(effectiveOrder(item));
+        li.dataset.publishedOrder = String(item.order ?? 999);
+        addReorderButtons(li, list);
+      }
+      list.appendChild(li);
     }
 
     const remaining = state.total - state.offset;
@@ -191,14 +210,27 @@ async function togglePlaylist(panel: HTMLElement, row: HTMLElement, btn: Element
     });
     nested.replaceChildren();
     const items = Array.isArray(data.items) ? data.items : [];
-    if (items.length === 0) {
+    const drafts = panel.dataset.editable === '1' ? await listEntryDrafts('videos') : [];
+    const draftById = new Map(drafts.map((d) => [d.id, d]));
+    for (const d of drafts.filter((d) => d.isNew && d.data.playlist === playlistId)) {
+      nested.appendChild(
+        renderItem({ kind: 'video', id: d.id, title: d.title || d.id, meta: 'Not published yet' }, source, {
+          nested: true,
+          draft: d,
+          editable: true,
+        }),
+      );
+    }
+    if (items.length === 0 && nested.childElementCount === 0) {
       const empty = document.createElement('li');
       empty.className = 'child-empty';
       empty.textContent = 'No videos';
       nested.appendChild(empty);
     } else {
       for (const item of items) {
-        nested.appendChild(renderItem(item, source, { nested: true }));
+        nested.appendChild(
+          renderItem(item, source, { nested: true, draft: draftById.get(item.id), editable: panel.dataset.editable === '1' }),
+        );
       }
     }
     nested.dataset.loaded = '1';
@@ -258,6 +290,7 @@ function renderItem(
     const chip = document.createElement('span');
     const deleting = opts.draft.op === 'delete';
     chip.className = deleting ? 'chip error' : 'chip dirty';
+    chip.dataset.draftChip = '1';
     chip.textContent = deleting ? 'Delete staged' : opts.draft.isNew ? 'New draft' : 'Local draft';
     chip.title = 'Publish from Changes';
     titleRow.appendChild(chip);
@@ -319,4 +352,79 @@ function editKindFor(kind: string, source: string): string | null {
   if (kind === 'project') return 'projects';
   if (kind === 'playlist') return null;
   return source || null;
+}
+
+/** Up/down buttons on a project row. Moving renumbers every project 1..n and stages the changed `order` values as drafts. */
+function addReorderButtons(li: HTMLElement, list: Element) {
+  const actions = li.querySelector('.child-actions');
+  if (!actions) return;
+  const wrap = document.createElement('span');
+  wrap.className = 'reorder';
+  for (const [dir, label] of [
+    [-1, '↑'],
+    [1, '↓'],
+  ] as const) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'ghost';
+    btn.textContent = label;
+    btn.title = dir < 0 ? 'Move up' : 'Move down';
+    btn.setAttribute('aria-label', btn.title);
+    btn.addEventListener('click', () => void moveProject(li, list, dir));
+    wrap.appendChild(btn);
+  }
+  actions.prepend(wrap);
+}
+
+async function moveProject(li: HTMLElement, list: Element, dir: -1 | 1) {
+  const sibling = dir < 0 ? li.previousElementSibling : li.nextElementSibling;
+  if (!(sibling instanceof HTMLElement) || !sibling.dataset.order) return;
+  if (dir < 0) list.insertBefore(li, sibling);
+  else list.insertBefore(sibling, li);
+
+  const rows = [...list.querySelectorAll<HTMLElement>(':scope > .child-row[data-order]')];
+  for (const [i, row] of rows.entries()) {
+    const order = i + 1;
+    if (Number(row.dataset.order) === order) continue;
+    row.dataset.order = String(order);
+    const id = row.dataset.id ?? '';
+    const title = row.querySelector('.child-title')?.textContent ?? id;
+    const existing = await getEntryDraft('projects', id);
+    if (existing?.op === 'delete') continue;
+    const data = { ...(existing?.data ?? {}), order };
+    const onlyOrder = Object.keys(data).length === 1 && !existing?.body;
+    if (onlyOrder && !existing?.isNew && Number(row.dataset.publishedOrder) === order) {
+      await clearEntryDraft('projects', id);
+      setRowChip(row, null);
+      continue;
+    }
+    await setEntryDraft({
+      collection: 'projects',
+      id,
+      isNew: existing?.isNew ?? false,
+      path: existing?.path,
+      op: 'upsert',
+      title,
+      data,
+      body: existing?.body,
+    });
+    setRowChip(row, existing?.isNew ? 'New draft' : 'Local draft');
+  }
+}
+
+function setRowChip(row: HTMLElement, text: string | null) {
+  const titleRow = row.querySelector('.child-title-row');
+  let chip = titleRow?.querySelector<HTMLElement>('.chip[data-draft-chip]');
+  if (!text) {
+    chip?.remove();
+    return;
+  }
+  if (!chip && titleRow) {
+    chip = document.createElement('span');
+    chip.className = 'chip dirty';
+    chip.dataset.draftChip = '1';
+    chip.title = 'Publish from Changes';
+    titleRow.appendChild(chip);
+  }
+  if (chip) chip.textContent = text;
 }

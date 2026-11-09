@@ -23,6 +23,24 @@ import type {
 } from './facade.js';
 import { PANEL_NAMES, isEditorFacade } from './facade.js';
 import type { PageMetadata, PageSection, SectionKind, SiteChrome } from './content.js';
+import { apiFetch } from './api.js';
+import { getEntryDraft } from './draft-store.js';
+import { fetchPublishedEntry, stageEntry, stageEntryDelete } from './entries-client.js';
+
+/** Markdown collections the entry tools work on. */
+const ENTRY_COLLECTIONS = ['speaking', 'projects', 'videos', 'writing'] as const;
+
+const ENTRY_COLLECTION_HELP =
+  'speaking = talks (conference, talk, date, location, format, links, tags, sources); ' +
+  'projects = title, tag, description, meta, order, github/live/docs/npm + Markdown body; ' +
+  'videos = title, videoId, playlist (folder), date, duration, image, description, tags, transcript; ' +
+  'writing = articles: title, slug, description, date, image, tags, reading_time, draft, canonical_url, faqs [{question, answer}] + Markdown body.';
+
+function entryTitle(collection: string, data: Record<string, unknown>, fallback: string): string {
+  const key = collection === 'speaking' ? 'talk' : 'title';
+  const value = data[key];
+  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
+}
 
 export type WebMcpSurface = 'editor' | 'desk';
 
@@ -233,6 +251,8 @@ const PROPOSABLE_TOOL_NAMES = [
   'publish_changes',
   'discard_changes',
   'apply_site_patch',
+  'stage_entry',
+  'delete_entry',
 ] as const;
 
 export type ProposableToolName = (typeof PROPOSABLE_TOOL_NAMES)[number];
@@ -1034,6 +1054,125 @@ export const TOOLS = {
     },
     run(api, args) {
       return editorFacade(api).openPanel({ panel: args.panel });
+    },
+  }),
+
+  list_entries: tool({
+    description:
+      'List talks, projects, videos or articles (Markdown collections). Videos without q/playlist list playlists; pass playlist to list its videos.',
+    surface: 'both',
+    schema: {
+      type: 'object',
+      properties: {
+        collection: { type: 'string', enum: ENTRY_COLLECTIONS, description: ENTRY_COLLECTION_HELP },
+        q: { type: 'string', description: 'Optional search text' },
+        playlist: { type: 'string', description: 'Videos only: playlist id' },
+        limit: { type: 'integer', minimum: 1, maximum: 100 },
+      },
+      required: ['collection'],
+    },
+    async run(_api, args) {
+      const params = new URLSearchParams({ limit: String(args.limit ?? 20) });
+      if (args.q) params.set('q', args.q);
+      if (args.playlist) params.set('playlist', args.playlist);
+      return apiFetch(`/api/admin/content/${args.collection}?${params}`, { errorMessage: 'List failed' });
+    },
+  }),
+
+  get_entry: tool({
+    description:
+      'Read one talk/project/video/article: published frontmatter + body, overlaid with any local draft. Call before stage_entry on an existing entry.',
+    surface: 'both',
+    schema: {
+      type: 'object',
+      properties: {
+        collection: { type: 'string', enum: ENTRY_COLLECTIONS },
+        id: { type: 'string', description: 'Entry id from list_entries (videos: playlist/NNN-videoid)' },
+      },
+      required: ['collection', 'id'],
+    },
+    async run(_api, args) {
+      const [published, draft] = await Promise.all([
+        fetchPublishedEntry(args.collection, args.id),
+        getEntryDraft(args.collection, args.id),
+      ]);
+      if (!published && !draft) throw new Error(`${args.collection}/${args.id} not found`);
+      return {
+        collection: args.collection,
+        id: args.id,
+        path: published?.path ?? draft?.path,
+        data: { ...(published?.data ?? {}), ...(draft?.op === 'upsert' ? draft.data : {}) },
+        body: draft?.body ?? published?.body,
+        localDraft: draft ? (draft.op === 'delete' ? 'delete' : draft.isNew ? 'new' : 'modified') : null,
+      };
+    },
+  }),
+
+  stage_entry: tool({
+    description:
+      'Create or update a talk/project/video/article as a local draft (validated against the schema; not live until publish_changes). Omit id to create. Pass only the fields to change; empty string removes a field. body replaces the Markdown body.',
+    agentDescription:
+      'Do not call directly from the Agent rail — use propose_changes with stage_entry so the human gets an Apply card. ' +
+      ENTRY_COLLECTION_HELP,
+    surface: 'both',
+    defer: 'always',
+    schema: {
+      type: 'object',
+      properties: {
+        collection: { type: 'string', enum: ENTRY_COLLECTIONS },
+        id: { type: 'string', description: 'Existing entry id; omit to create a new entry' },
+        data: { type: 'object', description: 'Frontmatter fields to set' },
+        body: { type: 'string', description: 'Markdown body (projects, articles)' },
+      },
+      required: ['collection', 'data'],
+    },
+    async run(_api, args) {
+      const existing = args.id ? await getEntryDraft(args.collection, args.id) : null;
+      const published = args.id && !existing ? await fetchPublishedEntry(args.collection, args.id) : null;
+      const data = { ...(existing?.op === 'upsert' ? existing.data : {}), ...args.data };
+      const result = await stageEntry({
+        collection: args.collection,
+        id: args.id,
+        data,
+        body: args.body ?? existing?.body,
+        title: entryTitle(
+          args.collection,
+          { ...(published?.data ?? {}), ...data },
+          existing?.title || args.id || 'Untitled',
+        ),
+      });
+      return {
+        ok: true,
+        id: result.id,
+        isNew: result.isNew,
+        staged: result.staged,
+        path: result.file?.path,
+        editUrl: `/admin/content/${args.collection}/${result.id}`,
+        next: 'Publish from /admin/changes (or propose publish_changes).',
+      };
+    },
+  }),
+
+  delete_entry: tool({
+    description:
+      'Stage a talk/project/video/article for deletion (removed on publish). For articles prefer stage_entry with data.draft=true to hide instead.',
+    agentDescription:
+      'Do not call directly from the Agent rail — use propose_changes with delete_entry so the human confirms. For articles prefer hiding (stage_entry draft:true).',
+    surface: 'both',
+    defer: 'always',
+    schema: {
+      type: 'object',
+      properties: {
+        collection: { type: 'string', enum: ENTRY_COLLECTIONS },
+        id: { type: 'string' },
+      },
+      required: ['collection', 'id'],
+    },
+    async run(_api, args) {
+      const published = await fetchPublishedEntry(args.collection, args.id);
+      const title = entryTitle(args.collection, published?.data ?? {}, args.id);
+      const result = await stageEntryDelete(args.collection, args.id, title);
+      return { ok: true, result };
     },
   }),
 

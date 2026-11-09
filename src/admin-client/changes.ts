@@ -7,14 +7,12 @@ import {
   clearEntryDraft,
   clearPageDraft,
   listEntryDrafts,
-  setEntryDraft,
   type EntryDraftRecord,
   getPageDraft,
-  getSiteDraft,
-  listDraftPageIds,
   loadDraftOverlay,
 } from './lib/draft-store.js';
 import type { PageData, SiteChrome } from './lib/content.js';
+import { entryOp, previewEntryOps, publishAllDrafts } from './lib/entries-client.js';
 
 /** GET /api/admin/changes */
 interface ChangesResponse {
@@ -29,34 +27,13 @@ interface ChangesResponse {
   error?: string;
 }
 
-/** POST /api/admin/changes/publish */
-interface PublishResponse {
-  ok: boolean;
-  mode: 'github' | 'local-working';
-  branch: string;
-  commit: string;
-  written: string[];
-}
-
-/** POST /api/admin/entries/preview */
-interface EntryPreviewResponse {
-  ok: boolean;
-  files: Array<{ path: string; before: string | null; after: string | null }>;
-}
-
 interface EntryChangeRow {
   draft: EntryDraftRecord;
   path?: string;
   before?: string | null;
   after?: string | null;
+  related?: Array<{ path: string; before: string | null; after: string | null }>;
   error?: string;
-}
-
-/** The publish payload shape for one entry draft (see src/lib/admin/entries-store.ts EntryOp). */
-function entryOp(d: EntryDraftRecord) {
-  return d.isNew
-    ? { collection: d.collection, op: d.op, path: d.path, data: d.data, body: d.body }
-    : { collection: d.collection, op: d.op, id: d.id, data: d.data, body: d.body };
 }
 
 async function loadEntryRows(): Promise<EntryChangeRow[]> {
@@ -64,14 +41,8 @@ async function loadEntryRows(): Promise<EntryChangeRow[]> {
   return Promise.all(
     drafts.map(async (draft): Promise<EntryChangeRow> => {
       try {
-        const res = await apiFetch<EntryPreviewResponse>('/api/admin/entries/preview', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ entries: [entryOp(draft)] }),
-          errorMessage: 'Validation failed',
-        });
-        const file = res.files[0];
-        return { draft, path: file?.path, before: file?.before, after: file?.after };
+        const [file] = await previewEntryOps([entryOp(draft)]);
+        return { draft, path: file?.path, before: file?.before, after: file?.after, related: file?.related ?? [] };
       } catch (err) {
         return { draft, error: errText(err) || 'Validation failed' };
       }
@@ -178,7 +149,6 @@ const setChip = bindChip(chip);
 
 let baseline: Baseline | null = null;
 let entryRows: EntryChangeRow[] = [];
-let entryDraftsInFlight: EntryDraftRecord[] = [];
 
 function bindEntryDiscardButtons(root: ParentNode) {
   root.querySelectorAll('.discard-entry').forEach((btn) => {
@@ -348,10 +318,20 @@ async function loadChanges() {
             meta: `${d.collection} · ${row.path ?? d.id} · ${entryChangeLabel(row)}`,
             before: row.before ?? undefined,
             after: row.after ?? undefined,
-            href: `/admin/content/${encodeURIComponent(d.collection)}/${encodeURIComponent(d.id)}`,
+            href: `/admin/content/${encodeURIComponent(d.collection)}/${d.id.split('/').map(encodeURIComponent).join('/')}`,
             discardEntryKey: `entry:${d.collection}:${d.id}`,
             ...(row.error ? { error: row.error } : {}),
-          })}</li>`;
+          })}${(row.related ?? [])
+            .map(
+              (r) =>
+                `<div class="diff-related">${renderDiffDetails({
+                  title: r.path,
+                  meta: r.after === null ? 'removed (moved)' : 'updated',
+                  before: r.before ?? undefined,
+                  after: r.after ?? undefined,
+                })}</div>`,
+            )
+            .join('')}</li>`;
         })
         .join('');
       bindEntryDiscardButtons(entriesList);
@@ -386,44 +366,11 @@ publishBtn.addEventListener('click', async () => {
   setChip('Publishing…');
   setStatus(local ? 'Writing drafts to disk…' : 'Writing drafts to main…');
   try {
-    const draftIds = await listDraftPageIds();
-    const pages: Record<string, PageData> = {};
-    for (const id of draftIds) {
-      const rec = await getPageDraft(id);
-      if (rec?.page) pages[id] = rec.page;
-    }
-    const siteRec = await getSiteDraft();
-    entryDraftsInFlight = await listEntryDrafts();
-    const entries = entryDraftsInFlight.map(entryOp);
-    // Publishing an entry rewrites src/content, which makes `astro dev` reload this
-    // page — possibly before the response lands. Clear entry drafts up front so a
-    // reload can't resurrect already-published drafts; they are restored on failure.
-    await Promise.all(entryDraftsInFlight.map((d) => clearEntryDraft(d.collection, d.id)));
-    const payload: {
-      message: string;
-      pages?: Record<string, PageData>;
-      site?: SiteChrome;
-      entries?: ReturnType<typeof entryOp>[];
-    } = {
-      message: commitMsg.value.trim() || 'content: publish drafts',
-      ...(Object.keys(pages).length ? { pages } : {}),
-      ...(siteRec?.site ? { site: siteRec.site } : {}),
-      ...(entries.length ? { entries } : {}),
-    };
-    const data = await apiFetch<PublishResponse>('/api/admin/changes/publish', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      errorMessage: 'Publish failed',
-    });
-    entryDraftsInFlight = [];
-    await clearAllDrafts();
+    const data = await publishAllDrafts({ message: commitMsg.value });
     setStatus(`Published · ${data.mode} · ${data.commit}`, 'ok');
     setChip('Published', 'ok');
     await loadChanges();
   } catch (err) {
-    await Promise.all(entryDraftsInFlight.map(({ updatedAt: _u, ...d }) => setEntryDraft(d)));
-    entryDraftsInFlight = [];
     setStatus(errText(err) || String(err), 'error');
     setChip('Error', 'error');
     publishBtn.disabled = false;

@@ -13,7 +13,7 @@
 import { mkdir, readdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join, relative, sep } from 'node:path';
 import { slug as githubSlug } from 'github-slugger';
-import { Document, isMap, isScalar, isSeq, parseDocument, Scalar, type Node, type YAMLMap } from 'yaml';
+import { Document, isMap, isScalar, isSeq, parse, parseDocument, Scalar, type Node, type YAMLMap } from 'yaml';
 import { entrySchemas, type EntryCollection } from '../content-schemas';
 import {
   commitFiles,
@@ -197,17 +197,42 @@ function nodeJson(node: unknown): unknown {
   return undefined;
 }
 
+/**
+ * Strings a YAML 1.1 reader (Astro's frontmatter parser) would turn into
+ * something else — dates, numbers, booleans, `3:21` — must be quoted.
+ */
+function needsQuotes(value: string): boolean {
+  if (value === '') return true;
+  try {
+    return parse(value, { version: '1.1' }) !== value;
+  } catch {
+    return true;
+  }
+}
+
+function styleScalar(node: Scalar, preferred: Scalar.Type | undefined, fallback: Scalar.Type): void {
+  if (typeof node.value !== 'string') return;
+  let type = preferred ?? fallback;
+  if (type === Scalar.PLAIN && needsQuotes(node.value)) type = Scalar.QUOTE_DOUBLE;
+  node.type = type;
+}
+
 function styledNode(doc: Document, value: unknown, cfg: CollectionConfig, previous?: unknown): Node {
   const node = doc.createNode(value) as Node;
-  if (isScalar(node) && typeof node.value === 'string') {
-    node.type = isScalar(previous) && previous.type ? previous.type : cfg.stringStyle;
+  if (isScalar(node)) {
+    styleScalar(node, isScalar(previous) ? previous.type : undefined, cfg.stringStyle);
   }
   if (isSeq(node)) {
     const prevItem = isSeq(previous) ? previous.items[0] : undefined;
-    node.flow = isSeq(previous) ? Boolean(previous.flow) : cfg.flowArrays;
+    const scalarsOnly = node.items.every((item) => isScalar(item));
+    // Lists of objects (FAQs) are always written as block lists.
+    node.flow = scalarsOnly && (isSeq(previous) ? Boolean(previous.flow) : cfg.flowArrays);
     for (const item of node.items) {
-      if (isScalar(item) && typeof item.value === 'string') {
-        item.type = isScalar(prevItem) && prevItem.type ? prevItem.type : cfg.stringStyle;
+      if (isScalar(item)) styleScalar(item, isScalar(prevItem) ? prevItem.type : undefined, cfg.stringStyle);
+      if (isMap(item)) {
+        for (const pair of item.items) {
+          if (isScalar(pair.value)) styleScalar(pair.value, undefined, cfg.stringStyle);
+        }
       }
     }
   }
@@ -294,6 +319,38 @@ function datePrefix(value: unknown): string {
   return s.slice(0, 10);
 }
 
+const SLUG = /^[a-z0-9][a-z0-9-]*$/;
+const VIDEO_ID = /^[A-Za-z0-9_-]{6,20}$/;
+
+function playlistOf(path: string): string {
+  return relInCollection('videos', path).split('/')[0] ?? '';
+}
+
+/** Next free `NNN` position prefix in a playlist folder. */
+function nextVideoPosition(playlist: string, index: Map<string, string>): string {
+  let max = -1;
+  for (const path of index.values()) {
+    if (playlistOf(path) !== playlist) continue;
+    const n = Number.parseInt(relInCollection('videos', path).split('/')[1] ?? '', 10);
+    if (Number.isFinite(n)) max = Math.max(max, n);
+  }
+  return String(max + 1).padStart(3, '0');
+}
+
+function requirePlaylist(data: EntryData): string {
+  const playlist = String(data.playlist ?? '').trim();
+  if (!SLUG.test(playlist)) {
+    throw new Error('Playlist must be lowercase letters, numbers and dashes (it is also the folder name)');
+  }
+  return playlist;
+}
+
+function requireVideoId(data: EntryData): string {
+  const videoId = String(data.videoId ?? '').trim();
+  if (!VIDEO_ID.test(videoId)) throw new Error('A valid YouTube video id is required');
+  return videoId;
+}
+
 function baseSlugFor(collection: EntryCollection, data: EntryData, slugHint?: string): string {
   const hint = slugHint?.trim();
   switch (collection) {
@@ -304,12 +361,12 @@ function baseSlugFor(collection: EntryCollection, data: EntryData, slugHint?: st
     }
     case 'projects':
     case 'writing': {
-      const name = githubSlug(hint || String(data.title ?? ''));
+      const name = githubSlug(hint || String(data.slug ?? '') || String(data.title ?? ''));
       if (!name) throw new Error('Title is required to name the file');
       return name;
     }
     case 'videos':
-      throw new Error('Creating videos is not supported yet');
+      throw new Error('Videos are named from their playlist and video id');
   }
 }
 
@@ -320,13 +377,19 @@ export async function proposeNewEntry(
   slugHint?: string,
 ): Promise<{ id: string; path: string }> {
   const index = await entryIndex(collection);
+  const dir = COLLECTIONS[collection].dir;
+  if (collection === 'videos') {
+    const playlist = requirePlaylist(data);
+    const rel = `${playlist}/${nextVideoPosition(playlist, index)}-${requireVideoId(data)}.md`;
+    return { id: idFromRelPath(rel), path: `${dir}/${rel}` };
+  }
   const base = baseSlugFor(collection, data, slugHint);
   let candidate = base;
   for (let n = 2; index.has(candidate); n++) candidate = `${base}-${n}`;
-  return { id: candidate, path: `${COLLECTIONS[collection].dir}/${candidate}.md` };
+  return { id: candidate, path: `${dir}/${candidate}.md` };
 }
 
-const NEW_PATH = /^[a-z0-9][a-z0-9-]*(\/[a-z0-9][a-z0-9-]*)?\.md$/;
+const NEW_PATH = /^[A-Za-z0-9][A-Za-z0-9_-]*(\/[A-Za-z0-9][A-Za-z0-9_-]*)?\.md$/;
 
 function assertNewPath(collection: EntryCollection, path: string | undefined): string {
   const dir = COLLECTIONS[collection].dir;
@@ -338,49 +401,193 @@ function assertNewPath(collection: EntryCollection, path: string | undefined): s
   return path;
 }
 
-/** Turn one op into the file write/delete it implies, validating the result. */
-async function buildChange(op: EntryOp, index: Map<string, string>): Promise<FileChange> {
+// —— Writing redirects ——————————————————————————————————————————————————————
+
+export const WRITING_REDIRECTS_REL = 'src/data/writing-redirects.ts';
+const REDIRECTS_OPEN = 'export const WRITING_SLUG_REDIRECTS: Record<string, string> = {';
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Add `from → to` to WRITING_SLUG_REDIRECTS. Existing redirects that pointed at
+ * `from` are re-pointed at `to` (no chains), and a redirect keyed on `to` is
+ * dropped (renaming an article back to an old slug).
+ */
+export function applyWritingRedirects(text: string, renames: Array<{ from: string; to: string }>): string {
+  const start = text.indexOf(REDIRECTS_OPEN);
+  const end = start < 0 ? -1 : text.indexOf('\n};', start);
+  if (start < 0 || end < 0) throw new Error(`${WRITING_REDIRECTS_REL}: could not find WRITING_SLUG_REDIRECTS`);
+  let block = text.slice(start + REDIRECTS_OPEN.length, end);
+  for (const { from, to } of renames) {
+    block = block.replace(new RegExp(`(:\\s*)'${escapeRegExp(from)}'`, 'g'), `$1'${to}'`);
+    block = block.replace(new RegExp(`\\n  '${escapeRegExp(to)}':\\s*'[^']*',`), '');
+    block += `\n  '${from}': '${to}',`;
+  }
+  return text.slice(0, start + REDIRECTS_OPEN.length) + block + text.slice(end);
+}
+
+function isOwnSiteUrl(raw: unknown): boolean {
+  if (typeof raw !== 'string' || !raw.trim()) return true;
+  try {
+    const host = new URL(raw, 'https://timbenniks.dev').hostname;
+    return (
+      host === 'timbenniks.dev' ||
+      host === 'www.timbenniks.dev' ||
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      host.endsWith('.vercel.app')
+    );
+  } catch {
+    return true;
+  }
+}
+
+function writingPermalink(slug: string): string {
+  return `https://timbenniks.dev/writing/${slug}`;
+}
+
+// —— Building file changes ————————————————————————————————————————————————
+
+interface BuiltChange {
+  /** The entry's file after the change (the new path on a move). */
+  primary: FileChange;
+  /** Path the entry lives at today (null for a new entry). */
+  previousPath: string | null;
+  /** Extra file changes: deleting the old path on a move. */
+  extra: FileChange[];
+  redirect?: { from: string; to: string };
+}
+
+/** Where an existing entry should live after applying `data` (moves on playlist/slug change). */
+function relocate(
+  op: EntryOp,
+  path: string,
+  index: Map<string, string>,
+  data: EntryData,
+): { path: string; redirect?: { from: string; to: string } } {
+  const dir = COLLECTIONS[op.collection].dir;
+  if (op.collection === 'videos' && data.playlist !== undefined) {
+    const playlist = requirePlaylist(data);
+    if (playlist === playlistOf(path)) return { path };
+    const file = relInCollection('videos', path).split('/')[1] ?? '';
+    const videoPart = file.replace(/^\d+-/, '');
+    const position = nextVideoPosition(playlist, index);
+    data.position = position;
+    return { path: `${dir}/${playlist}/${position}-${videoPart}` };
+  }
+  if (op.collection === 'writing' && data.slug !== undefined && op.id) {
+    const slug = String(data.slug).trim();
+    if (slug === op.id) return { path };
+    if (!SLUG.test(slug)) throw new Error('Slug must be lowercase letters, numbers and dashes');
+    if (index.has(slug)) throw new Error(`An article with slug “${slug}” already exists`);
+    if (isOwnSiteUrl(data.canonical_url)) data.canonical_url = writingPermalink(slug);
+    return { path: `${dir}/${slug}.md`, redirect: { from: op.id, to: slug } };
+  }
+  return { path };
+}
+
+/** Turn one op into the file writes/deletes it implies, validating the result. */
+async function buildChange(op: EntryOp, index: Map<string, string>): Promise<BuiltChange> {
   const cfg = COLLECTIONS[op.collection];
+  const data: EntryData = { ...(op.data ?? {}) };
 
   if (op.id) {
     const path = index.get(op.id);
     if (!path) throw new Error(`${op.collection}/${op.id} no longer exists`);
-    if (op.op === 'delete') return { path, content: null };
+    if (op.op === 'delete') return { primary: { path, content: null }, previousPath: path, extra: [] };
 
     const text = await readRepoFile(path);
     if (text === null) throw new Error(`${path} could not be read`);
+    const target = relocate(op, path, index, data);
     const { frontmatter, body, padding } = splitMarkdown(text);
-    const yaml = editFrontmatter(frontmatter, op.data ?? {}, cfg);
-    validate(op.collection, path, yaml);
-    return { path, content: serializeMarkdown(yaml, op.body ?? body, padding) };
+    const yaml = editFrontmatter(frontmatter, data, cfg);
+    validate(op.collection, target.path, yaml);
+    const primary = { path: target.path, content: serializeMarkdown(yaml, op.body ?? body, padding) };
+    const moved = target.path !== path;
+    return {
+      primary,
+      previousPath: path,
+      extra: moved ? [{ path, content: null }] : [],
+      ...(target.redirect ? { redirect: target.redirect } : {}),
+    };
   }
 
   if (op.op === 'delete') throw new Error('Delete needs an entry id');
-  const path = assertNewPath(op.collection, op.path);
-  const id = idFromRelPath(relInCollection(op.collection, path));
-  if (index.has(id)) throw new Error(`${path} already exists — reopen the entry and try again`);
+  let path = assertNewPath(op.collection, op.path);
 
-  const yaml = editFrontmatter('', op.data ?? {}, cfg);
+  // A new entry's file name follows edits made after it was first reserved.
+  if (op.collection === 'videos') {
+    const playlist = requirePlaylist(data);
+    const videoId = requireVideoId(data);
+    const [folder, file = ''] = relInCollection('videos', path).split('/');
+    const position = folder === playlist ? (file.split('-')[0] ?? '') : nextVideoPosition(playlist, index);
+    path = `${cfg.dir}/${playlist}/${position}-${videoId}.md`;
+    data.position = position;
+  }
+  if (op.collection === 'writing') {
+    const reserved = idFromRelPath(relInCollection('writing', path));
+    const slug = String(data.slug ?? '').trim() || reserved;
+    if (!SLUG.test(slug)) throw new Error('Slug must be lowercase letters, numbers and dashes');
+    path = `${cfg.dir}/${slug}.md`;
+    data.slug = slug;
+    if (isOwnSiteUrl(data.canonical_url)) data.canonical_url = writingPermalink(slug);
+  }
+
+  const id = idFromRelPath(relInCollection(op.collection, path));
+  if (index.has(id)) throw new Error(`${path} already exists — pick another name`);
+
+  const yaml = editFrontmatter('', data, cfg);
   validate(op.collection, path, yaml);
   const body = op.body ?? '';
-  return { path, content: serializeMarkdown(yaml, body && !body.startsWith('\n') ? `\n${body}` : body) };
+  return {
+    primary: { path, content: serializeMarkdown(yaml, body && !body.startsWith('\n') ? `\n${body}` : body) },
+    previousPath: null,
+    extra: [],
+  };
+}
+
+async function indexFor(
+  indexes: Map<EntryCollection, Map<string, string>>,
+  collection: EntryCollection,
+): Promise<Map<string, string>> {
+  let index = indexes.get(collection);
+  if (!index) {
+    index = await entryIndex(collection);
+    indexes.set(collection, index);
+  }
+  return index;
+}
+
+export interface PreviewFile {
+  path: string;
+  before: string | null;
+  after: string | null;
 }
 
 /** Resolve ops to file changes without writing: validates drafts and powers the Changes diff. */
 export async function previewEntries(
   ops: EntryOp[],
-): Promise<Array<{ path: string; before: string | null; after: string | null }>> {
+): Promise<Array<PreviewFile & { related: PreviewFile[] }>> {
   const indexes = new Map<EntryCollection, Map<string, string>>();
-  const out: Array<{ path: string; before: string | null; after: string | null }> = [];
+  const out: Array<PreviewFile & { related: PreviewFile[] }> = [];
   for (const op of ops) {
-    let index = indexes.get(op.collection);
-    if (!index) {
-      index = await entryIndex(op.collection);
-      indexes.set(op.collection, index);
+    const built = await buildChange(op, await indexFor(indexes, op.collection));
+    const before = built.previousPath ? await readRepoFile(built.previousPath) : null;
+    const related: PreviewFile[] = [];
+    for (const extra of built.extra) {
+      related.push({ path: extra.path, before: await readRepoFile(extra.path), after: extra.content });
     }
-    const change = await buildChange(op, index);
-    const before = op.id ? await readRepoFile(change.path) : null;
-    out.push({ path: change.path, before, after: change.content });
+    if (built.redirect) {
+      const current = (await readRepoFile(WRITING_REDIRECTS_REL)) ?? '';
+      related.push({
+        path: WRITING_REDIRECTS_REL,
+        before: current,
+        after: applyWritingRedirects(current, [built.redirect]),
+      });
+    }
+    out.push({ path: built.primary.path, before, after: built.primary.content, related });
   }
   return out;
 }
@@ -391,13 +598,16 @@ export async function publishEntries(
 ): Promise<{ mode: 'github' | 'local-working'; branch: string; commit: string; written: string[] }> {
   const indexes = new Map<EntryCollection, Map<string, string>>();
   const changes: FileChange[] = [];
+  const redirects: Array<{ from: string; to: string }> = [];
   for (const op of ops) {
-    let index = indexes.get(op.collection);
-    if (!index) {
-      index = await entryIndex(op.collection);
-      indexes.set(op.collection, index);
-    }
-    changes.push(await buildChange(op, index));
+    const built = await buildChange(op, await indexFor(indexes, op.collection));
+    changes.push(built.primary, ...built.extra);
+    if (built.redirect) redirects.push(built.redirect);
+  }
+  if (redirects.length) {
+    const current = await readRepoFile(WRITING_REDIRECTS_REL);
+    if (current === null) throw new Error(`${WRITING_REDIRECTS_REL} is missing`);
+    changes.push({ path: WRITING_REDIRECTS_REL, content: applyWritingRedirects(current, redirects) });
   }
 
   const paths = changes.map((c) => c.path);
@@ -421,6 +631,12 @@ export async function publishEntries(
     }
   }
   return { mode: 'local-working', branch: 'local', commit: 'working-tree', written: paths };
+}
+
+/** Video playlist folder names, for the playlist picker. */
+export async function listVideoPlaylists(): Promise<string[]> {
+  const index = await entryIndex('videos');
+  return [...new Set([...index.values()].map(playlistOf))].sort();
 }
 
 /** Apply a frontmatter edit to a Markdown file's text (no I/O, no validation). Used by checks. */

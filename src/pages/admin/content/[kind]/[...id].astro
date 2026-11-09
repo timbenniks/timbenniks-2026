@@ -5,7 +5,7 @@ import AdminLayout from '../../../../components/admin/AdminLayout.astro';
 import { readEntry } from '../../../../lib/admin/entries-store';
 import {
   entryCollectionDefJson,
-  getEntryCollectionDef,
+  loadEntryCollectionDef,
 } from '../../../../lib/admin/entry-fields';
 import { isEntryCollection } from '../../../../lib/content-schemas';
 
@@ -13,7 +13,7 @@ const kind = Astro.params.kind ?? '';
 const id = Astro.params.id ?? '';
 const isNew = id === 'new';
 
-const def = isEntryCollection(kind) ? getEntryCollectionDef(kind) : null;
+const def = isEntryCollection(kind) ? await loadEntryCollectionDef(kind) : null;
 
 let entry = null;
 let loadError: string | null = null;
@@ -70,5 +70,6 @@ const title = def
   }
 
   {def && <link slot="head" rel="stylesheet" href="/admin/entry-editor.css" />}
+  {def && <link slot="head" rel="stylesheet" href="/admin/media-picker.css" />}
   {def && <script slot="scripts" is:inline type="module" src="/admin/entry-editor.js" />}
 </AdminLayout>

@@ -8,7 +8,7 @@ import {
   type HubSource,
 } from '../../lib/admin/content-index';
 import { getPagePath, listAdminPageIds, readPagesForAdmin } from '../../lib/admin/pages-store';
-import { getEntryCollectionDef } from '../../lib/admin/entry-fields';
+import { ENTRY_SINGULAR } from '../../lib/admin/entry-fields';
 
 const all = await readPagesForAdmin();
 const ids = await listAdminPageIds();
@@ -23,7 +23,7 @@ const pages = ids.map((id) => {
     hub,
     count: hub ? counts[hub] : undefined,
     playlistCount: hub === 'videos' ? counts.playlists : undefined,
-    entryDef: hub ? getEntryCollectionDef(hub) : null,
+    entrySingular: hub ? ENTRY_SINGULAR[hub] : null,
   };
 });
 ---
@@ -120,7 +120,7 @@ const pages = ids.map((id) => {
                   id={`panel-${p.id}`}
                   hidden
                   data-source={p.hub}
-                  data-editable={p.entryDef ? '1' : undefined}
+                  data-editable={p.entrySingular ? '1' : undefined}
                 >
                   <div class="child-toolbar">
                     <label class="sr-only" for={`search-${p.id}`}>
@@ -137,9 +137,9 @@ const pages = ids.map((id) => {
                       data-search
                     />
                     <span class="child-status" data-status></span>
-                    {p.entryDef && (
+                    {p.entrySingular && (
                       <a class="btn-secondary child-new" href={`/admin/content/${p.hub}/new`}>
-                        New {p.entryDef.singular}
+                        New {p.entrySingular}
                       </a>
                     )}
                   </div>

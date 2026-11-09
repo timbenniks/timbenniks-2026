@@ -9,8 +9,8 @@ export function json(body: unknown, status = 200): Response {
   });
 }
 
-/** Collections the admin can edit today. Others are listed but read-only. */
-export const EDITABLE_COLLECTIONS: readonly EntryCollection[] = ['speaking'];
+/** Collections the admin can edit. */
+export const EDITABLE_COLLECTIONS: readonly EntryCollection[] = ['speaking', 'projects', 'videos', 'writing'];
 
 /** Parse and shape-check an `entries` array from a request body. */
 export function parseEntryOps(raw: unknown): EntryOp[] {
