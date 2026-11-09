@@ -51,6 +51,12 @@ export interface EntryFieldDef {
   rows?: number;
   /** Shown only when editing an existing entry / only for a new one. */
   only?: 'existing' | 'new';
+  /**
+   * Where the editor shows the field: `main` is the writing column in the
+   * centre (title, lede, body), `side` the metadata sidebar. Defaults to
+   * `side`, except Markdown bodies, which always go in the main column.
+   */
+  placement?: 'main' | 'side';
 }
 
 export interface EntryCollectionDef {
@@ -85,8 +91,8 @@ const speaking: EntryCollectionDef = {
   viewHref: () => '/speaking',
   fields: [
     // Same key order as the existing files: conference, talk, location, date, …
-    { key: 'conference', label: 'Event', type: 'text', required: true, span: 'full', placeholder: 'Vue.js Amsterdam 2027' },
-    { key: 'talk', label: 'Talk title', type: 'text', required: true, span: 'full' },
+    { key: 'conference', label: 'Event', type: 'text', required: true, span: 'full', placement: 'main', placeholder: 'Vue.js Amsterdam 2027' },
+    { key: 'talk', label: 'Talk title', type: 'text', required: true, span: 'full', placement: 'main' },
     { key: 'location', label: 'Location', type: 'text', placeholder: 'Amsterdam, The Netherlands' },
     { key: 'date', label: 'Date', type: 'date', required: true },
     {
@@ -106,6 +112,7 @@ const speaking: EntryCollectionDef = {
       label: 'Description',
       type: 'textarea',
       span: 'full',
+      placement: 'main',
       hint: 'One or two sentences shown under the talk.',
     },
     { key: 'link', label: 'Event link', type: 'url', span: 'full', placeholder: URL_PH },
@@ -130,10 +137,10 @@ const projects: EntryCollectionDef = {
   titleKey: 'title',
   viewHref: (id) => `/projects/${id}`,
   fields: [
-    { key: 'title', label: 'Title', type: 'text', required: true },
+    { key: 'title', label: 'Title', type: 'text', required: true, placement: 'main' },
     { key: 'tag', label: 'Label', type: 'text', required: true, placeholder: 'CLI · Agent readiness' },
     { key: 'seoTitle', label: 'SEO title', type: 'text', span: 'full', hint: 'Optional <title> override for the detail page.' },
-    { key: 'description', label: 'Description', type: 'textarea', required: true, span: 'full' },
+    { key: 'description', label: 'Description', type: 'textarea', required: true, span: 'full', placement: 'main' },
     { key: 'meta', label: 'Status line', type: 'text', required: true, placeholder: 'Active · @scope/package' },
     {
       key: 'order',
@@ -158,7 +165,7 @@ function videos(playlists: string[]): EntryCollectionDef {
     viewHref: (id) => `/videos/${id}`,
     youtubeImport: true,
     fields: [
-      { key: 'title', label: 'Title', type: 'text', required: true, span: 'full' },
+      { key: 'title', label: 'Title', type: 'text', required: true, span: 'full', placement: 'main' },
       { key: 'videoId', label: 'YouTube video id', type: 'text', required: true, placeholder: 'dQw4w9WgXcQ' },
       {
         key: 'playlist',
@@ -171,9 +178,9 @@ function videos(playlists: string[]): EntryCollectionDef {
       { key: 'date', label: 'Published', type: 'date', required: true },
       { key: 'duration', label: 'Duration', type: 'text', placeholder: '12:34' },
       { key: 'image', label: 'Thumbnail', type: 'image', span: 'full' },
-      { key: 'description', label: 'Description', type: 'textarea', span: 'full', rows: 5 },
+      { key: 'description', label: 'Description', type: 'textarea', span: 'full', rows: 5, placement: 'main' },
       { key: 'tags', label: 'Tags', type: 'tags', span: 'full', options: TAG_OPTIONS },
-      { key: 'transcript', label: 'Transcript', type: 'textarea', span: 'full', rows: 8 },
+      { key: 'transcript', label: 'Transcript', type: 'textarea', span: 'full', rows: 8, placement: 'main' },
     ],
   };
 }
@@ -187,7 +194,7 @@ const writing: EntryCollectionDef = {
   unpublishKey: 'draft',
   readingTimeKey: 'reading_time',
   fields: [
-    { key: 'title', label: 'Title', type: 'text', required: true, span: 'full' },
+    { key: 'title', label: 'Title', type: 'text', required: true, span: 'full', placement: 'main' },
     {
       key: 'slug',
       label: 'Slug',
@@ -195,7 +202,7 @@ const writing: EntryCollectionDef = {
       span: 'full',
       hint: 'The URL: /writing/<slug>. Changing it on a published article adds a redirect from the old URL.',
     },
-    { key: 'description', label: 'Description', type: 'textarea', span: 'full' },
+    { key: 'description', label: 'Description', type: 'textarea', span: 'full', placement: 'main' },
     { key: 'date', label: 'Date', type: 'date', required: true, timestamp: true },
     { key: 'reading_time', label: 'Reading time', type: 'text', placeholder: 'Calculated from the body' },
     { key: 'image', label: 'Image', type: 'image', span: 'full' },
@@ -213,7 +220,7 @@ const writing: EntryCollectionDef = {
       placeholder: URL_PH,
       hint: 'Only set this when the article was first published elsewhere.',
     },
-    { key: 'faqs', label: 'FAQs', type: 'faqs', span: 'full' },
+    { key: 'faqs', label: 'FAQs', type: 'faqs', span: 'full', placement: 'main' },
     { key: '$body', label: 'Body', type: 'markdown', span: 'full', rows: 24, required: true },
   ],
 };

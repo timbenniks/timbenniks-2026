@@ -309,11 +309,26 @@ button, input, textarea, select {
   font: inherit;
   color: inherit;
 }
-button {
+/*
+ * One button scale for the whole admin. Variants:
+ *   default (bordered, white)  — secondary actions; also `a.btn-secondary`
+ *   .primary                   — the one main action on a screen
+ *   .ghost                     — quiet text actions
+ *   .danger                    — destructive; combine with .ghost for a quiet one
+ *   .icon-btn                  — square icon-only
+ */
+button, a.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 550;
+  line-height: 1.2;
   border: 1px solid var(--line);
   background: #fff;
   border-radius: var(--radius-sm);
-  padding: 0.45rem 0.7rem;
+  padding: 0.4rem 0.75rem;
   cursor: pointer;
   transition: border-color 0.15s var(--ease), background 0.15s var(--ease), opacity 0.15s var(--ease);
 }
@@ -341,6 +356,7 @@ button.ghost:hover:not(:disabled) {
 button.icon-btn {
   width: 28px;
   height: 28px;
+  min-height: 0;
   padding: 0;
   display: grid;
   place-items: center;
@@ -359,18 +375,10 @@ button.icon-btn.danger:hover:not(:disabled) {
 }
 
 a.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
   color: var(--ink);
   text-decoration: none;
-  font-size: 0.8125rem;
-  font-weight: 550;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 0.4rem 0.7rem;
-  background: #fff;
 }
+.btn-block { display: flex; width: 100%; }
 a.btn-secondary:hover {
   border-color: var(--line-strong);
   background: var(--bg);
@@ -920,6 +928,8 @@ button.danger:hover:not(:disabled) {
   background: #fef2f2;
   border-color: #fca5a5;
 }
+button.ghost.danger { border-color: transparent; }
+button.ghost.danger:hover:not(:disabled) { border-color: transparent; color: var(--err-fg); }
 
 @media (max-width: 720px) {
   .dash-body { grid-template-columns: 1fr; }

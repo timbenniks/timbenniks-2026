@@ -41,18 +41,20 @@ const title = def
 ---
 
 <AdminLayout title={title} active="pages">
+  {/* Must sit at the top level: a named slot nested in a fragment falls into the default slot. */}
+  {
+    def && (
+      <Fragment slot="actions">
+        <span class="chip ok" id="chip">Saved</span>
+        <button type="button" class="primary" id="save" disabled title="Save a local draft (⌘S)">
+          Save draft
+        </button>
+      </Fragment>
+    )
+  }
   {
     def ? (
-      <>
-        <Fragment slot="actions">
-          <span class="chip ok" id="chip">Saved</span>
-          <a class="btn-secondary" href="/admin/changes">Changes</a>
-          <button type="button" class="primary" id="save" disabled>
-            Save
-          </button>
-        </Fragment>
-        <div id="app" data-initial={initial} />
-      </>
+      <div id="app" class="entry-editor" data-initial={initial} />
     ) : (
       <>
         <div class="dash-intro">

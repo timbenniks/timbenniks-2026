@@ -71,6 +71,33 @@ function fieldsFor(): EntryFieldDef[] {
   return def.fields.filter((f) => !f.only || (f.only === 'new') === isNew);
 }
 
+function placementOf(field: EntryFieldDef): 'main' | 'side' {
+  return field.type === 'markdown' ? 'main' : (field.placement ?? 'side');
+}
+
+/**
+ * Display order for the writing column: title and lede first, then the body,
+ * then structured extras (FAQs). The definition order is left alone because
+ * it is also the frontmatter key order written to disk.
+ */
+function mainRank(field: EntryFieldDef): number {
+  if (field.type === 'text' || field.type === 'textarea') return field.key === 'transcript' ? 2 : 0;
+  if (field.type === 'markdown') return 1;
+  return 3;
+}
+
+function mainFields(): EntryFieldDef[] {
+  return fieldsFor()
+    .filter((f) => placementOf(f) === 'main')
+    .map((f, i) => ({ f, i }))
+    .sort((a, b) => mainRank(a.f) - mainRank(b.f) || a.i - b.i)
+    .map(({ f }) => f);
+}
+
+function sideFields(): EntryFieldDef[] {
+  return fieldsFor().filter((f) => placementOf(f) === 'side');
+}
+
 // —— Small helpers ————————————————————————————————————————————————————————————
 
 function fieldId(field: EntryFieldDef): string {
@@ -115,9 +142,9 @@ function faqRow(q = '', a = ''): string {
     <textarea data-faq="answer" rows="2" placeholder="Answer">
 ${escapeHtml(a)}</textarea>
     <div class="faq-actions">
-      <button type="button" class="ghost" data-faq-move="-1" title="Move up" aria-label="Move up">↑</button>
-      <button type="button" class="ghost" data-faq-move="1" title="Move down" aria-label="Move down">↓</button>
-      <button type="button" class="ghost danger" data-faq-remove title="Remove" aria-label="Remove">✕</button>
+      <button type="button" class="icon-btn" data-faq-move="-1" title="Move up" aria-label="Move up">↑</button>
+      <button type="button" class="icon-btn" data-faq-move="1" title="Move down" aria-label="Move down">↓</button>
+      <button type="button" class="icon-btn danger" data-faq-remove title="Remove" aria-label="Remove">✕</button>
     </div>
   </div>`;
 }
@@ -127,10 +154,16 @@ function renderField(field: EntryFieldDef, value: unknown): string {
   const req = field.required ? ' <span class="req" aria-hidden="true">*</span>' : '';
   const label = `<label for="${id}">${escapeHtml(field.label)}${req}</label>`;
   const hint = field.hint ? `<p class="field-hint">${escapeHtml(field.hint)}</p>` : '';
-  const ph = field.placeholder ? ` placeholder="${escapeAttr(field.placeholder)}"` : '';
-  const required = field.required ? ' required' : '';
+
   const rows = ` rows="${field.rows ?? 3}"`;
-  const cls = `field${field.span === 'full' ? ' field-span' : ''}`;
+  const main = placementOf(field) === 'main';
+  const variant =
+    main && field.key === def.titleKey ? ' field-title' : main && field.type === 'textarea' && field.key === 'description' ? ' field-lede' : '';
+  const cls = `field${field.span === 'full' ? ' field-span' : ''}${variant}`;
+  // Title and lede have no visible box, so an empty one needs a placeholder to be seen.
+  const placeholder = field.placeholder ?? (variant ? `${field.label}${field.required ? '' : ' (optional)'}` : '');
+  const ph = placeholder ? ` placeholder="${escapeAttr(placeholder)}"` : '';
+  const required = field.required ? ' required' : '';
   let control = '';
 
   switch (field.type) {
@@ -165,10 +198,13 @@ ${escapeHtml(asString(value))}</textarea>`;
       return `<div class="${cls} md-field">
         <div class="md-head">
           <label for="${id}">${escapeHtml(field.label)}${req}</label>
-          <span class="md-meta" data-md-meta>${wordCount(text)} words</span>
-          <button type="button" class="ghost" data-md-toggle aria-pressed="false">Preview</button>
+          <span class="md-meta" data-md-meta>${wordCount(text)} words · ${readingTimeFor(text)}</span>
+          <div class="seg" role="group" aria-label="Body view">
+            <button type="button" data-md-mode="write" aria-pressed="true">Write</button>
+            <button type="button" data-md-mode="preview" aria-pressed="false">Preview</button>
+          </div>
         </div>
-        <textarea id="${id}" class="mono md-input"${rows}>
+        <textarea id="${id}" class="md-input"${rows} placeholder="Start writing… (Markdown)">
 ${escapeHtml(text)}</textarea>
         <div class="md-preview prose-admin" data-md-preview hidden></div>
         ${hint}
@@ -182,7 +218,7 @@ ${escapeHtml(text)}</textarea>
           <div class="image-thumb" data-image-thumb>${thumb(url)}</div>
           <div class="image-controls">
             <input id="${id}" type="url" value="${escapeAttr(url)}" placeholder="https://res.cloudinary.com/…" autocomplete="off" />
-            <button type="button" class="btn-secondary-btn" data-image-browse>Browse media…</button>
+            <button type="button" data-image-browse>Browse media…</button>
           </div>
         </div>
         ${hint}
@@ -334,24 +370,28 @@ function renderInfo(): string {
   const path = boot.entry?.path ?? draft?.path ?? '—';
   const canUnpublish =
     !isNew && def.unpublishKey && draft?.op !== 'delete' && published[def.unpublishKey] !== true;
+  const deleting = draft?.op === 'delete';
+  const tone = deleting ? 'error' : draft ? 'draft' : isNew ? '' : 'ok';
   return `
+    <h3 class="side-title">Status</h3>
     <dl class="entry-info">
-      <dt>Status</dt><dd id="entry-state">${escapeHtml(stateLabel())}</dd>
-      <dt>File</dt><dd class="mono">${escapeHtml(path)}</dd>
+      <dt>State</dt><dd><span class="state-dot ${tone}" aria-hidden="true"></span><span id="entry-state">${escapeHtml(stateLabel())}</span></dd>
+      <dt>File</dt><dd class="mono" title="${escapeAttr(path)}">${escapeHtml(path)}</dd>
     </dl>
-    <div class="entry-side-actions">
-      ${isNew ? '' : `<a class="btn-secondary" href="${escapeAttr(def.viewHref)}" target="_blank" rel="noopener">View on site</a>`}
+    ${isNew ? '' : `<a class="btn-secondary btn-block" href="${escapeAttr(def.viewHref)}" target="_blank" rel="noopener">View on site ↗</a>`}
+    <p class="hint side-hint"><strong>Save draft</strong> keeps changes in this browser. Publish them from <a href="/admin/changes">Changes</a>.</p>
+    <div class="side-links">
       <button type="button" class="ghost" id="discard" ${draft ? '' : 'hidden'}>Discard draft</button>
       ${canUnpublish ? `<button type="button" class="ghost" id="unpublish">Hide from site</button>` : ''}
-      ${isNew ? '' : `<button type="button" class="ghost danger" id="delete" ${draft?.op === 'delete' ? 'hidden' : ''}>Delete ${escapeHtml(def.singular)}</button>`}
+      ${isNew ? '' : `<button type="button" class="ghost danger" id="delete" ${deleting ? 'hidden' : ''}>Delete ${escapeHtml(def.singular)}</button>`}
     </div>
   `;
 }
 
 function renderYouTube(): string {
   if (!def.youtubeImport || !isNew) return '';
-  return `<div class="panel yt-import">
-    <label for="yt-url">Fill from YouTube</label>
+  return `<div class="panel side-panel yt-import">
+    <h3 class="side-title"><label for="yt-url">Fill from YouTube</label></h3>
     <div class="yt-row">
       <input id="yt-url" type="url" placeholder="https://www.youtube.com/watch?v=…" autocomplete="off" />
       <button type="button" id="yt-fill">Fill</button>
@@ -361,28 +401,34 @@ function renderYouTube(): string {
 }
 
 function render(values: Values) {
-  const heading = isNew && !draft ? `New ${def.singular}` : titleOf(values);
+  const crumb = isNew && !draft ? `New ${def.singular}` : titleOf(values);
   const deleting = draft?.op === 'delete';
+  const side = sideFields();
   root!.innerHTML = `
-    <p class="crumbs"><a href="/admin">Pages</a> / <span>${escapeHtml(def.plural)}</span></p>
-    <div class="dash-intro">
-      <h2>${escapeHtml(heading)}</h2>
-      <p><strong>Save</strong> keeps a local draft in this browser. Publish it from <a href="/admin/changes">Changes</a> — that commits the file and redeploys the site.</p>
+    <div class="entry-top">
+      <p class="crumbs"><a href="/admin">Pages</a><span aria-hidden="true">/</span><span>${escapeHtml(def.plural)}</span><span aria-hidden="true">/</span><span id="entry-crumb">${escapeHtml(crumb)}</span></p>
+      <p class="status" id="status" role="status"></p>
     </div>
-    <p class="status" id="status"></p>
     ${
       deleting
         ? `<div class="changes-banner is-warn entry-delete-banner">This ${escapeHtml(def.singular)} is staged for deletion. It is removed when you publish from Changes.
-            <button type="button" class="ghost" id="undo-delete">Undo</button></div>`
+            <button type="button" id="undo-delete">Undo</button></div>`
         : ''
     }
-    <div class="entry-layout">
-      <aside class="panel entry-side" id="entry-side">${renderInfo()}</aside>
-      ${renderYouTube()}
-      <form class="panel entry-form" id="entry-form" novalidate ${deleting ? 'inert' : ''}>
-        <div class="entry-grid">${fieldsFor().map((f) => renderField(f, values[f.key])).join('')}</div>
-      </form>
-    </div>
+    <form class="entry-layout${deleting ? ' is-deleting' : ''}" id="entry-form" novalidate>
+      <div class="entry-main">
+        <div class="panel entry-doc" ${deleting ? 'inert' : ''}>${mainFields().map((f) => renderField(f, values[f.key])).join('')}</div>
+      </div>
+      <aside class="entry-aside" aria-label="${escapeAttr(def.singular)} settings">
+        <section class="panel side-panel entry-side" id="entry-side">${renderInfo()}</section>
+        ${renderYouTube()}
+        ${
+          side.length
+            ? `<section class="panel side-panel entry-details" ${deleting ? 'inert' : ''}><h3 class="side-title">Details</h3><div class="side-fields">${side.map((f) => renderField(f, values[f.key])).join('')}</div></section>`
+            : ''
+        }
+      </aside>
+    </form>
   `;
   setStatus = bindStatus(document.getElementById('status'));
   bind();
@@ -442,8 +488,8 @@ async function save() {
     }
     lastSaved = JSON.stringify(values);
     setDirty(false);
-    const h2 = root!.querySelector('.dash-intro h2');
-    if (h2) h2.textContent = titleOf(values);
+    const crumbEl = document.getElementById('entry-crumb');
+    if (crumbEl) crumbEl.textContent = titleOf(values);
     refreshSide();
   } catch (err) {
     setChip('error');
@@ -541,27 +587,24 @@ function bindMarkdownFields(form: HTMLElement) {
     const input = wrap.querySelector<HTMLTextAreaElement>('textarea');
     const preview = wrap.querySelector<HTMLElement>('[data-md-preview]');
     const meta = wrap.querySelector<HTMLElement>('[data-md-meta]');
-    const toggle = wrap.querySelector<HTMLButtonElement>('[data-md-toggle]');
+    const modes = [...wrap.querySelectorAll<HTMLButtonElement>('[data-md-mode]')];
     input?.addEventListener('input', () => {
       if (meta) meta.textContent = `${wordCount(input.value)} words · ${readingTimeFor(input.value)}`;
     });
-    toggle?.addEventListener('click', async () => {
-      if (!input || !preview) return;
-      const showing = !preview.hidden;
-      if (showing) {
-        preview.hidden = true;
-        input.hidden = false;
-        toggle.textContent = 'Preview';
-        toggle.setAttribute('aria-pressed', 'false');
-        return;
-      }
-      preview.innerHTML = await renderAgentMarkdown(input.value);
-      preview.style.minHeight = `${input.offsetHeight}px`;
-      preview.hidden = false;
-      input.hidden = true;
-      toggle.textContent = 'Edit';
-      toggle.setAttribute('aria-pressed', 'true');
-    });
+    modes.forEach((btn) =>
+      btn.addEventListener('click', async () => {
+        if (!input || !preview) return;
+        const toPreview = btn.dataset.mdMode === 'preview';
+        if (toPreview === !preview.hidden) return;
+        if (toPreview) {
+          preview.innerHTML = await renderAgentMarkdown(input.value);
+          preview.style.minHeight = `${input.offsetHeight}px`;
+        }
+        preview.hidden = !toPreview;
+        input.hidden = toPreview;
+        modes.forEach((m) => m.setAttribute('aria-pressed', String(m === btn)));
+      }),
+    );
   });
 }
 

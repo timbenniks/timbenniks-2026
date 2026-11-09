@@ -1,60 +1,177 @@
 /* Entry editor (talks, projects, videos, articles) — /admin/content/{collection}/{id} */
 
-.crumbs {
-  margin: 0 0 0.5rem;
-  font-size: 0.75rem;
-  color: var(--muted);
-}
-.crumbs a { color: inherit; }
+/* —— Page frame: writing column in the centre, metadata on the right —— */
+.dash-main:has(.entry-editor) .dash-main-inner { max-width: 1280px; margin: 0 auto; }
 
-.entry-layout {
+.entry-top {
   display: flex;
-  flex-direction: column;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 1rem;
 }
-.entry-side { order: -1; }
+.entry-top .status { margin: 0; text-align: right; min-height: 0; }
 
-.entry-info {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.3rem 0.85rem;
-  margin: 0 0 0.75rem;
-  font-size: 0.8125rem;
-}
-.entry-info dt { color: var(--muted); }
-.entry-info dd { margin: 0; overflow-wrap: anywhere; }
-.entry-info .mono { font-family: var(--mono); font-size: 0.75rem; }
-
-.entry-side-actions {
+.crumbs {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  align-items: center;
-}
-button.ghost.danger { color: var(--err-fg); }
-button.ghost.danger:hover:not(:disabled) { background: var(--err-bg); }
-
-.entry-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.8rem 0.75rem;
-}
-.entry-grid .field { min-width: 0; }
-.entry-grid label,
-.entry-grid legend {
-  display: block;
+  margin: 0;
   font-size: 0.75rem;
+  color: var(--muted);
+  min-width: 0;
+}
+.crumbs a { color: inherit; text-decoration: none; }
+.crumbs a:hover { color: var(--ink); text-decoration: underline; }
+.crumbs span[aria-hidden] { color: var(--muted-2); }
+#entry-crumb {
+  color: var(--ink);
+  font-weight: 550;
+  max-width: 40ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entry-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 1.5rem;
+  align-items: start;
+}
+.entry-main { min-width: 0; }
+.entry-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  min-width: 0;
+}
+.entry-aside .panel { margin: 0; }
+
+/* The document: a calm writing surface */
+.entry-doc {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2rem 2.25rem 2.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.entry-doc .field { margin: 0; }
+.entry-doc label,
+.entry-doc legend {
+  display: block;
+  font-size: 0.6875rem;
   font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+/* Title and lede read like the page they produce */
+.field-title label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.field-title input {
+  border: 0;
+  padding: 0;
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  background: transparent;
+  box-shadow: none !important;
+}
+.field-title input::placeholder { color: var(--muted-2); }
+.field-lede textarea {
+  border: 0;
+  border-left: 2px solid var(--line);
+  border-radius: 0;
+  padding: 0.15rem 0 0.15rem 0.85rem;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: #44403c;
+  min-height: 0;
+  box-shadow: none !important;
+  resize: none;
+  field-sizing: content;
+}
+.field-lede textarea:focus { border-left-color: var(--accent); }
+.field-lede textarea::placeholder { color: var(--muted-2); }
+
+/* —— Sidebar —— */
+.side-panel { padding: 1rem; }
+.side-title {
+  margin: 0 0 0.75rem !important;
+  font-size: 0.6875rem !important;
+  font-weight: 650 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.side-title label { margin: 0 !important; font: inherit !important; color: inherit !important; }
+
+.entry-info {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.4rem 0.85rem;
+  margin: 0 0 0.85rem;
+  font-size: 0.8125rem;
+}
+.entry-info dt { color: var(--muted); }
+.entry-info dd { margin: 0; display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
+.entry-info dd.mono {
+  display: block;
+  font-size: 0.6875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl;
+  text-align: left;
+}
+.state-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted-2);
+  flex-shrink: 0;
+}
+.state-dot.ok { background: #22c55e; }
+.state-dot.draft { background: #3b82f6; }
+.state-dot.error { background: var(--err-fg); }
+
+.side-hint { margin: 0.75rem 0 0; }
+.side-hint a { color: inherit; }
+.side-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  margin: 0.6rem -0.5rem -0.35rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--line);
+}
+.side-links:not(:has(button:not([hidden]))) { display: none; }
+.side-links button { padding: 0.3rem 0.5rem; font-size: 0.75rem; }
+
+.side-fields { display: flex; flex-direction: column; gap: 0.9rem; }
+.side-fields .field { margin: 0; min-width: 0; }
+.side-fields label,
+.side-fields legend {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--muted);
   margin-bottom: 0.3rem;
 }
-.entry-grid .req { color: var(--accent); }
-.entry-grid select {
+
+/* Controls shared by both columns */
+.entry-layout select {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   padding: 0.45rem 0.5rem;
   background: #fff;
 }
-.entry-grid textarea.mono { font-family: var(--mono); font-size: 0.75rem; }
+.entry-layout textarea.mono { font-family: var(--mono); font-size: 0.75rem; color: inherit; }
+.entry-layout .req { color: var(--accent); }
+
 .field-hint {
   margin: 0.25rem 0 0;
   font-size: 0.72rem;
@@ -96,24 +213,28 @@ button.ghost.danger:hover:not(:disabled) { background: var(--err-bg); }
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  margin-bottom: 1rem;
 }
-.entry-form[inert] { opacity: 0.55; }
+.entry-layout [inert] { opacity: 0.55; }
 
 .child-toolbar .child-new { white-space: nowrap; }
 .child-row .chip { margin-left: 0.35rem; }
 
-@media (max-width: 640px) {
-  .entry-grid { grid-template-columns: 1fr; }
+@media (max-width: 1080px) {
+  .entry-layout { grid-template-columns: minmax(0, 1fr); }
+  .entry-doc { padding: 1.25rem; }
+  .field-title input { font-size: 1.5rem; }
 }
 
 /* —— Field types added for projects, videos and articles —— */
 .field-check .check {
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
   gap: 0.45rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  margin: 1.35rem 0 0;
+  font-size: 0.8125rem !important;
+  font-weight: 550 !important;
+  color: var(--ink) !important;
+  margin: 0 !important;
 }
 .field-check input { width: auto; accent-color: var(--accent); }
 
@@ -129,40 +250,65 @@ button.ghost.danger:hover:not(:disabled) { background: var(--err-bg); }
 .slug-input input { border: 0; box-shadow: none; padding-left: 0.1rem; font-size: 0.8125rem; }
 .slug-input:focus-within { border-color: var(--ink); }
 
+.md-field { border-top: 1px solid var(--line); padding-top: 1rem; }
 .md-head {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 0.3rem;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
 }
-.md-head label { margin: 0; }
-.md-meta { margin-left: auto; font-size: 0.72rem; color: var(--muted); }
-.md-head button { padding: 0.2rem 0.55rem; font-size: 0.75rem; }
-.md-input { font-size: 0.8125rem; line-height: 1.55; min-height: 16rem; }
+.md-head label { margin: 0 !important; }
+.md-meta { margin-left: auto; font-size: 0.6875rem; color: var(--muted); }
+.entry-doc .md-input {
+  border: 0;
+  padding: 0;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  min-height: 60vh;
+  field-sizing: content;
+  resize: none;
+  box-shadow: none !important;
+  background: transparent;
+}
 .md-preview {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: #fff;
-  padding: 0.8rem 1rem;
-  font-size: 0.875rem;
-  line-height: 1.6;
+  font-size: 0.9375rem;
+  line-height: 1.7;
   overflow: auto;
 }
+
+/* Segmented control (Write / Preview) */
+.seg {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+.seg button {
+  border: 0;
+  background: transparent;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  border-radius: 5px;
+}
+.seg button[aria-pressed="true"] { background: #fff; color: var(--ink); box-shadow: var(--shadow-sm); }
 .md-preview img { max-width: 100%; height: auto; }
 .md-preview pre { overflow: auto; background: var(--bg); padding: 0.6rem; border-radius: 6px; }
 
-.image-row { display: flex; gap: 0.75rem; align-items: flex-start; }
+.image-row { display: flex; flex-direction: column; gap: 0.5rem; }
 .image-thumb {
-  flex: 0 0 120px;
+  width: 100%;
   aspect-ratio: 16 / 10;
   border: 1px dashed var(--line-strong);
   border-radius: var(--radius-sm);
   overflow: hidden;
   background: var(--bg);
 }
+.image-thumb:empty { display: none; }
 .image-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.image-controls { flex: 1; display: flex; flex-direction: column; gap: 0.4rem; min-width: 0; }
-.image-controls button { align-self: flex-start; font-size: 0.8125rem; }
+.image-controls { display: flex; flex-direction: column; gap: 0.4rem; min-width: 0; }
+.image-controls button { width: 100%; }
 
 .faq-field { border: 0; padding: 0; margin: 0; }
 .faq-rows { display: flex; flex-direction: column; gap: 0.5rem; }
@@ -177,10 +323,12 @@ button.ghost.danger:hover:not(:disabled) { background: var(--err-bg); }
 }
 .faq-row input { grid-column: 1; font-weight: 600; }
 .faq-row textarea { grid-column: 1; }
+.faq-field { border-top: 1px solid var(--line) !important; padding-top: 1rem !important; }
+/* Floated legend lays out inside the fieldset instead of on its border. */
+.faq-field > legend { float: left; width: 100%; }
+.faq-field > legend + * { clear: both; }
 .faq-actions { grid-column: 2; grid-row: 1 / span 2; display: flex; flex-direction: column; gap: 0.1rem; }
-.faq-actions button { padding: 0.15rem 0.45rem; }
 
-.yt-import label { display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.3rem; }
 .yt-row { display: flex; gap: 0.4rem; }
 .yt-row button { white-space: nowrap; }
 
