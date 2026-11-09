@@ -57,7 +57,18 @@ The Pages desk lists every page shell. Content hubs (`writing`, `videos`, `speak
 
 - Children load on expand via `GET /api/admin/content/{source}` (search + pagination; videos default to playlist groups).
 - **Edit layout** opens the visual page editor. **View** opens the public URL.
-- **Edit** on a child links to `/admin/content/{kind}/{id}` (stub for now — collection editors are not implemented yet).
+- **Edit** on a child links to `/admin/content/{collection}/{id}`. Talks (`speaking`) have a form editor; writing, videos and projects still show a placeholder.
+- **New talk** in the Speaking panel opens `/admin/content/speaking/new`.
+
+## Collection entries (talks)
+
+Markdown entries in `src/content/{writing,speaking,videos,projects}` are edited through a generic form ([`entry-editor.ts`](../src/admin-client/entry-editor.ts)) driven by per-collection field definitions in [`entry-fields.ts`](../src/lib/admin/entry-fields.ts). Frontmatter schemas live in [`content-schemas.ts`](../src/lib/content-schemas.ts), shared by `content.config.ts` and the admin.
+
+- **Save** validates the draft against the schema (`POST /api/admin/entries/preview`) and stores it in IndexedDB (`entry:{collection}:{id}`). Delete stages a delete draft.
+- New entries reserve a file name with `POST /api/admin/entries/{collection}` (talks: `YYYY-MM-DD-{event-slug}.md`); nothing is written until publish.
+- **Changes** shows a real file diff per entry. **Publish** writes all entry drafts in one commit to `main` (Git Data API), or to disk in `astro dev`.
+- Edits rewrite only the frontmatter keys that changed; unknown keys (`id`, `head`, …), quoting and formatting stay byte-identical. ([`entries-store.ts`](../src/lib/admin/entries-store.ts))
+- After a production publish, the Pages desk list catches up once Vercel finishes the redeploy; the editor itself reads straight from `main`.
 
 ## Draft → main workflow
 

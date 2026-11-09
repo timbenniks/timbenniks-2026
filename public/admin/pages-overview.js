@@ -1,6 +1,13 @@
 // Generated from src/admin-client by `npm run build:admin` — do not edit.
 import { apiFetch } from "./lib/api.js";
+import { listEntryDrafts } from "./lib/draft-store.js";
 const PAGE_SIZE = 20;
+const KIND_FOR_SOURCE = {
+  writing: "article",
+  speaking: "talk",
+  videos: "video",
+  projects: "project"
+};
 function errText(err) {
   return err instanceof Error ? err.message : "";
 }
@@ -59,6 +66,20 @@ async function load(panel, state, reset) {
   state.loading = true;
   if (status) status.textContent = "Loading\u2026";
   try {
+    const editable = panel.dataset.editable === "1";
+    const drafts = editable ? await listEntryDrafts(source) : [];
+    const draftById = new Map(drafts.map((d) => [d.id, d]));
+    if (reset && !state.q) {
+      for (const d of drafts.filter((d2) => d2.isNew)) {
+        list.appendChild(
+          renderItem(
+            { kind: KIND_FOR_SOURCE[source] ?? "talk", id: d.id, title: d.title || d.id, meta: "Not published yet" },
+            source,
+            { draft: d, editable }
+          )
+        );
+      }
+    }
     const params = new URLSearchParams({
       limit: String(PAGE_SIZE),
       offset: String(state.offset)
@@ -72,7 +93,7 @@ async function load(panel, state, reset) {
     state.loaded = true;
     state.offset += items.length;
     for (const item of items) {
-      list.appendChild(renderItem(item, source));
+      list.appendChild(renderItem(item, source, { draft: draftById.get(item.id), editable }));
     }
     const remaining = state.total - state.offset;
     footer.hidden = remaining <= 0;
@@ -176,6 +197,14 @@ function renderItem(item, source, opts = {}) {
     chip.textContent = "Draft";
     titleRow.appendChild(chip);
   }
+  if (opts.draft) {
+    const chip = document.createElement("span");
+    const deleting = opts.draft.op === "delete";
+    chip.className = deleting ? "chip error" : "chip dirty";
+    chip.textContent = deleting ? "Delete staged" : opts.draft.isNew ? "New draft" : "Local draft";
+    chip.title = "Publish from Changes";
+    titleRow.appendChild(chip);
+  }
   if (item.kind === "playlist" && item.childCount != null) {
     const chip = document.createElement("span");
     chip.className = "count-badge";
@@ -210,7 +239,7 @@ function renderItem(item, source, opts = {}) {
     const edit = document.createElement("a");
     edit.className = "child-edit";
     edit.href = `/admin/content/${editKind}/${item.id}`;
-    edit.title = "Editing coming soon";
+    if (!opts.editable) edit.title = "Editing coming soon";
     edit.textContent = "Edit";
     actions.appendChild(edit);
   }
