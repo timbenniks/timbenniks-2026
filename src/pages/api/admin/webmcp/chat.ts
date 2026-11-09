@@ -97,17 +97,32 @@ export const POST: APIRoute = async ({ request }) => {
     '',
   );
 
-  let res: Response;
-  try {
-    res = await fetch(`${baseUrl}/chat/completions`, {
+  const configuredEffort = serverEnv('OPENAI_WEBMCP_REASONING_EFFORT');
+  if (configuredEffort) payload.reasoning_effort = configuredEffort;
+
+  const send = (body: Record<string, unknown>) =>
+    fetch(`${baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${key}`,
         'Content-Type': 'application/json',
         Accept: 'text/event-stream',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(body),
     });
+
+  let res: Response;
+  try {
+    res = await send(payload);
+    // Some reasoning models (e.g. gpt-6-luna) only accept function tools on
+    // /chat/completions with reasoning_effort "none", while older ones reject
+    // "none". Retry once with it when OpenAI names reasoning_effort as the problem.
+    if (res.status === 400 && !configuredEffort && payload.tools) {
+      const text = await res.clone().text();
+      if (/reasoning_effort/.test(text) && /'none'|"none"/.test(text)) {
+        res = await send({ ...payload, reasoning_effort: 'none' });
+      }
+    }
   } catch (err) {
     const cause = err instanceof Error ? (err as Error & { cause?: unknown }).cause : null;
     const code =
