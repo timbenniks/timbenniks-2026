@@ -12,6 +12,7 @@ import { bindStatus, bindStateChip } from './lib/chrome.js';
 import { clearEntryDraft, getEntryDraft, type EntryDraftRecord } from './lib/draft-store.js';
 import { stageEntry, stageEntryDelete } from './lib/entries-client.js';
 import { renderAgentMarkdown } from './lib/render-agent-markdown.js';
+import { createEntryAgent } from './entry-agent.js';
 import type { EntryCollectionDefJson, EntryFieldDef } from '../lib/admin/entry-fields';
 import type { EntryRecord } from '../lib/admin/entries-store';
 
@@ -421,6 +422,7 @@ function render(values: Values) {
       </div>
       <aside class="entry-aside" aria-label="${escapeAttr(def.singular)} settings">
         <section class="panel side-panel entry-side" id="entry-side">${renderInfo()}</section>
+        ${deleting ? '' : '<div id="entry-agent-slot"></div>'}
         ${renderYouTube()}
         ${
           side.length
@@ -431,6 +433,7 @@ function render(values: Values) {
     </form>
   `;
   setStatus = bindStatus(document.getElementById('status'));
+  document.getElementById('entry-agent-slot')?.replaceWith(entryAgent());
   bind();
   lastSaved = JSON.stringify(collect());
   setDirty(false);
@@ -454,6 +457,57 @@ function isDirty(): boolean {
 
 function onChange() {
   setDirty(isDirty());
+}
+
+// —— AI assistant ———————————————————————————————————————————————————————————
+
+/** Write a value into a field's form control (used by the AI assistant). */
+function applyFieldValue(field: EntryFieldDef, value: unknown) {
+  const el = document.getElementById(fieldId(field));
+  if (!el) return;
+  switch (field.type) {
+    case 'tags': {
+      const wanted = Array.isArray(value) ? value.map(String) : [];
+      const boxes = el.querySelectorAll<HTMLInputElement>('input[data-tag]');
+      boxes.forEach((box) => {
+        box.checked = wanted.includes(box.value);
+      });
+      break;
+    }
+    case 'faqs': {
+      const rows = el.querySelector<HTMLElement>('[data-faq-rows]');
+      const items = Array.isArray(value) ? (value as Array<Record<string, unknown>>) : [];
+      if (rows) rows.innerHTML = items.map((it) => faqRow(asString(it.question), asString(it.answer))).join('');
+      break;
+    }
+    case 'url-list':
+      (el as HTMLTextAreaElement).value = Array.isArray(value) ? value.map(String).join('\n') : '';
+      break;
+    case 'boolean':
+      (el as HTMLInputElement).checked = value === true;
+      break;
+    default:
+      (el as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement).value = asString(value);
+  }
+  // Bubbles to the form's change tracking; image fields also refresh their thumbnail.
+  const target = field.type === 'tags' || field.type === 'faqs' ? el.querySelector('input, textarea') ?? el : el;
+  target.dispatchEvent(new Event('input', { bubbles: true }));
+  onChange();
+}
+
+let agentPanel: HTMLElement | null = null;
+
+/** One assistant per page load, re-inserted after each render so the chat survives. */
+function entryAgent(): HTMLElement {
+  agentPanel ??= createEntryAgent({
+    def,
+    fields: fieldsFor,
+    values: collect,
+    apply: applyFieldValue,
+    locked: () => draft?.op === 'delete',
+    setStatus: (message, tone) => setStatus(message, tone || ''),
+  });
+  return agentPanel;
 }
 
 // —— Actions ————————————————————————————————————————————————————————————————

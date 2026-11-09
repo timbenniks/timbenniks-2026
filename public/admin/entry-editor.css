@@ -336,3 +336,12 @@
 .child-row .reorder { display: inline-flex; gap: 0.1rem; }
 .child-row .reorder button { padding: 0.1rem 0.4rem; font-size: 0.75rem; }
 .diff-related { margin: 0.25rem 0 0 1.25rem; opacity: 0.85; }
+
+/* —— AI assistant (side panel) —— */
+.entry-agent { padding: 0; overflow: hidden; }
+.entry-agent.is-disabled { padding: 1rem; }
+.entry-agent-mount { display: flex; flex-direction: column; }
+.entry-agent-mount > .tb-agent-header { background: transparent; }
+.entry-agent-actions { padding: 0.85rem 0.9rem 0.25rem; }
+.entry-agent-actions .field-hint { margin-top: 0.4rem; }
+.entry-agent-mount > .tb-agent-log { min-height: 6rem; max-height: 26rem; }

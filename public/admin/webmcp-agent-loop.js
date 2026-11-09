@@ -290,8 +290,12 @@ function summarizeToolResult(result) {
   const raw = JSON.stringify(result);
   return raw.length > 120 ? `${raw.slice(0, 117)}\u2026` : raw;
 }
-async function runAgentTurn(ui, messages, { surface = "editor" } = {}) {
-  const tools = openAiToolDefs(surface);
+async function runAgentTurn(ui, messages, {
+  surface = "editor",
+  tools: toolOverride,
+  execute = executeEditorTool
+} = {}) {
+  const tools = toolOverride ?? openAiToolDefs(surface);
   const pendingActionCards = [];
   const flushActionCards = () => {
     while (pendingActionCards.length) {
@@ -352,7 +356,7 @@ async function runAgentTurn(ui, messages, { surface = "editor" } = {}) {
       } catch {
         args = {};
       }
-      const deferredDirect = defersToPropose(name, surface);
+      const deferredDirect = !toolOverride && defersToPropose(name, surface);
       let effectiveName = name;
       let shortProposeLabel = null;
       if (deferredDirect) {
@@ -372,7 +376,7 @@ async function runAgentTurn(ui, messages, { surface = "editor" } = {}) {
       }
       let result;
       try {
-        result = await executeEditorTool(effectiveName, args);
+        result = await execute(effectiveName, args);
       } catch (err) {
         result = { error: errorMessage(err) };
       }
@@ -398,7 +402,7 @@ async function runAgentTurn(ui, messages, { surface = "editor" } = {}) {
           hint: fields.hint,
           items: fields.items
         });
-      } else if (name === "search_images" && fields.assets) {
+      } else if (name === "search_images" && fields.assets && !toolOverride) {
         appendImageResults(ui.log, result);
       } else if (name === "set_image" && fields.src) {
         appendBubble(ui.log, "tool", `\u21B3 set ${fields.path}

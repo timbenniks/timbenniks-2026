@@ -416,9 +416,18 @@ export interface AgentTurnOutcome {
 async function runAgentTurn(
   ui: Pick<AgentUi, 'log'>,
   messages: ChatMessage[],
-  { surface = 'editor' }: { surface?: WebMcpSurface } = {},
+  {
+    surface = 'editor',
+    tools: toolOverride,
+    execute = executeEditorTool,
+  }: {
+    surface?: WebMcpSurface;
+    /** Custom tool set (e.g. the entry editor). Skips the registry and its defer rules. */
+    tools?: OpenAiTool[];
+    execute?: (name: string, args: Record<string, unknown>) => Promise<unknown>;
+  } = {},
 ): Promise<AgentTurnOutcome | undefined> {
-  const tools = openAiToolDefs(surface);
+  const tools = toolOverride ?? openAiToolDefs(surface);
   const pendingActionCards: Proposal[] = [];
 
   const flushActionCards = () => {
@@ -491,7 +500,7 @@ async function runAgentTurn(
         args = {};
       }
 
-      const deferredDirect = defersToPropose(name, surface);
+      const deferredDirect = !toolOverride && defersToPropose(name, surface);
       let effectiveName = name;
       let shortProposeLabel: string | null = null;
       if (deferredDirect) {
@@ -514,7 +523,7 @@ async function runAgentTurn(
 
       let result: unknown;
       try {
-        result = await executeEditorTool(effectiveName, args);
+        result = await execute(effectiveName, args);
       } catch (err) {
         result = { error: errorMessage(err) };
       }
@@ -552,7 +561,7 @@ async function runAgentTurn(
           hint: fields.hint,
           items: fields.items,
         });
-      } else if (name === 'search_images' && fields.assets) {
+      } else if (name === 'search_images' && fields.assets && !toolOverride) {
         appendImageResults(ui.log, result as ImageSearchResult);
       } else if (name === 'set_image' && fields.src) {
         appendBubble(ui.log, 'tool', `↳ set ${fields.path}\n${fields.src}`);
