@@ -1,6 +1,49 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('GEO / agent surfaces', () => {
+  test('profile shares sourced content across HTML, Markdown, and negotiation', async ({ request }) => {
+    const [html, markdown, negotiated, pressKit] = await Promise.all([
+      request.get('/profile', { headers: { Accept: 'text/html' } }),
+      request.get('/profile.md'),
+      request.get('/profile', { headers: { Accept: 'text/markdown' } }),
+      request.get('/press-kit.json'),
+    ]);
+    for (const response of [html, markdown, negotiated, pressKit]) expect(response.ok()).toBeTruthy();
+    const body = await markdown.text();
+    const kit = await pressKit.json();
+    expect(markdown.headers()['content-type']).toContain('text/markdown');
+    expect(negotiated.headers()['content-type']).toContain('text/markdown');
+    expect(negotiated.headers()['vary']).toContain('Accept');
+    expect(await negotiated.text()).toBe(body);
+    expect(body).toContain(kit.bios[0].body);
+    expect(body).toContain(kit.bios.at(-1).body);
+    expect(body).toContain(kit.contact_url);
+    expect(body).toContain('Do not invent experience');
+    expect(body).not.toContain('https://timbenniks.md');
+    const page = await html.text();
+    expect(page).toMatch(/type="text\/markdown"[^>]*href="\/profile.md"/);
+    expect(page).toContain('Profile contents');
+    expect(page).toContain(kit.bios[0].body);
+  });
+
+  test('profile is discoverable and retrievable through the public content API', async ({ request }) => {
+    const [indexRes, contentRes, llmsRes] = await Promise.all([
+      request.get('/content-index.json'),
+      request.get('/api/v1/content/profile'),
+      request.get('/llms.txt'),
+    ]);
+    expect(indexRes.ok()).toBeTruthy();
+    const index = await indexRes.json();
+    expect(index.items).toContainEqual(expect.objectContaining({
+      type: 'page', id: 'profile', md: 'https://timbenniks.dev/profile.md',
+    }));
+    expect(await llmsRes.text()).toContain('https://timbenniks.dev/profile');
+    expect(contentRes.ok()).toBeTruthy();
+    const content = await contentRes.json();
+    expect(content.markdown).toContain('# Tim Benniks');
+    expect(content.markdown).toContain('The path here');
+  });
+
   test('llms.txt is a curated index with when-to-use guidance', async ({ request }) => {
     const res = await request.get('/llms.txt');
     expect(res.ok()).toBeTruthy();

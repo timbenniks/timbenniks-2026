@@ -4,6 +4,7 @@ import { loadAllSorted } from './collections';
 import { pageMarkdownPath } from './markdown';
 import { getPagePath, readPagesFile } from './admin/pages-store';
 import { cleanVideoDescription } from './video-description';
+import { PROFILE_PATH, PROFILE_DESCRIPTION } from './profile';
 
 export type AgentIndexType = 'writing' | 'video' | 'talk' | 'project' | 'page';
 
@@ -115,6 +116,15 @@ export async function buildAgentIndex(): Promise<AgentIndex> {
       md: siteUrl(pageMarkdownPath(path)),
     });
   }
+
+  items.push({
+    type: 'page',
+    id: 'profile',
+    title: 'Tim Benniks — profile',
+    description: PROFILE_DESCRIPTION,
+    url: siteUrl(PROFILE_PATH),
+    md: siteUrl(`${PROFILE_PATH}.md`),
+  });
 
   const counts = {
     writing: items.filter((i) => i.type === 'writing').length,

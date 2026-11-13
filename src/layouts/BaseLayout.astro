@@ -25,9 +25,10 @@ interface Props {
   canonical?: string;
   noindex?: boolean;
   markdownHref?: string;
+  standalone?: boolean;
 }
 
-const seoProps = Astro.props;
+const { standalone = false, ...seoProps } = Astro.props;
 const originTrial = import.meta.env.PUBLIC_WEBMCP_ORIGIN_TRIAL_TOKEN as string | undefined;
 const canonicalURL = seoProps.canonical ?? pageCanonical(Astro.url.pathname);
 // A noindex page (404, /search, admin preview) has no canonical markdown twin.
@@ -125,11 +126,11 @@ const editMarkupEnabled = isEditMarkupEnabled();
     >
       Skip to main content
     </a>
-    <SiteNav />
+    {!standalone && <SiteNav />}
     <main id="main-content" tabindex="-1">
       <slot />
     </main>
-    <SiteFooter />
+    {!standalone && <SiteFooter />}
     <script src="../scripts/public-webmcp.ts"></script>
   </body>
 </html>

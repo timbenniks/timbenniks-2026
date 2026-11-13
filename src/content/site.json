@@ -60,6 +60,10 @@
           "href": "/about"
         },
         {
+          "label": "Profile for agents",
+          "href": "/profile"
+        },
+        {
           "label": "Press kit",
           "href": "/press-kit"
         },

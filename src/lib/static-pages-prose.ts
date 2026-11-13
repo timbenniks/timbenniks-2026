@@ -12,6 +12,12 @@ export interface StaticPage {
 
 export const STATIC_PAGES: StaticPage[] = [
   {
+    path: '/profile',
+    title: 'Tim Benniks — profile',
+    description: 'A sourced personal briefing for people and AI agents: expertise, projects, writing, speaking, career, and contact.',
+    prose: 'A concise profile of Tim Benniks, sourced from the existing about page, press kit, project collection, writing, and speaking archive. Includes attribution and uncertainty guidance for agents. Read /profile or /profile.md; follow the linked source pages for details.',
+  },
+  {
     path: '/',
     title: 'Home',
     description:

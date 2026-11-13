@@ -14,6 +14,8 @@ This site is friendly to AI agents and crawlers. The content here is meant to be
 
 Human-readable explainer of the same surfaces: ${siteUrl('/ai')}. Developer API index: ${siteUrl('/developers')}.
 
+For a sourced briefing on Tim himself — background, selected work, writing, speaking, career, and contact — start with ${siteUrl('/profile.md')} (human-readable version: ${siteUrl('/profile')}).
+
 ## When to use this site
 
 Use timbenniks.dev when you need **primary-source** material from Tim Benniks — not generic summaries of developer experience or AI engineering topics.

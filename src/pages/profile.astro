@@ -1,0 +1,79 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/primitives/Container.astro';
+import Button from '../components/primitives/Button.astro';
+import { articleBodyClass } from '../lib/articleBodyClass';
+import { renderMarkdown } from '../lib/render-markdown';
+import { loadProfile, PROFILE_DESCRIPTION, PROFILE_REVIEWED } from '../lib/profile';
+
+const profile = await loadProfile();
+const sections = await Promise.all(profile.sections.map(async (section) => ({
+  ...section,
+  html: await renderMarkdown(section.markdown),
+})));
+---
+
+<BaseLayout title="Tim Benniks — profile" description={PROFILE_DESCRIPTION} markdownHref="/profile.md" standalone>
+  <Container>
+    <article class="profile py-12 md:py-20" data-pagefind-body>
+      <header class="border-b border-line pb-10 md:pb-14">
+        <p class="font-mono text-xs uppercase tracking-widest text-ink-subtle">A profile for people &amp; agents</p>
+        <h1 class="mt-5 font-serif text-5xl font-medium leading-none tracking-tight sm:text-7xl lg:text-8xl">
+          timbenniks<span class="text-accent">.md</span>
+        </h1>
+        <p class="mt-7 max-w-[760px] text-lg leading-relaxed text-ink-muted md:text-xl">{profile.summary}</p>
+        <div class="mt-8 flex flex-wrap items-center gap-4">
+          <Button href="/profile.md" variant="primary">Read the Markdown <span class="ml-2" aria-hidden="true">↗</span></Button>
+          <a href="/press-kit" class="text-sm underline underline-offset-4 hover:text-accent">Bios, photos &amp; booking</a>
+        </div>
+        <p class="mt-6 font-mono text-xs text-ink-subtle">
+          Profile reviewed <time datetime={PROFILE_REVIEWED}>12 November 2026</time>
+          <span class="mx-2" aria-hidden="true">·</span>
+          Sources linked throughout
+        </p>
+      </header>
+
+      <div class="profile-layout pt-10 md:pt-14">
+        <aside class="min-w-0" data-pagefind-ignore>
+          <nav aria-label="Profile contents" class="profile-contents">
+            <p class="mb-4 font-mono text-xs uppercase tracking-widest text-ink-subtle">In this file</p>
+            <ul class="flex flex-wrap gap-x-5 gap-y-3 lg:flex-col lg:gap-3">
+              {sections.map((section) => (
+                <li><a href={`#${section.id}`} class="text-sm text-ink-muted underline-offset-4 hover:text-accent hover:underline">{section.title}</a></li>
+              ))}
+            </ul>
+            <p class="mt-7 hidden max-w-[190px] text-xs leading-relaxed text-ink-subtle lg:block">
+              A briefing, with the work attached. Follow the sources for the full story.
+            </p>
+          </nav>
+        </aside>
+
+        <div class="min-w-0">
+          <p class="mb-10 max-w-prose-lg border-l-2 border-accent pl-5 text-sm leading-relaxed text-ink-muted">
+            This briefing brings together existing content from timbenniks.dev. The linked source pages are the authority on detail. Projects, recent writing, and appearances refresh with the site content.
+          </p>
+          {sections.map((section) => (
+            <section id={section.id} aria-labelledby={`${section.id}-heading`} class="profile-section max-w-prose-lg scroll-mt-8 border-t border-line pt-8 pb-12 md:pt-10 md:pb-14">
+              <h2 id={`${section.id}-heading`} class="mb-6 font-serif text-3xl font-medium tracking-tight md:text-4xl">{section.title}</h2>
+              <div class:list={[articleBodyClass, 'space-y-5 leading-relaxed break-words']} set:html={section.html} />
+            </section>
+          ))}
+          <div class="max-w-prose-lg border-t border-line pt-8 text-sm text-ink-muted">
+            <p class="mb-3 font-mono text-xs uppercase tracking-widest text-ink-subtle">Citing this profile</p>
+            <p>Benniks, Tim. <cite>Tim Benniks — profile.</cite> <a href="/profile" class="underline underline-offset-4">timbenniks.dev/profile</a>. Profile reviewed {PROFILE_REVIEWED}.</p>
+          </div>
+        </div>
+      </div>
+    </article>
+  </Container>
+</BaseLayout>
+
+<style>
+  .profile { max-width: 1180px; margin-inline: auto; }
+  .profile-layout { display: grid; gap: 2.5rem; }
+  .profile-section:first-of-type { border-top: 0; padding-top: 0; }
+  @media (min-width: 1024px) {
+    .profile-layout { grid-template-columns: 220px minmax(0, 1fr); gap: 4rem; }
+    .profile-contents { position: sticky; top: 2rem; }
+  }
+</style>

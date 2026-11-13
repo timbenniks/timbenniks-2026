@@ -17,6 +17,7 @@ import { loadAllSorted } from './collections';
 import { pageToMarkdown } from './page-to-markdown';
 import { BOOKING_CONTACT_URL, PUBLIC_TOOLS } from './public-tools';
 import { extractPressKit } from './press-kit';
+import { loadProfile, PROFILE_PATH } from './profile';
 
 function clamp(n: unknown, fallback: number, max: number): number {
   const v = typeof n === 'number' ? n : Number(n);
@@ -105,6 +106,14 @@ function normalizePath(raw: string): string {
 
 export async function resolveMarkdown(path: string): Promise<{ path: string; url: string; markdown: string }> {
   const normalized = normalizePath(path);
+
+  if (normalized === PROFILE_PATH) {
+    return {
+      path: `${PROFILE_PATH}.md`,
+      url: siteUrl(PROFILE_PATH),
+      markdown: (await loadProfile()).markdown,
+    };
+  }
 
   if (normalized.startsWith('/writing/')) {
     const id = normalized.slice('/writing/'.length);

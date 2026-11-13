@@ -109,7 +109,7 @@ const service: ExternalImageService<CloudinaryServiceConfig> = {
     return `https://res.cloudinary.com/${config.cloudName}/image/upload/${transform}/${src.replace(/^\/+/, '')}`;
   },
 
-  getSrcSet(options, imageConfig, logger) {
+  getSrcSet(options, imageConfig) {
     const baseWidth = options.width;
     const baseHeight = options.height;
     // Astro keeps `height` constant across srcset entries; scale it
@@ -138,7 +138,7 @@ const service: ExternalImageService<CloudinaryServiceConfig> = {
       };
       return {
         transform,
-        url: service.getURL(transform, imageConfig, logger),
+        url: service.getURL(transform, imageConfig),
         descriptor: entry.descriptor,
         attributes: {},
       };
