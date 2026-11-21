@@ -16,6 +16,12 @@ export const articleBodyClass = [
   '[&_blockquote]:border-l-2 [&_blockquote]:border-accent [&_blockquote]:pl-5 [&_blockquote]:font-serif [&_blockquote]:text-xl [&_blockquote]:italic [&_blockquote]:text-ink-muted',
   '[&_img]:my-6 [&_img]:rounded-md [&_img]:border [&_img]:border-line',
   '[&_hr]:my-10 [&_hr]:border-line',
+  '[&_table]:my-8 [&_table]:w-full [&_table]:border-collapse [&_table]:border-t [&_table]:border-line-strong [&_table]:text-sm',
+  '[&_th]:border-b [&_th]:border-line-strong [&_th]:px-3 [&_th]:py-2.5 [&_th]:text-left [&_th]:align-bottom [&_th]:text-xs [&_th]:font-normal [&_th]:uppercase [&_th]:tracking-wide [&_th]:text-ink-subtle',
+  '[&_td]:border-b [&_td]:border-line [&_td]:px-3 [&_td]:py-3 [&_td]:align-top [&_td]:leading-relaxed [&_td]:text-ink-muted',
+  '[&_th:first-child]:pl-0 [&_td:first-child]:pl-0 [&_th:last-child]:pr-0 [&_td:last-child]:pr-0',
+  '[&_td:first-child]:font-medium [&_td:first-child]:text-ink',
+  '[&_td_code]:text-xs [&_td:first-child_code]:whitespace-nowrap',
   '[&_figure]:my-8',
   '[&_figcaption]:mt-2 [&_figcaption]:text-xs [&_figcaption]:text-ink-subtle',
 ].join(' ');
